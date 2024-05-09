@@ -13,7 +13,7 @@ module SettingsGeneral =
         {          
             odisDir1 = "JR_ODIS_aktualni_vcetne_vyluk"
             odisDir2 = "JR_ODIS_pouze_budouci_platnost"
-            odisDir3 = "JR_ODIS_pouze_aktualni_vyluky"
+            //odisDir3 = "JR_ODIS_pouze_aktualni_vyluky"
             odisDir4 = "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk" 
             odisDir5 = "JR_ODIS_pouze_linky_dopravce_DPO" 
             odisDir6 = "JR_ODIS_pouze_linky_dopravce_MDPO" 
@@ -23,7 +23,7 @@ module SettingsGeneral =
         [ 
             ODISDefault.odisDir1
             ODISDefault.odisDir2
-            ODISDefault.odisDir3
+            //ODISDefault.odisDir3
             ODISDefault.odisDir4 
         ]  
 

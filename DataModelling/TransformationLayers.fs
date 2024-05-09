@@ -14,13 +14,7 @@ open DataModelling.DataModel
 //Type-driven design
 
 module TransformationLayerGet =
-        
-    let internal dbDataTransformLayerGet (dbDtoGet : DbDtoGet) : DbDataGet =
-        {      
-            completeLink = CompleteLinkOpt dbDtoGet.completeLink
-            fileToBeSaved = FileToBeSavedOpt dbDtoGet.fileToBeSaved
-        }
-
+       
     let private dtDataTransformLayerGetDefault : DtDataGet = 
         {      
             newPrefix = NewPrefix String.Empty
@@ -51,24 +45,7 @@ module TransformationLayerGet =
            }
 
 module TransformationLayerSend =
-        
-    let internal dbDataTransformLayerSend (dbDataSend : DbDataSend) : DbDtoSend =
-        {
-            oldPrefix = dbDataSend.oldPrefix |> function OldPrefix value -> value
-            newPrefix = dbDataSend.newPrefix |> function NewPrefix value -> value
-            startDate =
-                let startdate = dbDataSend.startDate |> function StartDate value -> value
-                match parseDate () startdate with Some value -> value | None -> DateTime.MinValue
-            endDate = 
-                let endDate = dbDataSend.endDate |> function EndDate value -> value
-                match parseDate () endDate with Some value -> value | None -> DateTime.MinValue
-            totalDateInterval = dbDataSend.totalDateInterval |> function TotalDateInterval value -> value
-            suffix = dbDataSend.suffix |> function Suffix value -> value
-            jsGeneratedString = dbDataSend.jsGeneratedString |> function JsGeneratedString value -> value
-            completeLink = dbDataSend.completeLink |> function CompleteLink value -> value
-            fileToBeSaved = dbDataSend.fileToBeSaved |> function FileToBeSaved value -> value
-        } 
-
+    
     let internal dtDataTransformLayerSend (dtDataSend : DtDataSend) : DtDtoSend =
         {
             oldPrefix = dtDataSend.oldPrefix |> function OldPrefix value -> value

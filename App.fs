@@ -5,25 +5,22 @@ open System.IO
 
 open Fabulous
 open Fabulous.Maui
+
 open Microsoft.Maui
 open Microsoft.Maui.Graphics
-open Microsoft.Maui.Accessibility
 open Microsoft.Maui.Primitives
+open Microsoft.Maui.Accessibility
 
 open type Fabulous.Maui.View
-
-open MainFunctions.WebScraping_KODISFMDataTable
 
 open Types
 open Microsoft.Maui.Storage
 
-open MainFunctions.WebScraping_MDPO
-open MainFunctions.WebScraping_DPO
-
 open SubmainFunctions
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
-
+open MainFunctions.WebScraping_DPO
+open MainFunctions.WebScraping_MDPO
 
 module App =
 
@@ -34,12 +31,11 @@ module App =
     type Model = 
         {
             ResultMsg: string
-            ErrorMsg: string
             ProgressIndicator: ProgressIndicator    
         }
 
     type Msg =
-        | Complete  
+        | Kodis  
         | Dpo
         | Mdpo
         | UpdateStatus of progress: float*float
@@ -48,110 +44,140 @@ module App =
     let init () =
         { 
             ResultMsg = String.Empty
-            ErrorMsg = String.Empty
             ProgressIndicator = Idle
-        }, Cmd.none
+        },
+        Cmd.none
 
     let update msg m =
         match msg with
-        | UpdateStatus (progressValue, totalProgress) -> { m with ProgressIndicator = InProgress (progressValue, totalProgress) }, Cmd.none 
-        | WorkIsComplete result -> { m with ResultMsg = result; ProgressIndicator = Idle }, Cmd.none 
-        | Complete ->   
-                    //let path = @"/storage/emulated/0/FabulousTimetables/"
-                    let path = @"c:\Users\User\Music\"
+        | UpdateStatus (progressValue, totalProgress) 
+            -> 
+             { m with ProgressIndicator = InProgress (progressValue, totalProgress) }, Cmd.none 
+        | WorkIsComplete result 
+            -> 
+             { m with ResultMsg = result; ProgressIndicator = Idle }, Cmd.none 
+        | Kodis 
+            ->   
+             let path = @"/storage/emulated/0/FabulousTimetables/"
+             //let path = @"c:\Users\User\Music\"
 
-                    let delayedCmd1 (dispatch: Msg -> unit): Async<unit> =
+             let delayedCmd1 (dispatch: Msg -> unit): Async<unit> =
                         
-                        async
-                            {
-                                let reportProgress (progressValue, totalProgress) = dispatch (UpdateStatus (progressValue, totalProgress))   
+                 async
+                     {
+                         let reportProgress (progressValue, totalProgress) = dispatch (UpdateStatus (progressValue, totalProgress))   
                                     
-                                let! hardWork = 
-                                    Async.StartChild 
-                                        (async 
-                                            {
-                                                return
-                                                    KODIS_SubmainDataTable.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
-                                            }
-                                        ) 
-                                let! result = hardWork 
-                                do! Async.Sleep 1000
+                         let! hardWork = 
+                             Async.StartChild 
+                                 (async 
+                                     {
+                                         return
+                                             KODIS_SubmainDataTable.downloadAndSaveJson
+                                             <| (jsonLinkList @ jsonLinkList2) 
+                                             <| (pathToJsonList @ pathToJsonList2) 
+                                             <| reportProgress
+                                     }
+                                 ) 
+                         let! result = hardWork 
+                         do! Async.Sleep 1000
 
-                                dispatch (WorkIsComplete result)
-                            }        
+                         dispatch (WorkIsComplete result)
+                     }        
 
-                    let delayedCmd2 (dispatch: Msg -> unit): Async<unit> =  
+             let delayedCmd2 (dispatch: Msg -> unit): Async<unit> =  
                         
-                        async
-                            {
-                                let reportProgress (progressValue, totalProgress) = dispatch (UpdateStatus (progressValue, totalProgress))   
-                                    
-                                let! hardWork = 
-                                    Async.StartChild 
-                                        (async 
-                                            {  
-                                                KODIS_SubmainDataTable.deleteAllODISDirectories path                                                              
-         
-                                                let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
-                                                            
-                                                KODIS_SubmainDataTable.createFolders dirList      
-                                                ([ CurrentValidity; FutureValidity; ReplacementService; WithoutReplacementService ], dirList)
-                                                ||> List.iter2 
-                                                    (fun variant dir 
-                                                        ->               
-                                                          KODIS_SubmainDataTable.operationOnDataFromJson variant dir 
-                                                          |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir   
-                                                    )                                                            
-                                                
-                                                return "Pdf downloading finished :-)" 
-                                            }
-                                        ) 
-                                let! result = hardWork 
-                                do! Async.Sleep 1000
+                 async
+                     {                                    
+                         let! hardWork = 
+                             Async.StartChild 
+                                 (async 
+                                     {  
+                                         KODIS_SubmainDataTable.deleteAllODISDirectories path                                                      
+                                         return "Chv\u00EDli strpen\u00ED pros\u00EDm, za\u010Dalo stahov\u00E1n\u00ED J\u0158 a bude to trvat n\u011Bkolik minut ..." 
+                                     }
+                                 ) 
+                         let! result = hardWork 
+                         do! Async.Sleep 1000
 
-                                dispatch (WorkIsComplete result)
-                            }                                       
+                         dispatch (WorkIsComplete result)
+                     }  
+                        
+             let delayedCmd3 (dispatch: Msg -> unit): Async<unit> =  
+                    
+                 async
+                     {
+                         let reportProgress (progressValue, totalProgress) = dispatch (UpdateStatus (progressValue, totalProgress))   
+                                
+                         let! hardWork = 
+                             Async.StartChild 
+                                 (async 
+                                     {  
+                                         let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
+                                                        
+                                         KODIS_SubmainDataTable.createFolders dirList      
+                                         ([ CurrentValidity; FutureValidity; WithoutReplacementService ], dirList)
+                                         ||> List.iter2 
+                                             (fun variant dir 
+                                                 ->               
+                                                  KODIS_SubmainDataTable.operationOnDataFromJson variant dir 
+                                                  |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir   
+                                             )                                                            
+                                            
+                                         return "Kompletn\u00ED J\u0158 ODIS \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." 
+                                     }
+                                  ) 
+                         let! result = hardWork 
+                         do! Async.Sleep 1000
 
+                         dispatch (WorkIsComplete result)
+                     }                                       
+             
+             let tryWith =
+                try
                     let executeSequentially (dispatch: Msg -> unit) =
+
                         async
                             {
                                 do! delayedCmd1 dispatch                                   
-                                // Wait for delayedCmd1 to complete before starting delayedCmd2
-                                do! delayedCmd2 dispatch                          
-                            } |> Async.StartImmediate
+                                do! delayedCmd2 dispatch 
+                                do! delayedCmd3 dispatch
+                            }
+                        |> Async.StartImmediate
                              
-                    { m with ResultMsg = "Downloading in progress ..."; ErrorMsg = ""; ProgressIndicator = InProgress (0.0, 0.0) }, 
-                    Cmd.ofSub executeSequentially                
+                    { m with ResultMsg = "Chv\u00EDli strpen\u00ED pros\u00EDm, za\u010Dalo stahov\u00E1n\u00ED JSON soubor\u016F pot\u0159ebn\u00FDch pro stahov\u00E1n\u00ED J\u0158 a bude to trvat n\u011Bkolik minut ..."; ProgressIndicator = InProgress (0.0, 0.0) }, Cmd.ofSub executeSequentially                
+                with
+                | ex  ->  { m with ResultMsg = string ex.Message }, Cmd.none  
+                
+             tryWith
 
-        | Dpo      ->                      
-                    let result =                 
-                        try
-                           let path = @"/storage/emulated/0/FabulousTimetables/"
-                           webscraping_DPO path 
+        | Dpo  ->                      
+                let result =                 
+                    try
+                        let path = @"/storage/emulated/0/FabulousTimetables/"
+                        webscraping_DPO path 
 
-                           "DPO timetables downloaded :-)"                           
-                        with
-                        | ex -> sprintf "Error: %s" ex.Message      
-                    { m with ResultMsg = result; ErrorMsg = result }, Cmd.none    
+                        "J\u0158 DPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny."                           
+                    with
+                    | ex -> sprintf "Error: %s" ex.Message      
+                { m with ResultMsg = result }, Cmd.none    
                     
-        | Mdpo    ->                 
-                   let result =                 
-                       try
-                           let path = @"/storage/emulated/0/FabulousTimetables/"
-                           webscraping_MDPO path
+        | Mdpo ->                 
+                let result =                 
+                    try
+                        let path = @"/storage/emulated/0/FabulousTimetables/"
+                        webscraping_MDPO path
 
-                           "MDPO timetables downloaded :-)"
-                       with
-                       | ex -> sprintf "Error: %s" ex.Message      
-                   { m with ResultMsg = result; ErrorMsg = result }, Cmd.none    
+                        "Zast\u00E1vkov\u00E9 J\u0158 MDPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny."
+                    with
+                    | ex -> sprintf "Error: %s" ex.Message      
+                { m with ResultMsg = result }, Cmd.none    
 
     let view (m : Model) =
 
         Application(
             ContentPage(
                 ScrollView(
-                    (VStack(spacing = 25.) {
-                        
+                    (VStack(spacing = 25.) {                        
                         ProgressBar(
                             match m.ProgressIndicator with
                             | Idle         
@@ -177,7 +203,7 @@ module App =
                             .font(size = 14.)
                             .centerTextHorizontal()
                
-                        Button("Complete ODIS Timetables", Complete)
+                        Button("Complete ODIS Timetables", Kodis)
                             .semantics(hint = "Download complete ODIS timetables")
                             .centerHorizontal()
 
@@ -197,3 +223,35 @@ module App =
 
     let program = 
         Program.statefulWithCmd init update view
+
+
+     (*     
+     For lowercase characters:
+     
+     ì: \u011B
+     š: \u0161
+     è: \u010D
+     ø: \u0159
+     ž: \u017E
+     ý: \u00FD
+     á: \u00E1
+     í: \u00ED
+     é: \u00E9
+     ó: \u00F3
+     ú: \u00FA
+
+     For uppercase characters:
+     
+     Ì: \u011A
+     Š: \u0160
+     È: \u010C
+     Ø: \u0158
+     Ž: \u017D
+     Ý: \u00DD
+     Á: \u00C1
+     Í: \u00CD
+     É: \u00C9
+     Ó: \u00D3
+     Ú: \u00DA
+     Ù: \u016E  
+     *)   

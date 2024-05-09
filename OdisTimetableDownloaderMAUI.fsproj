@@ -52,13 +52,13 @@
   <ItemGroup>
     <!-- App Icon -->
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
-    <Compile Include="Types\DirNames.fs" />
-    <Compile Include="Types\DiscriminatedUnions.fs" />
-    <Compile Include="Types\ErrorTypes.fs" />
     <Compile Include="Types\SCDUs.fs" />
+    <Compile Include="Types\DirNames.fs" />
+    <Compile Include="Types\ErrorTypes.fs" />
+    <Compile Include="Types\DiscriminatedUnions.fs" />
     <Compile Include="Settings\Messages.fs" />
-    <Compile Include="Settings\SettingsDPO.fs" />
     <Compile Include="Settings\SettingsGeneral.fs" />
+    <Compile Include="Settings\SettingsDPO.fs" />
     <Compile Include="Settings\SettingsKODIS.fs" />
     <Compile Include="Settings\SettingsMDPO.fs" />
     <Compile Include="Helpers\CEBuilders.fs" />
@@ -67,7 +67,6 @@
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\ListParallel.fs" />
     <Compile Include="Helpers\Parsing.fs" />
-    <Compile Include="Helpers\ProgressBarFSharp.fs" />
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\Dtos.fs" />
     <Compile Include="DataModelling\TransformationLayers.fs" />

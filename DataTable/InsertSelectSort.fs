@@ -97,7 +97,7 @@ module InsertSelectSort =
 
             | FutureValidity            ->
                                          dateValidityStart > currentTime
-
+            (* 
             | ReplacementService        -> 
                                          ((dateValidityStart <= currentTime 
                                          && 
@@ -110,7 +110,7 @@ module InsertSelectSort =
                                          (fileToBeSaved.Contains("_v") 
                                          || fileToBeSaved.Contains("X")
                                          || fileToBeSaved.Contains("NAD"))
-
+            *)
             | WithoutReplacementService -> 
                                          ((dateValidityStart <= currentTime 
                                          && 

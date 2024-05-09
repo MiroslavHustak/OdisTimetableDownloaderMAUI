@@ -7,7 +7,7 @@ module DirNames =
         {        
             odisDir1 : string
             odisDir2 : string
-            odisDir3 : string
+            //odisDir3 : string
             odisDir4 : string
             odisDir5 : string
             odisDir6 : string

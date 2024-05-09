@@ -20,7 +20,6 @@ module MDPO_Submain =
 
     open Helpers
     open Helpers.CloseApp
-    //open Helpers.ProgressBarFSharp
 
     //************************Submain helpers**************************************************************************
 

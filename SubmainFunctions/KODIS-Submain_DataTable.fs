@@ -124,7 +124,7 @@ module KODIS_SubmainDataTable =
                 return value |> List.head
             }
             
-        "Json downloading finished :-)"  
+        "Dokončeno stahování JSOn souborů. Chvíli strpení, prosím ..."  
     
     //input from saved json files -> change of input data -> output into array
     let private digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
@@ -621,7 +621,7 @@ module KODIS_SubmainDataTable =
             match param with 
             | CurrentValidity           -> DataTable.InsertSelectSort.sortLinksOut () dataToBeInserted CurrentValidity |> createPathsForDownloadedFiles
             | FutureValidity            -> DataTable.InsertSelectSort.sortLinksOut () dataToBeInserted FutureValidity |> createPathsForDownloadedFiles
-            | ReplacementService        -> DataTable.InsertSelectSort.sortLinksOut () dataToBeInserted ReplacementService |> createPathsForDownloadedFiles  
+            //| ReplacementService        -> DataTable.InsertSelectSort.sortLinksOut () dataToBeInserted ReplacementService |> createPathsForDownloadedFiles  
             | WithoutReplacementService -> DataTable.InsertSelectSort.sortLinksOut () dataToBeInserted WithoutReplacementService |> createPathsForDownloadedFiles 
         
         selectDataFromDt  
@@ -675,8 +675,8 @@ module KODIS_SubmainDataTable =
                     match variant with 
                     | CurrentValidity           -> getDefaultRecordValues |> List.item 0
                     | FutureValidity            -> getDefaultRecordValues |> List.item 1
-                    | ReplacementService        -> getDefaultRecordValues |> List.item 2                                
-                    | WithoutReplacementService -> getDefaultRecordValues |> List.item 3
+                    //| ReplacementService        -> getDefaultRecordValues |> List.item 2                                
+                    | WithoutReplacementService -> getDefaultRecordValues |> List.item 2
             } 
 
     //IO operations made separate in order to have some structure in the free-monad-based design (for educational purposes)   

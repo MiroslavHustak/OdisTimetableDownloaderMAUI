@@ -5,12 +5,6 @@ open System.Data
 
 module Dto = 
 
-    type DbDtoGet = 
-        {
-            completeLink : string option             
-            fileToBeSaved : string option  
-        }
-
     type DtDtoGet = 
         {           
             newPrefix : string option  
@@ -19,19 +13,6 @@ module Dto =
             completeLink : string option  
             fileToBeSaved : string option  
         } 
-
-    type DbDtoSend = 
-        {
-            oldPrefix : string 
-            newPrefix : string 
-            startDate : DateTime  
-            endDate : DateTime   
-            totalDateInterval : string 
-            suffix : string 
-            jsGeneratedString : string 
-            completeLink : string 
-            fileToBeSaved : string 
-        }
 
     type DtDtoSend = 
         {

@@ -19,28 +19,7 @@ module WebScraping_KODISFMDataTable =
     //FREE MONAD 
 
     let internal webscraping_KODISFMDataTable pathToDir (variantList: Validity list) reportProgress = ()
-
-        //KODIS_SubmainDataTable.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
-        
-        //KODIS_SubmainDataTable.deleteAllODISDirectories pathToDir                                                              
-         
-        //let dirList = KODIS_SubmainDataTable.createNewDirectories pathToDir listODISDefault4
-                                                            
-        //KODIS_SubmainDataTable.createFolders dirList 
-         
-         (*
-        (variantList, dirList)
-        ||> List.iter2 
-            (fun variant dir 
-                ->               
-                 KODIS_SubmainDataTable.operationOnDataFromJson variant dir 
-                 |> KODIS_SubmainDataTable.downloadAndSave dir   
-            )   
-          
-            
-        "Hotovo :-)" 
-        *)
-        
+                
         (*   
         let rec interpret clp  = 
 

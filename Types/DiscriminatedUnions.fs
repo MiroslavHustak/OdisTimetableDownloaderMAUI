@@ -4,7 +4,7 @@
 type internal Validity =
     | CurrentValidity 
     | FutureValidity 
-    | ReplacementService 
+    //| ReplacementService 
     | WithoutReplacementService 
 
 //for educational code only
