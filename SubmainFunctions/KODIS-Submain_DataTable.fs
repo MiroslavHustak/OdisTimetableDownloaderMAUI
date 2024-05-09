@@ -124,7 +124,7 @@ module KODIS_SubmainDataTable =
                 return value |> List.head
             }
             
-        "Dokončeno stahování JSOn souborů. Chvíli strpení, prosím ..."  
+        "Dokončeno stahování JSON souborů. Chvíli strpení, prosím ..."  
     
     //input from saved json files -> change of input data -> output into array
     let private digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
