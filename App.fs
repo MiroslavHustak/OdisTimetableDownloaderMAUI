@@ -58,8 +58,8 @@ module App =
              { m with ResultMsg = result; ProgressIndicator = Idle }, Cmd.none 
         | Kodis 
             ->   
-             let path = @"/storage/emulated/0/FabulousTimetables/"
-             //let path = @"c:\Users\User\Music\"
+             //let path = @"/storage/emulated/0/FabulousTimetables/"
+             let path = @"c:\Users\User\Data\"
 
              let delayedCmd1 (dispatch: Msg -> unit): Async<unit> =
                         
@@ -115,7 +115,7 @@ module App =
                                          let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
                                                         
                                          KODIS_SubmainDataTable.createFolders dirList      
-                                         ([ CurrentValidity; FutureValidity; WithoutReplacementService ], dirList)
+                                         ([ CurrentValidity; FutureValidity; WithoutReplacementService ], dirList) //lze aji po jednom,pokud to bude nutne
                                          ||> List.iter2 
                                              (fun variant dir 
                                                  ->               
@@ -132,24 +132,19 @@ module App =
                          dispatch (WorkIsComplete result)
                      }                                       
              
-             let tryWith =
-                try
-                    let executeSequentially (dispatch: Msg -> unit) =
+            
+             let executeSequentially (dispatch: Msg -> unit) =
 
-                        async
-                            {
-                                do! delayedCmd1 dispatch                                   
-                                do! delayedCmd2 dispatch 
-                                do! delayedCmd3 dispatch
-                            }
-                        |> Async.StartImmediate
+                 async
+                     {
+                         do! delayedCmd1 dispatch                                   
+                         do! delayedCmd2 dispatch 
+                         do! delayedCmd3 dispatch
+                     }
+                 |> Async.StartImmediate
                              
-                    { m with ResultMsg = "Chv\u00EDli strpen\u00ED pros\u00EDm, za\u010Dalo stahov\u00E1n\u00ED JSON soubor\u016F pot\u0159ebn\u00FDch pro stahov\u00E1n\u00ED J\u0158 a bude to trvat n\u011Bkolik minut ..."; ProgressIndicator = InProgress (0.0, 0.0) }, Cmd.ofSub executeSequentially                
-                with
-                | ex  ->  { m with ResultMsg = string ex.Message }, Cmd.none  
-                
-             tryWith
-
+             { m with ResultMsg = "Chv\u00EDli strpen\u00ED pros\u00EDm, za\u010Dalo stahov\u00E1n\u00ED JSON soubor\u016F pot\u0159ebn\u00FDch pro stahov\u00E1n\u00ED J\u0158 a bude to trvat n\u011Bkolik minut ..."; ProgressIndicator = InProgress (0.0, 0.0) }, Cmd.ofSub executeSequentially                
+               
         | Dpo  ->                      
                 let result =                 
                     try
