@@ -1,4 +1,4 @@
-Nenašel by se někdo, kdo se vyzná v UI/UX/FE mobilních aplikací (.NET MAUI nebo Avalonia), je zároveň fanda do veřejné dopravy či chce si vyzkoušet FP a chtěl by se podílet na malém bezplatném projektu ve Fabulous (fabulous.dev)? Detaily viz příloha.
+Nenašel by se někdo, kdo se vyzná v UI/UX/FE mobilních aplikací (.NET MAUI nebo Avalonia), je zároveň fanda do veřejné dopravy či chce si vyzkoušet FP a chtěl by se podílet na malém bezplatném projektu ve Fabulous (fabulous.dev)?
 
 Naprogramoval jsem v .NET pro nadšence do klasických jízdních řádů na severní Moravě a ve Slezsku hromadný "stahovač" kompletně všech JŘ ODIS, program lze samozřejmě rozšířit i na jiné kraje či provincie EU či jiné země. Proč tuto možnost často nenabízejí příslušné instituce je už story ne pro diskuzi na GitHubu. 
 
