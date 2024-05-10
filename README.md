@@ -6,4 +6,4 @@ Zatím mám "stahovač" v konzolové podobě https://github.com/MiroslavHustak/O
 
 Chtělo by to danou appku "zmobilnit" do slušně vypadající podoby ve Fabulous (fabulous.dev), controls buď .NET MAUI nebo Avalonia. 
 
-Já osobně nemám talent pro UX/UI a z tohoto důvodu ani žádné velké nadšení pro FE. A ani jsem nic "mobilního" ještě nenaprogramoval. Ale s Elmishem pomohu, co budu moci, už jsem v tom programoval.
+Já osobně nemám talent pro UX/UI a z tohoto důvodu ani žádné velké nadšení pro FE. A ani jsem nic "mobilního" ještě nevyvíjel. Ale s Elmishem pomohu, co budu moci, už jsem v tom programoval.
