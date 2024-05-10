@@ -58,8 +58,8 @@ module App =
              { m with ResultMsg = result; ProgressIndicator = Idle }, Cmd.none 
         | Kodis 
             ->   
-             //let path = @"/storage/emulated/0/FabulousTimetables/"
-             let path = @"c:\Users\User\Data\"
+             let path = @"/storage/emulated/0/FabulousTimetables/"
+             //let path = @"c:\Users\User\Data\"
 
              let delayedCmd1 (dispatch: Msg -> unit): Async<unit> =
                         
