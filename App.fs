@@ -35,6 +35,7 @@ module App =
         }
 
     type Msg =
+        | Kodis2  
         | Kodis  
         | Dpo
         | Mdpo
@@ -56,6 +57,57 @@ module App =
         | WorkIsComplete result 
             -> 
              { m with ResultMsg = result; ProgressIndicator = Idle }, Cmd.none 
+
+        | Kodis2 
+            ->   
+             let path = @"/storage/emulated/0/FabulousTimetables/"
+             //let path = @"c:\Users\User\Data\"
+                                                            
+             let delayedCmd (dispatch: Msg -> unit): unit =  
+                 let delayedDispatch: Async<unit> =   
+                     async
+                         {
+                             let reportProgress (progressValue, totalProgress) = dispatch (UpdateStatus (progressValue, totalProgress))   
+                                       
+                             let! hardWork = 
+                                 Async.StartChild 
+                                     (
+                                        async 
+                                            {  
+
+                                                let jsonDownload () = 
+                                                    KODIS_SubmainDataTable.downloadAndSaveJson
+                                                    <| (jsonLinkList @ jsonLinkList2) 
+                                                    <| (pathToJsonList @ pathToJsonList2) 
+                                                    <| reportProgress
+                                                  
+                                                jsonDownload () |> ignore
+                                                 
+                                                KODIS_SubmainDataTable.deleteAllODISDirectories path
+
+                                                let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
+                                                               
+                                                KODIS_SubmainDataTable.createFolders dirList      
+                                                ([ CurrentValidity; FutureValidity; WithoutReplacementService ], dirList) //lze aji po jednom,pokud to bude nutne
+                                                ||> List.iter2 
+                                                    (fun variant dir 
+                                                        ->               
+                                                         KODIS_SubmainDataTable.operationOnDataFromJson variant dir 
+                                                         |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir   
+                                                    )                                                            
+                                                   
+                                                return "Kompletn\u00ED J\u0158 ODIS \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." 
+                                            }
+                                     ) 
+                             let! result = hardWork 
+                             do! Async.Sleep 1000
+
+                             dispatch (WorkIsComplete result)
+                         }     
+                 Async.StartImmediate delayedDispatch                                                    
+                                    
+             { m with ResultMsg = "Wait....."; ProgressIndicator = InProgress (0.0, 0.0) }, Cmd.ofSub delayedCmd                
+                      
         | Kodis 
             ->   
              let path = @"/storage/emulated/0/FabulousTimetables/"
@@ -184,19 +236,23 @@ module App =
                                  barFill                             
                             )
                             .progressColor(Color.FromArgb("FF0000FF"))
-                            .height(50.)
+                            .height(20.)
                             .width(200.)
                             .semantics(description = "Progress Bar")
                                                                               
                         Label("Timetable Downloader")
                             .semantics(SemanticHeadingLevel.Level1)
-                            .font(size = 32.)
+                            .font(size = 26.)
                             .centerTextHorizontal()                   
 
                         Label(m.ResultMsg)
                             .semantics(SemanticHeadingLevel.Level2, "Welcome to dot net Multi platform App U I powered by Fabulous")
                             .font(size = 14.)
                             .centerTextHorizontal()
+
+                        Button("Complete ODIS Timetables 2", Kodis2)
+                            .semantics(hint = "Download complete ODIS timetables 2")
+                            .centerHorizontal()
                
                         Button("Complete ODIS Timetables", Kodis)
                             .semantics(hint = "Download complete ODIS timetables")
