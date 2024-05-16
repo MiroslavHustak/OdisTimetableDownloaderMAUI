@@ -63,8 +63,7 @@ module App =
              (*
              let path = @"/storage/emulated/0/FabulousTimetables/"
              //let path = @"c:\Users\User\Data\"
-             
-             
+                          
              let delayedCmd (dispatch: Msg -> unit): unit =  
                  let delayedDispatch: Async<unit> =   
                      async
