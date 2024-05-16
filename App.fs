@@ -59,10 +59,12 @@ module App =
              { m with ResultMsg = result; ProgressIndicator = Idle }, Cmd.none 
 
         | Kodis2 
-            ->   
+            -> m, Cmd.none  
+             (*
              let path = @"/storage/emulated/0/FabulousTimetables/"
              //let path = @"c:\Users\User\Data\"
-                                                            
+             
+             
              let delayedCmd (dispatch: Msg -> unit): unit =  
                  let delayedDispatch: Async<unit> =   
                      async
@@ -107,7 +109,8 @@ module App =
                  Async.StartImmediate delayedDispatch                                                    
                                     
              { m with ResultMsg = "Wait....."; ProgressIndicator = InProgress (0.0, 0.0) }, Cmd.ofSub delayedCmd                
-                      
+             *)       
+             
         | Kodis 
             ->   
              let path = @"/storage/emulated/0/FabulousTimetables/"
@@ -249,11 +252,12 @@ module App =
                             .semantics(SemanticHeadingLevel.Level2, "Welcome to dot net Multi platform App U I powered by Fabulous")
                             .font(size = 14.)
                             .centerTextHorizontal()
-
+                        (*
                         Button("Complete ODIS Timetables 2", Kodis2)
                             .semantics(hint = "Download complete ODIS timetables 2")
                             .centerHorizontal()
-               
+                        *)
+                        
                         Button("Complete ODIS Timetables", Kodis)
                             .semantics(hint = "Download complete ODIS timetables")
                             .centerHorizontal()
