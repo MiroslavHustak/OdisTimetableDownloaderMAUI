@@ -218,11 +218,10 @@ module KODIS_SubmainDataTable =
                                      |> function
                                          | Some value ->
                                                        value
-                                                       |> Array.collect (fun item -> item.Attachments)
-                                                       |> List.ofArray
-                                                       |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
-                                                       |> List.choose id //co neprojde, to beze slova ignoruju
-                                                       |> List.toArray 
+                                                       |> Array.collect (fun item -> item.Attachments)                                                       
+                                                       |> Array.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
+                                                       |> Array.choose id //co neprojde, to beze slova ignoruju
+                                                      
                                          | None       ->
                                                        [||]  
 
@@ -264,10 +263,8 @@ module KODIS_SubmainDataTable =
                                     -> 
                                      let fn1 (value: JsonProvider1.Attachment array) = 
                                          value
-                                         |> List.ofArray
-                                         |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
-                                         |> List.choose id //co neprojde, to beze slova ignoruju
-                                         |> List.toArray
+                                         |> Array.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
+                                         |> Array.choose id //co neprojde, to beze slova ignoruju
 
                                      let fn2 (item: JsonProvider1.Vyluky) =  //quli tomuto je nutno Array     
                                          item.Attachments 
@@ -644,7 +641,7 @@ module KODIS_SubmainDataTable =
                                 |> Seq.filter (fun item -> getDefaultRecordValues |> List.contains item.Name) //prunik dvou kolekci (plus jeste Seq.distinct pro unique items)
                                 |> Seq.distinct 
                                 |> Seq.toList
-                                |> List.Parallel.iter (fun (item : DirectoryInfo) -> item.Delete(true))  //List.Parallel for educational purposes
+                                |> List.iter (fun (item : DirectoryInfo) -> item.Delete(true))  
                                 //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
                         with
                         | ex -> 

@@ -37,7 +37,7 @@ module CopyingOrMovingFiles = //output in Result type
                 let dInfodat: DirectoryInfo = new DirectoryInfo(destinFilepath) //Overit vhodnost pred pouzitim
                 let! _ = dInfodat.Exists |> Option.ofBool, Error <| sprintf "Destinační adresář %s neexistuje" destinFilepath  //Overit vhodnost pred pouzitim
                                     
-               return Ok <| action sourceFilepath destinFilepath
+                return Ok <| action sourceFilepath destinFilepath
             }           
 
     let internal copyFiles source destination overwrite =
