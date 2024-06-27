@@ -324,6 +324,8 @@ module KODIS_SubmainDataTable =
             [
                 //pro pripad, kdyby KODIS strcil odkazy do uplne jinak strukturovaneho jsonu, tudiz by neslo pouzit dany type provider, anebo kdyz je vubec do jsonu neda (nize uvedene odkazy)
                 //@"https://kodis-files.s3.eu-central-1.amazonaws.com/76_2023_10_09_2023_10_20_v_f2b77c8fad.pdf"
+                @"https://kodis-files.s3.eu-central-1.amazonaws.com/46_A_2024_07_01_2024_09_01_faa5f15c1b.pdf"
+                @"https://kodis-files.s3.eu-central-1.amazonaws.com/46_B_2024_07_01_2024_09_01_b5f542c755.pdf"
             ]
             |> List.toArray 
         
@@ -384,6 +386,43 @@ module KODIS_SubmainDataTable =
                   ()//logInfoMsg <| sprintf "Err009 %s" (string ex.Message) 
                   //msg9 ()
                   String.Empty 
+
+        let extractSubstring2 (input: string) : (string option * int) =
+        
+                    let prefix = "NAD_"
+                    
+                    match input.StartsWith(prefix) with
+                    | false -> 
+                             (None, 0)
+                    | true  ->
+                             let startIdx = prefix.Length
+                             let restOfString = input.Substring(startIdx)
+        
+                             match restOfString.IndexOf('_') with
+                             | -1             -> 
+                                               (None, 0)
+                             | idx 
+                                 when idx > 0 ->
+                                               let result = restOfString.Substring(0, idx)
+                                               (Some(result), result.Length)
+                             | _              ->
+                                               (None, 0)
+        
+        //zamerne nepouzivam jednotny kod pro NAD (extractSubstring2) a X - pro pripad, ze KODIS zase neco zmeni
+        let extractSubstring3 (input: string) : (string option * int) =
+        
+            match input with            
+            | _ when input.[0] = 'X' ->
+                                        match input.IndexOf('_') with
+                                        | index 
+                                            when index > 1 -> 
+                                                            let result = input.Substring(1, index - 1)
+                                                            (Some(result), result.Length)
+                                        | _                -> 
+                                                            (None, 0)
+            | _                      -> 
+                                        (None, 0)
+
 
         let extractStartDate (input : string) =
              let result = 
@@ -457,12 +496,8 @@ module KODIS_SubmainDataTable =
                         fun () -> oldPrefix.Contains("S") && oldPrefix.Length = 4
                         fun () -> oldPrefix.Contains("R") && oldPrefix.Length = 3
                         fun () -> oldPrefix.Contains("R") && oldPrefix.Length = 4
-                        fun () -> oldPrefix.Contains("NAD") && oldPrefix.Length = 5
-                        fun () -> oldPrefix.Contains("NAD") && oldPrefix.Length = 6
-                        fun () -> oldPrefix.Contains("NAD") && oldPrefix.Length = 7
-                        fun () -> oldPrefix.Contains("X") && oldPrefix.Length = 4
-                        fun () -> oldPrefix.Contains("X") && oldPrefix.Length = 5
-                        fun () -> oldPrefix.Contains("X") && oldPrefix.Length = 6
+                        fun () -> oldPrefix.Contains("NAD")
+                        fun () -> oldPrefix.Contains("X")
                     ]
 
                 match List.filter (fun condition -> condition()) conditions with
@@ -480,22 +515,20 @@ module KODIS_SubmainDataTable =
                                sprintf "_%s" oldPrefix
                          | 4  ->
                                sprintf "%s" oldPrefix
-                         | 5  ->
-                               sprintf "%s" oldPrefix
-                         | 6  ->
-                               oldPrefix.Replace("NAD_", "NAD_00")
-                         | 7  ->
-                               oldPrefix.Replace("NAD_", "NAD_0")
-                         | 8  -> 
-                               let s1 = oldPrefix
-                               let s2 = sprintf "X_%s%s" <| createStringSeqFold(2, "0") <| s1.[2..]
-                               oldPrefix.Replace(s1, s2)
-                         | 9  ->
-                               let s1 = oldPrefix
-                               let s2 = sprintf "X_%s%s" <| createStringSeqFold(1, "0") <| s1.[2..]
-                               oldPrefix.Replace(s1, s2)
-                         | 10 ->
-                               sprintf "%s" oldPrefix
+                         | 5  -> 
+                               let newPrefix =                                 
+                                   match oldPrefix |> extractSubstring2 with
+                                   | (Some value, length)
+                                       when length <= lineNumberLength -> sprintf "NAD%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
+                                   | _                                 -> oldPrefix                                 
+                               oldPrefix.Replace(oldPrefix, newPrefix)                        
+                         | 6  -> 
+                               let newPrefix = //ponechat podobny kod jako vyse, nerobit refactoring, KODIS moze vse nekdy zmenit                                
+                                   match oldPrefix |> extractSubstring3 with
+                                   | (Some value, length)
+                                       when length <= lineNumberLength -> sprintf "X%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
+                                   | _                                 -> oldPrefix                                 
+                               oldPrefix.Replace(oldPrefix, newPrefix)
                          | _  ->
                                sprintf "%s" oldPrefix
 
@@ -556,7 +589,7 @@ module KODIS_SubmainDataTable =
                 (fun item -> fst item |> function CompleteLink value -> value, snd item |> function FileToBeSaved value -> value)
             |> List.map
                 (fun (link, file) 
-                    -> 
+                    ->                     
                      let path =                                         
                          let (|IntType|StringType|OtherType|) (param : 'a) = //zatim nevyuzito, mozna -> TODO podumat nad refactoringem nize uvedeneho 
                              match param.GetType() with
@@ -566,26 +599,34 @@ module KODIS_SubmainDataTable =
                                                 
                          //let pathToDir = sprintf "%s\\%s" pathToDir file //pro ostatni
                          let pathToDir = sprintf "%s/%s" pathToDir file //pro ostatni
-                                           
+                         
+                         // v pripade opakovani situace s A, B zrobit dalsi logiku
                          match pathToDir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || pathToDir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
                          | true ->   
                                  true //pro aktualni a dlouhodobe platne
                                  |> function
-                                     | true when file.Substring(0, 1) = "0"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
-                                     | true when file.Substring(0, 1) = "1"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
-                                     | true when file.Substring(0, 1) = "2"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 1 sortedLines)
-                                     | true when file.Substring(0, 1) = "3"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 2 sortedLines)
-                                     | true when file.Substring(0, 1) = "4"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 3 sortedLines)
-                                     | true when file.Substring(0, 1) = "5"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 4 sortedLines)
-                                     | true when file.Substring(0, 1) = "6"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 5 sortedLines)
-                                     | true when file.Substring(0, 1) = "7"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 6 sortedLines)
-                                     | true when file.Substring(0, 1) = "8"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 7 sortedLines)
-                                     | true when file.Substring(0, 1) = "9"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 8 sortedLines)
-                                     | true when file.Substring(0, 1) = "S"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
-                                     | true when file.Substring(0, 1) = "R"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
-                                     | true when file.Substring(0, 2) = "_S" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
-                                     | true when file.Substring(0, 2) = "_R" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
-                                     | _                                     -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)                                                           
+                                     | true when file.Substring(0, 1) = "0"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
+                                     | true when file.Substring(0, 1) = "1"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
+                                     | true when file.Substring(0, 1) = "2"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 1 sortedLines)
+                                     | true when file.Substring(0, 1) = "3"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 2 sortedLines)
+                                     | true 
+                                         when 
+                                             (file.Substring(0, 1) = "4" && not <| file.Contains("46_A") && not <| file.Contains("46_B")) 
+                                        
+                                        
+                                                                               -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 3 sortedLines)
+                                     | true when file.Substring(0, 1) = "5"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 4 sortedLines)
+                                     | true when file.Substring(0, 1) = "6"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 5 sortedLines)
+                                     | true when file.Substring(0, 1) = "7"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 6 sortedLines)
+                                     | true when file.Substring(0, 1) = "8"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 7 sortedLines)
+                                     | true when file.Substring(0, 1) = "9"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 8 sortedLines)
+                                     | true when file.Substring(0, 1) = "S"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
+                                     | true when file.Substring(0, 1) = "R"    -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
+                                     | true when file.Substring(0, 2) = "_S"   -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
+                                     | true when file.Substring(0, 2) = "_R"   -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
+                                     | true when file.Substring(0, 4) = "46_A" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)  
+                                     | true when file.Substring(0, 4) = "46_B" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)  
+                                     | _                                       -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)                                                           
                          | _    -> 
                                  pathToDir    
                          (*
