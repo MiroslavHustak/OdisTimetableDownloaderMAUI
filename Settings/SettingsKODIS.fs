@@ -21,8 +21,8 @@ module SettingsKODIS =
     //let [<Literal>] internal pathJson = @"KODISJson/kodisMHDTotal.json" //v hl. adresari projektu
     //let [<Literal>] internal pathJson2 = @"KODISJson/kodisMHDTotal2_0.json" //v hl. adresari projektu
      
-    let internal partialPathJson = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
-    //let internal partialPathJson = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"
+    //let internal partialPathJson = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
+    let internal partialPathJson = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"
 
     let [<Literal>] internal pathKodisWeb = @"https://kodisweb-backend.herokuapp.com/"
     let [<Literal>] internal pathKodisWeb2 = @"https://kodis-backend-staging-85d01eccf627.herokuapp.com/api/linky-search?"

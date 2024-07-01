@@ -84,45 +84,51 @@ module InsertSelectSort =
         insertIntoDataTable dataToBeInserted  
 
         let condition dateValidityStart dateValidityEnd currentTime (fileToBeSaved : string) = 
-
-            match validity with 
-            | CurrentValidity           -> 
-                                         ((dateValidityStart <= currentTime
-                                         && 
-                                         dateValidityEnd >= currentTime)
-                                         ||
-                                         (dateValidityStart = currentTime 
-                                         && 
-                                         dateValidityEnd = currentTime))
-
-            | FutureValidity            ->
-                                         dateValidityStart > currentTime
-            (* 
-            | ReplacementService        -> 
-                                         ((dateValidityStart <= currentTime 
-                                         && 
-                                         dateValidityEnd >= currentTime)
-                                         ||
-                                         (dateValidityStart = currentTime 
-                                         && 
-                                         dateValidityEnd = currentTime))
-                                         &&
-                                         (fileToBeSaved.Contains("_v") 
-                                         || fileToBeSaved.Contains("X")
-                                         || fileToBeSaved.Contains("NAD"))
-            *)
-            | WithoutReplacementService -> 
-                                         ((dateValidityStart <= currentTime 
-                                         && 
-                                         dateValidityEnd >= currentTime)
-                                         ||
-                                         (dateValidityStart = currentTime 
-                                         && 
-                                         dateValidityEnd = currentTime))
-                                         &&
-                                         (not <| fileToBeSaved.Contains("_v") 
-                                         && not <| fileToBeSaved.Contains("X")
-                                         && not <| fileToBeSaved.Contains("NAD"))        
+        
+                    match validity with 
+                    | CurrentValidity           -> 
+                                                 ((dateValidityStart <= currentTime
+                                                 && 
+                                                 dateValidityEnd >= currentTime)
+                                                 ||
+                                                 (dateValidityStart = currentTime 
+                                                 && 
+                                                 dateValidityEnd = currentTime))
+                                                 &&
+                                                 (
+                                                     match currentTime >= DateTime(2024, 9, 2) with  
+                                                     | true  -> true
+                                                     | false -> not <| fileToBeSaved.Contains("046_2024_01_02_2024_12_14")
+                                                 )
+        
+                    | FutureValidity            ->
+                                                 dateValidityStart > currentTime
+                    (*  
+                    | ReplacementService        -> 
+                                                 ((dateValidityStart <= currentTime 
+                                                 && 
+                                                 dateValidityEnd >= currentTime)
+                                                 ||
+                                                 (dateValidityStart = currentTime 
+                                                 && 
+                                                 dateValidityEnd = currentTime))
+                                                 &&
+                                                 (fileToBeSaved.Contains("_v") 
+                                                 || fileToBeSaved.Contains("X")
+                                                 || fileToBeSaved.Contains("NAD"))
+                    *)
+                    | WithoutReplacementService ->                                         
+                                                 ((dateValidityStart <= currentTime 
+                                                 && 
+                                                 dateValidityEnd >= currentTime)
+                                                 ||
+                                                 (dateValidityStart = currentTime 
+                                                 && 
+                                                 dateValidityEnd = currentTime))
+                                                 &&
+                                                 (not <| fileToBeSaved.Contains("_v") 
+                                                 && not <| fileToBeSaved.Contains("X")
+                                                 && not <| fileToBeSaved.Contains("NAD"))  
 
         let currentTime = DateTime.Now.Date
 
