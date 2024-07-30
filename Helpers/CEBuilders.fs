@@ -24,7 +24,7 @@ module Builders =
              | false -> snd condition
              | true  -> nextFunc()  
          member _.Return x = x
-         //member _.Zero x = x
+         member _.Using x = x
 
     let internal pyramidOfHell = MyBuilder
 
@@ -32,15 +32,22 @@ module Builders =
 
     [<Struct>]
     type internal Builder2 = Builder2 with    
-         member _.Bind((optionExpr, err), nextFunc) =
-             match optionExpr with
-             | Some value -> nextFunc value 
-             | _          -> err  
-         member _.Return x : 'a = x
-         //member _.Zero x = x
-
+        member _.Bind((optionExpr, err), nextFunc) =
+            match optionExpr with
+            | Some value -> nextFunc value 
+            | _          -> err  
+        member _.Return x : 'a = x   
+        member _.ReturnFrom x : 'a = x 
+        member _.TryFinally(body, compensation) =
+            try body()
+            finally compensation()
+        member _.Zero () = ()
+        member _.Using(resource, binder) =
+            use r = resource
+            binder r
+    
     let internal pyramidOfDoom = Builder2
-         
+    
     //**************************************************************************************
 
     type internal Reader<'e, 'a> = 'e -> 'a

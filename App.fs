@@ -166,6 +166,8 @@ module App =
                              Async.StartChild 
                                  (async 
                                      {  
+                                         let dt = DataTable.CreateDt.dt()   
+
                                          let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
                                                         
                                          KODIS_SubmainDataTable.createFolders dirList      
@@ -173,7 +175,7 @@ module App =
                                          ||> List.iter2 
                                              (fun variant dir 
                                                  ->               
-                                                  KODIS_SubmainDataTable.operationOnDataFromJson variant dir 
+                                                  KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
                                                   |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir   
                                              )                                                            
                                             

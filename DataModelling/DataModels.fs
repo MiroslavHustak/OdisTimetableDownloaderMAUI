@@ -2,12 +2,14 @@
 
 open System
 
+//*************************
+
 open Types
 
 //Type-driven design
 
 module DataModel = 
-   
+    
     type DtDataGet = 
         {           
             newPrefix : NewPrefix  
@@ -15,8 +17,9 @@ module DataModel =
             endDate : EndDateDt 
             completeLink : CompleteLink 
             fileToBeSaved : FileToBeSaved  
+            partialLink : PartialLink
         } 
-   
+  
     type DtDataSend = 
         {
             oldPrefix : OldPrefix 
@@ -28,4 +31,5 @@ module DataModel =
             jsGeneratedString : JsGeneratedString 
             completeLink : CompleteLink 
             fileToBeSaved : FileToBeSaved 
+            partialLink : PartialLink
         }

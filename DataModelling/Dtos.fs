@@ -4,7 +4,7 @@ open System
 open System.Data
 
 module Dto = 
-
+    
     type DtDtoGet = 
         {           
             newPrefix : string option  
@@ -12,8 +12,9 @@ module Dto =
             endDate : DateTime option  
             completeLink : string option  
             fileToBeSaved : string option  
+            partialLink : string option 
         } 
-
+  
     type DtDtoSend = 
         {
             oldPrefix : string 
@@ -25,4 +26,5 @@ module Dto =
             jsGeneratedString : string 
             completeLink : string 
             fileToBeSaved : string  
+            partialLink : string  
         }
