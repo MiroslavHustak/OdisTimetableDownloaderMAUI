@@ -7,6 +7,7 @@ open Fabulous
 open Fabulous.Maui
 
 open Microsoft.Maui
+open Microsoft.Maui.Storage
 open Microsoft.Maui.Graphics
 open Microsoft.Maui.Primitives
 open Microsoft.Maui.Accessibility
@@ -14,12 +15,14 @@ open Microsoft.Maui.Accessibility
 open type Fabulous.Maui.View
 
 open Types
-open Microsoft.Maui.Storage
 
 open ProgressCircle
+
 open SubmainFunctions
+
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
+
 open MainFunctions.WebScraping_DPO
 open MainFunctions.WebScraping_MDPO
 
@@ -91,6 +94,7 @@ module App =
                                   )
                          let! result = hardWork 
                          do! Async.Sleep 1000
+
                          dispatch (WorkIsComplete result)
                      }      
                      
@@ -100,13 +104,14 @@ module App =
                          let! hardWork = 
                              Async.StartChild 
                                  (async
-                                     {
-                                         KODIS_SubmainDataTable.deleteAllODISDirectories path                                                      
-                                         return "Chv\u00EDli strpen\u00ED pros\u00EDm, za\u010Dalo stahov\u00E1n\u00ED J\u0158 a bude to trvat n\u011Bkolik minut ..." 
-                                     }
+                                      {
+                                          KODIS_SubmainDataTable.deleteAllODISDirectories path                                                      
+                                          return "Chv\u00EDli strpen\u00ED pros\u00EDm, za\u010Dalo stahov\u00E1n\u00ED J\u0158 a bude to trvat n\u011Bkolik minut ..." 
+                                      }
                                   )
                          let! result = hardWork 
                          do! Async.Sleep 1000
+
                          dispatch (WorkIsComplete result)
                      }  
 
@@ -122,17 +127,21 @@ module App =
                                      {
                                          let dt = DataTable.CreateDt.dt()   
                                          let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
-                                         KODIS_SubmainDataTable.createFolders dirList      
+
+                                         KODIS_SubmainDataTable.createFolders dirList   
+                                         
                                          ([ CurrentValidity; FutureValidity; WithoutReplacementService ], dirList)
                                          ||> List.iter2 
                                              (fun variant dir ->
                                                  KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
                                                  |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir)
+
                                          return "Kompletn\u00ED J\u0158 ODIS \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." 
                                      }
                                  )
                          let! result = hardWork 
                          do! Async.Sleep 1000
+
                          dispatch (WorkIsComplete result)
                      }     
                      
