@@ -75,10 +75,11 @@
     <Compile Include="SubmainFunctions\DPO-Submain.fs" />
     <Compile Include="SubmainFunctions\KODIS-Submain_DataTable.fs" />
     <Compile Include="SubmainFunctions\MDPO-Submain.fs" />
-    <Compile Include="MainFunctions\DPO.fs" />
-    <Compile Include="MainFunctions\KODIS_DataTable.fs" />
-    <Compile Include="MainFunctions\MDPO.fs" />
-    <Compile Include="App.fs" />
+    <Compile Include="AppStructure\DPO.fs" />
+    <Compile Include="AppStructure\KODIS_DataTable.fs" />
+    <Compile Include="AppStructure\MDPO.fs" />
+    <Compile Include="XElmish\ProgressCircle.fs" />
+    <Compile Include="XElmish\App.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
