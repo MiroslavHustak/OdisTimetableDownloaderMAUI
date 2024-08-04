@@ -17,7 +17,6 @@ open type Fabulous.Maui.View
 open Types
 
 open ProgressCircle
-
 open SubmainFunctions
 
 open Settings.SettingsKODIS
@@ -37,6 +36,7 @@ module App =
             ResultMsg: string
             ProgressIndicator: ProgressIndicator
             Progress: float // New property to hold the progress value
+            IsRunning: bool
         }
 
     type Msg =
@@ -46,12 +46,15 @@ module App =
         | Mdpo
         | UpdateStatus of progress: float*float
         | WorkIsComplete of string //TODO predelat na Result
+        | IterationComplete of string
+        | TaskCompleted
 
     let init () =
         { 
             ResultMsg = String.Empty
             ProgressIndicator = Idle
             Progress = 0.0 // Initialize progress
+            IsRunning = false
         },
         Cmd.none
     
@@ -65,7 +68,15 @@ module App =
         | WorkIsComplete result 
             ->
              { m with ResultMsg = result; ProgressIndicator = Idle; Progress = 0.0 }, Cmd.none
-    
+
+        | IterationComplete variant 
+            ->
+             { m with ResultMsg = variant }, Cmd.none  
+
+        | TaskCompleted 
+            ->
+             { m with IsRunning = false }, Cmd.none
+            
         | Kodis2 
             -> 
              m, Cmd.none  
@@ -80,8 +91,8 @@ module App =
                  async
                      {
                          let reportProgress (progressValue, totalProgress) =
-                             dispatch (UpdateStatus (progressValue, totalProgress))   
-
+                             dispatch (UpdateStatus (progressValue, totalProgress)) 
+                             
                          let! hardWork = 
                              Async.StartChild 
                                  (async 
@@ -126,16 +137,30 @@ module App =
                                  (async 
                                      {
                                          let dt = DataTable.CreateDt.dt()   
+                                         
                                          let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
+                                         let variantList = [ CurrentValidity; FutureValidity; WithoutReplacementService ]
+                                         let msgList =
+                                             [
+                                                 "Stahuj\u00ED se aktu\u00E1ln\u011B platn\u00E9 J\u0158 ODIS"
+                                                 "Stahuj\u00ED se J\u0158 ODIS platn\u00E9 v budoucnosti"
+                                                 "Stahuj\u00ED se teoreticky dlouhodob\u011B platn\u00E9 J\u0158 ODIS"
+                                             ]
 
                                          KODIS_SubmainDataTable.createFolders dirList   
                                          
-                                         ([ CurrentValidity; FutureValidity; WithoutReplacementService ], dirList)
-                                         ||> List.iter2 
-                                             (fun variant dir ->
-                                                 KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
-                                                 |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir)
+                                         (variantList, dirList, msgList)
+                                         |||> List.map3
+                                             (fun variant dir msg 
+                                                 ->
+                                                  dispatch (IterationComplete msg)
+                                                  
+                                                  KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
+                                                  |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir                                                  
+                                             )
+                                         |> ignore
 
+                                         //Unicode escape sequences
                                          return "Kompletn\u00ED J\u0158 ODIS \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." 
                                      }
                                  )
@@ -153,8 +178,14 @@ module App =
                          do! delayedCmd3 dispatch
                      }
                  |> Async.StartImmediate
-             { m with ResultMsg = "Chv\u00EDli strpen\u00ED pros\u00EDm, za\u010Dalo stahov\u00E1n\u00ED JSON soubor\u016F pot\u0159ebn\u00FDch pro stahov\u00E1n\u00ED J\u0158 a bude to trvat n\u011Bkolik minut ..."; ProgressIndicator = InProgress (0.0, 0.0) }, Cmd.ofSub executeSequentially                
-        
+            
+             { 
+                 m with 
+                     ResultMsg = "Stahování JSON souborù potøebných pro stahování JØ"; 
+                     ProgressIndicator = InProgress (0.0, 0.0)
+                     IsRunning = true
+             }, Cmd.ofSub executeSequentially
+
         | Dpo 
             ->                      
              let result =                 
@@ -179,7 +210,7 @@ module App =
 
     let view (m : Model) =
 
-        let progressDrawable = createProgressCircle(m.Progress)
+        let progressDrawable = progressCircle m.Progress
 
         Application(
             ContentPage(

@@ -1,7 +1,7 @@
 ﻿namespace OdisTimetableDownloaderMAUI
 
-open Microsoft.Maui.Hosting
 open Fabulous.Maui
+open Microsoft.Maui.Hosting
 
 type MauiProgram =
     static member CreateMauiApp() =

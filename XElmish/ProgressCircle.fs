@@ -6,7 +6,7 @@ module ProgressCircle =
     open Microsoft.Maui.Graphics
 
     //Anonymous Object Creation 
-    let createProgressCircle (progress: float) =
+    let progressCircle (progress: float) =
         { 
             new IDrawable with
 
