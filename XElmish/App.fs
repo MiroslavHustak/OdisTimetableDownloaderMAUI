@@ -24,6 +24,9 @@ open Settings.SettingsGeneral
 
 open MainFunctions.WebScraping_DPO
 open MainFunctions.WebScraping_MDPO
+open SubmainFunctions.DPO_Submain
+open System.Net.Http
+open Helpers
 
 module App =
 
@@ -36,25 +39,21 @@ module App =
             ResultMsg: string
             ProgressIndicator: ProgressIndicator
             Progress: float // New property to hold the progress value
-            IsRunning: bool
         }
 
     type Msg =
-        | Kodis2  
         | Kodis  
         | Dpo
         | Mdpo
         | UpdateStatus of progress: float*float
         | WorkIsComplete of string //TODO predelat na Result
-        | IterationComplete of string
-        | TaskCompleted
+        | IterationMessage of string
 
     let init () =
         { 
             ResultMsg = String.Empty
             ProgressIndicator = Idle
             Progress = 0.0 // Initialize progress
-            IsRunning = false
         },
         Cmd.none
     
@@ -62,24 +61,20 @@ module App =
         match msg with
         | UpdateStatus (progressValue, totalProgress)
             ->
-             let progress = (1.0 / totalProgress) * progressValue
+             let progress =                 
+                let value = (1.0 / totalProgress) * progressValue                
+                match value >= 1.000 with
+                | true  -> 1.000
+                | false -> value
              { m with ProgressIndicator = InProgress (progressValue, totalProgress); Progress = progress }, Cmd.none
-    
+
         | WorkIsComplete result 
             ->
              { m with ResultMsg = result; ProgressIndicator = Idle; Progress = 0.0 }, Cmd.none
 
-        | IterationComplete variant 
+        | IterationMessage message 
             ->
-             { m with ResultMsg = variant }, Cmd.none  
-
-        | TaskCompleted 
-            ->
-             { m with IsRunning = false }, Cmd.none
-            
-        | Kodis2 
-            -> 
-             m, Cmd.none  
+             { m with ResultMsg = message }, Cmd.none         
 
         | Kodis 
             -> 
@@ -97,6 +92,7 @@ module App =
                              Async.StartChild 
                                  (async 
                                       {
+                                          //TODO result type 
                                           return KODIS_SubmainDataTable.downloadAndSaveJson
                                               <| (jsonLinkList @ jsonLinkList2) 
                                               <| (pathToJsonList @ pathToJsonList2) 
@@ -106,37 +102,23 @@ module App =
                          let! result = hardWork 
                          do! Async.Sleep 1000
 
-                         dispatch (WorkIsComplete result)
-                     }      
-                     
-             let delayedCmd2 (dispatch: Msg -> unit): Async<unit> =  
-                 async
-                     {
-                         let! hardWork = 
-                             Async.StartChild 
-                                 (async
-                                      {
-                                          KODIS_SubmainDataTable.deleteAllODISDirectories path                                                      
-                                          return "Chv\u00EDli strpen\u00ED pros\u00EDm, za\u010Dalo stahov\u00E1n\u00ED J\u0158 a bude to trvat n\u011Bkolik minut ..." 
-                                      }
-                                  )
-                         let! result = hardWork 
-                         do! Async.Sleep 1000
-
-                         dispatch (WorkIsComplete result)
+                         dispatch (WorkIsComplete "Dokon\u010deno stahov\u00e1n\u00ed JSON soubor\u016f.") //"Dokonèeno stahování JSON souborù. Chvíli strpení, prosím ..."
                      }  
 
-             let delayedCmd3 (dispatch: Msg -> unit): Async<unit> =  
+             let delayedCmd2 (dispatch: Msg -> unit): Async<unit> =  
                  async 
                      {
                          let reportProgress (progressValue, totalProgress) =
                              dispatch (UpdateStatus (progressValue, totalProgress))  
-                             
+
+                         //TODO result type     
                          let! hardWork = 
                              Async.StartChild 
                                  (async 
                                      {
-                                         let dt = DataTable.CreateDt.dt()   
+                                         let dt = DataTable.CreateDt.dt() 
+                                         
+                                         KODIS_SubmainDataTable.deleteAllODISDirectories path
                                          
                                          let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
                                          let variantList = [ CurrentValidity; FutureValidity; WithoutReplacementService ]
@@ -151,12 +133,15 @@ module App =
                                          
                                          (variantList, dirList, msgList)
                                          |||> List.map3
-                                             (fun variant dir msg 
+                                             (fun variant dir message 
                                                  ->
-                                                  dispatch (IterationComplete msg)
+                                                  dispatch (WorkIsComplete "Chv\u00edli strpen\u00ed, pros\u00edm ...")
                                                   
-                                                  KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
-                                                  |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir                                                  
+                                                  let activity = KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
+
+                                                  dispatch (IterationMessage message)
+
+                                                  activity |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir                                                                                                    
                                              )
                                          |> ignore
 
@@ -173,40 +158,93 @@ module App =
              let executeSequentially (dispatch: Msg -> unit) =
                  async 
                      {
-                         do! delayedCmd1 dispatch                                   
+                         do! delayedCmd1 dispatch 
+                         do! Async.Sleep 3000
                          do! delayedCmd2 dispatch 
-                         do! delayedCmd3 dispatch
                      }
                  |> Async.StartImmediate
             
              { 
-                 m with 
-                     ResultMsg = "Stahování JSON souborù potøebných pro stahování JØ"; 
+                 m with       //TODO predelat                           
+                     ResultMsg = "Stahuj\u00ed se JSON soubory pot\u0159ebn\u00e9 pro stahov\u00e1n\u00ed J\u0158 ODIS" 
                      ProgressIndicator = InProgress (0.0, 0.0)
-                     IsRunning = true
-             }, Cmd.ofSub executeSequentially
-
+             }, Cmd.ofSub executeSequentially        
+          
         | Dpo 
-            ->                      
-             let result =                 
-                 try
-                     let path = @"/storage/emulated/0/FabulousTimetables/"
-                     webscraping_DPO path
-                     "J\u0158 DPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny."                           
-                 with
-                 | ex -> sprintf "Error: %s" ex.Message      
-             { m with ResultMsg = result }, Cmd.none    
-        
+            -> 
+            let path =
+                //@"/storage/emulated/0/FabulousTimetables/"
+                @"c:\Users\User\Data\"
+
+            let delayedCmd (dispatch: Msg -> unit): Async<unit> =
+                async
+                    {
+                        let reportProgress (progressValue, totalProgress) =
+                            dispatch (UpdateStatus (progressValue, totalProgress)) 
+                                
+                        let! hardWork = 
+                            Async.StartChild 
+                                (async 
+                                        {
+                                            dispatch (IterationMessage "Stahuj\u00ED se aktu\u00E1ln\u011B platn\u00E9 J\u0158 DPO")
+
+                                            webscraping_DPO reportProgress path
+
+                                            return "J\u0158 DPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." //TODO result type
+                                        }
+                                    )
+                        let! result = hardWork 
+                        do! Async.Sleep 1000
+
+                        dispatch (WorkIsComplete result)
+                    }   
+                    
+            let execute (dispatch: Msg -> unit) =
+                async { do! delayedCmd dispatch } |> Async.StartImmediate
+
+            { 
+                m with                                  
+                    ResultMsg = "J\u0158 DPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny."
+                    ProgressIndicator = InProgress (0.0, 0.0)
+            }, Cmd.ofSub execute     
+
         | Mdpo 
-            ->                 
-             let result =                 
-                 try
-                     let path = @"/storage/emulated/0/FabulousTimetables/"
-                     webscraping_MDPO path
-                     "Zast\u00E1vkov\u00E9 J\u0158 MDPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny."
-                 with
-                 | ex -> sprintf "Error: %s" ex.Message      
-             { m with ResultMsg = result }, Cmd.none 
+            -> 
+            let path =
+                //@"/storage/emulated/0/FabulousTimetables/"
+                @"c:\Users\User\Data\"
+
+            let delayedCmd (dispatch: Msg -> unit): Async<unit> =
+                async
+                    {
+                        let reportProgress (progressValue, totalProgress) =
+                            dispatch (UpdateStatus (progressValue, totalProgress)) 
+                                    
+                        let! hardWork = 
+                            Async.StartChild 
+                                (async 
+                                        {
+                                            dispatch (IterationMessage "Stahuj\u00ED se aktu\u00E1ln\u011B platn\u00E9 J\u0158 MDPO")
+
+                                            webscraping_MDPO reportProgress path
+
+                                            return "Zast\u00E1vkov\u00E9 J\u0158 MDPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." //TODO result type
+                                        }
+                                    )
+                        let! result = hardWork 
+                        do! Async.Sleep 1000
+
+                        dispatch (WorkIsComplete result)
+                    }   
+                        
+            let execute (dispatch: Msg -> unit) =
+                async { do! delayedCmd dispatch } |> Async.StartImmediate
+
+            { 
+                m with                                  
+                    ResultMsg = "Zast\u00E1vkov\u00E9 J\u0158 MDPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny."
+                    ProgressIndicator = InProgress (0.0, 0.0)
+            }, Cmd.ofSub execute                     
 
     let view (m : Model) =
 
@@ -221,7 +259,7 @@ module App =
                             .height(150.)
                             .width(150.)
     
-                        Label("Timetable Downloader")
+                        Label("ODIS Timetable Downloader")
                             .semantics(SemanticHeadingLevel.Level1)
                             .font(size = 26.)
                             .centerTextHorizontal()

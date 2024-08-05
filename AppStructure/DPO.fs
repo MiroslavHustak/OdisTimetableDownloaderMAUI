@@ -12,12 +12,12 @@ open Settings.SettingsGeneral
 
 open SubmainFunctions.DPO_Submain
 
-module WebScraping_DPO =   
+module WebScraping_DPO =
 
     //Design pattern for WebScraping_DPO : AbstractApplePlumCherryApricotBrandyProxyDistilleryBean 
     
     //************************Main code********************************************************************************
-
+  
     type private State =  //not used
         { 
             TimetablesDownloadedAndSaved: unit
@@ -38,7 +38,7 @@ module WebScraping_DPO =
     type private Environment = 
         {
             filterTimetables : string -> (string * string) list
-            downloadAndSaveTimetables : Http.HttpClient -> string -> (string * string) list -> unit
+            downloadAndSaveTimetables : (float * float -> unit) -> Http.HttpClient -> string -> (string * string) list -> unit
             client : Http.HttpClient 
         }
 
@@ -49,7 +49,7 @@ module WebScraping_DPO =
             client = client () 
         }    
 
-    let internal webscraping_DPO pathToDir =  
+    let internal webscraping_DPO reportProgress pathToDir =  
 
          //tryWith block is in the main() function  
 
@@ -106,7 +106,7 @@ module WebScraping_DPO =
                                                    //msg1 ()                                                
                                           | true  -> 
                                                    environment.filterTimetables pathToSubdir 
-                                                   |> environment.downloadAndSaveTimetables environment.client pathToSubdir   
+                                                   |> environment.downloadAndSaveTimetables reportProgress environment.client pathToSubdir   
                                                    environment.client.Dispose()
                                           in errorHandling filterDownloadSave   
                                       
@@ -125,3 +125,4 @@ module WebScraping_DPO =
         stateReducer stateDefault EndProcess environment
 
         environment.client.Dispose()
+

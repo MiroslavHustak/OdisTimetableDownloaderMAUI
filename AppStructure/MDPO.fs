@@ -37,7 +37,7 @@ module WebScraping_MDPO =
     type private Environment = 
         {
             filterTimetables : string -> Map<string, string>
-            downloadAndSaveTimetables : string -> Map<string, string> -> unit
+            downloadAndSaveTimetables : (float * float -> unit) -> string -> Map<string, string> -> unit
         }
 
     let private environment: Environment =
@@ -46,7 +46,7 @@ module WebScraping_MDPO =
             downloadAndSaveTimetables = downloadAndSaveTimetables       
         }    
 
-    let internal webscraping_MDPO pathToDir =  
+    let internal webscraping_MDPO reportProgress pathToDir =  
 
          //tryWith block is in the main() function  
 
@@ -101,7 +101,7 @@ module WebScraping_MDPO =
                                                    //msg1 ()                                                
                                           | true  -> 
                                                    environment.filterTimetables pathToSubdir 
-                                                   |> environment.downloadAndSaveTimetables pathToSubdir                                       
+                                                   |> environment.downloadAndSaveTimetables reportProgress pathToSubdir                                       
                                           in errorHandling filterDownloadSave           
                                                                                 
             | EndProcess             -> ()

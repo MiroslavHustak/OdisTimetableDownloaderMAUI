@@ -17,15 +17,15 @@ module ProgressCircle =
                     let radius = Math.Min(dirtyRect.Width, dirtyRect.Height) / 2f - 10f
                     let strokeWidth = 15f                            
     
-                    let percentageText = sprintf "%.0f%%" (progress * 100.0)
-    
+                    let percentageText = sprintf "%.0f%%" (progress * 100.0)                        
+                        
                     // Draw Background Circle
                     canvas.StrokeColor <- Colors.LightCyan
                     canvas.StrokeSize <- strokeWidth
                     canvas.DrawCircle(centerX, centerY, radius)
     
                     // Draw Progress Circle
-                    let sweepAngle = progress * 360.0
+                    let sweepAngle = progress * 359.9
                     canvas.StrokeColor <- Colors.Blue
                     canvas.DrawArc(centerX - radius, centerY - radius, radius * 2f, radius * 2f, -0f, float32 sweepAngle, false, false)
 

@@ -114,7 +114,7 @@ module DPO_Submain =
                       |> List.distinct
             ) 
 
-    let internal downloadAndSaveTimetables client (pathToDir: string) (filterTimetables: (string*string) list) =  
+    let internal downloadAndSaveTimetables reportProgress (client: Http.HttpClient) (pathToDir: string) (filterTimetables: (string*string) list) =  
 
         let downloadFileTaskAsync (client: Http.HttpClient) (uri: string) (path: string) : Async<Result<unit, string>> =  
        
@@ -155,7 +155,7 @@ module DPO_Submain =
     
         //msgParam3 pathToDir 
     
-        let downloadTimetables (client: HttpClient) = 
+        let downloadTimetables reportProgress (client: HttpClient) = 
         
             let l = filterTimetables |> List.length
         
@@ -189,7 +189,7 @@ module DPO_Submain =
                                                  
                      async                                                
                          {   
-                             //progressBarContinuous i l  
+                             reportProgress (float i + 1.0, float l)  
                              return! downloadFileTaskAsync client link pathToFile                                                                                                                               
                          } 
                      |> Async.Catch
@@ -198,6 +198,6 @@ module DPO_Submain =
                      |> Result.mapErr mapErr2 (lazy())//(lazy msgParam2 link)                                                   
                 ) 
 
-        downloadTimetables client     
+        downloadTimetables reportProgress client     
    
         //msgParam4 pathToDir

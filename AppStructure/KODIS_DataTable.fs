@@ -18,9 +18,8 @@ module WebScraping_KODISFMDataTable =
     
     //FREE MONAD 
 
-    let internal webscraping_KODISFMDataTable pathToDir (variantList: Validity list) reportProgress = ()
-                
-        (*   
+    let internal webscraping_KODISFMDataTable1 pathToDir (variantList: Validity list) reportProgress = 
+           
         let rec interpret clp  = 
 
             let errorHandling fn = 
@@ -28,10 +27,9 @@ module WebScraping_KODISFMDataTable =
                     fn
                 with
                 | ex ->
-                      logInfoMsg <| sprintf "Err049 %s" (string ex.Message)
+                      ()//logInfoMsg <| sprintf "Err049 %s" (string ex.Message)
                       //closeItBaby msg16           
 
-            //function //CommandLineProgram<unit> -> unit
             match clp with
             | Pure x                                -> 
                                                      x //nevyuzito
@@ -57,26 +55,28 @@ module WebScraping_KODISFMDataTable =
 
             | Free (DownloadAndSaveJsonFM next)     ->      
                                                      //Http request and IO operation (data from settings -> http request -> IO operation -> saving json files on HD)
-                                                     let downloadAndSaveJson =  
+                                                     let downloadAndSaveJson reportProgress =  
                                                          //startNetChecking ()
                                                          
                                                          //msg2 ()    
                                                          //msg15 ()
         
-                                                         Console.Write("\r" + new string(' ', (-) Console.WindowWidth 1) + "\r")
-                                                         Console.CursorLeft <- 0  
+                                                         //Console.Write("\r" + new string(' ', (-) Console.WindowWidth 1) + "\r")
+                                                         //Console.CursorLeft <- 0  
 
-                                                         KODIS_SubmainDataTable.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) 
+                                                         KODIS_SubmainDataTable.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress 
                                                          
                                                          //msg3 ()   
                                                          //msg11 ()    
                                                          
-                                                         in errorHandling downloadAndSaveJson
+                                                         in errorHandling <| downloadAndSaveJson reportProgress                                                          
 
                                                      let param = next ()
                                                      interpret param                                                
                                                 
             | Free (DownloadSelectedVariantFM next) -> 
+                                                     let dt = DataTable.CreateDt.dt() 
+                                                     
                                                      let downloadSelectedVariant = 
                                                          match variantList |> List.length with
                                                          //SingleVariantDownload
@@ -99,10 +99,10 @@ module WebScraping_KODISFMDataTable =
 
                                                               //operation on data 
                                                               //input from saved json files -> change of input data -> output into array -> input from array -> change of input data -> output into datatable -> data filtering (link*path)  
-                                                              KODIS_SubmainDataTable.operationOnDataFromJson variant (dirList |> List.head) 
+                                                              let activity = KODIS_SubmainDataTable.operationOnDataFromJson dt variant (dirList |> List.head) 
 
                                                               //IO operation (data filtering (link*path) -> http request -> saving pdf files on HD)
-                                                              |> KODIS_SubmainDataTable.downloadAndSave (dirList |> List.head) 
+                                                              activity |> KODIS_SubmainDataTable.downloadAndSave reportProgress (dirList |> List.head) 
 
                                                          //BulkVariantDownload       
                                                          | _ ->
@@ -124,10 +124,10 @@ module WebScraping_KODISFMDataTable =
                                                                       -> 
                                                                        //operation on data 
                                                                        //input from saved json files -> change of input data -> output into array -> input from array -> change of input data -> output into datatable -> data filtering (link*path)  
-                                                                       KODIS_SubmainDataTable.operationOnDataFromJson variant dir 
+                                                                       let activity = KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
 
                                                                        //IO operation (data filtering (link*path) -> http request -> saving pdf files on HD)
-                                                                       |> KODIS_SubmainDataTable.downloadAndSave dir   
+                                                                       activity |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir   
                                                                   )     
                                                                                                               
                                                          in errorHandling downloadSelectedVariant  
@@ -156,10 +156,3 @@ module WebScraping_KODISFMDataTable =
 
                 return! Free (EndProcessFM Pure)
             } |> interpret 
-            *) 
-        //*****************************************************************************************************************************************
-
-        //CurrentValidity = JR striktne platne k danemu dni, tj. pokud je napr. na dany den vylukovy JR, stahne se tento JR, ne JR platny dalsi den
-        //FutureValidity = JR platne v budouci dobe, ktere se uz vyskytuji na webu KODISu
-        //ReplacementService = pouze vylukove JR, JR NAD a JR X linek
-        //WithoutReplacementService = JR dlouhodobe platne bez jakykoliv vyluk. Tento vyber neobsahuje ani dlouhodobe nekolikamesicni vyluky, muze se ale hodit v pripade, ze zakladni slozka s JR obsahuje jedno ci dvoudenni vylukove JR.     

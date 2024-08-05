@@ -82,7 +82,7 @@ module MDPO_Submain =
         |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
 
     //FsHttp
-    let internal downloadAndSaveTimetables (pathToDir : string) (filterTimetables : Map<string, string>) =  
+    let internal downloadAndSaveTimetables reportProgress (pathToDir : string) (filterTimetables : Map<string, string>) =  
 
         let downloadFileTaskAsync (uri : string) (path : string) : Async<Result<unit, string>> =  
             
@@ -121,7 +121,7 @@ module MDPO_Submain =
     
         //msgParam3 pathToDir 
     
-        let downloadTimetables = 
+        let downloadTimetables reportProgress = 
         
             let l = filterTimetables |> Map.count
         
@@ -156,7 +156,7 @@ module MDPO_Submain =
                                                  
                      async                                                
                          {   
-                             //progressBarContinuous i l   
+                             reportProgress (float i + 1.0, float l)   
                              return! downloadFileTaskAsync link pathToFile                                                                                                                               
                          } 
                      |> Async.Catch
@@ -165,6 +165,6 @@ module MDPO_Submain =
                      |> Result.mapErr mapErr2 (lazy())//(lazy msgParam2 link)                                                   
                 )     
 
-        downloadTimetables  
+        downloadTimetables reportProgress 
     
         //msgParam4 pathToDir

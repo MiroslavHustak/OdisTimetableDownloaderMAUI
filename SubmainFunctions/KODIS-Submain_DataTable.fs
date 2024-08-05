@@ -107,9 +107,7 @@ module KODIS_SubmainDataTable =
                 let! value = value |> Result.sequence, errorFn1
 
                 return value |> List.head
-            }  
-            
-        "Dokončeno stahování JSON souborů. Chvíli strpení, prosím ..."      
+            } 
     
     //input from saved json files -> change of input data -> output into array
     let private digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
@@ -824,7 +822,7 @@ module KODIS_SubmainDataTable =
                                                       { 
                                                           match! inbox.Receive() with
                                                           | Inc i -> 
-                                                                   reportProgress (float n, float l) 
+                                                                   reportProgress (float n, float l)                                                                    
                                                                    return! loop (n + i)
                                                      }
                                               loop 0
