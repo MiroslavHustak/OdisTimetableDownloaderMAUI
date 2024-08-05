@@ -24,9 +24,6 @@ open Settings.SettingsGeneral
 
 open MainFunctions.WebScraping_DPO
 open MainFunctions.WebScraping_MDPO
-open SubmainFunctions.DPO_Submain
-open System.Net.Http
-open Helpers
 
 module App =
 
