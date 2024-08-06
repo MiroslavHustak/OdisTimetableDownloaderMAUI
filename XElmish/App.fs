@@ -154,8 +154,6 @@ module App =
                          let! hardWork =                            
                              async 
                                  {
-                                     //dispatch (IterationMessage "Stahují se aktuálně platné JŘ DPO ...")
-
                                      match webscraping_DPO reportProgress path with
                                      | Ok value  -> return "JŘ DPO úspěšně staženy."
                                      | Error err -> return err
@@ -191,11 +189,9 @@ module App =
                          let! hardWork = 
                              async 
                                  {
-                                     dispatch (IterationMessage "Stahují se zastávkové JŘ MDPO ...") 
-
-                                     webscraping_MDPO reportProgress path
-
-                                     return "Zastávkové JŘ MDPO úspěšně staženy." //TODO result type
+                                     match webscraping_MDPO reportProgress path with
+                                     | Ok value  -> return "Zastávkové JŘ MDPO úspěšně staženy."
+                                     | Error err -> return err
                                  } 
                              |> Async.StartChild 
                                 
@@ -209,7 +205,7 @@ module App =
 
              { 
                  m with                                  
-                     ProgressMsg = "Zastávkové JŘ MDPO úspěšně staženy."
+                     ProgressMsg = "Stahují se zastávkové JŘ MDPO ..."
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub execute                     
 
