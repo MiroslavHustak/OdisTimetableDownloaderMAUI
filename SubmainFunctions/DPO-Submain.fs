@@ -20,9 +20,7 @@ open Settings.SettingsGeneral
 module DPO_Submain =
 
     //************************Submain functions************************************************************************
-
-    let private client = new HttpClient()     
-
+ 
     //[<TailCall>]
     let internal filterTimetables pathToDir = 
 
@@ -108,7 +106,7 @@ module DPO_Submain =
                             pyramidOfDoom
                                 {
                                     let!_ = not <| File.Exists(pathToFile) |> Option.ofBool, Error String.Empty
-                                    let! clientResult = client |> Option.ofNull, Error String.Empty
+                                    let! client = new HttpClient() |> Option.ofNull, Error String.Empty
 
                                     return Ok client        
                                 }

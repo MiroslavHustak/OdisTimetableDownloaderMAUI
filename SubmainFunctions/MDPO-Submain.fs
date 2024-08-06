@@ -123,10 +123,7 @@ module MDPO_Submain =
                 )  
             |> Result.sequence  
             |> function
-                | Ok _    ->
-                           Ok ()   
-                | Error _ ->
-                           Error "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."    
+                | Ok _    -> Ok ()   
+                | Error _ -> Error "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."    
 
         downloadTimetables reportProgress 
-    
