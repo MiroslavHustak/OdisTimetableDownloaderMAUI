@@ -5,6 +5,8 @@ open System.IO
 open System.Net
 
 open Types.Types   
+
+open Helpers.Builders
 open Helpers.CloseApp
    
 open Settings.Messages
@@ -18,14 +20,14 @@ module WebScraping_DPO =
     
     //************************Main code********************************************************************************
   
-    type private State =  //not used
+    type private State =  
         { 
-            TimetablesDownloadedAndSaved: unit
+            TimetablesDownloadedAndSaved: string
         }
 
     let private stateDefault = 
         {          
-            TimetablesDownloadedAndSaved = ()
+            TimetablesDownloadedAndSaved = String.Empty //Podumat nad default textem
         }
 
     type private Actions =       
@@ -36,15 +38,15 @@ module WebScraping_DPO =
     type private Environment = 
         {
             filterTimetables : string -> (string * string) list
-            downloadAndSaveTimetables : (float * float -> unit) -> Http.HttpClient -> string -> (string * string) list -> unit
-            client : Http.HttpClient 
+            downloadAndSaveTimetables : (float * float -> unit) -> (string * string) list -> Result<unit, string>
+            //client : Http.HttpClient 
         }
 
     let private environment: Environment =
         { 
             filterTimetables = filterTimetables
             downloadAndSaveTimetables = downloadAndSaveTimetables
-            client = client () 
+            //client = client () 
         }    
 
     let internal webscraping_DPO reportProgress pathToDir =  
@@ -54,12 +56,8 @@ module WebScraping_DPO =
             let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.odisDir5 ] //Android jen forward slash %s/%s
 
             let errorHandling fn = 
-                try
-                    fn
-                with
-                | ex ->
-                      ()//logInfoMsg <| sprintf "Err052 %s" (string ex.Message)
-                      //closeItBaby msg16      
+                try Ok fn
+                with ex -> Error <| string ex.Message    
 
             match action with       
             | DeleteOneODISDirectory ->                                     
@@ -72,7 +70,6 @@ module WebScraping_DPO =
                                               |> Seq.filter (fun item -> item.Name = dirName) 
                                               |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                                           in errorHandling myDeleteFunction 
-                                      //msg12 ()   
                                     
             | CreateFolders          -> 
                                       let myFolderCreation = 
@@ -81,21 +78,22 @@ module WebScraping_DPO =
                                           in errorHandling myFolderCreation
 
             | FilterDownloadSave     -> 
-                                      let filterDownloadSave = 
-                                          let pathToSubdir = dirList pathToDir |> List.head    
-                                          match pathToSubdir |> Directory.Exists with 
-                                          | false -> ()                                             
-                                                   //msgParam5 pathToSubdir   
-                                                   //msg1 ()                                                
-                                          | true  -> 
-                                                   environment.filterTimetables pathToSubdir 
-                                                   |> environment.downloadAndSaveTimetables reportProgress environment.client pathToSubdir   
-                                                   environment.client.Dispose()
-                                          in errorHandling filterDownloadSave              
-    
-        stateReducer stateDefault DeleteOneODISDirectory environment
-        stateReducer stateDefault CreateFolders environment
-        stateReducer stateDefault FilterDownloadSave environment
+                                      let pathToSubdir = dirList pathToDir |> List.head    
+                                      match pathToSubdir |> Directory.Exists with 
+                                      | false ->
+                                               Error String.Empty                              
+                                      | true  -> 
+                                               environment.filterTimetables pathToSubdir 
+                                                |> environment.downloadAndSaveTimetables reportProgress   
+                                                   
+        pyramidOfInferno
+            {  
+                let item = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."
 
-        environment.client.Dispose()
+                let! _ = stateReducer stateDefault DeleteOneODISDirectory environment, fun item -> Error item
+                let! _ = stateReducer stateDefault CreateFolders environment, fun item -> Error item
+                
+                return! stateReducer stateDefault FilterDownloadSave environment
+            }
 
+       

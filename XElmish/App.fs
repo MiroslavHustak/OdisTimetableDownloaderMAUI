@@ -30,7 +30,7 @@ module App =
 
     type Model = 
         {
-            ResultMsg: string
+            ProgressMsg: string
             ProgressIndicator: ProgressIndicator
             Progress: float // New property to hold the progress value
         }
@@ -45,7 +45,7 @@ module App =
 
     let init () =
         { 
-            ResultMsg = String.Empty
+            ProgressMsg = String.Empty
             ProgressIndicator = Idle
             Progress = 0.0 // Initialize progress
         },
@@ -64,11 +64,11 @@ module App =
 
         | WorkIsComplete result 
             ->
-             { m with ResultMsg = result; ProgressIndicator = Idle; Progress = 0.0 }, Cmd.none
+             { m with ProgressMsg = result; ProgressIndicator = Idle; Progress = 0.0 }, Cmd.none
 
         | IterationMessage message 
             ->
-             { m with ResultMsg = message }, Cmd.none         
+             { m with ProgressMsg = message }, Cmd.none         
 
         | Kodis 
             -> 
@@ -134,8 +134,8 @@ module App =
                  |> Async.StartImmediate
             
              { 
-                 m with       //TODO predelat                           
-                     ResultMsg = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
+                 m with                               
+                     ProgressMsg = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub executeSequentially        
           
@@ -154,11 +154,11 @@ module App =
                          let! hardWork =                            
                              async 
                                  {
-                                     dispatch (IterationMessage "Stahují se aktuálně platné JŘ DPO ...")
+                                     //dispatch (IterationMessage "Stahují se aktuálně platné JŘ DPO ...")
 
-                                     webscraping_DPO reportProgress path
-
-                                     return "JŘ DPO úspěšně staženy." //TODO result type
+                                     match webscraping_DPO reportProgress path with
+                                     | Ok value  -> return "JŘ DPO úspěšně staženy."
+                                     | Error err -> return err
                                  }
                              |> Async.StartChild 
                                
@@ -172,7 +172,7 @@ module App =
 
              { 
                  m with                                  
-                     ResultMsg = "JŘ DPO úspěšně staženy."
+                     ProgressMsg = "Stahují se aktuálně platné JŘ DPO ..."
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub execute     
 
@@ -209,7 +209,7 @@ module App =
 
              { 
                  m with                                  
-                     ResultMsg = "Zastávkové JŘ MDPO úspěšně staženy."
+                     ProgressMsg = "Zastávkové JŘ MDPO úspěšně staženy."
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub execute                     
 
@@ -231,7 +231,7 @@ module App =
                             .font(size = 26.)
                             .centerTextHorizontal()
     
-                        Label(m.ResultMsg)
+                        Label(m.ProgressMsg)
                             .semantics(SemanticHeadingLevel.Level2, "Welcome to dot net Multi platform App U I powered by Fabulous")
                             .font(size = 14.)
                             .centerTextHorizontal()

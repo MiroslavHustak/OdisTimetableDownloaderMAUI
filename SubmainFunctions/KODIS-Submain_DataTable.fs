@@ -889,8 +889,6 @@ module KODIS_SubmainDataTable =
             | Ok value  -> 
                          value  
             | Error err ->
-                         //logInfoMsg <| sprintf "Err018 %s" err
-                         //closeItBaby msg16  
                          []
                            
     let internal downloadAndSave = //: Reader<Context<string, string, unit>, unit> = 
@@ -907,12 +905,10 @@ module KODIS_SubmainDataTable =
                              try
                                  //input from data filtering (links*paths) -> http request -> saving pdf files on HD
                                  match context.list with
-                                 | [] -> Error String.Empty //msgParam13 dir       
+                                 | [] -> Error String.Empty     
                                  | _  -> downloadAndSaveTimetables context   //TODO prozatimne je OK, predelat v ramci errorhandling  
                              with
-                             | ex -> 
-                                   Error String.Empty  
-                                   //logInfoMsg <| sprintf "Err019 %s" (string ex.Message)
-                                   //closeItBaby msg16            
+                             | ex -> Error String.Empty  
+                                          
                 return result 
             }               

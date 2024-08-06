@@ -12,6 +12,7 @@ module Builders =
              | Ok value -> nextFunc value 
              | Error err  -> (snd resultExpr) err
          member _.Return x = x  
+         member _.ReturnFrom x : 'a = x 
      
     let internal pyramidOfInferno = MyBuilder3 
     

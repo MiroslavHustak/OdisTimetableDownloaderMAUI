@@ -5,11 +5,13 @@ open System
 open Types
 open Types.Types
 
+open Helpers
+
 open SubmainFunctions
 
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
-open Helpers
+
 
 module WebScraping_KODISFMDataTable = 
 

@@ -8,51 +8,33 @@ open System.Net.Http
 open FSharp.Data
 open FsToolkit.ErrorHandling
 
-open Settings.Messages
+open Helpers
+open Helpers.Builders
+
+open Types.ErrorTypes  
+
 open Settings.SettingsDPO
 open Settings.SettingsGeneral
 
-open Types.ErrorTypes   
-
-open Helpers
-open Helpers.CloseApp
-//open Helpers.ProgressBarFSharp
 
 module DPO_Submain =
 
     //************************Submain functions************************************************************************
 
-    let internal client () =         
-
-        let client = new HttpClient()
-        
-        match client |> Option.ofNull with
-        | Some value -> 
-                      value
-        | None       ->
-                      ()//logInfoMsg <| sprintf "Err034 %s" "new HttpClient() is null"
-                      client.Dispose()
-                      //closeItBaby msg20
-                      new HttpClient()                              
+    let private client = new HttpClient()     
 
     //[<TailCall>]
     let internal filterTimetables pathToDir = 
 
         let getLastThreeCharacters input =
             match String.length input <= 3 with
-            | true  -> 
-                     //msgParam6 input 
-                     input 
-            | false -> 
-                     input.Substring(input.Length - 3)
+            | true  -> input 
+            | false -> input.Substring(input.Length - 3)
 
         let removeLastFourCharacters input =
             match String.length input <= 4 with
-            | true  -> 
-                     //msgParam6 input 
-                     String.Empty
-            | false ->
-                     input.[..(input.Length - 5)]                    
+            | true  -> String.Empty
+            | false -> input.[..(input.Length - 5)]                    
     
         let urlList = 
             [
@@ -114,90 +96,76 @@ module DPO_Submain =
                       |> List.distinct
             ) 
 
-    let internal downloadAndSaveTimetables reportProgress (client: Http.HttpClient) (pathToDir: string) (filterTimetables: (string*string) list) =  
+    let internal downloadAndSaveTimetables reportProgress (filterTimetables: (string*string) list) =  
 
-        let downloadFileTaskAsync (client: Http.HttpClient) (uri: string) (path: string) : Async<Result<unit, string>> =  
+        let downloadFileTaskAsync (uri: string) (pathToFile: string) : Async<Result<unit, string>> =  
        
             async
                 {                      
                     try    
-                        match File.Exists(path) with
-                        | true  -> 
-                                 return Ok () 
-                        | false -> 
-                                 let! response = client.GetAsync(uri) |> Async.AwaitTask
-                        
-                                 match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
-                                 | true  -> 
-                                          let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
-                                          use fileStream = new FileStream(path, FileMode.CreateNew) 
-                                          do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
-                                      
-                                          return Ok ()
+                        let clientResult = 
+                            
+                            pyramidOfDoom
+                                {
+                                    let!_ = not <| File.Exists(pathToFile) |> Option.ofBool, Error String.Empty
+                                    let! clientResult = client |> Option.ofNull, Error String.Empty
 
-                                 | false -> 
-                                          let errorType = 
-                                              match response.StatusCode with
-                                              | HttpStatusCode.BadRequest          -> Error connErrorCodeDefault.BadRequest
-                                              | HttpStatusCode.InternalServerError -> Error connErrorCodeDefault.InternalServerError
-                                              | HttpStatusCode.NotImplemented      -> Error connErrorCodeDefault.NotImplemented
-                                              | HttpStatusCode.ServiceUnavailable  -> Error connErrorCodeDefault.ServiceUnavailable
-                                              | HttpStatusCode.NotFound            -> Error uri  
-                                              | _                                  -> Error connErrorCodeDefault.CofeeMakerUnavailable   
-                                          
-                                          return errorType     
+                                    return Ok clientResult        
+                                }
+                        
+                        match clientResult with
+                        | Ok client ->      
+                                     let! response = client.GetAsync(uri) |> Async.AwaitTask
+                        
+                                     match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
+                                     | true  -> 
+                                              let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
+                                              use fileStream = new FileStream(pathToFile, FileMode.CreateNew) 
+                                              do! stream.CopyToAsync(fileStream) |> Async.AwaitTask                                      
+                                              return Ok ()
+                                     | false -> 
+                                              let errorType = 
+                                                  match response.StatusCode with
+                                                  | HttpStatusCode.BadRequest          -> Error connErrorCodeDefault.BadRequest
+                                                  | HttpStatusCode.InternalServerError -> Error connErrorCodeDefault.InternalServerError
+                                                  | HttpStatusCode.NotImplemented      -> Error connErrorCodeDefault.NotImplemented
+                                                  | HttpStatusCode.ServiceUnavailable  -> Error connErrorCodeDefault.ServiceUnavailable
+                                                  | HttpStatusCode.NotFound            -> Error uri  
+                                                  | _                                  -> Error connErrorCodeDefault.CofeeMakerUnavailable   
+                                         
+                                              return errorType   
+                                
+                        | Error _   -> 
+                                     return Error String.Empty 
+                           
                     with                                                         
-                    | ex ->  
-                          ()//logInfoMsg <| sprintf "Err035 %s" (string ex.Message)
-                          //closeItDpo client msg20 
-                          return Error String.Empty//msg20    
-                }   
+                    | _ -> return Error String.Empty   
+                } 
     
-        //msgParam3 pathToDir 
-    
-        let downloadTimetables reportProgress (client: HttpClient) = 
+        let downloadTimetables reportProgress : Result<unit, string> = 
         
             let l = filterTimetables |> List.length
         
             filterTimetables 
-            |> List.iteri
+            |> List.mapi
                 (fun i (link, pathToFile)
-                    -> 
-                     //vzhledem k nutnosti propustit chybu pri nestahnuti JR (message.msgParam2 link) nepouzito Result.sequence   
-                     let mapErr3 err =                  
-                         function
-                         | Ok value   ->
-                                       value    
-                                       |> List.tryFind ((=) err)
-                                       |> function
-                                           | Some err ->
-                                                       ()//logInfoMsg <| sprintf "Err036 %s" err
-                                                       //closeItDpo client err                                                                      
-                                           | None     -> 
-                                                       ()//msgParam2 link 
-                          | Error err ->
-                                       ()//logInfoMsg <| sprintf "Err037 %s" err
-                                       //closeItDpo client err              
-
-                     let mapErr2 = 
-                         function
-                         | Ok value  -> 
-                                      value |> ignore
-                         | Error err ->
-                                      ()//logInfoMsg <| sprintf "Err038 %s" err
-                                      mapErr3 err (Ok listConnErrorCodeDefault) //Ok je legacy drivejsiho reflection a Result.sequence
-                                                 
+                    ->                                                 
                      async                                                
                          {   
                              reportProgress (float i + 1.0, float l)  
-                             return! downloadFileTaskAsync client link pathToFile                                                                                                                               
+                             return! downloadFileTaskAsync link pathToFile                                                                                                                               
                          } 
                      |> Async.Catch
                      |> Async.RunSynchronously
                      |> Result.ofChoice  
-                     |> Result.mapErr mapErr2 (lazy())//(lazy msgParam2 link)                                                   
                 ) 
+            |> Result.sequence  
+            |> function
+                | Ok _    ->
+                           client.Dispose() 
+                           Ok ()   
+                | Error _ ->
+                           client.Dispose() 
+                           Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."
 
-        downloadTimetables reportProgress client     
-   
-        //msgParam4 pathToDir
+        downloadTimetables reportProgress    
