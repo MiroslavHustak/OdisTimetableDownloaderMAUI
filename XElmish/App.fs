@@ -109,19 +109,19 @@ module App =
 
                          //TODO result type     
                          let! hardWork = 
-                             Async.StartChild 
-                                 (
-                                     async 
-                                         {                                    
-                                             stateReducerCmd2
-                                             <| path
-                                             <| fun message -> dispatch (WorkIsComplete message)
-                                             <| fun message -> dispatch (IterationMessage message) 
-                                             <| reportProgress
+                            
+                             async 
+                                 {                                    
+                                     stateReducerCmd2
+                                     <| path
+                                     <| fun message -> dispatch (WorkIsComplete message)
+                                     <| fun message -> dispatch (IterationMessage message) 
+                                     <| reportProgress
 
-                                             return "Kompletní JŘ ODIS úspěšně staženy." 
-                                         }
-                                 )
+                                     return "Kompletní JŘ ODIS úspěšně staženy." 
+                                 }
+                             |> Async.StartChild 
+                               
                          let! result = hardWork 
                          do! Async.Sleep 1000
 
@@ -155,25 +155,24 @@ module App =
                              dispatch (UpdateStatus (progressValue, totalProgress)) 
                                 
                          let! hardWork = 
-                             Async.StartChild 
-                                 (
-                                     async 
-                                         {
-                                             dispatch (IterationMessage "Stahují se aktuálně platné JŘ DPO")
+                           
+                             async 
+                                 {
+                                     dispatch (IterationMessage "Stahují se aktuálně platné JŘ DPO")
 
-                                             webscraping_DPO reportProgress path
+                                     webscraping_DPO reportProgress path
 
-                                             return "JŘ DPO úspěšně staženy." //TODO result type
-                                         }
-                                 )
+                                     return "JŘ DPO úspěšně staženy." //TODO result type
+                                 }
+                             |> Async.StartChild 
+                               
                          let! result = hardWork 
                          do! Async.Sleep 1000
 
                          dispatch (WorkIsComplete result)
                      }   
                     
-             let execute (dispatch: Msg -> unit) =
-                 async { do! delayedCmd dispatch } |> Async.StartImmediate
+             let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
 
              { 
                  m with                                  
@@ -194,25 +193,23 @@ module App =
                              dispatch (UpdateStatus (progressValue, totalProgress)) 
                                     
                          let! hardWork = 
-                             Async.StartChild 
-                                 (
-                                     async 
-                                         {
-                                             dispatch (IterationMessage "Stahují se zastávkové JŘ MDPO ...") 
+                             async 
+                                 {
+                                     dispatch (IterationMessage "Stahují se zastávkové JŘ MDPO ...") 
 
-                                             webscraping_MDPO reportProgress path
+                                     webscraping_MDPO reportProgress path
 
-                                             return "Zastávkové JŘ MDPO úspěšně staženy." //TODO result type
-                                         }
-                                 )
+                                     return "Zastávkové JŘ MDPO úspěšně staženy." //TODO result type
+                                 } 
+                             |> Async.StartChild 
+                                
                          let! result = hardWork 
                          do! Async.Sleep 1000
 
                          dispatch (WorkIsComplete result)
                      }   
                         
-             let execute (dispatch: Msg -> unit) =
-                 async { do! delayedCmd dispatch } |> Async.StartImmediate
+             let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
 
              { 
                  m with                                  
