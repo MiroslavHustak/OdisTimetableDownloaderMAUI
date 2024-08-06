@@ -3,20 +3,123 @@
 open System
 
 open Types
-
-open Settings.Messages
-open Settings.SettingsGeneral
-    
-open Helpers.CloseApp  
-open Helpers.FreeMonads
+open Types.Types
 
 open SubmainFunctions
-open SubmainFunctions.KODIS_SubmainDataTable
+
 open Settings.SettingsKODIS
+open Settings.SettingsGeneral
 
 module WebScraping_KODISFMDataTable = 
+
+    type private State =  //not used
+        { 
+            TimetablesDownloadedAndSaved: unit
+        }
+
+    let private stateDefault = 
+        {          
+            TimetablesDownloadedAndSaved = ()
+        }
+
+    type private Actions =
+        | DownloadAndSaveJsonFM
+        | DownloadSelectedVariantFM        
+
+    type private Environment = 
+        {
+            downloadAndSaveJson : string list -> string list -> (float * float -> unit) -> unit
+            deleteAllODISDirectories : string -> unit
+            operationOnDataFromJson : Data.DataTable -> Validity -> string -> (string * string) list
+            downloadAndSave : Context<string, string, unit> -> unit
+        }
+
+    let private environment: Environment =
+        { 
+            downloadAndSaveJson = KODIS_SubmainDataTable.downloadAndSaveJson 
+            deleteAllODISDirectories = KODIS_SubmainDataTable.deleteAllODISDirectories   
+            operationOnDataFromJson = KODIS_SubmainDataTable.operationOnDataFromJson
+            downloadAndSave = KODIS_SubmainDataTable.downloadAndSave
+        }    
+
+    let private stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state: State) (environment: Environment) (action: Actions) =
+
+        let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.odisDir5 ]
+
+        let errorHandling fn = 
+
+            try Ok fn
+            with ex -> Error <| string ex.Message
+                                
+            |> function
+                | Ok value  -> value  
+                | Error err -> ()
+
+        match action with                                                   
+        | DownloadAndSaveJsonFM 
+            -> 
+             //Http request and IO operation (data from settings -> http request -> IO operation -> saving json files on HD)
+             let downloadAndSaveJson reportProgress =  
+                 //startNetChecking ()
+
+                 environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress 
+                                                                           
+                 in errorHandling <| downloadAndSaveJson reportProgress
+
+        | DownloadSelectedVariantFM 
+            ->                                     
+             let dt = DataTable.CreateDt.dt() 
+                                  
+             environment.deleteAllODISDirectories path
+                                  
+             let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
+             let variantList = [ CurrentValidity; FutureValidity; WithoutReplacementService ]
+             let msgList =
+                 [
+                     "Stahují se aktuálně platné JŘ ODIS"
+                     "Stahují se JŘ ODIS platné v budoucnosti"
+                     "Stahují se teoreticky dlouhodobě platné JŘ ODIS"
+                 ]
+
+             KODIS_SubmainDataTable.createFolders dirList   
+                                  
+             (variantList, dirList, msgList)
+             |||> List.map3
+                 (fun variant dir message 
+                     ->
+                      dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se smaží ..."
+                                           
+                      let list = KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
+
+                      let context listMappingFunction = 
+                          {
+                              listMappingFunction = listMappingFunction
+                              reportProgress = reportProgress
+                              dir = dir
+                              list = list
+                          }
+
+                      dispatchIterationMessage message
+                                           
+                      match variant with
+                      | FutureValidity -> context List.map2 
+                      | _              -> context List.Parallel.map2 
+
+                      |> environment.downloadAndSave
+                  )
+              |> ignore     
+    
+    let stateReducerCmd1 path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
+        stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadAndSaveJsonFM
+
+    let stateReducerCmd2 path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
+          stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadSelectedVariantFM
+   
+
     
     //FREE MONAD 
+
+    (*
 
     let internal webscraping_KODISFMDataTable1 pathToDir (variantList: Validity list) reportProgress = 
            
@@ -156,3 +259,5 @@ module WebScraping_KODISFMDataTable =
 
                 return! Free (EndProcessFM Pure)
             } |> interpret 
+
+*)

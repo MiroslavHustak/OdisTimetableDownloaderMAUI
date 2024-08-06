@@ -2,7 +2,7 @@
 
 open System
 
-open Types.DirNames
+open Types.Types
 open Types.ErrorTypes
 
 module SettingsGeneral =  

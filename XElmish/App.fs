@@ -1,7 +1,6 @@
 namespace OdisTimetableDownloaderMAUI
 
 open System
-open System.IO
 
 open Fabulous
 open Fabulous.Maui
@@ -15,15 +14,13 @@ open Microsoft.Maui.Accessibility
 open type Fabulous.Maui.View
 
 open Types
+open Types.Types
 
 open ProgressCircle
-open SubmainFunctions
-
-open Settings.SettingsKODIS
-open Settings.SettingsGeneral
 
 open MainFunctions.WebScraping_DPO
 open MainFunctions.WebScraping_MDPO
+open MainFunctions.WebScraping_KODISFMDataTable
 
 module App =
 
@@ -42,7 +39,7 @@ module App =
         | Kodis  
         | Dpo
         | Mdpo
-        | UpdateStatus of progress: float*float
+        | UpdateStatus of progress: float * float
         | WorkIsComplete of string //TODO predelat na Result
         | IterationMessage of string
 
@@ -59,10 +56,10 @@ module App =
         | UpdateStatus (progressValue, totalProgress)
             ->
              let progress =                 
-                let value = (1.0 / totalProgress) * progressValue                
-                match value >= 1.000 with
-                | true  -> 1.000
-                | false -> value
+                 let value = (1.0 / totalProgress) * progressValue                
+                 match value >= 1.000 with
+                 | true  -> 1.000
+                 | false -> value
              { m with ProgressIndicator = InProgress (progressValue, totalProgress); Progress = progress }, Cmd.none
 
         | WorkIsComplete result 
@@ -87,19 +84,21 @@ module App =
                              
                          let! hardWork = 
                              Async.StartChild 
-                                 (async 
-                                      {
-                                          //TODO result type 
-                                          return KODIS_SubmainDataTable.downloadAndSaveJson
-                                              <| (jsonLinkList @ jsonLinkList2) 
-                                              <| (pathToJsonList @ pathToJsonList2) 
-                                              <| reportProgress
-                                      }
-                                  )
+                                 (
+                                    async 
+                                        {
+                                            return 
+                                                stateReducerCmd1
+                                                <| path
+                                                <| fun _ -> ()
+                                                <| fun _ -> ()
+                                                <| reportProgress
+                                        }
+                                 )
                          let! result = hardWork 
                          do! Async.Sleep 1000
 
-                         dispatch (WorkIsComplete "Dokon\u010deno stahov\u00e1n\u00ed JSON soubor\u016f.") //"Dokon�eno stahov�n� JSON soubor�. Chv�li strpen�, pros�m ..."
+                         dispatch (WorkIsComplete "Dokončeno stahování JSON souborů.") //"Dokončeno stahování JSON souborů. Chvíli strpení, prosím ..."
                      }  
 
              let delayedCmd2 (dispatch: Msg -> unit): Async<unit> =  
@@ -111,40 +110,17 @@ module App =
                          //TODO result type     
                          let! hardWork = 
                              Async.StartChild 
-                                 (async 
-                                     {
-                                         let dt = DataTable.CreateDt.dt() 
-                                         
-                                         KODIS_SubmainDataTable.deleteAllODISDirectories path
-                                         
-                                         let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
-                                         let variantList = [ CurrentValidity; FutureValidity; WithoutReplacementService ]
-                                         let msgList =
-                                             [
-                                                 "Stahuj\u00ED se aktu\u00E1ln\u011B platn\u00E9 J\u0158 ODIS"
-                                                 "Stahuj\u00ED se J\u0158 ODIS platn\u00E9 v budoucnosti"
-                                                 "Stahuj\u00ED se teoreticky dlouhodob\u011B platn\u00E9 J\u0158 ODIS"
-                                             ]
+                                 (
+                                     async 
+                                         {                                    
+                                             stateReducerCmd2
+                                             <| path
+                                             <| fun message -> dispatch (WorkIsComplete message)
+                                             <| fun message -> dispatch (IterationMessage message) 
+                                             <| reportProgress
 
-                                         KODIS_SubmainDataTable.createFolders dirList   
-                                         
-                                         (variantList, dirList, msgList)
-                                         |||> List.map3
-                                             (fun variant dir message 
-                                                 ->
-                                                  dispatch (WorkIsComplete "Chv\u00edli strpen\u00ed, pros\u00edm ...")
-                                                  
-                                                  let activity = KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
-
-                                                  dispatch (IterationMessage message)
-
-                                                  activity |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir                                                                                                    
-                                             )
-                                         |> ignore
-
-                                         //Unicode escape sequences
-                                         return "Kompletn\u00ED J\u0158 ODIS \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." 
-                                     }
+                                             return "Kompletní JŘ ODIS úspěšně staženy." 
+                                         }
                                  )
                          let! result = hardWork 
                          do! Async.Sleep 1000
@@ -156,92 +132,93 @@ module App =
                  async 
                      {
                          do! delayedCmd1 dispatch 
-                         do! Async.Sleep 3000
                          do! delayedCmd2 dispatch 
                      }
                  |> Async.StartImmediate
             
              { 
                  m with       //TODO predelat                           
-                     ResultMsg = "Stahuj\u00ed se JSON soubory pot\u0159ebn\u00e9 pro stahov\u00e1n\u00ed J\u0158 ODIS" 
+                     ResultMsg = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS" 
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub executeSequentially        
           
         | Dpo 
             -> 
-            let path =
-                //@"/storage/emulated/0/FabulousTimetables/"
-                @"c:\Users\User\Data\"
+             let path =
+                 //@"/storage/emulated/0/FabulousTimetables/"
+                 @"c:\Users\User\Data\"
 
-            let delayedCmd (dispatch: Msg -> unit): Async<unit> =
-                async
-                    {
-                        let reportProgress (progressValue, totalProgress) =
-                            dispatch (UpdateStatus (progressValue, totalProgress)) 
+             let delayedCmd (dispatch: Msg -> unit): Async<unit> =
+                 async
+                     {
+                         let reportProgress (progressValue, totalProgress) =
+                             dispatch (UpdateStatus (progressValue, totalProgress)) 
                                 
-                        let! hardWork = 
-                            Async.StartChild 
-                                (async 
-                                        {
-                                            dispatch (IterationMessage "Stahuj\u00ED se aktu\u00E1ln\u011B platn\u00E9 J\u0158 DPO")
+                         let! hardWork = 
+                             Async.StartChild 
+                                 (
+                                     async 
+                                         {
+                                             dispatch (IterationMessage "Stahují se aktuálně platné JŘ DPO")
 
-                                            webscraping_DPO reportProgress path
+                                             webscraping_DPO reportProgress path
 
-                                            return "J\u0158 DPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." //TODO result type
-                                        }
-                                    )
-                        let! result = hardWork 
-                        do! Async.Sleep 1000
+                                             return "JŘ DPO úspěšně staženy." //TODO result type
+                                         }
+                                 )
+                         let! result = hardWork 
+                         do! Async.Sleep 1000
 
-                        dispatch (WorkIsComplete result)
-                    }   
+                         dispatch (WorkIsComplete result)
+                     }   
                     
-            let execute (dispatch: Msg -> unit) =
-                async { do! delayedCmd dispatch } |> Async.StartImmediate
+             let execute (dispatch: Msg -> unit) =
+                 async { do! delayedCmd dispatch } |> Async.StartImmediate
 
-            { 
-                m with                                  
-                    ResultMsg = "J\u0158 DPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny."
-                    ProgressIndicator = InProgress (0.0, 0.0)
-            }, Cmd.ofSub execute     
+             { 
+                 m with                                  
+                     ResultMsg = "JŘ DPO úspěšně staženy."
+                     ProgressIndicator = InProgress (0.0, 0.0)
+             }, Cmd.ofSub execute     
 
         | Mdpo 
             -> 
-            let path =
-                //@"/storage/emulated/0/FabulousTimetables/"
-                @"c:\Users\User\Data\"
+             let path =
+                 //@"/storage/emulated/0/FabulousTimetables/"
+                 @"c:\Users\User\Data\"
 
-            let delayedCmd (dispatch: Msg -> unit): Async<unit> =
-                async
-                    {
-                        let reportProgress (progressValue, totalProgress) =
-                            dispatch (UpdateStatus (progressValue, totalProgress)) 
+             let delayedCmd (dispatch: Msg -> unit): Async<unit> =
+                 async
+                     {
+                         let reportProgress (progressValue, totalProgress) =
+                             dispatch (UpdateStatus (progressValue, totalProgress)) 
                                     
-                        let! hardWork = 
-                            Async.StartChild 
-                                (async 
-                                        {
-                                            dispatch (IterationMessage "Stahuj\u00ED se aktu\u00E1ln\u011B platn\u00E9 J\u0158 MDPO")
+                         let! hardWork = 
+                             Async.StartChild 
+                                 (
+                                     async 
+                                         {
+                                             dispatch (IterationMessage "Stahují se zastávkové JŘ MDPO ...") 
 
-                                            webscraping_MDPO reportProgress path
+                                             webscraping_MDPO reportProgress path
 
-                                            return "Zast\u00E1vkov\u00E9 J\u0158 MDPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny." //TODO result type
-                                        }
-                                    )
-                        let! result = hardWork 
-                        do! Async.Sleep 1000
+                                             return "Zastávkové JŘ MDPO úspěšně staženy." //TODO result type
+                                         }
+                                 )
+                         let! result = hardWork 
+                         do! Async.Sleep 1000
 
-                        dispatch (WorkIsComplete result)
-                    }   
+                         dispatch (WorkIsComplete result)
+                     }   
                         
-            let execute (dispatch: Msg -> unit) =
-                async { do! delayedCmd dispatch } |> Async.StartImmediate
+             let execute (dispatch: Msg -> unit) =
+                 async { do! delayedCmd dispatch } |> Async.StartImmediate
 
-            { 
-                m with                                  
-                    ResultMsg = "Zast\u00E1vkov\u00E9 J\u0158 MDPO \u00FAsp\u011B\u0161n\u011B sta\u017Eeny."
-                    ProgressIndicator = InProgress (0.0, 0.0)
-            }, Cmd.ofSub execute                     
+             { 
+                 m with                                  
+                     ResultMsg = "Zastávkové JŘ MDPO úspěšně staženy."
+                     ProgressIndicator = InProgress (0.0, 0.0)
+             }, Cmd.ofSub execute                     
 
     let view (m : Model) =
 
@@ -256,7 +233,7 @@ module App =
                             .height(150.)
                             .width(150.)
     
-                        Label("ODIS Timetable Downloader")
+                        Label("Stahování JŘ ODIS")
                             .semantics(SemanticHeadingLevel.Level1)
                             .font(size = 26.)
                             .centerTextHorizontal()
@@ -266,16 +243,16 @@ module App =
                             .font(size = 14.)
                             .centerTextHorizontal()
     
-                        Button("Complete ODIS Timetables", Kodis)
-                            .semantics(hint = "Download complete ODIS timetables")
+                        Button("Stahuj kompletní balík JŘ ODIS", Kodis)
+                            .semantics(hint = "Stahování kompletních JŘ ODIS všech dopravců")
                             .centerHorizontal()
     
-                        Button("DPO Timetables", Dpo)
-                            .semantics(hint = "Download DPO timetables")
+                        Button("Stahuj JŘ dopravce DPO", Dpo)
+                            .semantics(hint = "Stahování aktuálních JŘ dopravce DPO")
                             .centerHorizontal()
     
-                        Button("MDPO Timetables", Mdpo)
-                            .semantics(hint = "Download MDPO timetables")
+                        Button("Stahuj JŘ dopravce MDPO", Mdpo)
+                            .semantics(hint = "Stahování zastávkových JŘ dopravce MDPO")
                             .centerHorizontal()
                     })
                         .padding(30., 0., 30., 0.)
@@ -286,34 +263,3 @@ module App =
     
     let program = 
         Program.statefulWithCmd init update view
-
-     (*     
-     For lowercase characters:
-     
-     �: \u011B
-     �: \u0161
-     �: \u010D
-     �: \u0159
-     �: \u017E
-     �: \u00FD
-     �: \u00E1
-     �: \u00ED
-     �: \u00E9
-     �: \u00F3
-     �: \u00FA
-
-     For uppercase characters:
-     
-     �: \u011A
-     �: \u0160
-     �: \u010C
-     �: \u0158
-     �: \u017D
-     �: \u00DD
-     �: \u00C1
-     �: \u00CD
-     �: \u00C9
-     �: \u00D3
-     �: \u00DA
-     �: \u016E  
-     *)   

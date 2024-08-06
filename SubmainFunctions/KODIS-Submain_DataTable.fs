@@ -20,6 +20,7 @@ open EmbeddedTP.EmbeddedTP
 //************************************************************
 
 open Types
+open Types.Types
 
 open Settings.Messages
 open Settings.SettingsKODIS
@@ -48,7 +49,6 @@ module KODIS_SubmainDataTable =
     let private tokenJson = cts.Token 
 
     let internal startNetChecking () =  ()
-
         
     //data from settings -> http request -> IO operation -> saving json files on HD 
     let internal downloadAndSaveJson jsonLinkList pathToJsonList reportProgress = //FsHttp
@@ -795,82 +795,72 @@ module KODIS_SubmainDataTable =
                          ()
     
     //input from data filtering (links*paths) -> http request -> IO operation -> saving pdf data files on HD    
-    let private downloadAndSaveTimetables reportProgress pathToDir =     //FsHttp
-        
-        //msgParam3 pathToDir  
-
+    let private downloadAndSaveTimetables = //: Reader<Context<string, string, unit>, unit> =     //FsHttp
+       
         cts.Cancel()  
 
         reader
-            {   
-                return! 
-                    (fun (env : (string*string) list)
-                        ->                                  
-                         //match not <| NetworkInterface.GetIsNetworkAvailable() with
-                         match false with
-                         | true  ->                                    
-                                  ()//processorPdf.Post(Incr 1)
-                         | false ->  
-                                  let l = env |> List.length
 
-                                  let counterAndProgressBar =
-                                      MailboxProcessor.Start
-                                         (fun inbox 
-                                             ->
-                                              let rec loop n =
-                                                  async
-                                                      { 
-                                                          match! inbox.Receive() with
-                                                          | Inc i -> 
-                                                                   reportProgress (float n, float l)                                                                    
-                                                                   return! loop (n + i)
-                                                     }
-                                              loop 0
-                                         )                            
-                                  
-                                  env
-                                  |>  List.unzip             
-                                  ||> List.Parallel.map2 
-                                      (fun uri (pathToFile: string) 
-                                          ->                         
-                                           async
-                                               {    
-                                                   //match not <| NetworkInterface.GetIsNetworkAvailable() with
-                                                   match false with
-                                                   | true  ->                                    
-                                                            ()//processorPdf.Post(Incr 1)   
-                                                   | false ->  
-                                                            counterAndProgressBar.Post(Inc 1)
+            {
+                let! context = fun env -> env 
 
-                                                            let get uri =
-                                                                http 
-                                                                    {
-                                                                        config_timeoutInSeconds 120  //for educational purposes
-                                                                        GET(uri) 
-                                                                    }    
+                let l = context.list |> List.length
 
-                                                            use! response = get >> Request.sendAsync <| uri  
+                let counterAndProgressBar =
+                    MailboxProcessor.Start
+                        (fun inbox 
+                            ->
+                            let rec loop n =
+                                async
+                                    { 
+                                        match! inbox.Receive() with
+                                        | Inc i -> 
+                                                context.reportProgress (float n, float l)                                                                    
+                                                return! loop (n + i)
+                                    }
+                            loop 0
+                        )                            
+                return                  
+                    context.list
+                    |> List.unzip             
+                    ||> context.listMappingFunction
+                        (fun uri (pathToFile: string) 
+                            ->                         
+                            async
+                                {    
+                                    //match not <| NetworkInterface.GetIsNetworkAvailable() with
+                                    match false with
+                                    | true  ->                                    
+                                            ()//processorPdf.Post(Incr 1)   
+                                    | false ->  
+                                            counterAndProgressBar.Post(Inc 1)
 
-                                                            match response.statusCode with
-                                                            | HttpStatusCode.OK -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile      //Original FsHttp library function                                                                                                 
-                                                            | _                 -> return ()//msgParam8 msg22       //nechame chybu projit v loop                                                                                                                                  
-                                               } 
-                                           |> Async.Catch
-                                           |> Async.RunSynchronously  
-                                           |> Result.ofChoice                      
-                                           |> function
-                                               | Ok _      ->    
-                                                            ()
-                                               | Error err ->
-                                                            ()//logInfoMsg <| sprintf "Err014 %s" (string err.Message)
-                                                            //msgParam2 uri  //nechame chybu projit v loop => nebude Result.sequence
-                                     )  
-                                  |> List.head 
+                                            let get uri =
+                                                http 
+                                                    {
+                                                        config_timeoutInSeconds 120  //for educational purposes
+                                                        GET(uri) 
+                                                    }    
 
-                                  //msgParam4 pathToDir
-                            )                 
-            }  
-     
+                                            use! response = get >> Request.sendAsync <| uri  
+
+                                            match response.statusCode with
+                                            | HttpStatusCode.OK -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile      //Original FsHttp library function                                                                                                 
+                                            | _                 -> return ()//msgParam8 msg22       //nechame chybu projit v loop                                                                                                                                  
+                                } 
+                            |> Async.Catch
+                            |> Async.RunSynchronously  
+                            |> Result.ofChoice                      
+                            |> function
+                                | Ok _      ->    
+                                            ()
+                                | Error err ->
+                                            ()//logInfoMsg <| sprintf "Err014 %s" (string err.Message)
+                                            //msgParam2 uri  //nechame chybu projit v loop => nebude Result.sequence
+                        )  
+                    |> List.head 
+            } 
+
     let internal operationOnDataFromJson dt variant dir =   
 
         //operation on data
@@ -887,19 +877,26 @@ module KODIS_SubmainDataTable =
                          //closeItBaby msg16  
                          []
                            
-    let internal downloadAndSave reportProgress dir list = 
-    
-            match dir |> Directory.Exists with 
-            | false -> ()
-                     //msgParam5 dir 
-                     //msg13 ()                                               
-            | true  ->
-                     try
-                         //input from data filtering (links*paths) -> http request -> saving pdf files on HD
-                         match list with
-                         | [] -> () //msgParam13 dir       
-                         | _  -> downloadAndSaveTimetables reportProgress dir list     
-                     with
-                     | ex -> 
-                           ()//logInfoMsg <| sprintf "Err019 %s" (string ex.Message)
-                           //closeItBaby msg16   
+    let internal downloadAndSave = //: Reader<Context<string, string, unit>, unit> = 
+        
+        reader
+            {    
+                let! context = fun env -> env
+                
+                let result = 
+                    match context.dir |> Directory.Exists with 
+                    | false -> ()
+                             //msgParam5 dir 
+                             //msg13 ()                                               
+                    | true  ->
+                             try
+                                 //input from data filtering (links*paths) -> http request -> saving pdf files on HD
+                                 match context.list with
+                                 | [] -> () //msgParam13 dir       
+                                 | _  -> downloadAndSaveTimetables context     
+                             with
+                             | ex -> 
+                                   ()//logInfoMsg <| sprintf "Err019 %s" (string ex.Message)
+                                   //closeItBaby msg16            
+                return result 
+            }               

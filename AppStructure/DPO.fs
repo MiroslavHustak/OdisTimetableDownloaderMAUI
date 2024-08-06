@@ -4,7 +4,7 @@ open System
 open System.IO
 open System.Net
 
-open Types.DirNames   
+open Types.Types   
 open Helpers.CloseApp
    
 open Settings.Messages

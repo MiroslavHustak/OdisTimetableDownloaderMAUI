@@ -3,7 +3,7 @@
 open System
 open System.IO
 
-open Types.DirNames
+open Types.Types
 open Helpers.CloseApp
 
 open Settings.Messages
@@ -48,7 +48,6 @@ module WebScraping_MDPO =
 
     let internal webscraping_MDPO reportProgress pathToDir =  
 
-         //tryWith block is in the main() function  
 
         let stateReducer (state: State) (action: Actions) (environment: Environment) =
 
