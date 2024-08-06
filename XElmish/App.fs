@@ -82,23 +82,22 @@ module App =
                          let reportProgress (progressValue, totalProgress) =
                              dispatch (UpdateStatus (progressValue, totalProgress)) 
                              
-                         let! hardWork = 
-                             Async.StartChild 
-                                 (
-                                    async 
-                                        {
-                                            return 
-                                                stateReducerCmd1
-                                                <| path
-                                                <| fun _ -> ()
-                                                <| fun _ -> ()
-                                                <| reportProgress
-                                        }
-                                 )
+                         let! hardWork =                                                              
+                              async 
+                                  {
+                                      return 
+                                          stateReducerCmd1
+                                          <| path
+                                          <| fun _ -> ()
+                                          <| fun _ -> ()
+                                          <| reportProgress
+                                  }
+                              |> Async.StartChild
+
                          let! result = hardWork 
                          do! Async.Sleep 1000
 
-                         dispatch (WorkIsComplete "Dokončeno stahování JSON souborů.") //"Dokončeno stahování JSON souborů. Chvíli strpení, prosím ..."
+                         dispatch (WorkIsComplete result) //"Dokončeno stahování JSON souborů. Chvíli strpení, prosím ..."
                      }  
 
              let delayedCmd2 (dispatch: Msg -> unit): Async<unit> =  
@@ -107,18 +106,15 @@ module App =
                          let reportProgress (progressValue, totalProgress) =
                              dispatch (UpdateStatus (progressValue, totalProgress))  
 
-                         //TODO result type     
-                         let! hardWork = 
-                            
+                         let! hardWork =                             
                              async 
-                                 {                                    
-                                     stateReducerCmd2
-                                     <| path
-                                     <| fun message -> dispatch (WorkIsComplete message)
-                                     <| fun message -> dispatch (IterationMessage message) 
-                                     <| reportProgress
-
-                                     return "Kompletní JŘ ODIS úspěšně staženy." 
+                                 {   
+                                     return
+                                         stateReducerCmd2
+                                         <| path
+                                         <| fun message -> dispatch (WorkIsComplete message)
+                                         <| fun message -> dispatch (IterationMessage message) 
+                                         <| reportProgress            
                                  }
                              |> Async.StartChild 
                                
@@ -132,13 +128,14 @@ module App =
                  async 
                      {
                          do! delayedCmd1 dispatch 
+                         do! Async.Sleep 2000
                          do! delayedCmd2 dispatch 
                      }
                  |> Async.StartImmediate
             
              { 
                  m with       //TODO predelat                           
-                     ResultMsg = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS" 
+                     ResultMsg = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub executeSequentially        
           
@@ -154,11 +151,10 @@ module App =
                          let reportProgress (progressValue, totalProgress) =
                              dispatch (UpdateStatus (progressValue, totalProgress)) 
                                 
-                         let! hardWork = 
-                           
+                         let! hardWork =                            
                              async 
                                  {
-                                     dispatch (IterationMessage "Stahují se aktuálně platné JŘ DPO")
+                                     dispatch (IterationMessage "Stahují se aktuálně platné JŘ DPO ...")
 
                                      webscraping_DPO reportProgress path
 

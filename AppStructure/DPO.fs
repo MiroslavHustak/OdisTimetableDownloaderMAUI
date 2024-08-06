@@ -28,12 +28,10 @@ module WebScraping_DPO =
             TimetablesDownloadedAndSaved = ()
         }
 
-    type private Actions =
-        | StartProcess
+    type private Actions =       
         | DeleteOneODISDirectory
         | CreateFolders
-        | FilterDownloadSave    
-        | EndProcess
+        | FilterDownloadSave  
 
     type private Environment = 
         {
@@ -51,12 +49,9 @@ module WebScraping_DPO =
 
     let internal webscraping_DPO reportProgress pathToDir =  
 
-         //tryWith block is in the main() function  
-
         let stateReducer (state: State) (action: Actions) (environment: Environment) =
 
-            //let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.odisDir5 ]
-            let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.odisDir5 ]
+            let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.odisDir5 ] //Android jen forward slash %s/%s
 
             let errorHandling fn = 
                 try
@@ -66,18 +61,7 @@ module WebScraping_DPO =
                       ()//logInfoMsg <| sprintf "Err052 %s" (string ex.Message)
                       //closeItBaby msg16      
 
-            match action with                                                   
-            | StartProcess           -> ()
-                                      (*
-                                      let processStartTime =    
-                                            Console.Clear()
-                                            let processStartTime = sprintf "Začátek procesu: %s" <| DateTime.Now.ToString("HH:mm:ss") 
-                                                in msgParam7 processStartTime 
-                                            in errorHandling processStartTime
-                                      
-                                      *) 
-                                     
-
+            match action with       
             | DeleteOneODISDirectory ->                                     
                                       let dirName = ODISDefault.odisDir5                                    
                                       let myDeleteFunction =  
@@ -97,7 +81,6 @@ module WebScraping_DPO =
                                           in errorHandling myFolderCreation
 
             | FilterDownloadSave     -> 
-                                      //filtering timetable links, downloading and saving timetables in the pdf format 
                                       let filterDownloadSave = 
                                           let pathToSubdir = dirList pathToDir |> List.head    
                                           match pathToSubdir |> Directory.Exists with 
@@ -108,21 +91,11 @@ module WebScraping_DPO =
                                                    environment.filterTimetables pathToSubdir 
                                                    |> environment.downloadAndSaveTimetables reportProgress environment.client pathToSubdir   
                                                    environment.client.Dispose()
-                                          in errorHandling filterDownloadSave   
-                                      
-            | EndProcess             -> ()
-                                      (*                         
-                                      let processEndTime =    
-                                          let processEndTime = sprintf "Konec procesu: %s" <| DateTime.Now.ToString("HH:mm:ss")                       
-                                              in msgParam7 processEndTime
-                                          in errorHandling processEndTime                          
-                                      *)
+                                          in errorHandling filterDownloadSave              
     
-        stateReducer stateDefault StartProcess environment
         stateReducer stateDefault DeleteOneODISDirectory environment
         stateReducer stateDefault CreateFolders environment
         stateReducer stateDefault FilterDownloadSave environment
-        stateReducer stateDefault EndProcess environment
 
         environment.client.Dispose()
 

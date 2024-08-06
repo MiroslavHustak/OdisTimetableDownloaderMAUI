@@ -336,8 +336,7 @@ module KODIS_SubmainDataTable =
                 @"https://kodis-files.s3.eu-central-1.amazonaws.com/46_A_2024_07_01_2024_09_01_faa5f15c1b.pdf"
                 @"https://kodis-files.s3.eu-central-1.amazonaws.com/46_B_2024_07_01_2024_09_01_b5f542c755.pdf"
             ]
-            |> List.toArray 
-        
+            |> List.toArray         
       
         let task = 
             [
@@ -845,18 +844,35 @@ module KODIS_SubmainDataTable =
                                             use! response = get >> Request.sendAsync <| uri  
 
                                             match response.statusCode with
-                                            | HttpStatusCode.OK -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile      //Original FsHttp library function                                                                                                 
-                                            | _                 -> return ()//msgParam8 msg22       //nechame chybu projit v loop                                                                                                                                  
+                                            | HttpStatusCode.OK 
+                                                -> 
+                                                 let pathToFileExist =  
+                                                     pyramidOfDoom
+                                                         {
+                                                             let filepath = Path.GetFullPath(pathToFile) |> Option.ofNullEmpty 
+                                                             let! filepath = filepath, None
+
+                                                             let fInfodat: FileInfo = new FileInfo(filepath)
+                                                             let! _ =  fInfodat.Exists |> Option.ofBool, None   
+                                                                             
+                                                             return Some ()
+                                                         } 
+                                                                         
+                                                 match pathToFileExist with
+                                                 | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile      //Original FsHttp library function    
+                                                 | None   -> return ()  //nechame chybu tise projit  
+                                                                                                                                                              
+                                            | _                
+                                                -> 
+                                                 return ()      //nechame chybu tise projit                                                                                                                            
                                 } 
                             |> Async.Catch
                             |> Async.RunSynchronously  
                             |> Result.ofChoice                      
                             |> function
-                                | Ok _      ->    
-                                            ()
-                                | Error err ->
-                                            ()//logInfoMsg <| sprintf "Err014 %s" (string err.Message)
-                                            //msgParam2 uri  //nechame chybu projit v loop => nebude Result.sequence
+                                | Ok _     -> Ok ()   
+                                | Error ex -> Error (string ex.Message) 
+                                             
                         )  
                     |> List.head 
             } 
@@ -885,18 +901,18 @@ module KODIS_SubmainDataTable =
                 
                 let result = 
                     match context.dir |> Directory.Exists with 
-                    | false -> ()
-                             //msgParam5 dir 
-                             //msg13 ()                                               
+                    | false ->
+                             Error String.Empty                                              
                     | true  ->
                              try
                                  //input from data filtering (links*paths) -> http request -> saving pdf files on HD
                                  match context.list with
-                                 | [] -> () //msgParam13 dir       
-                                 | _  -> downloadAndSaveTimetables context     
+                                 | [] -> Error String.Empty //msgParam13 dir       
+                                 | _  -> downloadAndSaveTimetables context   //TODO prozatimne je OK, predelat v ramci errorhandling  
                              with
                              | ex -> 
-                                   ()//logInfoMsg <| sprintf "Err019 %s" (string ex.Message)
+                                   Error String.Empty  
+                                   //logInfoMsg <| sprintf "Err019 %s" (string ex.Message)
                                    //closeItBaby msg16            
                 return result 
             }               

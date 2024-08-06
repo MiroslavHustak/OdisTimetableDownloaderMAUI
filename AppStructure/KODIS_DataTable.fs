@@ -9,17 +9,18 @@ open SubmainFunctions
 
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
+open Helpers
 
 module WebScraping_KODISFMDataTable = 
 
-    type private State =  //not used
+    type private State =  
         { 
-            TimetablesDownloadedAndSaved: unit
+            TimetablesDownloadedAndSaved: string
         }
 
     let private stateDefault = 
         {          
-            TimetablesDownloadedAndSaved = ()
+            TimetablesDownloadedAndSaved = String.Empty //Podumat nad default textem
         }
 
     type private Actions =
@@ -31,7 +32,7 @@ module WebScraping_KODISFMDataTable =
             downloadAndSaveJson : string list -> string list -> (float * float -> unit) -> unit
             deleteAllODISDirectories : string -> unit
             operationOnDataFromJson : Data.DataTable -> Validity -> string -> (string * string) list
-            downloadAndSave : Context<string, string, unit> -> unit
+            downloadAndSave : Context<string, string, Result<unit, string>> -> Result<unit, string>
         }
 
     let private environment: Environment =
@@ -47,24 +48,23 @@ module WebScraping_KODISFMDataTable =
         let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.odisDir5 ]
 
         let errorHandling fn = 
-
             try Ok fn
-            with ex -> Error <| string ex.Message
-                                
-            |> function
-                | Ok value  -> value  
-                | Error err -> ()
+            with ex -> Error <| string ex.Message            
 
         match action with                                                   
         | DownloadAndSaveJsonFM 
             -> 
              //Http request and IO operation (data from settings -> http request -> IO operation -> saving json files on HD)
-             let downloadAndSaveJson reportProgress =  
+             let downloadAndSaveJson reportProgress = 
+                
                  //startNetChecking ()
 
-                 environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress 
-                                                                           
-                 in errorHandling <| downloadAndSaveJson reportProgress
+                 environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress                                                                            
+                 in 
+                 errorHandling <| downloadAndSaveJson reportProgress
+                 |> function
+                     | Ok _    -> "Dokončeno stahování JSON souborů." 
+                     | Error _ -> "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 
 
         | DownloadSelectedVariantFM 
             ->                                     
@@ -76,9 +76,9 @@ module WebScraping_KODISFMDataTable =
              let variantList = [ CurrentValidity; FutureValidity; WithoutReplacementService ]
              let msgList =
                  [
-                     "Stahují se aktuálně platné JŘ ODIS"
-                     "Stahují se JŘ ODIS platné v budoucnosti"
-                     "Stahují se teoreticky dlouhodobě platné JŘ ODIS"
+                     "Stahují se aktuálně platné JŘ ODIS ..."
+                     "Stahují se JŘ ODIS platné v budoucnosti ..."
+                     "Stahují se teoreticky dlouhodobě platné JŘ ODIS ..."
                  ]
 
              KODIS_SubmainDataTable.createFolders dirList   
@@ -107,157 +107,13 @@ module WebScraping_KODISFMDataTable =
 
                       |> environment.downloadAndSave
                   )
-              |> ignore     
+             |> Result.sequence  
+             |> function
+                 | Ok _    -> "Kompletní JŘ ODIS úspěšně staženy." 
+                 | Error _ -> "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy."              
     
     let stateReducerCmd1 path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
         stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadAndSaveJsonFM
 
     let stateReducerCmd2 path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
           stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadSelectedVariantFM
-   
-
-    
-    //FREE MONAD 
-
-    (*
-
-    let internal webscraping_KODISFMDataTable1 pathToDir (variantList: Validity list) reportProgress = 
-           
-        let rec interpret clp  = 
-
-            let errorHandling fn = 
-                try
-                    fn
-                with
-                | ex ->
-                      ()//logInfoMsg <| sprintf "Err049 %s" (string ex.Message)
-                      //closeItBaby msg16           
-
-            match clp with
-            | Pure x                                -> 
-                                                     x //nevyuzito
-
-            | Free (StartProcessFM next)            -> 
-                                                     (*
-                                                     let processStartTime =    
-                                                         Console.Clear()
-                                                         let processStartTime = 
-                                                             try 
-                                                                 startNetChecking ()
-                                                                 sprintf "Začátek procesu: %s" <| DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")                                                                  
-                                                             with
-                                                             | ex ->       
-                                                                   logInfoMsg <| sprintf "Err503 %s" (string ex.Message)
-                                                                   sprintf "Začátek procesu nemohl býti ustanoven."   
-                                                             in msgParam7 processStartTime 
-                                                         in errorHandling processStartTime
-                                                     *)  
-                                                     let param = next ()
-                                                     interpret param
-                                                     
-
-            | Free (DownloadAndSaveJsonFM next)     ->      
-                                                     //Http request and IO operation (data from settings -> http request -> IO operation -> saving json files on HD)
-                                                     let downloadAndSaveJson reportProgress =  
-                                                         //startNetChecking ()
-                                                         
-                                                         //msg2 ()    
-                                                         //msg15 ()
-        
-                                                         //Console.Write("\r" + new string(' ', (-) Console.WindowWidth 1) + "\r")
-                                                         //Console.CursorLeft <- 0  
-
-                                                         KODIS_SubmainDataTable.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress 
-                                                         
-                                                         //msg3 ()   
-                                                         //msg11 ()    
-                                                         
-                                                         in errorHandling <| downloadAndSaveJson reportProgress                                                          
-
-                                                     let param = next ()
-                                                     interpret param                                                
-                                                
-            | Free (DownloadSelectedVariantFM next) -> 
-                                                     let dt = DataTable.CreateDt.dt() 
-                                                     
-                                                     let downloadSelectedVariant = 
-                                                         match variantList |> List.length with
-                                                         //SingleVariantDownload
-                                                         | 1 -> 
-                                                              let variant = variantList |> List.head
-
-                                                              //IO operation
-                                                              KODIS_SubmainDataTable.deleteOneODISDirectory variant pathToDir 
-                                                                                                                           
-                                                              //operation on data 
-                                                              let dirList =                                                                    
-                                                                  KODIS_SubmainDataTable.createOneNewDirectory  //list -> aby bylo mozno pouzit funkci createFolders bez uprav  
-                                                                  <| pathToDir 
-                                                                  <| KODIS_SubmainDataTable.createDirName variant listODISDefault4 
-
-                                                              //IO operation 
-                                                              KODIS_SubmainDataTable.createFolders dirList
-
-                                                              //msg10 () 
-
-                                                              //operation on data 
-                                                              //input from saved json files -> change of input data -> output into array -> input from array -> change of input data -> output into datatable -> data filtering (link*path)  
-                                                              let activity = KODIS_SubmainDataTable.operationOnDataFromJson dt variant (dirList |> List.head) 
-
-                                                              //IO operation (data filtering (link*path) -> http request -> saving pdf files on HD)
-                                                              activity |> KODIS_SubmainDataTable.downloadAndSave reportProgress (dirList |> List.head) 
-
-                                                         //BulkVariantDownload       
-                                                         | _ ->
-
-                                                              //IO operation
-                                                              KODIS_SubmainDataTable.deleteAllODISDirectories pathToDir                                                              
-                                                              
-                                                              //operation on data 
-                                                              let dirList = KODIS_SubmainDataTable.createNewDirectories pathToDir listODISDefault4
-                                                              
-                                                              //IO operation 
-                                                              KODIS_SubmainDataTable.createFolders dirList 
-
-                                                              //msg10 ()
-                                                              
-                                                              (variantList, dirList)
-                                                              ||> List.iter2 
-                                                                  (fun variant dir 
-                                                                      -> 
-                                                                       //operation on data 
-                                                                       //input from saved json files -> change of input data -> output into array -> input from array -> change of input data -> output into datatable -> data filtering (link*path)  
-                                                                       let activity = KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
-
-                                                                       //IO operation (data filtering (link*path) -> http request -> saving pdf files on HD)
-                                                                       activity |> KODIS_SubmainDataTable.downloadAndSave reportProgress dir   
-                                                                  )     
-                                                                                                              
-                                                         in errorHandling downloadSelectedVariant  
-
-                                                     let param = next ()
-                                                     interpret param
-
-            | Free (EndProcessFM _)                 -> ()
-                                                     (*
-                                                     let processEndTime =    
-                                                         let processEndTime = 
-                                                             try                                                                
-                                                                 sprintf "Konec procesu: %s" <| DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")  
-                                                             with
-                                                             | ex ->       
-                                                                   logInfoMsg <| sprintf "Err504 %s" (string ex.Message)
-                                                                   sprintf "Konec procesu nemohl býti ustanoven."   
-                                                             in msgParam7 processEndTime
-                                                         in errorHandling processEndTime
-                                                      *)  
-        cmdBuilder
-            {
-                let! _ = Free (StartProcessFM Pure)
-                let! _ = Free (DownloadAndSaveJsonFM Pure)
-                let! _ = Free (DownloadSelectedVariantFM Pure)
-
-                return! Free (EndProcessFM Pure)
-            } |> interpret 
-
-*)
