@@ -78,6 +78,7 @@ module WebScraping_MDPO =
                                      try
                                           //filtering timetable links, downloading and saving timetables in the pdf format 
                                          let pathToSubdir = dirList pathToDir |> List.head    
+
                                          match pathToSubdir |> Directory.Exists with 
                                          | false -> 
                                                   Error String.Empty                            
