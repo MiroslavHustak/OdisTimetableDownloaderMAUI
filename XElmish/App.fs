@@ -26,7 +26,7 @@ module App =
 
     type ProgressIndicator = 
         | Idle 
-        | InProgress of percent: float*float
+        | InProgress of percent: float * float
 
     type Model = 
         {
