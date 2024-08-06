@@ -50,42 +50,46 @@ module WebScraping_MDPO =
         let stateReducer (state: State) (action: Actions) (environment: Environment) =
 
             let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.odisDir6 ]
-           
-            let errorHandling fn = 
-                try Ok fn
-                with ex -> Error <| string ex.Message  
-
+         
             match action with      
             | DeleteOneODISDirectory ->                                     
-                                      let dirName = ODISDefault.odisDir6                                    
-                                      let myDeleteFunction =  
+                                      let dirName = ODISDefault.odisDir6                        
+                                      
+                                      try
                                           //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
                                           let dirInfo = new DirectoryInfo(pathToDir)    
                                               in 
                                               dirInfo.EnumerateDirectories()
                                               |> Seq.filter (fun item -> item.Name = dirName) 
-                                              |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce    
-                                          in errorHandling myDeleteFunction     
+                                              |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
+                                              |> Ok
+                                      with
+                                      |_ -> Error "Došlo k chybě, JŘ MDPO nebyly staženy."         
                                           
             | CreateFolders          -> 
-                                      let myFolderCreation = 
+                                      try
                                           dirList pathToDir
-                                          |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)                    
-                                          in errorHandling myFolderCreation           
-                              
+                                          |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+                                          |> Ok
+                                      with
+                                      |_ -> Error "Došlo k chybě, JŘ MDPO nebyly staženy." 
+                                      
             | FilterDownloadSave     -> 
-                                      //filtering timetable links, downloading and saving timetables in the pdf format 
-                                     let pathToSubdir = dirList pathToDir |> List.head    
-                                     match pathToSubdir |> Directory.Exists with 
-                                     | false -> 
-                                              Error String.Empty                            
-                                     | true  -> 
-                                              environment.filterTimetables pathToSubdir 
-                                             |> environment.downloadAndSaveTimetables reportProgress pathToSubdir   
+                                     try
+                                          //filtering timetable links, downloading and saving timetables in the pdf format 
+                                         let pathToSubdir = dirList pathToDir |> List.head    
+                                         match pathToSubdir |> Directory.Exists with 
+                                         | false -> 
+                                                  Error String.Empty                            
+                                         | true  -> 
+                                                  environment.filterTimetables pathToSubdir 
+                                                 |> environment.downloadAndSaveTimetables reportProgress pathToSubdir  
+                                     with
+                                     |_ -> Error "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."           
                                                            
         pyramidOfInferno
             {  
-                let item = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."
+                let item = String.Empty //jen abych mohl vyuzit tento builder a netvorit novy
 
                 let! _ = stateReducer stateDefault DeleteOneODISDirectory environment, fun item -> Error item
                 let! _ = stateReducer stateDefault CreateFolders environment, fun item -> Error item

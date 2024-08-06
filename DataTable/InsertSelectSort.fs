@@ -197,11 +197,7 @@ module InsertSelectSort =
         with ex -> Error <| string ex.Message
         
         |> function
-            | Ok value  -> 
-                         value  
-            | Error err ->
-                         //logInfoMsg <| sprintf "Err901B %s" err 
-                         //closeItBaby err
-                         []
+            | Ok value  -> value  
+            | Error err -> []
 
           

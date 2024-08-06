@@ -39,56 +39,59 @@ module WebScraping_DPO =
         {
             filterTimetables : string -> (string * string) list
             downloadAndSaveTimetables : (float * float -> unit) -> (string * string) list -> Result<unit, string>
-            //client : Http.HttpClient 
         }
 
     let private environment: Environment =
         { 
             filterTimetables = filterTimetables
             downloadAndSaveTimetables = downloadAndSaveTimetables
-            //client = client () 
         }    
 
     let internal webscraping_DPO reportProgress pathToDir =  
 
         let stateReducer (state: State) (action: Actions) (environment: Environment) =
-
+            
             let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.odisDir5 ] //Android jen forward slash %s/%s
-
-            let errorHandling fn = 
-                try Ok fn
-                with ex -> Error <| string ex.Message    
 
             match action with       
             | DeleteOneODISDirectory ->                                     
-                                      let dirName = ODISDefault.odisDir5                                    
-                                      let myDeleteFunction =  
+                                                                          
+                                      try
+                                          let dirName = ODISDefault.odisDir5
+
                                           //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
                                           let dirInfo = new DirectoryInfo(pathToDir)   
                                               in 
                                               dirInfo.EnumerateDirectories()
                                               |> Seq.filter (fun item -> item.Name = dirName) 
                                               |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
-                                          in errorHandling myDeleteFunction 
+                                              |> Ok
+                                      with
+                                      | _ -> Error "Došlo k chybě, JŘ DPO nebyly staženy."                                           
                                     
             | CreateFolders          -> 
-                                      let myFolderCreation = 
+                                      try                                          
                                           dirList pathToDir
-                                          |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)                    
-                                          in errorHandling myFolderCreation
+                                          |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+                                          |> Ok
+                                      with
+                                      | _ -> Error "Došlo k chybě, JŘ DPO nebyly staženy." 
 
-            | FilterDownloadSave     -> 
-                                      let pathToSubdir = dirList pathToDir |> List.head    
-                                      match pathToSubdir |> Directory.Exists with 
-                                      | false ->
-                                               Error String.Empty                              
-                                      | true  -> 
-                                               environment.filterTimetables pathToSubdir 
-                                                |> environment.downloadAndSaveTimetables reportProgress   
-                                                   
+            | FilterDownloadSave     ->                                      
+                                      try     
+                                          let pathToSubdir = dirList pathToDir |> List.head    
+                                          match pathToSubdir |> Directory.Exists with 
+                                          | false ->
+                                                   Error String.Empty                              
+                                          | true  -> 
+                                                   environment.filterTimetables pathToSubdir 
+                                                   |> environment.downloadAndSaveTimetables reportProgress 
+                                      with
+                                      | _ -> Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."                                                 
+
         pyramidOfInferno
             {  
-                let item = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."
+                let item = String.Empty //jen abych mohl vyuzit tento builder a netvorit novy
 
                 let! _ = stateReducer stateDefault DeleteOneODISDirectory environment, fun item -> Error item
                 let! _ = stateReducer stateDefault CreateFolders environment, fun item -> Error item

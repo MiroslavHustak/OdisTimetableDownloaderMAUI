@@ -10,8 +10,6 @@ open System.Text.RegularExpressions
 open FsHttp
 open FSharp.Control
 open FsToolkit.ErrorHandling
-open Microsoft.FSharp.Quotations
-open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 
 //************************************************************
 
@@ -48,7 +46,7 @@ module KODIS_SubmainDataTable =
     let private cts = new CancellationTokenSource() //TODO podumat, kaj zrobit cts.Dispose()
     let private tokenJson = cts.Token 
 
-    let internal startNetChecking () =  ()
+    let internal startNetChecking () = ()
         
     //data from settings -> http request -> IO operation -> saving json files on HD 
     let internal downloadAndSaveJson jsonLinkList pathToJsonList reportProgress = //FsHttp
@@ -95,13 +93,8 @@ module KODIS_SubmainDataTable =
            
         pyramidOfInferno
             {
-                let errorFn1 err = ()
-                    //logInfoMsg <| sprintf "Err001 %s" err
-                    //closeItBaby msg5A
-
-                let errorFn2 (err : exn) = ()
-                    //logInfoMsg <| sprintf "Err002 %s" (string err.Message)
-                    //closeItBaby msg5A
+                let errorFn1 err = ()          //legacy code
+                let errorFn2 (err : exn) = ()  //legacy code                 
 
                 let! value = result |> Result.sequence, errorFn2 
                 let! value = value |> Result.sequence, errorFn1
@@ -149,17 +142,13 @@ module KODIS_SubmainDataTable =
                            let value = result ()   
                            value
                            |> function
-                               | [||] -> Error ""//msg16                                        
+                               | [||] -> Error String.Empty                                       
                                | _    -> Ok value
                         with ex -> Error <| string ex.Message  
 
                         |> function
-                            | Ok value  -> 
-                                         value
-                            | Error err -> 
-                                         //logInfoMsg <| sprintf "Err004A %s" err 
-                                         //closeItBaby msg16 
-                                         [||]      
+                            | Ok value  -> value
+                            | Error err -> [||]      
                 }
             
         let kodisTimetables2 : Reader<string list, string array> = 
@@ -230,17 +219,13 @@ module KODIS_SubmainDataTable =
                             let value = result ()   
                             value
                             |> function
-                                | [||] -> Error ""//msg16                                        
+                                | [||] -> Error String.Empty                                    
                                 | _    -> Ok value
                         with ex -> Error <| string ex.Message  
 
                         |> function
-                            | Ok value  -> 
-                                         value
-                            | Error err ->
-                                         //logInfoMsg <| sprintf "Err004 %s" err 
-                                         //closeItBaby msg16 
-                                         [||]       
+                            | Ok value  -> value
+                            | Error err -> [||]       
                 }       
          
         let kodisAttachments : Reader<string list, string array> = //Reader monad for educational purposes only, no real benefit here
@@ -267,23 +252,15 @@ module KODIS_SubmainDataTable =
                                          item.Attachments 
                                          |> Option.ofNull        
                                          |> function 
-                                             | Some value ->
-                                                           value |> fn1
-                                             | None       -> 
-                                                           //msg5 () 
-                                                           //logInfoMsg <| sprintf "007A %s" "resulting in None"
-                                                           [||]                 
+                                             | Some value -> value |> fn1
+                                             | None       -> [||]                 
 
                                      let fn3 (item: JsonProvider1.Root) =  //quli tomuto je nutno Array 
                                          item.Vyluky
                                          |> Option.ofNull  
                                          |> function 
-                                             | Some value ->
-                                                           value |> Array.collect fn2 
-                                             | None       ->
-                                                           //msg5 () 
-                                                           //logInfoMsg <| sprintf "007B %s" "resulting in None"
-                                                           [||] 
+                                             | Some value -> value |> Array.collect fn2 
+                                             | None       -> [||] 
 
                                      let json = //tady nelze Result.sequence 
                                          pyramidOfDoom
@@ -302,12 +279,8 @@ module KODIS_SubmainDataTable =
                                                           
                                      kodisJsonSamples 
                                      |> function 
-                                         | Some value -> 
-                                                       value |> Array.collect fn3 
-                                         | None       -> 
-                                                       //msg5 () 
-                                                       //logInfoMsg <| sprintf "007C %s" "resulting in None"
-                                                       [||]                                 
+                                         | Some value -> value |> Array.collect fn3 
+                                         | None       -> [||]                                 
                                 ) 
                     
                         return 
@@ -315,18 +288,13 @@ module KODIS_SubmainDataTable =
                                 let value = result ()   
                                 value
                                 |> function
-                                    | [||] -> Error ""//msg16                                        
+                                    | [||] -> Error String.Empty                                    
                                     | _    -> Ok value
                             with ex -> Error <| string ex.Message  
 
                             |> function
-                                | Ok value  ->
-                                             value
-                                | Error err ->
-                                             //logInfoMsg <| sprintf "Err006A %s" err 
-                                             //msg5 ()   
-                                             //closeItBaby msg16 
-                                             [||]      
+                                | Ok value  -> value
+                                | Error err -> [||]      
                     }
         
         let addOn () =  
@@ -349,12 +317,8 @@ module KODIS_SubmainDataTable =
             |> Async.RunSynchronously
             |> Result.ofChoice                      
             |> function
-                | Ok value  ->
-                             value |> Array.concat  
-                | Error err ->
-                             //logInfoMsg <| sprintf "Err214 %s" (string err.Message)
-                             //msg5 ()
-                             [||]      
+                | Ok value  -> value |> Array.concat  
+                | Error err -> [||]      
 
         (Array.append <| task <| addOn()) |> Array.distinct
     
@@ -376,12 +340,8 @@ module KODIS_SubmainDataTable =
             with ex -> Error <| string ex.Message                  
                   
             |> function
-                | Ok value  -> 
-                             value  
-                | Error err ->
-                             //logInfoMsg <| sprintf "Err008 %s" err
-                             //msg9 ()
-                             String.Empty    
+                | Ok value  -> value  
+                | Error err -> String.Empty   
         
         let extractSubstring1 (input : string) =
 
@@ -396,12 +356,8 @@ module KODIS_SubmainDataTable =
             with ex -> Error <| string ex.Message                 
 
             |> function
-                | Ok value  -> 
-                             value  
-                | Error err ->
-                             //logInfoMsg <| sprintf "Err009 %s" err
-                             //msg9 ()
-                             String.Empty     
+                | Ok value  -> value  
+                | Error err -> String.Empty     
 
         let extractSubstring2 (input: string) : (string option * int) =
 
@@ -475,12 +431,8 @@ module KODIS_SubmainDataTable =
                 with ex -> Error <| string ex.Message
                      
                 |> function
-                    | Ok value  -> 
-                                 value  
-                    | Error err ->
-                                 //logInfoMsg <| sprintf "Err010 %s" err
-                                 //msg9 ()
-                                 String.Empty      
+                    | Ok value  -> value  
+                    | Error err -> String.Empty        
 
             let totalDateInterval = extractSubstring1 input
 
@@ -493,12 +445,8 @@ module KODIS_SubmainDataTable =
                 with ex -> Error <| string ex.Message
                          
                 |> function
-                    | Ok value  -> 
-                                 value  
-                    | Error err ->
-                                 //logInfoMsg <| sprintf "Err011 %s" err
-                                 //msg9 ()
-                                 String.Empty   
+                    | Ok value  -> value  
+                    | Error err -> String.Empty   
         
             let vIndex = partAfter.IndexOf "_v"
             let tIndex = partAfter.IndexOf "_t"
@@ -691,12 +639,8 @@ module KODIS_SubmainDataTable =
                         with ex -> Error <| string ex.Message
                         
                         |> function
-                            | Ok value  -> 
-                                         value  
-                            | Error err ->
-                                         //logInfoMsg <| sprintf "Err012 %s" err
-                                         //closeItBaby msg16
-                                         () 
+                            | Ok value  -> value  
+                            | Error err -> () 
                 }
 
         deleteIt listODISDefault4 
@@ -707,7 +651,6 @@ module KODIS_SubmainDataTable =
         reader
             { 
                 let! getDefaultRecordValues = //Reader monad for educational purposes only, no real benefit here
-                    //fun env -> env in return getDefaultRecordValues |> List.map (fun item -> sprintf"%s\%s"pathToDir item) 
                     fun env -> env in return getDefaultRecordValues |> List.map (fun item -> sprintf"%s/%s"pathToDir item) 
             } 
 
@@ -749,12 +692,8 @@ module KODIS_SubmainDataTable =
                         with ex -> Error <| string ex.Message
                         
                         |> function
-                            | Ok value  -> 
-                                         value  
-                            | Error err ->
-                                         //logInfoMsg <| sprintf "Err012B %s" err
-                                         //closeItBaby msg16  
-                                         ()
+                            | Ok value  -> value  
+                            | Error err -> ()
                 }
 
         deleteIt listODISDefault4         
@@ -776,7 +715,6 @@ module KODIS_SubmainDataTable =
                              sortedLines 
                              |> List.iter
                                  (fun item -> 
-                                            //let dir = dir.Replace("_vyluk", sprintf "%s\\%s" "_vyluk" item)
                                             let dir = dir.Replace("_vyluk", sprintf "%s/%s" "_vyluk" item)
                                             Directory.CreateDirectory(dir) |> ignore
                                  )           
@@ -786,12 +724,8 @@ module KODIS_SubmainDataTable =
         with ex -> Error <| string ex.Message
         
         |> function
-            | Ok value  -> 
-                         value  
-            | Error err ->
-                         //logInfoMsg <| sprintf "Err013 %s" err
-                         //closeItBaby msg16
-                         ()
+            | Ok value  -> value  
+            | Error err -> ()
     
     //input from data filtering (links*paths) -> http request -> IO operation -> saving pdf data files on HD    
     let private downloadAndSaveTimetables = //: Reader<Context<string, string, unit>, unit> =     //FsHttp
@@ -809,15 +743,15 @@ module KODIS_SubmainDataTable =
                     MailboxProcessor.Start
                         (fun inbox 
                             ->
-                            let rec loop n =
-                                async
-                                    { 
-                                        match! inbox.Receive() with
-                                        | Inc i -> 
-                                                context.reportProgress (float n, float l)                                                                    
-                                                return! loop (n + i)
-                                    }
-                            loop 0
+                             let rec loop n =
+                                 async
+                                     { 
+                                         match! inbox.Receive() with
+                                         | Inc i -> 
+                                                  context.reportProgress (float n, float l)                                                                    
+                                                  return! loop (n + i)
+                                     }
+                             loop 0
                         )                            
                 return                  
                     context.list
@@ -825,53 +759,53 @@ module KODIS_SubmainDataTable =
                     ||> context.listMappingFunction
                         (fun uri (pathToFile: string) 
                             ->                         
-                            async
-                                {    
-                                    //match not <| NetworkInterface.GetIsNetworkAvailable() with
-                                    match false with
-                                    | true  ->                                    
-                                            ()//processorPdf.Post(Incr 1)   
-                                    | false ->  
-                                            counterAndProgressBar.Post(Inc 1)
+                             async
+                                 {    
+                                     //match not <| NetworkInterface.GetIsNetworkAvailable() with
+                                      match false with
+                                      | true  ->                                    
+                                               ()//processorPdf.Post(Incr 1)   
+                                      | false ->  
+                                               counterAndProgressBar.Post(Inc 1)
 
-                                            let get uri =
-                                                http 
-                                                    {
-                                                        config_timeoutInSeconds 120  //for educational purposes
-                                                        GET(uri) 
-                                                    }    
+                                               let get uri =
+                                                   http 
+                                                       {
+                                                           config_timeoutInSeconds 120  //for educational purposes
+                                                           GET(uri) 
+                                                       }    
 
-                                            use! response = get >> Request.sendAsync <| uri  
+                                               use! response = get >> Request.sendAsync <| uri  
 
-                                            match response.statusCode with
-                                            | HttpStatusCode.OK 
-                                                -> 
-                                                 let pathToFileExist =  
-                                                     pyramidOfDoom
-                                                         {
-                                                             let filepath = Path.GetFullPath(pathToFile) |> Option.ofNullEmpty 
-                                                             let! filepath = filepath, None
+                                               match response.statusCode with
+                                               | HttpStatusCode.OK 
+                                                   -> 
+                                                    let pathToFileExist =  
+                                                        pyramidOfDoom
+                                                            {
+                                                                let filepath = Path.GetFullPath(pathToFile) |> Option.ofNullEmpty 
+                                                                let! filepath = filepath, None
 
-                                                             let fInfodat: FileInfo = new FileInfo(filepath)
-                                                             let! _ =  fInfodat.Exists |> Option.ofBool, None   
+                                                                let fInfodat: FileInfo = new FileInfo(filepath)
+                                                                let! _ = not fInfodat.Exists |> Option.ofBool, None   
                                                                              
-                                                             return Some ()
-                                                         } 
+                                                                return Some ()
+                                                            } 
                                                                          
-                                                 match pathToFileExist with
-                                                 | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile      //Original FsHttp library function    
-                                                 | None   -> return ()  //nechame chybu tise projit  
+                                                    match pathToFileExist with
+                                                    | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile      //Original FsHttp library function    
+                                                    | None   -> return ()  //nechame chybu tise projit  
                                                                                                                                                               
-                                            | _                
-                                                -> 
-                                                 return ()      //nechame chybu tise projit                                                                                                                            
-                                } 
-                            |> Async.Catch
-                            |> Async.RunSynchronously  
-                            |> Result.ofChoice                      
-                            |> function
-                                | Ok _     -> Ok ()   
-                                | Error ex -> Error (string ex.Message) 
+                                               | _                
+                                                   -> 
+                                                    return ()      //nechame chybu tise projit                                                                                                                            
+                                  } 
+                             |> Async.Catch
+                             |> Async.RunSynchronously  
+                             |> Result.ofChoice                      
+                             |> function
+                                 | Ok _     -> Ok ()   
+                                 | Error ex -> Error (string ex.Message) 
                                              
                         )  
                     |> List.head 
@@ -886,10 +820,8 @@ module KODIS_SubmainDataTable =
         with ex -> Error <| string ex.Message
         
         |> function
-            | Ok value  -> 
-                         value  
-            | Error err ->
-                         []
+            | Ok value  -> value  
+            | Error err -> []
                            
     let internal downloadAndSave = //: Reader<Context<string, string, unit>, unit> = 
         
@@ -906,7 +838,7 @@ module KODIS_SubmainDataTable =
                                  //input from data filtering (links*paths) -> http request -> saving pdf files on HD
                                  match context.list with
                                  | [] -> Error String.Empty     
-                                 | _  -> downloadAndSaveTimetables context   //TODO prozatimne je OK, predelat v ramci errorhandling  
+                                 | _  -> downloadAndSaveTimetables context   
                              with
                              | ex -> Error String.Empty  
                                           
