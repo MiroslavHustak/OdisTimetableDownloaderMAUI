@@ -103,19 +103,19 @@ module DPO_Submain =
             async
                 {                      
                     try    
-                        let clientResult = 
+                        let client = 
                             
                             pyramidOfDoom
                                 {
                                     let!_ = not <| File.Exists(pathToFile) |> Option.ofBool, Error String.Empty
                                     let! clientResult = client |> Option.ofNull, Error String.Empty
 
-                                    return Ok clientResult        
+                                    return Ok client        
                                 }
                         
-                        match clientResult with
+                        match client with
                         | Ok client ->      
-                                     let! response = client.GetAsync(uri) |> Async.AwaitTask
+                                     use! response = client.GetAsync(uri) |> Async.AwaitTask
                         
                                      match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
                                      | true  -> 
@@ -163,10 +163,10 @@ module DPO_Submain =
             |> Result.sequence  
             |> function
                 | Ok _    ->
-                           client.Dispose() 
+                           //client.Dispose() 
                            Ok ()   
                 | Error _ ->
-                           client.Dispose() 
+                           //client.Dispose() 
                            Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."
 
         downloadTimetables reportProgress    
