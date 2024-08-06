@@ -73,8 +73,8 @@ module App =
         | Kodis 
             -> 
              let path =
-                 //@"/storage/emulated/0/FabulousTimetables/"
-                 @"c:\Users\User\Data\"
+                 @"/storage/emulated/0/FabulousTimetables/"
+                 //@"c:\Users\User\Data\"
 
              let delayedCmd1 (dispatch: Msg -> unit): Async<unit> =
                  async
@@ -142,8 +142,8 @@ module App =
         | Dpo 
             -> 
              let path =
-                 //@"/storage/emulated/0/FabulousTimetables/"
-                 @"c:\Users\User\Data\"
+                 @"/storage/emulated/0/FabulousTimetables/"
+                 //@"c:\Users\User\Data\"
 
              let delayedCmd (dispatch: Msg -> unit): Async<unit> =
                  async
@@ -177,8 +177,8 @@ module App =
         | Mdpo 
             -> 
              let path =
-                 //@"/storage/emulated/0/FabulousTimetables/"
-                 @"c:\Users\User\Data\"
+                 @"/storage/emulated/0/FabulousTimetables/"
+                 //@"c:\Users\User\Data\"
 
              let delayedCmd (dispatch: Msg -> unit): Async<unit> =
                  async

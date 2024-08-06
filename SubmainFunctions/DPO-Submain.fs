@@ -74,6 +74,7 @@ module DPO_Submain =
                                                 sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
                                             
                                             let pathToFile = 
+                                                let item2 = item2.Replace("?", String.Empty)
                                                 let lineName = 
                                                     match item2.Contains("NAD") with
                                                     | true when item2.Contains("NAD1") -> "NAD1.pdf"
@@ -117,7 +118,8 @@ module DPO_Submain =
                         
                                      match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
                                      | true  -> 
-                                              let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
+                                              let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask  
+                                              let pathToFile = pathToFile.Replace("?", String.Empty)
                                               use fileStream = new FileStream(pathToFile, FileMode.CreateNew) 
                                               do! stream.CopyToAsync(fileStream) |> Async.AwaitTask  
                                               
