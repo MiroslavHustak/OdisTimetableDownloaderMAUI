@@ -22,12 +22,12 @@ module WebScraping_DPO =
   
     type private State =  
         { 
-            TimetablesDownloadedAndSaved: string
+            TimetablesDownloadedAndSaved: string //zatim nevyuzito
         }
 
     let private stateDefault = 
         {          
-            TimetablesDownloadedAndSaved = String.Empty //Podumat nad default textem
+            TimetablesDownloadedAndSaved = String.Empty //zatim nevyuzito
         }
 
     type private Actions =       
