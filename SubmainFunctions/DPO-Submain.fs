@@ -20,8 +20,7 @@ open Settings.SettingsGeneral
 module DPO_Submain =
 
     //************************Submain functions************************************************************************
- 
-    //[<TailCall>]
+     
     let internal filterTimetables () pathToDir = 
 
         let getLastThreeCharacters input =
