@@ -20,12 +20,12 @@ module WebScraping_MDPO =
 
     type private State =  
         { 
-            TimetablesDownloadedAndSaved: string  //zatim nevyuzito
+            TimetablesDownloadedAndSaved: unit  //zatim nevyuzito
         }
     
     let private stateDefault = 
         {          
-            TimetablesDownloadedAndSaved = String.Empty //zatim nevyuzito
+            TimetablesDownloadedAndSaved = () //zatim nevyuzito
         }
 
     type private Actions =
@@ -35,7 +35,7 @@ module WebScraping_MDPO =
 
     type private Environment = 
         {
-            filterTimetables : string -> Map<string, string>
+            filterTimetables : unit -> string -> Map<string, string>
             downloadAndSaveTimetables : (float * float -> unit) -> string -> Map<string, string> -> Result<unit, string>
         }
 
@@ -83,8 +83,8 @@ module WebScraping_MDPO =
                                          | false -> 
                                                   Error String.Empty                            
                                          | true  -> 
-                                                  environment.filterTimetables pathToSubdir 
-                                                 |> environment.downloadAndSaveTimetables reportProgress pathToSubdir  
+                                                  environment.filterTimetables () pathToSubdir   
+                                                  |> environment.downloadAndSaveTimetables reportProgress pathToSubdir  
                                      with
                                      |_ -> Error "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."           
                                                            

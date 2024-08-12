@@ -24,8 +24,8 @@ module MDPO_Submain =
 
     //************************Submain functions************************************************************************
 
-    let internal filterTimetables pathToDir = 
-
+    let internal filterTimetables () pathToDir = 
+         
         let urlList = //aby to bylo jednotne s DPO
             [
                 pathMdpoWebTimetables

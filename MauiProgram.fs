@@ -13,4 +13,4 @@ type MauiProgram =
                     .AddFont("OpenSans-Regular.ttf", "OpenSansRegular")
                     .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
                 |> ignore)
-            .Build()
+            .Build()   

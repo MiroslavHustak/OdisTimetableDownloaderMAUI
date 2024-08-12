@@ -1,12 +1,15 @@
 ﻿namespace OdisTimetableDownloaderMAUI
 
+open Microsoft.Maui.Controls
+open Microsoft.Maui
+
 module ProgressCircle =
 
     open System
     open Microsoft.Maui.Graphics
 
     //Anonymous Object Creation 
-    let progressCircle (progress: float) =
+    let internal progressCircle (progress: float) =
         { 
             new IDrawable with
 

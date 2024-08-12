@@ -32,7 +32,7 @@ module App =
         {
             ProgressMsg: string
             ProgressIndicator: ProgressIndicator
-            Progress: float // New property to hold the progress value
+            Progress: float        
         }
 
     type Msg =
@@ -41,7 +41,7 @@ module App =
         | Mdpo
         | UpdateStatus of progress: float * float
         | WorkIsComplete of string //TODO predelat na Result
-        | IterationMessage of string
+        | IterationMessage of string      
 
     let init () =
         { 
@@ -52,7 +52,8 @@ module App =
         Cmd.none
     
     let update msg m =
-        match msg with
+
+        match msg with      
         | UpdateStatus (progressValue, totalProgress)
             ->
              let progress =                 
@@ -73,8 +74,8 @@ module App =
         | Kodis 
             -> 
              let path =
-                 @"/storage/emulated/0/FabulousTimetables/"
-                 //@"c:\Users\User\Data\"
+                 //@"/storage/emulated/0/FabulousTimetables/"
+                 @"c:\Users\User\Data\"
 
              let delayedCmd1 (dispatch: Msg -> unit): Async<unit> =
                  async
@@ -97,7 +98,7 @@ module App =
                          let! result = hardWork 
                          do! Async.Sleep 1000
 
-                         dispatch (WorkIsComplete result) //"Dokončeno stahování JSON souborů. Chvíli strpení, prosím ..."
+                         dispatch (WorkIsComplete result)
                      }  
 
              let delayedCmd2 (dispatch: Msg -> unit): Async<unit> =  
@@ -142,8 +143,8 @@ module App =
         | Dpo 
             -> 
              let path =
-                 @"/storage/emulated/0/FabulousTimetables/"
-                 //@"c:\Users\User\Data\"
+                 //@"/storage/emulated/0/FabulousTimetables/"
+                 @"c:\Users\User\Data\"
 
              let delayedCmd (dispatch: Msg -> unit): Async<unit> =
                  async
@@ -155,7 +156,7 @@ module App =
                              async 
                                  {
                                      match webscraping_DPO reportProgress path with
-                                     | Ok value  -> return "JŘ DPO úspěšně staženy."
+                                     | Ok _      -> return "JŘ DPO úspěšně staženy."
                                      | Error err -> return err
                                  }
                              |> Async.StartChild 
@@ -170,15 +171,15 @@ module App =
 
              { 
                  m with                                  
-                     ProgressMsg = "Stahují se aktuálně platné JŘ DPO ..."
+                     ProgressMsg = "Stahují se JŘ DPO ..." 
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub execute     
 
         | Mdpo 
             -> 
              let path =
-                 @"/storage/emulated/0/FabulousTimetables/"
-                 //@"c:\Users\User\Data\"
+                 //@"/storage/emulated/0/FabulousTimetables/"
+                 @"c:\Users\User\Data\"
 
              let delayedCmd (dispatch: Msg -> unit): Async<unit> =
                  async
@@ -190,7 +191,7 @@ module App =
                              async 
                                  {
                                      match webscraping_MDPO reportProgress path with
-                                     | Ok value  -> return "Zastávkové JŘ MDPO úspěšně staženy."
+                                     | Ok _      -> return "Zastávkové JŘ MDPO úspěšně staženy."
                                      | Error err -> return err
                                  } 
                              |> Async.StartChild 
@@ -220,12 +221,12 @@ module App =
                         // Progress circle
                         GraphicsView(progressDrawable)
                             .height(150.)
-                            .width(150.)
-    
+                            .width(150.)      
+                            
                         Label("Stahování JŘ ODIS")
                             .semantics(SemanticHeadingLevel.Level1)
                             .font(size = 26.)
-                            .centerTextHorizontal()
+                            .centerTextHorizontal()                            
     
                         Label(m.ProgressMsg)
                             .semantics(SemanticHeadingLevel.Level2, "Welcome to dot net Multi platform App U I powered by Fabulous")
@@ -252,3 +253,4 @@ module App =
     
     let program = 
         Program.statefulWithCmd init update view
+        

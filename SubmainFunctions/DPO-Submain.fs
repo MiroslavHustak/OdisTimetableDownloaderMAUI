@@ -22,7 +22,7 @@ module DPO_Submain =
     //************************Submain functions************************************************************************
  
     //[<TailCall>]
-    let internal filterTimetables pathToDir = 
+    let internal filterTimetables () pathToDir = 
 
         let getLastThreeCharacters input =
             match String.length input <= 3 with

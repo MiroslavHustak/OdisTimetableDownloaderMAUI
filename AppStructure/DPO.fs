@@ -22,12 +22,12 @@ module WebScraping_DPO =
   
     type private State =  
         { 
-            TimetablesDownloadedAndSaved: string //zatim nevyuzito
+            TimetablesDownloadedAndSaved: unit //zatim nevyuzito
         }
 
     let private stateDefault = 
         {          
-            TimetablesDownloadedAndSaved = String.Empty //zatim nevyuzito
+            TimetablesDownloadedAndSaved = () //zatim nevyuzito
         }
 
     type private Actions =       
@@ -37,7 +37,7 @@ module WebScraping_DPO =
 
     type private Environment = 
         {
-            filterTimetables : string -> (string * string) list
+            filterTimetables : unit -> string -> (string * string) list
             downloadAndSaveTimetables : (float * float -> unit) -> (string * string) list -> Result<unit, string>
         }
 
@@ -85,7 +85,7 @@ module WebScraping_DPO =
                                           | false ->
                                                    Error String.Empty                              
                                           | true  -> 
-                                                   environment.filterTimetables pathToSubdir 
+                                                   environment.filterTimetables () pathToSubdir 
                                                    |> environment.downloadAndSaveTimetables reportProgress 
                                       with
                                       | _ -> Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."                                                 

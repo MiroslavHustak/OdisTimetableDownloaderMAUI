@@ -17,12 +17,12 @@ module WebScraping_KODISFMDataTable =
 
     type private State =  
         { 
-            TimetablesDownloadedAndSaved: string
+            TimetablesDownloadedAndSaved: unit
         }
 
     let private stateDefault = 
         {          
-            TimetablesDownloadedAndSaved = String.Empty //Podumat nad default textem
+            TimetablesDownloadedAndSaved = ()
         }
 
     type private Actions =
@@ -33,7 +33,7 @@ module WebScraping_KODISFMDataTable =
         {
             downloadAndSaveJson : string list -> string list -> (float * float -> unit) -> unit
             deleteAllODISDirectories : string -> unit
-            operationOnDataFromJson : Data.DataTable -> Validity -> string -> (string * string) list
+            operationOnDataFromJson : unit -> Data.DataTable -> Validity -> string -> (string * string) list
             downloadAndSave : Context<string, string, Result<unit, string>> -> Result<unit, string>
         }
 
@@ -75,7 +75,7 @@ module WebScraping_KODISFMDataTable =
                                   
                  environment.deleteAllODISDirectories path
                                   
-                 let dirList = KODIS_SubmainDataTable.createNewDirectories path listODISDefault4
+                 let dirList = KODIS_SubmainDataTable.createNewDirectoryPaths path listODISDefault4
                  let variantList = [ CurrentValidity; FutureValidity; WithoutReplacementService ]
                  let msgList =
                      [
@@ -92,7 +92,7 @@ module WebScraping_KODISFMDataTable =
                          ->
                           dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se snaží, co může ..."
                                            
-                          let list = KODIS_SubmainDataTable.operationOnDataFromJson dt variant dir 
+                          let list = KODIS_SubmainDataTable.operationOnDataFromJson () dt variant dir 
 
                           let context listMappingFunction = 
                               {
