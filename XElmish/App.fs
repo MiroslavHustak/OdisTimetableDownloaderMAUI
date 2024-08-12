@@ -26,7 +26,7 @@ module App =
 
     type ProgressIndicator = 
         | Idle 
-        | InProgress of percent: float * float
+        | InProgress of percent : float * float
 
     type Model = 
         {
@@ -39,7 +39,7 @@ module App =
         | Kodis  
         | Dpo
         | Mdpo
-        | UpdateStatus of progress: float * float
+        | UpdateStatus of progress : float * float
         | WorkIsComplete of string //TODO predelat na Result
         | IterationMessage of string      
 
@@ -77,7 +77,7 @@ module App =
                  //@"/storage/emulated/0/FabulousTimetables/"
                  @"c:\Users\User\Data\"
 
-             let delayedCmd1 (dispatch: Msg -> unit): Async<unit> =
+             let delayedCmd1 (dispatch : Msg -> unit) : Async<unit> =
                  async
                      {
                          let reportProgress (progressValue, totalProgress) =
@@ -101,7 +101,7 @@ module App =
                          dispatch (WorkIsComplete result)
                      }  
 
-             let delayedCmd2 (dispatch: Msg -> unit): Async<unit> =  
+             let delayedCmd2 (dispatch : Msg -> unit) : Async<unit> =  
                  async 
                      {
                          let reportProgress (progressValue, totalProgress) =
@@ -125,7 +125,7 @@ module App =
                          dispatch (WorkIsComplete result)
                      }     
                      
-             let executeSequentially (dispatch: Msg -> unit) =
+             let executeSequentially (dispatch : Msg -> unit) =
                  async 
                      {
                          do! delayedCmd1 dispatch 
@@ -146,7 +146,7 @@ module App =
                  //@"/storage/emulated/0/FabulousTimetables/"
                  @"c:\Users\User\Data\"
 
-             let delayedCmd (dispatch: Msg -> unit): Async<unit> =
+             let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
                  async
                      {
                          let reportProgress (progressValue, totalProgress) =
@@ -181,7 +181,7 @@ module App =
                  //@"/storage/emulated/0/FabulousTimetables/"
                  @"c:\Users\User\Data\"
 
-             let delayedCmd (dispatch: Msg -> unit): Async<unit> =
+             let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
                  async
                      {
                          let reportProgress (progressValue, totalProgress) =

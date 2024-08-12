@@ -20,14 +20,12 @@ open EmbeddedTP.EmbeddedTP
 open Types
 open Types.Types
 
-open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
 open Helpers
 open Helpers.MyString
 open Helpers.Builders
-open Helpers.CloseApp   
 
 open DataModelling.DataModel
 open TransformationLayers.TransformationLayerSend
@@ -323,7 +321,7 @@ module KODIS_SubmainDataTable =
         (Array.append <| task <| addOn()) |> Array.distinct
     
     //input from array -> change of input data -> output into datatable -> filtering data from datable -> links*paths     
-    let private filterTimetables () dt param (pathToDir: string) diggingResult = 
+    let private filterTimetables () dt param (pathToDir : string) diggingResult = 
 
         //*************************************Helpers for SQL columns********************************************
 
@@ -359,7 +357,7 @@ module KODIS_SubmainDataTable =
                 | Ok value  -> value  
                 | Error err -> String.Empty     
 
-        let extractSubstring2 (input: string) : (string option * int) =
+        let extractSubstring2 (input : string) : (string option * int) =
 
             let prefix = "NAD_"
             
@@ -727,7 +725,7 @@ module KODIS_SubmainDataTable =
             | Ok value  -> value  
             | Error err -> ()
     
-    //input from data filtering (links*paths) -> http request -> IO operation -> saving pdf data files on HD    
+    //input from data filtering (links * paths) -> http request -> IO operation -> saving pdf data files on HD    
     let private downloadAndSaveTimetables = //: Reader<Context<string, string, unit>, unit> =     //FsHttp
        
         cts.Cancel()  
@@ -835,7 +833,7 @@ module KODIS_SubmainDataTable =
                              Error String.Empty                                              
                     | true  ->
                              try
-                                 //input from data filtering (links*paths) -> http request -> saving pdf files on HD
+                                 //input from data filtering (links * paths) -> http request -> saving pdf files on HD
                                  match context.list with
                                  | [] -> Error String.Empty     
                                  | _  -> downloadAndSaveTimetables context   

@@ -2,7 +2,7 @@
 
 module TryParserInt = //Adapted third-party code
 
-     let private tryParseWith (tryParseFunc: string -> bool * _) =
+     let private tryParseWith (tryParseFunc : string -> bool * _) =
          tryParseFunc >> function
          | true, value -> Some value
          | false, _    -> None
@@ -12,7 +12,7 @@ module TryParserInt = //Adapted third-party code
      
 module TryParserDate = //tohle je pro parsing textoveho retezce do DateTime, ne pro overovani new DateTime() //Adapted third-party code
 
-       let private tryParseWith (tryParseFunc: string -> bool * _) =
+       let private tryParseWith (tryParseFunc : string -> bool * _) =
            tryParseFunc >> function
            | true, value -> Some value
            | false, _    -> None
@@ -24,7 +24,7 @@ module TryParserDate = //tohle je pro parsing textoveho retezce do DateTime, ne 
 //Toto neni pouzivany kod, ale jen pattern pro tvorbu TryParserInt, TryParserDate atd. //Adapted third-party code.
 module private TryParser =
 
-     let private tryParseWith (tryParseFunc: string -> bool * _) = 
+     let private tryParseWith (tryParseFunc : string -> bool * _) = 
          tryParseFunc >> function
          | true, value -> Some value
          | false, _    -> None

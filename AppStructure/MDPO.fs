@@ -47,7 +47,7 @@ module WebScraping_MDPO =
 
     let internal webscraping_MDPO reportProgress pathToDir =  
 
-        let stateReducer (state: State) (action: Actions) (environment: Environment) =
+        let stateReducer (state : State) (action: Actions) (environment : Environment) =
 
             let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.odisDir6 ]
          

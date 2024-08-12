@@ -7,16 +7,16 @@ module LogicalAliases =
     (*
     let rec internal nXor operands =
         match operands with
-        | []    -> false  
-        | x::xs -> (x && not (nXor xs)) || ((not x) && (nXor xs))
+        | []      -> false  
+        | x :: xs -> (x && not (nXor xs)) || ((not x) && (nXor xs))
     *)
 
     [<TailCall>]
     let internal nXor operands =
         let rec nXor_tail_recursive acc operands =
             match operands with
-            | []    -> acc
-            | x::xs -> nXor_tail_recursive ((x && not acc) || ((not x) && acc)) xs
+            | []      -> acc
+            | x :: xs -> nXor_tail_recursive ((x && not acc) || ((not x) && acc)) xs
         nXor_tail_recursive false operands
 
 module CopyingOrMovingFiles = //output in Result type 
@@ -78,9 +78,9 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
     [<Struct>]
     type private Config =
         {
-            source: string
-            destination: string
-            fileName: string
+            source : string
+            destination : string
+            fileName : string
         }
 
     [<Struct>]
@@ -213,8 +213,8 @@ module CheckNetConnection =
         try
             use myPing = new Ping()      
                 
-            let host: string = "8.8.4.4" //IP google.com
-            let buffer: byte[] = Array.zeroCreate <| 32
+            let host : string = "8.8.4.4" //IP google.com
+            let buffer : byte[] = Array.zeroCreate <| 32
             
             let pingOptions: PingOptions = new PingOptions()                
      

@@ -17,7 +17,7 @@ module WebScraping_KODISFMDataTable =
 
     type private State =  
         { 
-            TimetablesDownloadedAndSaved: unit
+            TimetablesDownloadedAndSaved : unit
         }
 
     let private stateDefault = 
@@ -45,7 +45,7 @@ module WebScraping_KODISFMDataTable =
             downloadAndSave = KODIS_SubmainDataTable.downloadAndSave
         }    
 
-    let private stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state: State) (environment: Environment) (action: Actions) =
+    let private stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) (action : Actions) =
 
         let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.odisDir5 ]
 

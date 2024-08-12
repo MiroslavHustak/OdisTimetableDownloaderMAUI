@@ -12,7 +12,7 @@ open Helpers.Builders
             
 module Result = 
 
-    let internal mapErr fOk (fErr: Lazy<'a>) =                          
+    let internal mapErr fOk (fErr : Lazy<'a>) =                          
         function
         | Ok value -> value |> fOk
         | Error _  -> fErr.Force()       
@@ -31,7 +31,7 @@ module Result =
 
         let prepend firstR restR =
             match firstR, restR with
-            | Ok first, Ok rest   -> Ok (first::rest) | Error err1, Ok _ -> Error err1
+            | Ok first, Ok rest   -> Ok (first :: rest) | Error err1, Ok _ -> Error err1
             | Ok _, Error err2    -> Error err2
             | Error err1, Error _ -> Error err1
 
@@ -65,13 +65,7 @@ module Result =
                          )   
                  Ok okList 
 
-module CloseApp =      
-
-    let internal closeItDpo (client: HttpClient) err = 
-        //msgParam1 err      
-        Console.ReadKey() |> ignore 
-        client.Dispose()
-        System.Environment.Exit(1)     
+module CloseApp =  
 
     let internal closeItBaby err = 
         //msgParam1 err      
@@ -95,7 +89,7 @@ module Option =
         | true  -> Some value  
         | false -> None
 
-    let internal ofNull (value: 'nullableValue) =
+    let internal ofNull (value : 'nullableValue) =
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
         | true  -> None
         | false -> Some value     
@@ -109,7 +103,7 @@ module Option =
         str
         |> Option.bind (fun item -> Option.filter (fun item -> not (item.Equals(String.Empty))) (Some (string item))) 
                              
-    let internal ofNullEmpty (value: 'nullableValue) = //NullOrEmpty
+    let internal ofNullEmpty (value : 'nullableValue) = //NullOrEmpty
 
         pyramidOfHell
             {
@@ -120,7 +114,7 @@ module Option =
                 return Some value
             }
 
-    let internal ofNullEmptySpace (value: 'nullableValue) = //NullOrEmpty, NullOrWhiteSpace
+    let internal ofNullEmptySpace (value : 'nullableValue) = //NullOrEmpty, NullOrWhiteSpace
     
         pyramidOfHell
             {
@@ -146,7 +140,7 @@ module Option =
 module Casting = 
     
     //normalne nepouzivat!!! zatim nutnost jen u deserializace xml - viz SAFE Stack app
-    let inline internal castAs<'a> (o: obj) : 'a option =    //the :? operator in F# is used for type testing     srtp pri teto strukture nefunguje
+    let inline internal castAs<'a> (o : obj) : 'a option =    //the :? operator in F# is used for type testing     srtp pri teto strukture nefunguje
         match Option.ofNull o with
         | Some (:? 'a as result) -> Some result
         | _                      -> None

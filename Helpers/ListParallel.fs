@@ -18,7 +18,7 @@ open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 
 let private expr (param : 'a) = Expr.Value(param)  
   
-let private splitListIntoEqualParts (numParts: int) (originalList: 'a list) =   //well, almost equal parts :-)           
+let private splitListIntoEqualParts (numParts : int) (originalList : 'a list) =   //well, almost equal parts :-)           
 
     let rec splitAccumulator remainingList partsAccumulator acc =
     
@@ -83,7 +83,7 @@ let iter action list =
           |> Async.RunSynchronously 
           |> ignore
 
-let iter2<'a, 'b> (mapping: 'a -> 'b -> unit) (xs1: 'a list) (xs2: 'b list) = 
+let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
     
     let l = xs1 |> List.length   
 
@@ -106,7 +106,7 @@ let iter2<'a, 'b> (mapping: 'a -> 'b -> unit) (xs1: 'a list) (xs2: 'b list) =
     | true  -> 
              ()
 
-let map (action: 'a -> 'b) (list: 'a list) =
+let map (action : 'a -> 'b) (list : 'a list) =
 
     match list with
     | [] ->
@@ -127,7 +127,7 @@ let map (action: 'a -> 'b) (list: 'a list) =
           |> List.ofArray
           |> List.concat
  
-let map2<'a, 'b, 'c> (mapping: 'a -> 'b -> 'c) (xs1: 'a list) (xs2: 'b list) =   
+let map2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
     
     let l = xs1 |> List.length 
 

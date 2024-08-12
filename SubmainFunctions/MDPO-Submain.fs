@@ -16,7 +16,6 @@ module MDPO_Submain =
 
     open Types.ErrorTypes
 
-    open Settings.Messages
     open Settings.SettingsMDPO
     open Settings.SettingsGeneral    
 
@@ -61,7 +60,7 @@ module MDPO_Submain =
     //FsHttp
     let internal downloadAndSaveTimetables reportProgress (pathToDir : string) (filterTimetables : Map<string, string>) =  
 
-        let downloadFileTaskAsync (uri: string) (pathToFile: string) : Async<Result<unit, string>> =  
+        let downloadFileTaskAsync (uri : string) (pathToFile : string) : Async<Result<unit, string>> =  
        
             async
                 {                      
