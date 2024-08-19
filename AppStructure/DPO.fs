@@ -51,13 +51,13 @@ module WebScraping_DPO =
 
         let stateReducer (state: State) (action: Actions) (environment: Environment) =
             
-            let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.odisDir5 ] //Android jen forward slash %s/%s
+            let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir5 ] //Android jen forward slash %s/%s
 
             match action with       
             | DeleteOneODISDirectory ->                                     
                                                                           
                                       try
-                                          let dirName = ODISDefault.odisDir5
+                                          let dirName = ODISDefault.OdisDir5
 
                                           //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
                                           let dirInfo = new DirectoryInfo(pathToDir)   

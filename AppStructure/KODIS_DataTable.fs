@@ -37,7 +37,7 @@ module WebScraping_KODISFMDataTable =
             downloadAndSave : Context<string, string, Result<unit, string>> -> Result<unit, string>
         }
 
-    let private environment: Environment =
+    let private environment : Environment =
         { 
             downloadAndSaveJson = KODIS_SubmainDataTable.downloadAndSaveJson 
             deleteAllODISDirectories = KODIS_SubmainDataTable.deleteAllODISDirectories   
@@ -47,7 +47,7 @@ module WebScraping_KODISFMDataTable =
 
     let private stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) (action : Actions) =
 
-        let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.odisDir5 ]
+        let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.OdisDir5 ]
 
         match action with                                                   
         | DownloadAndSaveJsonFM 

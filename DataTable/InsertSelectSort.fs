@@ -42,16 +42,16 @@ module InsertSelectSort =
                             
                        let newRow = dt.NewRow()
                        
-                       newRow.["OldPrefix"] <- item.oldPrefix
-                       newRow.["NewPrefix"] <- item.newPrefix
-                       newRow.["StartDate"] <- item.startDate
-                       newRow.["EndDate"] <- item.endDate
-                       newRow.["TotalDateInterval"] <- item.totalDateInterval
-                       newRow.["VT_Suffix"] <- item.suffix
-                       newRow.["JS_GeneratedString"] <- item.jsGeneratedString
-                       newRow.["CompleteLink"] <- item.completeLink
-                       newRow.["FileToBeSaved"] <- item.fileToBeSaved
-                       newRow.["PartialLink"] <- item.partialLink
+                       newRow.["OldPrefix"] <- item.OldPrefix
+                       newRow.["NewPrefix"] <- item.NewPrefix
+                       newRow.["StartDate"] <- item.StartDate
+                       newRow.["EndDate"] <- item.EndDate
+                       newRow.["TotalDateInterval"] <- item.TotalDateInterval
+                       newRow.["VT_Suffix"] <- item.Suffix
+                       newRow.["JS_GeneratedString"] <- item.JsGeneratedString
+                       newRow.["CompleteLink"] <- item.CompleteLink
+                       newRow.["FileToBeSaved"] <- item.FileToBeSaved
+                       newRow.["PartialLink"] <- item.PartialLink
                        
                        dt.Rows.Add(newRow)
             )                  
@@ -117,12 +117,12 @@ module InsertSelectSort =
 
                 let dtDataDtoGetDataTable (row : DataRow) : DtDtoGet =                         
                     {           
-                        newPrefix = Convert.ToString (row.["NewPrefix"]) |> Option.ofNullEmpty
-                        startDate = Convert.ToDateTime (row.["StartDate"]) |> Option.ofNull
-                        endDate = Convert.ToDateTime (row.["EndDate"]) |> Option.ofNull
-                        completeLink = Convert.ToString (row.["CompleteLink"]) |> Option.ofNullEmpty
-                        fileToBeSaved = Convert.ToString (row.["FileToBeSaved"]) |> Option.ofNullEmpty
-                        partialLink = Convert.ToString (row.["PartialLink"]) |> Option.ofNullEmpty 
+                        NewPrefix = Convert.ToString (row.["NewPrefix"]) |> Option.ofNullEmpty
+                        StartDate = Convert.ToDateTime (row.["StartDate"]) |> Option.ofNull
+                        EndDate = Convert.ToDateTime (row.["EndDate"]) |> Option.ofNull
+                        CompleteLink = Convert.ToString (row.["CompleteLink"]) |> Option.ofNullEmpty
+                        FileToBeSaved = Convert.ToString (row.["FileToBeSaved"]) |> Option.ofNullEmpty
+                        PartialLink = Convert.ToString (row.["PartialLink"]) |> Option.ofNullEmpty 
                     } 
 
                 let dataTransformation row =                                 
@@ -143,20 +143,20 @@ module InsertSelectSort =
                 |> function
                     | FutureValidity ->                             
                                       seqFromDataTable    
-                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).partialLink)
+                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).PartialLink)
                                       |> Seq.map (fun (partialLink, group) -> group |> Seq.head)
                                       |> Seq.filter
                                           (fun row ->
-                                                    let startDate = (row |> dataTransformation).startDate |> function StartDateDt value -> value
-                                                    let endDate = (row |> dataTransformation).endDate |> function EndDateDt value -> value
-                                                    let fileToBeSaved = (row |> dataTransformation).fileToBeSaved |> function FileToBeSaved value -> value                      
+                                                    let startDate = (row |> dataTransformation).StartDate |> function StartDateDt value -> value
+                                                    let endDate = (row |> dataTransformation).EndDate |> function EndDateDt value -> value
+                                                    let fileToBeSaved = (row |> dataTransformation).FileToBeSaved |> function FileToBeSaved value -> value                      
                                         
                                                     condition startDate endDate currentTime fileToBeSaved
                                           )     
                                       |> Seq.map
                                           (fun row ->
-                                                    (row |> dataTransformation).completeLink,
-                                                    (row |> dataTransformation).fileToBeSaved
+                                                    (row |> dataTransformation).CompleteLink,
+                                                    (row |> dataTransformation).FileToBeSaved
                                           )
                                       |> Seq.distinct //na rozdil od ITVF v SQL se musi pouzit distinct                                     
                                       |> List.ofSeq
@@ -164,18 +164,18 @@ module InsertSelectSort =
 
                     | _              -> 
                                       seqFromDataTable
-                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).partialLink)
+                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).PartialLink)
                                       |> Seq.map (fun (partialLink, group) -> group |> Seq.head)
                                       |> Seq.filter
                                           (fun row ->
-                                                    let startDate = (row |> dataTransformation).startDate |> function StartDateDt value -> value
-                                                    let endDate = (row |> dataTransformation).endDate |> function EndDateDt value -> value
-                                                    let fileToBeSaved = (row |> dataTransformation).fileToBeSaved |> function FileToBeSaved value -> value                       
+                                                    let startDate = (row |> dataTransformation).StartDate |> function StartDateDt value -> value
+                                                    let endDate = (row |> dataTransformation).EndDate |> function EndDateDt value -> value
+                                                    let fileToBeSaved = (row |> dataTransformation).FileToBeSaved |> function FileToBeSaved value -> value                       
                                         
                                                     condition startDate endDate currentTime fileToBeSaved
                                           )           
-                                      |> Seq.sortByDescending (fun row -> (row |> dataTransformation).startDate)
-                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).newPrefix)
+                                      |> Seq.sortByDescending (fun row -> (row |> dataTransformation).StartDate)
+                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).NewPrefix)
                                       |> Seq.map
                                           (fun (newPrefix, group)
                                               ->
@@ -185,8 +185,8 @@ module InsertSelectSort =
                                       |> Seq.map
                                           (fun (newPrefix, row) 
                                               ->
-                                               (row |> dataTransformation).completeLink,
-                                               (row |> dataTransformation).fileToBeSaved
+                                               (row |> dataTransformation).CompleteLink,
+                                               (row |> dataTransformation).FileToBeSaved
                                           )
                                       |> Seq.distinct 
                                       |> List.ofSeq

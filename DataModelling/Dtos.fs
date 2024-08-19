@@ -7,24 +7,24 @@ module Dto =
     
     type DtDtoGet = 
         {           
-            newPrefix : string option  
-            startDate : DateTime option 
-            endDate : DateTime option  
-            completeLink : string option  
-            fileToBeSaved : string option  
-            partialLink : string option 
+            NewPrefix : string option  
+            StartDate : DateTime option 
+            EndDate : DateTime option  
+            CompleteLink : string option  
+            FileToBeSaved : string option  
+            PartialLink : string option 
         } 
   
     type DtDtoSend = 
         {
-            oldPrefix : string 
-            newPrefix : string 
-            startDate : DateTime  
-            endDate : DateTime   
-            totalDateInterval : string 
-            suffix : string 
-            jsGeneratedString : string 
-            completeLink : string 
-            fileToBeSaved : string  
-            partialLink : string  
+            OldPrefix : string 
+            NewPrefix : string 
+            StartDate : DateTime  
+            EndDate : DateTime   
+            TotalDateInterval : string 
+            Suffix : string 
+            JsGeneratedString : string 
+            CompleteLink : string 
+            FileToBeSaved : string  
+            PartialLink : string  
         }

@@ -54,10 +54,10 @@ let private numberOfThreads l =
         
     match numberOfThreads > 0 with 
     | true  ->                            
-             match l >= numberOfThreads with
-             | true             -> numberOfThreads
-             | false when l > 0 -> l
-             | _                -> 1  
+             match (>=) l numberOfThreads with
+             | true               -> numberOfThreads
+             | false when (>) l 0 -> l
+             | _                  -> 1  
     | false ->
              ()//logInfoMsg <| sprintf "Err2003 %s" "Cannot count the number of processors available to the current process"
              1

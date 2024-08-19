@@ -79,7 +79,7 @@ module KODIS_SubmainDataTable =
                              | HttpStatusCode.OK
                                  ->                                                                                                   
                                   counterAndProgressBar.Post(Inc 1)                                                   
-                                  do! response.SaveFileAsync >> Async.AwaitTask <| path                                                   
+                                  do! (>>) response.SaveFileAsync Async.AwaitTask <| path                                                   
                                   return Ok ()                                
                              | _ ->  
                                   return Error "HttpStatusCode.OK is not OK"     
@@ -520,16 +520,16 @@ module KODIS_SubmainDataTable =
             let fileToBeSaved = sprintf "%s%s%s.pdf" (newPrefix oldPrefix) totalDateInterval suffix
 
             {
-                oldPrefix = OldPrefix oldPrefix
-                newPrefix = NewPrefix (newPrefix oldPrefix)
-                startDate = StartDateDtOpt (TryParserDate.parseDate () <| extractStartDate totalDateInterval)
+                OldPrefix = OldPrefix oldPrefix
+                NewPrefix = NewPrefix (newPrefix oldPrefix)
+                StartDate = StartDateDtOpt (TryParserDate.parseDate () <| extractStartDate totalDateInterval)
                 endDate = EndDateDtOpt (TryParserDate.parseDate () <| extractEndDate totalDateInterval)
-                totalDateInterval = TotalDateInterval totalDateInterval
-                suffix = Suffix suffix
-                jsGeneratedString = JsGeneratedString jsGeneratedString
-                completeLink = CompleteLink input
-                fileToBeSaved = FileToBeSaved fileToBeSaved
-                partialLink = 
+                TotalDateInterval = TotalDateInterval totalDateInterval
+                Suffix = Suffix suffix
+                JsGeneratedString = JsGeneratedString jsGeneratedString
+                CompleteLink = CompleteLink input
+                FileToBeSaved = FileToBeSaved fileToBeSaved
+                PartialLink = 
                     let pattern = Regex.Escape(jsGeneratedString)
                     PartialLink <| Regex.Replace(input, pattern, String.Empty)
             }
@@ -773,7 +773,7 @@ module KODIS_SubmainDataTable =
                                                            GET(uri) 
                                                        }    
 
-                                               use! response = get >> Request.sendAsync <| uri  
+                                               use! response = (>>) get Request.sendAsync <| uri  
 
                                                match response.statusCode with
                                                | HttpStatusCode.OK 

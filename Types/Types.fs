@@ -5,12 +5,12 @@ module Types =
     [<Struct>]   //vhodne pro 16 bytes => 4096 characters
     type internal ODIS =  
         {        
-            odisDir1 : string
-            odisDir2 : string
-            //odisDir3 : string
-            odisDir4 : string
-            odisDir5 : string
-            odisDir6 : string
+            OdisDir1 : string
+            OdisDir2 : string
+            //OdisDir3 : string
+            OdisDir4 : string
+            OdisDir5 : string
+            OdisDir6 : string
         }  
         
     [<Struct>] 

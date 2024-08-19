@@ -30,9 +30,9 @@ module App =
 
     type Model = 
         {
-            ProgressMsg: string
-            ProgressIndicator: ProgressIndicator
-            Progress: float        
+            ProgressMsg : string
+            ProgressIndicator : ProgressIndicator
+            Progress : float        
         }
 
     type Msg =

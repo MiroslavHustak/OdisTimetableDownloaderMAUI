@@ -12,24 +12,24 @@ module DataModel =
     
     type DtDataGet = 
         {           
-            newPrefix : NewPrefix  
-            startDate : StartDateDt
-            endDate : EndDateDt 
-            completeLink : CompleteLink 
-            fileToBeSaved : FileToBeSaved  
-            partialLink : PartialLink
+            NewPrefix : NewPrefix  
+            StartDate : StartDateDt
+            EndDate : EndDateDt 
+            CompleteLink : CompleteLink 
+            FileToBeSaved : FileToBeSaved  
+            PartialLink : PartialLink
         } 
   
     type DtDataSend = 
         {
-            oldPrefix : OldPrefix 
-            newPrefix : NewPrefix 
-            startDate : StartDateDtOpt 
+            OldPrefix : OldPrefix 
+            NewPrefix : NewPrefix 
+            StartDate : StartDateDtOpt 
             endDate : EndDateDtOpt 
-            totalDateInterval : TotalDateInterval 
-            suffix : Suffix 
-            jsGeneratedString : JsGeneratedString 
-            completeLink : CompleteLink 
-            fileToBeSaved : FileToBeSaved 
-            partialLink : PartialLink
+            TotalDateInterval : TotalDateInterval 
+            Suffix : Suffix 
+            JsGeneratedString : JsGeneratedString 
+            CompleteLink : CompleteLink 
+            FileToBeSaved : FileToBeSaved 
+            PartialLink : PartialLink
         }

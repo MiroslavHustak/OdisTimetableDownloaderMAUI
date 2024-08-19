@@ -39,7 +39,7 @@ module WebScraping_MDPO =
             downloadAndSaveTimetables : (float * float -> unit) -> string -> Map<string, string> -> Result<unit, string>
         }
 
-    let private environment: Environment =
+    let private environment : Environment =
         { 
             filterTimetables = filterTimetables 
             downloadAndSaveTimetables = downloadAndSaveTimetables       
@@ -49,11 +49,11 @@ module WebScraping_MDPO =
 
         let stateReducer (state : State) (action: Actions) (environment : Environment) =
 
-            let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.odisDir6 ]
+            let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir6 ]
          
             match action with      
             | DeleteOneODISDirectory ->                                     
-                                      let dirName = ODISDefault.odisDir6                        
+                                      let dirName = ODISDefault.OdisDir6                        
                                       
                                       try
                                           //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs

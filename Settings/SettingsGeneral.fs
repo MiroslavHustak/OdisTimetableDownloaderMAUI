@@ -11,20 +11,20 @@ module SettingsGeneral =
 
     let internal ODISDefault =  
         {          
-            odisDir1 = "JR_ODIS_aktualni_vcetne_vyluk"
-            odisDir2 = "JR_ODIS_pouze_budouci_platnost"
+            OdisDir1 = "JR_ODIS_aktualni_vcetne_vyluk"
+            OdisDir2 = "JR_ODIS_pouze_budouci_platnost"
             //odisDir3 = "JR_ODIS_pouze_aktualni_vyluky"
-            odisDir4 = "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk" 
-            odisDir5 = "JR_ODIS_pouze_linky_dopravce_DPO" 
-            odisDir6 = "JR_ODIS_pouze_linky_dopravce_MDPO" 
+            OdisDir4 = "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk" 
+            OdisDir5 = "JR_ODIS_pouze_linky_dopravce_DPO" 
+            OdisDir6 = "JR_ODIS_pouze_linky_dopravce_MDPO" 
         }   
 
     let internal listODISDefault4 = 
         [ 
-            ODISDefault.odisDir1
-            ODISDefault.odisDir2
+            ODISDefault.OdisDir1
+            ODISDefault.OdisDir2
             //ODISDefault.odisDir3
-            ODISDefault.odisDir4 
+            ODISDefault.OdisDir4 
         ]  
 
     let internal connErrorCodeDefault =                        
