@@ -104,9 +104,9 @@ module WebScraping_KODISFMDataTable =
 
                           dispatchIterationMessage message
                                            
-                          match variant with
-                          | FutureValidity -> context List.map2 
-                          | _              -> context List.Parallel.map2 
+                          match list.Length >= 8 with //eqv of 8 threads
+                          | true  -> context List.Parallel.map2
+                          | false -> context List.map2
 
                           |> environment.downloadAndSave
                       )
