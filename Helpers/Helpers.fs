@@ -70,7 +70,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
    
     open Helpers
     open Helpers.Builders
-    open Helpers.FreeMonadsCM
+    open Helpers.CommandLineWorkflowCM
 
     //Free monads are just a general way of turning functors into monads.
     //A free monad is a sequence of actions where subsequent actions can depend on the result of previous ones.
