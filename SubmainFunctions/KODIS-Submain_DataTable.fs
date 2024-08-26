@@ -539,9 +539,9 @@ module KODIS_SubmainDataTable =
         //**********************Filtering and datatable data inserting********************************************************
         let dataToBeInserted = 
             
-            diggingResult     
-            |> Array.toList
-            |> List.Parallel.map 
+            diggingResult   
+            |> Array.ofSeq
+            |> Array.Parallel.map 
                 (fun item -> 
                            let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
                            
@@ -549,15 +549,16 @@ module KODIS_SubmainDataTable =
                            | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
                            | false -> item                                       
                 )  
-            |> List.sort //jen quli testovani
-            |> List.filter
+            |> Array.sort //jen quli testovani
+            |> Array.filter
                 (fun item -> 
                            let cond1 = (item |> Option.ofNullEmptySpace).IsSome
                            let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
                            cond1 && cond2 
                 )         
-            |> List.map 
+            |> Array.map 
                 (fun item -> splitKodisLink item) 
+            |> Array.toList
 
         
         //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************

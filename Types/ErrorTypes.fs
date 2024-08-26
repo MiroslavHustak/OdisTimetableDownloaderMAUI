@@ -14,9 +14,10 @@ module ErrorTypes =
             CofeeMakerUnavailable : string
         }
 
+    [<Struct>]     
     type internal TryWithErrors = 
-        | IOExnErr of string
-        | UnauthorizedAccessExnErr of string        
-        | ArgumentNullExnErr of string //zatim nepouzito
-        | FormatExErr of string  //zatim nepouzito
-        | AllOtherErrors of string
+        | IOExnErr of IOExnErr : string
+        | UnauthorizedAccessExnErr of UnauthorizedAccessExnErr : string        
+        | ArgumentNullExnErr of ArgumentNullExnErr : string //zatim nepouzito
+        | FormatExErr of FormatExErr : string  //zatim nepouzito
+        | AllOtherErrors of AllOtherErrors : string

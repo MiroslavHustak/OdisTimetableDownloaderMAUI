@@ -57,7 +57,8 @@ module WebScraping_KODISFMDataTable =
                 
                  try
                      //startNetChecking ()
-                     environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
+                     //environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
+                     environment.downloadAndSaveJson jsonLinkList2 pathToJsonList2 reportProgress
                      |> Ok
                  with
                  | _ -> Error String.Empty
