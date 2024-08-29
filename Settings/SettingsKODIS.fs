@@ -121,6 +121,7 @@ module SettingsKODIS =
 
     let internal jsonLinkList2 =
         [
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=613-699&start=48&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Bruntál&groups%5B1%5D=MHD%20Český%20Těšín&groups%5B2%5D=MHD%20Frýdek-Místek&groups%5B3%5D=MHD%20Havířov&groups%5B4%5D=MHD%20Karviná&groups%5B5%5D=MHD%20Krnov&groups%5B6%5D=MHD%20Nový%20Jičín&groups%5B7%5D=MHD%20Opava&groups%5B8%5D=MHD%20Orlová&groups%5B9%5D=MHD%20Ostrava&groups%5B10%5D=MHD%20Studénka&groups%5B11%5D=MHD%20Třinec&groups%5B12%5D=NAD%20MHD&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Bruntál&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Český%20Těšín&start=0&limit=12"
@@ -148,12 +149,12 @@ module SettingsKODIS =
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=S1-S34&groups%5B1%5D=R8-R62&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=S1-S34&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=R8-R62&start=0&limit=12"            
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=NAD&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=613-699&start=48&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=NAD&start=0&limit=12"            
         ]
     
     let internal pathToJsonList2 =     
         [
+            sprintf "%s%s" partialPathJson @"kodisRegion6002_1.json" 
             sprintf "%s%s" partialPathJson @"kodisMHDTotal2_0.json"
             sprintf "%s%s" partialPathJson @"kodisMHDBruntal2_0.json"
             sprintf "%s%s" partialPathJson @"kodisMHDCT2_0.json"
@@ -181,6 +182,5 @@ module SettingsKODIS =
             sprintf "%s%s" partialPathJson @"kodisTrainTotal2_0.json"
             sprintf "%s%s" partialPathJson @"kodisTrainPomaliky2_0.json"
             sprintf "%s%s" partialPathJson @"kodisTrainRychliky2_0.json"
-            sprintf "%s%s" partialPathJson @"kodisNAD2_0.json"
-            sprintf "%s%s" partialPathJson @"kodisRegion6002_1.json"
+            sprintf "%s%s" partialPathJson @"kodisNAD2_0.json"            
         ]      
