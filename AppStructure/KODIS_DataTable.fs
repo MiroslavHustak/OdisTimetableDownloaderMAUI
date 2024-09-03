@@ -56,35 +56,40 @@ module WebScraping_KODISFMDataTable =
             -> 
              //Http request and IO operation (data from settings -> http request -> IO operation -> saving json files on HD)
              let downloadAndSaveJson reportProgress = 
-                
+                 let errFn err =  
+                     match err with
+                     | JsonDownloadError -> "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 
+                    
                  try
-                     //startNetChecking ()
                      //environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
                      environment.downloadAndSaveJson jsonLinkList2 pathToJsonList2 reportProgress
                      |> Ok
                  with
-                 | _ -> Error String.Empty
+                 | ex ->
+                       string ex.Message |> ignore  //TODO logfile
+                       Error JsonDownloadError
                  
                  |> function
-                     | Ok _    -> "Dokončeno stahování JSON souborů." 
-                     | Error _ -> "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 
+                     | Ok _      -> "Dokončeno stahování JSON souborů." 
+                     | Error err -> errFn err
 
              downloadAndSaveJson reportProgress  
 
         | DownloadSelectedVariant 
             ->    
+             let errFn err =  
+                 match err with
+                 | DataTableError     -> "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
+                 | JsonFilteringError -> "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
+                 | DataFilteringError -> "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
+                 | FileDeleteError    -> "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
+                 | CreateFolderError  -> "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy." 
+                 | FileDownloadError  -> "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
+                 
              try 
                  let dirList = KODIS_SubmainDataTable.createNewDirectoryPaths path listODISDefault4
                
                  let dt = DataTable.CreateDt.dt() 
-                 
-                 let errFn err =  
-                     match err with
-                     | DataTableError     -> "Došlo k chybě při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
-                     | DataFilteringError -> "Došlo k chybě při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
-                     | FileDeleteError    -> "Došlo k chybě při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
-                     | CreateFolderError  -> "Došlo k chybě při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy." 
-                     | FileDownloadError  -> "Došlo k chybě při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
                           
                  let resultCurrentValidity () =   
 

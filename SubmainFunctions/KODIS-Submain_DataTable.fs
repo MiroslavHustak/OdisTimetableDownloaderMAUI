@@ -28,6 +28,7 @@ open Helpers
 open Helpers.MyString
 open Helpers.Builders
 
+open DataModelling.Dto
 open DataModelling.DataModel
 open TransformationLayers.TransformationLayerSend
 
@@ -83,25 +84,25 @@ module KODIS_SubmainDataTable =
             )
         |> Result.sequence 
         |> function
-            | Ok _      -> 
-                         Ok ()
-            | Error err ->
-                         err |> ignore // TODO do logfile
-                         Error JsonDownloadError  
+            | Ok _     -> 
+                        Ok ()
+            | Error ex ->
+                        string ex.Message |> ignore // TODO logfile
+                        Error JsonDownloadError  
     
     //input from saved json files -> change of input data -> output into array
     let private digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
         
-        let kodisTimetables : Reader<string list, string array> = 
+        let kodisTimetables : Reader<string list, string seq> = 
 
             reader //Reader monad for educational purposes only, no real benefit here  
                 {
                     let! pathToJsonList = fun env -> env 
 
-                    let result () = 
+                    return 
                         pathToJsonList 
-                        |> Array.ofList 
-                        |> Array.collect 
+                        |> Seq.ofList 
+                        |> Seq.collect 
                             (fun pathToJson 
                                 ->   
                                  let json = 
@@ -120,35 +121,22 @@ module KODIS_SubmainDataTable =
                                  JsonProvider1.Parse(json) 
                                  |> Option.ofNull  
                                  |> function 
-                                     | Some value -> value |> Array.map _.Timetable                                                
-                                     | None       -> [||] //tady nelze Result.sequence 
-                            )  
-                        
-                    return
-                        try
-                           let value = result ()   
-                           value
-                           |> function
-                               | [||] -> Error String.Empty                                       
-                               | _    -> Ok value
-                        with ex -> Error <| string ex.Message  
-
-                        |> function
-                            | Ok value  -> value
-                            | Error err -> [||]      
+                                     | Some value -> value |> Seq.map _.Timetable                                                
+                                     | None       -> Seq.empty //tady nelze Result.sequence //TODO logfile
+                            )                    
                 }
             
-        let kodisTimetables2 : Reader<string list, string array> = 
+        let kodisTimetables2 : Reader<string list, string seq> = 
 
             reader //Reader monad for educational purposes only, no real benefit here  
                 {
                     let! pathToJsonList2 = fun env -> env 
 
-                    let result () = 
+                    return 
 
                         pathToJsonList2 
-                        |> Array.ofList 
-                        |> Array.collect 
+                        |> Seq.ofList 
+                        |> Seq.collect 
                             (fun pathToJson 
                                 ->                                       
                                  let json = //tady nelze Result.sequence 
@@ -171,18 +159,18 @@ module KODIS_SubmainDataTable =
                                      |> function 
                                          | Some value -> 
                                                        value.Data
-                                                       |> Array.map _.Timetable  //quli tomuto je nutno Array //nejde Some, nejde Ok
+                                                       |> Seq.map _.Timetable  //nejde Some, nejde Ok
                                          | None       -> 
-                                                       [||]   
+                                                       Seq.empty  //TODO logfile
                                  
                                  let vyluky = 
                                      kodisJsonSamples 
                                      |> function 
                                         | Some value -> 
                                                       value.Data 
-                                                      |> Array.collect _.Vyluky  //quli tomuto je nutno Array //nejde Some, nejde Ok
+                                                      |> Seq.collect _.Vyluky  //nejde Some, nejde Ok
                                         | None       -> 
-                                                      [||]  
+                                                      Seq.empty  //TODO logfile
                                  
                                  let attachments = 
                                      vyluky
@@ -190,64 +178,50 @@ module KODIS_SubmainDataTable =
                                      |> function
                                          | Some value ->
                                                        value
-                                                       |> Array.collect (fun item -> item.Attachments)
-                                                       |> List.ofArray
-                                                       |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
-                                                       |> List.choose id //co neprojde, to beze slova ignoruju
-                                                       |> List.toArray 
+                                                       |> Seq.collect (fun item -> item.Attachments)
+                                                       |> Array.ofSeq
+                                                       |> Array.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
+                                                       |> Array.choose id //co neprojde, to beze slova ignoruju
+                                                       |> Array.toSeq
                                          | None       ->
-                                                       [||]  
+                                                       Seq.empty  //TODO logfile
 
-                                 Array.append timetables attachments   
-                            )                     
-                        
-                    return
-                        try
-                            let value = result ()   
-                            value
-                            |> function
-                                | [||] -> Error String.Empty                                    
-                                | _    -> Ok value
-                        with ex -> Error <| string ex.Message  
-
-                        |> function
-                            | Ok value  -> value
-                            | Error err -> [||]       
+                                 Seq.append timetables attachments   
+                            )     
                 }       
          
-        let kodisAttachments : Reader<string list, string array> = //Reader monad for educational purposes only, no real benefit here
+        let kodisAttachments : Reader<string list, string seq> = //Reader monad for educational purposes only, no real benefit here
             
                 reader 
                     {
                         let! pathToJsonList = fun env -> env 
                         
-                        let result () = 
-
+                        return
                             pathToJsonList
-                            |> Array.ofList 
-                            |> Array.collect  //vzhledem ke komplikovanosti nepouzivam Result.sequence pro Array.collect, nejde Some, nejde Ok jako vyse
+                            |> Seq.ofList 
+                            |> Seq.collect  //vzhledem ke komplikovanosti nepouzivam Result.sequence pro Array.collect (po zmene na seq ocekavam to same), nejde Some, nejde Ok jako vyse
                                 (fun pathToJson 
                                     -> 
-                                     let fn1 (value: JsonProvider1.Attachment array) = 
+                                     let fn1 (value : JsonProvider1.Attachment seq) = 
                                          value
-                                         |> List.ofArray
-                                         |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
-                                         |> List.choose id //co neprojde, to beze slova ignoruju
-                                         |> List.toArray
+                                         |> Array.ofSeq
+                                         |> Array.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
+                                         |> Array.choose id //co neprojde, to beze slova ignoruju
+                                         |> Array.toSeq
 
-                                     let fn2 (item: JsonProvider1.Vyluky) =  //quli tomuto je nutno Array     
+                                     let fn2 (item : JsonProvider1.Vyluky) =    
                                          item.Attachments 
                                          |> Option.ofNull        
                                          |> function 
                                              | Some value -> value |> fn1
-                                             | None       -> [||]                 
+                                             | None       -> Seq.empty  //TODO logfile              
 
-                                     let fn3 (item: JsonProvider1.Root) =  //quli tomuto je nutno Array 
+                                     let fn3 (item : JsonProvider1.Root) =  
                                          item.Vyluky
                                          |> Option.ofNull  
                                          |> function 
-                                             | Some value -> value |> Array.collect fn2 
-                                             | None       -> [||] 
+                                             | Some value -> value |> Seq.collect fn2 
+                                             | None       -> Seq.empty  //TODO logfile     
 
                                      let json = //tady nelze Result.sequence 
                                          pyramidOfDoom
@@ -266,24 +240,11 @@ module KODIS_SubmainDataTable =
                                                           
                                      kodisJsonSamples 
                                      |> function 
-                                         | Some value -> value |> Array.collect fn3 
-                                         | None       -> [||]                                 
+                                         | Some value -> value |> Seq.collect fn3 
+                                         | None       -> Seq.empty   //TODO logfile                                 
                                 ) 
-                    
-                        return 
-                            try
-                                let value = result ()   
-                                value
-                                |> function
-                                    | [||] -> Error String.Empty                                    
-                                    | _    -> Ok value
-                            with ex -> Error <| string ex.Message  
-
-                            |> function
-                                | Ok value  -> value
-                                | Error err -> [||]      
                     }
-        
+           
         let addOn () =  
             [
                 //pro pripad, kdyby KODIS strcil odkazy do uplne jinak strukturovaneho jsonu, tudiz by neslo pouzit dany type provider, anebo kdyz je vubec do jsonu neda (nize uvedene odkazy)
@@ -291,26 +252,47 @@ module KODIS_SubmainDataTable =
                 @"https://kodis-files.s3.eu-central-1.amazonaws.com/46_A_2024_07_01_2024_09_01_faa5f15c1b.pdf"
                 @"https://kodis-files.s3.eu-central-1.amazonaws.com/46_B_2024_07_01_2024_09_01_b5f542c755.pdf"
             ]
-            |> List.toArray         
-      
-        let task = 
-            [
-                async { return kodisAttachments pathToJsonList }
-                async { return kodisTimetables pathToJsonList }
-                async { return kodisTimetables2 pathToJsonList2 }
-            ]         
-            |> Async.Parallel 
-            |> Async.Catch
-            |> Async.RunSynchronously
-            |> Result.ofChoice                      
-            |> function
-                | Ok value  -> value |> Array.concat  
-                | Error err -> [||]      
+            |> List.toSeq   
+        
+        let taskAllJsonLists () = //TODO nekdy overit rychlost
+            try 
+                [
+                    async { return kodisAttachments pathToJsonList }
+                    async { return kodisTimetables pathToJsonList }
+                    async { return kodisTimetables2 pathToJsonList2 }
+                ]         
+                |> Async.Parallel 
+                |> Async.Catch
+                |> Async.RunSynchronously
+                |> Result.ofChoice
+                |> function
+                    | Ok value ->
+                                let task = value |> Seq.ofArray |> Seq.concat
+                                (Seq.append <| task <| addOn()) |> Seq.distinct |> Ok
+                    | Error ex ->
+                                string ex.Message |> ignore  //TODO logfile
+                                Error JsonFilteringError  
+            with
+            | ex ->  
+                  string ex.Message |> ignore  //TODO logfile
+                  Error JsonFilteringError          
 
-        (Array.append <| task <| addOn()) |> Array.distinct
+        let taskJsonList2 () = 
+
+             try 
+                let task = kodisTimetables2 pathToJsonList2 
+                (Seq.append <| task <| addOn()) |> Seq.distinct |> Ok    
+                
+             with
+             | ex ->  
+                   string ex.Message |> ignore  //TODO logfile
+                   Error JsonFilteringError          
+
+        //taskAllJsonLists ()
+        taskJsonList2 ()
     
     //input from array -> change of input data -> output into datatable -> filtering data from datable -> links*paths     
-    let private filterTimetables () dt param (pathToDir : string) diggingResult = 
+    let private filterTimetables () dt param (pathToDir : string) (diggingResult : Result<string seq, PdfDownloadErrors>) = 
 
         //*************************************Helpers for SQL columns********************************************
 
@@ -327,8 +309,11 @@ module KODIS_SubmainDataTable =
             with ex -> Error <| string ex.Message                  
                   
             |> function
-                | Ok value  -> value  
-                | Error err -> String.Empty   
+                | Ok value  -> 
+                             value  
+                | Error err ->
+                             err |> ignore  //TODO logfile 
+                             String.Empty   
         
         let extractSubstring1 (input : string) =
 
@@ -343,8 +328,11 @@ module KODIS_SubmainDataTable =
             with ex -> Error <| string ex.Message                 
 
             |> function
-                | Ok value  -> value  
-                | Error err -> String.Empty     
+                | Ok value  -> 
+                             value  
+                | Error err ->
+                             err |> ignore  //TODO logfile 
+                             String.Empty      
 
         let extractSubstring2 (input : string) : (string option * int) =
 
@@ -418,8 +406,11 @@ module KODIS_SubmainDataTable =
                 with ex -> Error <| string ex.Message
                      
                 |> function
-                    | Ok value  -> value  
-                    | Error err -> String.Empty        
+                    | Ok value  -> 
+                                 value  
+                    | Error err ->
+                                 err |> ignore  //TODO logfile 
+                                 String.Empty       
 
             let totalDateInterval = extractSubstring1 input
 
@@ -432,8 +423,11 @@ module KODIS_SubmainDataTable =
                 with ex -> Error <| string ex.Message
                          
                 |> function
-                    | Ok value  -> value  
-                    | Error err -> String.Empty   
+                    | Ok value  -> 
+                                 value  
+                    | Error err ->
+                                 err |> ignore  //TODO logfile 
+                                 String.Empty    
         
             let vIndex = partAfter.IndexOf "_v"
             let tIndex = partAfter.IndexOf "_t"
@@ -526,29 +520,35 @@ module KODIS_SubmainDataTable =
 
      
         //**********************Filtering and datatable data inserting********************************************************
-        let dataToBeInserted = 
+        let dataToBeInserted : Result<DtDtoSend list, PdfDownloadErrors> = 
             
             diggingResult   
-            |> Array.ofSeq
-            |> Array.Parallel.map 
-                (fun item -> 
-                           let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
+            |> function
+                | Ok value  -> 
+                             value
+                             |> Array.ofSeq
+                             |> Array.Parallel.map 
+                                 (fun item -> 
+                                            let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
                            
-                           match item.Contains @"timetables/" with
-                           | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
-                           | false -> item                                       
-                )  
-            |> Array.sort //jen quli testovani
-            |> Array.filter
-                (fun item -> 
-                           let cond1 = (item |> Option.ofNullEmptySpace).IsSome
-                           let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
-                           cond1 && cond2 
-                )         
-            |> Array.map 
-                (fun item -> splitKodisLink item) 
-            |> Array.toList
-            
+                                            match item.Contains @"timetables/" with
+                                            | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
+                                            | false -> item                                       
+                                 )  
+                             |> Array.sort //jen quli testovani
+                             |> Array.filter
+                                 (fun item -> 
+                                            let cond1 = (item |> Option.ofNullEmptySpace).IsSome
+                                            let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
+                                            cond1 && cond2 
+                                 )         
+                             |> Array.map 
+                                 (fun item -> splitKodisLink item) 
+                             |> Array.toList
+                             |> Ok
+
+                | Error err -> 
+                             Error err 
             
         //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
         let createPathsForDownloadedFiles filteredList : Result<(string * string) list, PdfDownloadErrors> = 
@@ -603,11 +603,18 @@ module KODIS_SubmainDataTable =
                  |> Ok    
 
             | Error err -> Error err
+        
+        match dataToBeInserted with
+        | Ok dataToBeInserted 
+            -> 
+             match param with 
+             | CurrentValidity           -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted CurrentValidity |> createPathsForDownloadedFiles
+             | FutureValidity            -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted FutureValidity |> createPathsForDownloadedFiles
+             | WithoutReplacementService -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted WithoutReplacementService |> createPathsForDownloadedFiles    
 
-        match param with 
-        | CurrentValidity           -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted CurrentValidity |> createPathsForDownloadedFiles
-        | FutureValidity            -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted FutureValidity |> createPathsForDownloadedFiles
-        | WithoutReplacementService -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted WithoutReplacementService |> createPathsForDownloadedFiles          
+        | Error err 
+            ->
+             Error err                
      
     //IO operations made separate in order to have some structure in the free-monad-based design (for educational purposes)   
     let internal deleteAllODISDirectories pathToDir = 
@@ -791,8 +798,11 @@ module KODIS_SubmainDataTable =
                              |> Async.RunSynchronously  
                              |> Result.ofChoice                      
                              |> function
-                                 | Ok _    -> Ok String.Empty   
-                                 | Error _ -> Error FileDownloadError                                             
+                                 | Ok _     -> 
+                                             Ok String.Empty   
+                                 | Error ex ->
+                                             string ex.Message |> ignore //TODO chybu zaznamenat do logfile  
+                                             Error FileDownloadError                                             
                         )  
                     |> List.head 
             } 
@@ -800,15 +810,15 @@ module KODIS_SubmainDataTable =
     let internal operationOnDataFromJson () dt variant dir =   
 
         //operation on data
-        //input from saved json files -> change of input data -> output into array >> input from array -> change of input data -> output into datatable -> data filtering (links*paths)  
-        
+        //input from saved json files -> change of input data -> output into array >> input from array -> change of input data -> output into datatable -> data filtering (links*paths) 
         try 
+              
             digThroughJsonStructure >> filterTimetables () dt variant dir <| () 
         with
             ex ->
-                string ex.Message |> ignore //TODO logfile"                 
+                string ex.Message |> ignore //TODO logfile                 
                 Error DataFilteringError 
-                                   
+                    
     let internal downloadAndSave = 
         
         reader
@@ -826,7 +836,9 @@ module KODIS_SubmainDataTable =
                                  | [] -> Ok String.Empty   
                                  | _  -> downloadAndSaveTimetables context   
                              with
-                             | _ -> Error FileDownloadError  
+                             | ex ->
+                                   string ex.Message |> ignore //TODO logfile   
+                                   Error FileDownloadError  
                                           
                 return result 
             }               

@@ -41,6 +41,25 @@ module SettingsKODIS =
             "vlakové linky S"; "vlakové linky R"; "linky X, NAD a AE"
         ]
     
+    //Captured links to JSON files
+    //Zatim neobsahuje kompletni JR !!!
+    let internal jsonLinkList3 =
+        [
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Brunt%C3%A1l&groups%5B1%5D=MHD%20%C4%8Cesk%C3%BD%20T%C4%9B%C5%A1%C3%ADn&groups%5B2%5D=MHD%20Fr%C3%BDdek-M%C3%ADstek&groups%5B3%5D=MHD%20Hav%C3%AD%C5%99ov&groups%5B4%5D=MHD%20Karvin%C3%A1&groups%5B5%5D=MHD%20Krnov&groups%5B6%5D=MHD%20Nov%C3%BD%20Ji%C4%8D%C3%ADn&groups%5B7%5D=MHD%20Opava&groups%5B8%5D=MHD%20Orlov%C3%A1&groups%5B9%5D=MHD%20Ostrava&groups%5B10%5D=MHD%20Stud%C3%A9nka&groups%5B11%5D=MHD%20T%C5%99inec&groups%5B12%5D=NAD%20MHD&start=0&limit=12"          
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=75&groups%5B1%5D=232-293&groups%5B2%5D=331-392&groups%5B3%5D=440-465&groups%5B4%5D=531-583&groups%5B5%5D=613-699&groups%5B6%5D=731-788&groups%5B7%5D=811-885&groups%5B8%5D=901-990&groups%5B9%5D=NAD&start=0&limit=12"            
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=S1-S34&groups%5B1%5D=R8-R62&start=0&limit=12"
+        ]
+    
+    let internal pathToJsonList3 =     
+        [
+            sprintf "%s%s" partialPathJson @"kodisMHDTotal2_0.json"           
+            sprintf "%s%s" partialPathJson @"kodisRegionTotal2_0.json"            
+            sprintf "%s%s" partialPathJson @"kodisTrainTotal2_0.json"
+        ]  
+    
+    //*************************************** legacy code *********************************
+
+    //Ponechat pro kontrolu 
     let internal jsonLinkList = //pri zmene jsonu na strankach KODISu zmenit aji nazev souboru, napr. kodisRegion3001.json
         [
             sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=12&group_in%5B0%5D=MHD%20Bruntál&group_in%5B1%5D=MHD%20Český%20Těšín&group_in%5B2%5D=MHD%20Frýdek-Místek&group_in%5B3%5D=MHD%20Havířov&group_in%5B4%5D=MHD%20Karviná&group_in%5B5%5D=MHD%20Krnov&group_in%5B6%5D=MHD%20Nový%20Jičín&group_in%5B7%5D=MHD%20Opava&group_in%5B8%5D=MHD%20Orlová&group_in%5B9%5D=MHD%20Ostrava&group_in%5B10%5D=MHD%20Studénka&group_in%5B11%5D=MHD%20Třinec&group_in%5B12%5D=NAD%20MHD&_sort=numeric_label"
@@ -80,6 +99,7 @@ module SettingsKODIS =
             sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=NAD&_sort=numeric_label" 
         ]  
         
+    //Ponechat pro kontrolu 
     let internal pathToJsonList =     
         [
             sprintf "%s%s" partialPathJson @"kodisMHDTotal1.json"
@@ -117,24 +137,24 @@ module SettingsKODIS =
             sprintf "%s%s" partialPathJson @"kodisTrainTotal2.json"
             sprintf "%s%s" partialPathJson @"kodisTrainPomaliky.json"
             sprintf "%s%s" partialPathJson @"kodisNAD.json"
-        ]      
-
+        ] 
+      
     let internal jsonLinkList2 =
         [
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=613-699&start=48&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Bruntál&groups%5B1%5D=MHD%20Český%20Těšín&groups%5B2%5D=MHD%20Frýdek-Místek&groups%5B3%5D=MHD%20Havířov&groups%5B4%5D=MHD%20Karviná&groups%5B5%5D=MHD%20Krnov&groups%5B6%5D=MHD%20Nový%20Jičín&groups%5B7%5D=MHD%20Opava&groups%5B8%5D=MHD%20Orlová&groups%5B9%5D=MHD%20Ostrava&groups%5B10%5D=MHD%20Studénka&groups%5B11%5D=MHD%20Třinec&groups%5B12%5D=NAD%20MHD&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Bruntál&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Český%20Těšín&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Frýdek-Místek&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Havířov&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Karviná&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Brunt%C3%A1l&groups%5B1%5D=MHD%20%C4%8Cesk%C3%BD%20T%C4%9B%C5%A1%C3%ADn&groups%5B2%5D=MHD%20Fr%C3%BDdek-M%C3%ADstek&groups%5B3%5D=MHD%20Hav%C3%AD%C5%99ov&groups%5B4%5D=MHD%20Karvin%C3%A1&groups%5B5%5D=MHD%20Krnov&groups%5B6%5D=MHD%20Nov%C3%BD%20Ji%C4%8D%C3%ADn&groups%5B7%5D=MHD%20Opava&groups%5B8%5D=MHD%20Orlov%C3%A1&groups%5B9%5D=MHD%20Ostrava&groups%5B10%5D=MHD%20Stud%C3%A9nka&groups%5B11%5D=MHD%20T%C5%99inec&groups%5B12%5D=NAD%20MHD&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Brunt%C3%A1l&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20%C4%8Cesk%C3%BD%20T%C4%9B%C5%A1%C3%ADn&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Fr%C3%BDdek-M%C3%ADstek&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Hav%C3%AD%C5%99ov&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Karvin%C3%A1&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Krnov&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Nový%20Jičín&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Nov%C3%BD%20Ji%C4%8D%C3%ADn&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Opava&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Orlová&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Orlov%C3%A1&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Ostrava&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Studénka&start=0&limit=12"
-            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Třinec&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20Stud%C3%A9nka&start=0&limit=12"
+            sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=MHD%20T%C5%99inec&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=NAD%20MHD&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=75&groups%5B1%5D=232-293&groups%5B2%5D=331-392&groups%5B3%5D=440-465&groups%5B4%5D=531-583&groups%5B5%5D=613-699&groups%5B6%5D=731-788&groups%5B7%5D=811-885&groups%5B8%5D=901-990&groups%5B9%5D=NAD&start=0&limit=12"
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=75&start=0&limit=12"
@@ -151,10 +171,10 @@ module SettingsKODIS =
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=R8-R62&start=0&limit=12"            
             sprintf "%s%s" pathKodisWeb2 "groups%5B0%5D=NAD&start=0&limit=12"            
         ]
-    
+  
     let internal pathToJsonList2 =     
         [
-            sprintf "%s%s" partialPathJson @"kodisRegion6002_1.json" 
+            sprintf "%s%s" partialPathJson @"kodisRegion6002_1.json"
             sprintf "%s%s" partialPathJson @"kodisMHDTotal2_0.json"
             sprintf "%s%s" partialPathJson @"kodisMHDBruntal2_0.json"
             sprintf "%s%s" partialPathJson @"kodisMHDCT2_0.json"
@@ -182,5 +202,5 @@ module SettingsKODIS =
             sprintf "%s%s" partialPathJson @"kodisTrainTotal2_0.json"
             sprintf "%s%s" partialPathJson @"kodisTrainPomaliky2_0.json"
             sprintf "%s%s" partialPathJson @"kodisTrainRychliky2_0.json"
-            sprintf "%s%s" partialPathJson @"kodisNAD2_0.json"            
-        ]      
+            sprintf "%s%s" partialPathJson @"kodisNAD2_0.json"
+        ] 

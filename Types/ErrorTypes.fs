@@ -29,6 +29,7 @@ module ErrorTypes =
     [<Struct>]     
     type internal PdfDownloadErrors =
         | DataTableError 
+        | JsonFilteringError
         | DataFilteringError
         | FileDeleteError
         | CreateFolderError
