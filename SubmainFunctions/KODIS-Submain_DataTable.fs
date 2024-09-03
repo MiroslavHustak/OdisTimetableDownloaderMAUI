@@ -7,6 +7,8 @@ open System.Threading
 open System.Net.NetworkInformation
 open System.Text.RegularExpressions
 
+//************************************************************
+
 open FsHttp
 open FSharp.Control
 open FsToolkit.ErrorHandling
@@ -256,6 +258,21 @@ module KODIS_SubmainDataTable =
         
         let taskAllJsonLists () = //TODO nekdy overit rychlost
             try 
+                let task1 = kodisAttachments pathToJsonList 
+                let task2 = kodisTimetables pathToJsonList 
+                let task3 = kodisTimetables2 pathToJsonList2 
+                   
+                let task = Seq.append <| task1 <| task2
+                let task = Seq.append <| task <| task3                         
+               
+                (Seq.append <| task <| addOn()) |> Seq.distinct |> Ok                    
+            with
+            | ex ->  
+                  string ex.Message |> ignore  //TODO logfile
+                  Error JsonFilteringError   
+                  
+        let taskAllJsonListsParallel () = //TODO nekdy overit rychlost
+            try 
                 [
                     async { return kodisAttachments pathToJsonList }
                     async { return kodisTimetables pathToJsonList }
@@ -275,7 +292,7 @@ module KODIS_SubmainDataTable =
             with
             | ex ->  
                   string ex.Message |> ignore  //TODO logfile
-                  Error JsonFilteringError          
+                  Error JsonFilteringError           
 
         let taskJsonList2 () = 
 
@@ -288,8 +305,8 @@ module KODIS_SubmainDataTable =
                    string ex.Message |> ignore  //TODO logfile
                    Error JsonFilteringError          
 
-        //taskAllJsonLists ()
-        taskJsonList2 ()
+        taskAllJsonLists ()
+        //taskJsonList2 ()
     
     //input from array -> change of input data -> output into datatable -> filtering data from datable -> links*paths     
     let private filterTimetables () dt param (pathToDir : string) (diggingResult : Result<string seq, PdfDownloadErrors>) = 

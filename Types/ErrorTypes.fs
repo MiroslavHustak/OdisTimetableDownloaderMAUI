@@ -2,8 +2,6 @@
 
 module ErrorTypes =
 
-    open System
-
     type internal ConnErrorCode = 
         {
             BadRequest : string

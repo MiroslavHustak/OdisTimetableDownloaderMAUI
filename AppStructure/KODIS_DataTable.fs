@@ -2,11 +2,12 @@
 
 open System
 
+//**********************************
+
 open Types
 open Types.Types
 open Types.ErrorTypes
 
-open Helpers
 open Helpers.Builders
 
 open SubmainFunctions
@@ -61,8 +62,8 @@ module WebScraping_KODISFMDataTable =
                      | JsonDownloadError -> "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 
                     
                  try
-                     //environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
-                     environment.downloadAndSaveJson jsonLinkList2 pathToJsonList2 reportProgress
+                     environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
+                     //environment.downloadAndSaveJson jsonLinkList2 pathToJsonList2 reportProgress
                      |> Ok
                  with
                  | ex ->
@@ -85,6 +86,45 @@ module WebScraping_KODISFMDataTable =
                  | FileDeleteError    -> "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
                  | CreateFolderError  -> "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy." 
                  | FileDownloadError  -> "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
+
+             let result dirList dt variant msg1 msg2 msg3 i  =   
+
+                    dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se snaží, co může ..."
+                     
+                    let dir = dirList |> List.item i 
+ 
+                    let list = KODIS_SubmainDataTable.operationOnDataFromJson () dt variant dir 
+
+                    match list with
+                    | Ok list
+                        when list <> List.empty
+                            -> 
+                             let context listMappingFunction = 
+                                 {
+                                     listMappingFunction = listMappingFunction
+                                     reportProgress = reportProgress
+                                     dir = dir
+                                     list = list
+                                 }
+                                 
+                             dispatchIterationMessage msg1 //"Stahují se aktuálně platné JŘ ODIS ..."
+                                         
+                             match list.Length >= 8 with //eqv of 8 threads
+                             | true  -> context List.Parallel.map2
+                             | false -> context List.map2
+
+                             |> environment.downloadAndSave     
+
+                    | Ok list
+                            ->                                                               
+                             dispatchIterationMessage msg2//"Momentálně nejsou dostupné odkazy na aktuálně platné JŘ ODIS." 
+                             System.Threading.Thread.Sleep(6000) 
+
+                             Ok //msg3"Aktuálně platné JŘ ODIS nebyly k dispozici pro stažení."
+
+                    | Error err 
+                            ->
+                             Error err              
                  
              try 
                  let dirList = KODIS_SubmainDataTable.createNewDirectoryPaths path listODISDefault4

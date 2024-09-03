@@ -1,7 +1,4 @@
 ﻿namespace Helpers
-       
-open System       
-open System.Data
 
 module Builders =
            

@@ -5,8 +5,12 @@ open System.IO
 open System.Net
 open System.Net.Http
 
+//******************************************
+
 open FSharp.Data
 open FsToolkit.ErrorHandling
+
+//******************************************
 
 open Helpers
 open Helpers.Builders
@@ -53,7 +57,7 @@ module DPO_Submain =
                           )  
                       |> Seq.filter
                           (fun (_ , item2) ->
-                                            item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-eng.pdf") 
+                                            item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en.pdf") 
                           )
                       |> Seq.map 
                           (fun (_ , item2) ->  

@@ -6,7 +6,6 @@ module List.Parallel
 open System
 
 open FSharp.Control
-open FsToolkit.ErrorHandling
 open Microsoft.FSharp.Quotations
 open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 

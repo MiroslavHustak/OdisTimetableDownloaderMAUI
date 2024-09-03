@@ -1,7 +1,5 @@
 ﻿namespace Settings
 
-open System
-
 module SettingsDPO =
 
     let [<Literal>] internal pathDpoWeb = @"https://www.dpo.cz"

@@ -11,7 +11,6 @@ open Types.ErrorTypes
 open Helpers
 open Helpers.Builders
 
-open Settings
 open Settings.SettingsKODIS
 
 open DataModelling.Dto

@@ -13,8 +13,7 @@ open Microsoft.Maui.Accessibility
 
 open type Fabulous.Maui.View
 
-open Types
-open Types.Types
+//**********************************
 
 open ProgressCircle
 

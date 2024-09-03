@@ -1,7 +1,5 @@
 ﻿namespace Types 
 
-open ErrorTypes
-
 [<Struct>]
 type internal Validity =
     | CurrentValidity 
@@ -20,8 +18,3 @@ type internal MsgIncrement =
 [<Struct>]
 type MailboxMessage =
     | First of int  
-
-[<Struct>]
-type internal DownloadResult =
-    | Downloaded of Downloaded : Result<unit, PdfDownloadErrors>
-    | NoPdfForGivenVariant of NoPdfForGivenVariant : Result<unit, PdfDownloadErrors>
