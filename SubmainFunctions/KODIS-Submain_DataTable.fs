@@ -295,7 +295,6 @@ module KODIS_SubmainDataTable =
                   Error JsonFilteringError           
 
         let taskJsonList2 () = 
-
              try 
                 let task = kodisTimetables2 pathToJsonList2 
                 (Seq.append <| task <| addOn()) |> Seq.distinct |> Ok    

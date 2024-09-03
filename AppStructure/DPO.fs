@@ -37,14 +37,14 @@ module WebScraping_DPO =
 
     type private Environment = 
         {
-            filterTimetables : unit -> string -> (string * string) list
-            downloadAndSaveTimetables : (float * float -> unit) -> (string * string) list -> Result<unit, string>
+            FilterTimetables : unit -> string -> (string * string) list
+            DownloadAndSaveTimetables : (float * float -> unit) -> (string * string) list -> Result<unit, string>
         }
 
     let private environment: Environment =
         { 
-            filterTimetables = filterTimetables
-            downloadAndSaveTimetables = downloadAndSaveTimetables
+            FilterTimetables = filterTimetables
+            DownloadAndSaveTimetables = downloadAndSaveTimetables
         }    
 
     let internal webscraping_DPO reportProgress pathToDir =  
@@ -85,8 +85,8 @@ module WebScraping_DPO =
                                           | false ->
                                                    Error String.Empty                              
                                           | true  -> 
-                                                   environment.filterTimetables () pathToSubdir 
-                                                   |> environment.downloadAndSaveTimetables reportProgress 
+                                                   environment.FilterTimetables () pathToSubdir 
+                                                   |> environment.DownloadAndSaveTimetables reportProgress 
                                       with
                                       | _ -> Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."                                                 
 

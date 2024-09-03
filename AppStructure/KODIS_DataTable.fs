@@ -12,6 +12,7 @@ open Helpers.Builders
 
 open SubmainFunctions
 
+open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
@@ -28,24 +29,35 @@ module WebScraping_KODISFMDataTable =
             TimetablesDownloadedAndSaved = ()
         }
 
+    type private Context2 = 
+        {
+            DirList : string list 
+            Dt : Data.DataTable
+            Variant : Validity
+            Msg1 : string
+            Msg2 : string
+            Msg3 : string
+            VariantInt : int
+        }
+
     type private Actions =
         | DownloadAndSaveJson
         | DownloadSelectedVariant        
 
     type private Environment = 
         {
-            downloadAndSaveJson : string list -> string list -> (float * float -> unit) -> Result<unit, JsonDownloadErrors>
-            deleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
-            operationOnDataFromJson : unit -> Data.DataTable -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
-            downloadAndSave : Context<string, string, Result<string, PdfDownloadErrors>> -> Result<string, PdfDownloadErrors>
+            DownloadAndSaveJson : string list -> string list -> (float * float -> unit) -> Result<unit, JsonDownloadErrors>
+            DeleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
+            OperationOnDataFromJson : unit -> Data.DataTable -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
+            DownloadAndSave : Context<string, string, Result<string, PdfDownloadErrors>> -> Result<string, PdfDownloadErrors>
         }
 
     let private environment : Environment =
         { 
-            downloadAndSaveJson = KODIS_SubmainDataTable.downloadAndSaveJson 
-            deleteAllODISDirectories = KODIS_SubmainDataTable.deleteAllODISDirectories   
-            operationOnDataFromJson = KODIS_SubmainDataTable.operationOnDataFromJson
-            downloadAndSave = KODIS_SubmainDataTable.downloadAndSave
+            DownloadAndSaveJson = KODIS_SubmainDataTable.downloadAndSaveJson 
+            DeleteAllODISDirectories = KODIS_SubmainDataTable.deleteAllODISDirectories   
+            OperationOnDataFromJson = KODIS_SubmainDataTable.operationOnDataFromJson
+            DownloadAndSave = KODIS_SubmainDataTable.downloadAndSave
         }    
 
     let private stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) (action : Actions) =
@@ -62,7 +74,7 @@ module WebScraping_KODISFMDataTable =
                      | JsonDownloadError -> "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 
                     
                  try
-                     environment.downloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
+                     environment.DownloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
                      //environment.downloadAndSaveJson jsonLinkList2 pathToJsonList2 reportProgress
                      |> Ok
                  with
@@ -87,13 +99,12 @@ module WebScraping_KODISFMDataTable =
                  | CreateFolderError  -> "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy." 
                  | FileDownloadError  -> "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
 
-             let result dirList dt variant msg1 msg2 msg3 i  =   
+             let result (context2 : Context2) =   
 
                     dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se snaží, co může ..."
                      
-                    let dir = dirList |> List.item i 
- 
-                    let list = KODIS_SubmainDataTable.operationOnDataFromJson () dt variant dir 
+                    let dir = context2.DirList |> List.item context2.VariantInt  
+                    let list = KODIS_SubmainDataTable.operationOnDataFromJson () context2.Dt context2.Variant dir 
 
                     match list with
                     | Ok list
@@ -107,155 +118,70 @@ module WebScraping_KODISFMDataTable =
                                      list = list
                                  }
                                  
-                             dispatchIterationMessage msg1 //"Stahují se aktuálně platné JŘ ODIS ..."
+                             dispatchIterationMessage context2.Msg1 //"Stahují se aktuálně platné JŘ ODIS ..."
                                          
                              match list.Length >= 8 with //eqv of 8 threads
                              | true  -> context List.Parallel.map2
                              | false -> context List.map2
 
-                             |> environment.downloadAndSave     
+                             |> environment.DownloadAndSave     
 
                     | Ok list
                             ->                                                               
-                             dispatchIterationMessage msg2//"Momentálně nejsou dostupné odkazy na aktuálně platné JŘ ODIS." 
+                             dispatchIterationMessage context2.Msg2//"Momentálně nejsou dostupné odkazy na aktuálně platné JŘ ODIS." 
                              System.Threading.Thread.Sleep(6000) 
 
-                             Ok //msg3"Aktuálně platné JŘ ODIS nebyly k dispozici pro stažení."
+                             Ok context2.Msg3 //"Aktuálně platné JŘ ODIS nebyly k dispozici pro stažení."
 
                     | Error err 
                             ->
-                             Error err              
-                 
+                             Error err     
              try 
                  let dirList = KODIS_SubmainDataTable.createNewDirectoryPaths path listODISDefault4
                
                  let dt = DataTable.CreateDt.dt() 
-                          
-                 let resultCurrentValidity () =   
 
-                    dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se snaží, co může ..."
-                     
-                    let dir = dirList |> List.item 0 
- 
-                    let list = KODIS_SubmainDataTable.operationOnDataFromJson () dt CurrentValidity dir 
+                 let contextCurrentValidity = 
+                     {
+                          DirList = dirList
+                          Dt = dt
+                          Variant = CurrentValidity
+                          Msg1 = msg1CurrentValidity
+                          Msg2 = msg2CurrentValidity
+                          Msg3 = msg3CurrentValidity
+                          VariantInt = 0
+                     }
 
-                    match list with
-                    | Ok list
-                        when list <> List.empty
-                            -> 
-                             let context listMappingFunction = 
-                                 {
-                                     listMappingFunction = listMappingFunction
-                                     reportProgress = reportProgress
-                                     dir = dir
-                                     list = list
-                                 }
-                                 
-                             dispatchIterationMessage "Stahují se aktuálně platné JŘ ODIS ..."
-                                         
-                             match list.Length >= 8 with //eqv of 8 threads
-                             | true  -> context List.Parallel.map2
-                             | false -> context List.map2
+                 let contextFutureValidity = 
+                     {
+                          DirList = dirList
+                          Dt = dt
+                          Variant = FutureValidity
+                          Msg1 = msg1FutureValidity
+                          Msg2 = msg2FutureValidity
+                          Msg3 = msg3FutureValidity
+                          VariantInt = 1
+                     }
 
-                             |> environment.downloadAndSave     
-
-                    | Ok list
-                            ->                                                               
-                             dispatchIterationMessage "Momentálně nejsou dostupné odkazy na aktuálně platné JŘ ODIS." 
-                             System.Threading.Thread.Sleep(6000) 
-
-                             Ok "Aktuálně platné JŘ ODIS nebyly k dispozici pro stažení."
-
-                    | Error err 
-                            ->
-                             Error err            
-                                                   
-                 let resultFutureValidity () =   
-
-                    dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se snaží, co může ..."
-                     
-                    let dir = dirList |> List.item 1 
- 
-                    let list = KODIS_SubmainDataTable.operationOnDataFromJson () dt FutureValidity dir 
-
-                    match list with
-                    | Ok list
-                        when list <> List.empty
-                            -> 
-                             let context listMappingFunction = 
-                                 {
-                                     listMappingFunction = listMappingFunction
-                                     reportProgress = reportProgress
-                                     dir = dir
-                                     list = list
-                                 }
-                                 
-                             dispatchIterationMessage "Stahují se JŘ ODIS platné v budoucnosti ..."
-                                         
-                             match list.Length >= 8 with //eqv of 8 threads
-                             | true  -> context List.Parallel.map2
-                             | false -> context List.map2
-
-                             |> environment.downloadAndSave     
-
-                    | Ok list
-                            ->                                                               
-                             dispatchIterationMessage "Momentálně nejsou dostupné odkazy na JŘ ODIS platné v budoucnosti." 
-                             System.Threading.Thread.Sleep(6000)
-
-                             Ok "JŘ ODIS platné v budoucnosti nebyly k dispozici pro stažení."
-
-                    | Error err 
-                            ->
-                             Error err               
-
-                 let resultWithoutReplacementService () =   
-
-                    dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se snaží, co může ..."
-                     
-                    let dir = dirList |> List.item 2 
- 
-                    let list = KODIS_SubmainDataTable.operationOnDataFromJson () dt WithoutReplacementService dir 
-
-                    match list with
-                    | Ok list
-                        when list <> List.empty
-                            -> 
-                             let context listMappingFunction = 
-                                 {
-                                     listMappingFunction = listMappingFunction
-                                     reportProgress = reportProgress
-                                     dir = dir
-                                     list = list
-                                 }
-                                 
-                             dispatchIterationMessage "Stahují se teoreticky dlouhodobě platné JŘ ODIS ..."
-                                         
-                             match list.Length >= 8 with //eqv of 8 threads
-                             | true  -> context List.Parallel.map2
-                             | false -> context List.map2
-
-                             |> environment.downloadAndSave     
-
-                    | Ok list
-                            ->                                                               
-                             dispatchIterationMessage "Momentálně nejsou dostupné odkazy na dlouhodobě platné JŘ ODIS." 
-                             System.Threading.Thread.Sleep(6000)
-
-                             Ok "Dlouhodobě platné JŘ ODIS nebyly k dispozici pro stažení."
-
-                    | Error err 
-                            ->
-                             Error err               
+                 let contextWithoutReplacementService = 
+                     {
+                          DirList = dirList
+                          Dt = dt
+                          Variant = WithoutReplacementService
+                          Msg1 = msg1WithoutReplacementService
+                          Msg2 = msg2WithoutReplacementService
+                          Msg3 = msg3WithoutReplacementService
+                          VariantInt = 2
+                     }
                                                    
                  pyramidOfInferno
                     {                                
-                        let!_ = environment.deleteAllODISDirectories path, errFn  
+                        let!_ = environment.DeleteAllODISDirectories path, errFn  
                         let!_ = KODIS_SubmainDataTable.createFolders dirList, errFn 
 
-                        let! msg1 = resultCurrentValidity (), errFn
-                        let! msg2 = resultFutureValidity (), errFn
-                        let! msg3 = resultWithoutReplacementService (), errFn   
+                        let! msg1 = result contextCurrentValidity, errFn
+                        let! msg2 = result contextFutureValidity, errFn
+                        let! msg3 = result contextWithoutReplacementService, errFn   
 
                         return sprintf "Kompletní balík JŘ ODIS úspěšně stažen.\n%s\n%s\n%s" msg1 msg2 msg3
                      }
