@@ -79,7 +79,7 @@ module MDPO_Submain =
                         | Ok response ->      
                                        use! response = response
                         
-                                       match response.statusCode with
+                                       match response.statusCode with        //TODO logfile
                                        | HttpStatusCode.OK                  ->                                                                   
                                                                              do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                                                              return Ok () 
@@ -95,11 +95,14 @@ module MDPO_Submain =
                                                                              return Error uri  
                                        | _                                  ->
                                                                              return Error connErrorCodeDefault.CofeeMakerUnavailable                                 
-                        | Error _     -> 
+                        | Error err   -> 
+                                       err |> ignore  //TODO logfile
                                        return Error String.Empty 
                            
                     with                                                         
-                    | _ -> return Error String.Empty   
+                    | ex ->
+                          string ex.Message |> ignore  //TODO logfile
+                          return Error String.Empty   
                 } 
     
         let downloadTimetables reportProgress : Result<unit, string> = 
@@ -122,7 +125,10 @@ module MDPO_Submain =
                 )  
             |> Result.sequence  
             |> function
-                | Ok _    -> Ok ()   
-                | Error _ -> Error "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."    
+                | Ok _     ->
+                            Ok ()   
+                | Error ex -> 
+                            string ex.Message |> ignore //TODO logfile
+                            Error "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."    
 
         downloadTimetables reportProgress 

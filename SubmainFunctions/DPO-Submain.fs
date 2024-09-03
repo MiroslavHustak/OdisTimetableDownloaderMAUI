@@ -111,7 +111,7 @@ module DPO_Submain =
                                     return Ok client        
                                 }
                         
-                        match client with
+                        match client with  
                         | Ok client ->      
                                      use! response = client.GetAsync(uri) |> Async.AwaitTask
                         
@@ -125,7 +125,7 @@ module DPO_Submain =
                                               return Ok ()
                                      | false -> 
                                               let errorType = 
-                                                  match response.StatusCode with
+                                                  match response.StatusCode with        //TODO logfile
                                                   | HttpStatusCode.BadRequest          -> Error connErrorCodeDefault.BadRequest
                                                   | HttpStatusCode.InternalServerError -> Error connErrorCodeDefault.InternalServerError
                                                   | HttpStatusCode.NotImplemented      -> Error connErrorCodeDefault.NotImplemented
@@ -135,11 +135,14 @@ module DPO_Submain =
                                          
                                               return errorType   
                                 
-                        | Error _   -> 
+                        | Error err -> 
+                                     err |> ignore //TODO logfile  
                                      return Error String.Empty 
                            
                     with                                                         
-                    | _ -> return Error String.Empty   
+                    | ex ->
+                          string ex.Message |> ignore //TODO logfile
+                          return Error String.Empty   
                 } 
     
         let downloadTimetables reportProgress : Result<unit, string> = 
@@ -161,11 +164,12 @@ module DPO_Submain =
                 ) 
             |> Result.sequence  
             |> function
-                | Ok _    ->
-                           //client.Dispose() 
-                           Ok ()   
-                | Error _ ->
-                           //client.Dispose() 
-                           Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."
+                | Ok _     ->
+                            //client.Dispose() 
+                            Ok ()   
+                | Error ex ->
+                            //client.Dispose() 
+                            string ex.Message |> ignore //TODO logfile
+                            Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."
 
         downloadTimetables reportProgress    
