@@ -7,7 +7,6 @@ open System.Net
 open Types.Types   
 
 open Helpers.Builders
-open Helpers.CloseApp
    
 open Settings.Messages
 open Settings.SettingsGeneral    

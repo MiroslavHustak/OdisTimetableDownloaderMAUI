@@ -21,3 +21,17 @@ module ErrorTypes =
         | ArgumentNullExnErr of ArgumentNullExnErr : string //zatim nepouzito
         | FormatExErr of FormatExErr : string  //zatim nepouzito
         | AllOtherErrors of AllOtherErrors : string
+
+    [<Struct>]     
+    type internal JsonDownloadErrors = 
+        | JsonDownloadError        
+
+    [<Struct>]     
+    type internal PdfDownloadErrors =
+        | DataTableError 
+        | DataFilteringError
+        | FileDeleteError
+        | CreateFolderError
+        | FileDownloadError
+
+   

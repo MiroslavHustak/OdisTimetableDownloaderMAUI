@@ -19,6 +19,7 @@ open EmbeddedTP.EmbeddedTP
 
 open Types
 open Types.Types
+open Types.ErrorTypes
 
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
@@ -39,13 +40,7 @@ module KODIS_SubmainDataTable =
 
 
     //************************Main code***********************************************************
-
-    //Cancellation tokens for educational purposes
-    let private cts = new CancellationTokenSource() //TODO podumat, kaj zrobit cts.Dispose()
-    let private tokenJson = cts.Token 
-
-    let internal startNetChecking () = ()
-        
+                
     //data from settings -> http request -> IO operation -> saving json files on HD 
     let internal downloadAndSaveJson jsonLinkList pathToJsonList reportProgress = //FsHttp
                
@@ -65,40 +60,34 @@ module KODIS_SubmainDataTable =
                              }
                      loop 0
                 )
+      
+        (jsonLinkList, pathToJsonList)
+        ||> List.Parallel.map2
+            (fun (uri: string) path
+                ->                       
+                    async
+                        {    
+                            use! response = get >> Request.sendAsync <| uri 
 
-        let result = 
-            (jsonLinkList, pathToJsonList)
-            ||> List.Parallel.map2
-                (fun (uri: string) path
-                    ->                       
-                     async
-                         {    
-                             use! response = get >> Request.sendAsync <| uri 
-
-                             match response.statusCode with
-                             | HttpStatusCode.OK
-                                 ->                                                                                                   
-                                  counterAndProgressBar.Post(Inc 1)                                                   
-                                  do! (>>) response.SaveFileAsync Async.AwaitTask <| path                                                   
-                                  return Ok ()                                
-                             | _ ->  
-                                  return Error "HttpStatusCode.OK is not OK"     
-                         }  
-                     |> Async.Catch
-                     |> Async.RunSynchronously
-                     |> Result.ofChoice
-                )
-           
-        pyramidOfInferno
-            {
-                let errorFn1 err = ()          //legacy code
-                let errorFn2 (err : exn) = ()  //legacy code                 
-
-                let! value = result |> Result.sequence, errorFn2 
-                let! value = value |> Result.sequence, errorFn1
-
-                return value |> List.head
-            } 
+                            match response.statusCode with
+                            | HttpStatusCode.OK
+                                ->                                                                                                   
+                                 counterAndProgressBar.Post(Inc 1)                                                   
+                                 return! (>>) response.SaveFileAsync Async.AwaitTask <| path                                
+                            | _ ->  
+                                 return () //TODO zaznamenat do logfile a nechat chybu tise projit  
+                        }  
+                    |> Async.Catch
+                    |> Async.RunSynchronously
+                    |> Result.ofChoice
+            )
+        |> Result.sequence 
+        |> function
+            | Ok _      -> 
+                         Ok ()
+            | Error err ->
+                         err |> ignore // TODO do logfile
+                         Error JsonDownloadError  
     
     //input from saved json files -> change of input data -> output into array
     let private digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
@@ -559,66 +548,71 @@ module KODIS_SubmainDataTable =
             |> Array.map 
                 (fun item -> splitKodisLink item) 
             |> Array.toList
-
-        
-        //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
-        let createPathsForDownloadedFiles filteredList =
             
-            filteredList
-            |> List.map 
-                (fun item -> fst item |> function CompleteLink value -> value, snd item |> function FileToBeSaved value -> value)
-            |> List.map
-                (fun (link, file) 
-                    -> 
-                     let path =                                         
-                         let (|IntType|StringType|OtherType|) (param : 'a) = //zatim nevyuzito, mozna -> TODO podumat nad refactoringem nize uvedeneho 
-                             match param.GetType() with
-                             | typ when typ = typeof<int>    -> IntType   
-                             | typ when typ = typeof<string> -> StringType  
-                             | _                             -> OtherType                                                      
+            
+        //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
+        let createPathsForDownloadedFiles filteredList : Result<(string * string) list, PdfDownloadErrors> = 
+            
+            match filteredList with
+            | Ok filteredList
+                -> 
+                 filteredList
+                 |> List.map 
+                     (fun item -> fst item |> function CompleteLink value -> value, snd item |> function FileToBeSaved value -> value)
+                 |> List.map
+                     (fun (link, file) 
+                         -> 
+                          let path =                                         
+                              let (|IntType|StringType|OtherType|) (param : 'a) = //zatim nevyuzito, mozna -> TODO podumat nad refactoringem nize uvedeneho 
+                                  match param.GetType() with
+                                  | typ when typ = typeof<int>    -> IntType   
+                                  | typ when typ = typeof<string> -> StringType  
+                                  | _                             -> OtherType                                                      
                                                 
-                         //let pathToDir = sprintf "%s\\%s" pathToDir file //pro ostatni
-                         let pathToDir = sprintf "%s/%s" pathToDir file //pro ostatni
+                              //let pathToDir = sprintf "%s\\%s" pathToDir file //pro ostatni
+                              let pathToDir = sprintf "%s/%s" pathToDir file //pro ostatni
 
-                         match pathToDir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || pathToDir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
-                         | true ->   
-                                 true //pro aktualni a dlouhodobe platne
-                                 |> function
-                                     | true when file.Substring(0, 1) = "0"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
-                                     | true when file.Substring(0, 1) = "1"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
-                                     | true when file.Substring(0, 1) = "2"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 1 sortedLines)
-                                     | true when file.Substring(0, 1) = "3"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 2 sortedLines)
-                                     | true 
-                                         when 
-                                             (file.Substring(0, 1) = "4" && not <| file.Contains("46_A") && not <| file.Contains("46_B"))
-                                                                             -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 3 sortedLines)
-                                     | true when file.Substring(0, 1) = "5"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 4 sortedLines)
-                                     | true when file.Substring(0, 1) = "6"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 5 sortedLines)
-                                     | true when file.Substring(0, 1) = "7"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 6 sortedLines)
-                                     | true when file.Substring(0, 1) = "8"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 7 sortedLines)
-                                     | true when file.Substring(0, 1) = "9"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 8 sortedLines)
-                                     | true when file.Substring(0, 1) = "S"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
-                                     | true when file.Substring(0, 1) = "R"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
-                                     | true when file.Substring(0, 2) = "_S" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
-                                     | true when file.Substring(0, 2) = "_R" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
-                                     | true when file.Substring(0, 4) = "46_A" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)  
-                                     | true when file.Substring(0, 4) = "46_B" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)  
-                                     | _                                     -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)                                                           
-                         | _    -> 
-                                 pathToDir                            
-                     link, path 
-                )   
+                              match pathToDir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || pathToDir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
+                              | true ->   
+                                      true //pro aktualni a dlouhodobe platne
+                                      |> function
+                                          | true when file.Substring(0, 1) = "0"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
+                                          | true when file.Substring(0, 1) = "1"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
+                                          | true when file.Substring(0, 1) = "2"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 1 sortedLines)
+                                          | true when file.Substring(0, 1) = "3"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 2 sortedLines)
+                                          | true 
+                                              when 
+                                                 (file.Substring(0, 1) = "4" && not <| file.Contains("46_A") && not <| file.Contains("46_B"))
+                                                                                 -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 3 sortedLines)
+                                          | true when file.Substring(0, 1) = "5"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 4 sortedLines)
+                                          | true when file.Substring(0, 1) = "6"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 5 sortedLines)
+                                          | true when file.Substring(0, 1) = "7"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 6 sortedLines)
+                                          | true when file.Substring(0, 1) = "8"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 7 sortedLines)
+                                          | true when file.Substring(0, 1) = "9"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 8 sortedLines)
+                                          | true when file.Substring(0, 1) = "S"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
+                                          | true when file.Substring(0, 1) = "R"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
+                                          | true when file.Substring(0, 2) = "_S" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
+                                          | true when file.Substring(0, 2) = "_R" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
+                                          | true when file.Substring(0, 4) = "46_A" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)  
+                                          | true when file.Substring(0, 4) = "46_B" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)  
+                                          | _                                     -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)                                                           
+                              | _    -> 
+                                      pathToDir                            
+                          link, path 
+                     ) 
+                 |> Ok    
+
+            | Error err -> Error err
 
         match param with 
         | CurrentValidity           -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted CurrentValidity |> createPathsForDownloadedFiles
         | FutureValidity            -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted FutureValidity |> createPathsForDownloadedFiles
-        // | ReplacementService     -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted ReplacementService |> createPathsForDownloadedFiles 
         | WithoutReplacementService -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted WithoutReplacementService |> createPathsForDownloadedFiles          
      
     //IO operations made separate in order to have some structure in the free-monad-based design (for educational purposes)   
     let internal deleteAllODISDirectories pathToDir = 
 
-        let deleteIt : Reader<string list, unit> = 
+        let deleteIt : Reader<string list, Result<unit, PdfDownloadErrors>> = 
     
             reader //Reader monad for educational purposes only, no real benefit here  
                 {
@@ -635,11 +629,10 @@ module KODIS_SubmainDataTable =
                                 |> Seq.iter _.Delete(true)  
                                 |> Ok
                                 //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
-                        with ex -> Error <| string ex.Message
-                        
-                        |> function
-                            | Ok value  -> value  
-                            | Error err -> () 
+                        with 
+                        | ex ->
+                              string ex.Message |> ignore // TODO logfile 
+                              Error FileDeleteError
                 }
 
         deleteIt listODISDefault4 
@@ -664,7 +657,6 @@ module KODIS_SubmainDataTable =
                     match variant with 
                     | CurrentValidity           -> getDefaultRecordValues |> List.item 0
                     | FutureValidity            -> getDefaultRecordValues |> List.item 1
-                    // | ReplacementService     -> getDefaultRecordValues |> List.item 2                                
                     | WithoutReplacementService -> getDefaultRecordValues |> List.item 2
             } 
 
@@ -673,7 +665,7 @@ module KODIS_SubmainDataTable =
 
         //smazeme pouze jeden adresar obsahujici stare JR, ostatni ponechame
 
-        let deleteIt : Reader<string list, unit> =  
+        let deleteIt : Reader<string list, Result<unit, PdfDownloadErrors>> =  
 
             reader //Reader monad for educational purposes only, no real benefit here  
                 {   
@@ -688,11 +680,10 @@ module KODIS_SubmainDataTable =
                                 |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
                                 |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
                                 |> Ok                                             
-                        with ex -> Error <| string ex.Message
-                        
-                        |> function
-                            | Ok value  -> value  
-                            | Error err -> ()
+                        with 
+                        | ex ->
+                              string ex.Message |> ignore // TODO logfile 
+                              Error FileDeleteError                       
                 }
 
         deleteIt listODISDefault4         
@@ -719,20 +710,17 @@ module KODIS_SubmainDataTable =
                                  )           
                      | _    -> 
                              Directory.CreateDirectory(sprintf "%s" dir) |> ignore           
-                ) |> Ok
-        with ex -> Error <| string ex.Message
-        
-        |> function
-            | Ok value  -> value  
-            | Error err -> ()
+                ) 
+            |> Ok
+        with 
+        | ex ->
+              string ex.Message |> ignore // TODO logfile 
+              Error CreateFolderError          
     
     //input from data filtering (links * paths) -> http request -> IO operation -> saving pdf data files on HD    
-    let private downloadAndSaveTimetables = //: Reader<Context<string, string, unit>, unit> =     //FsHttp
-       
-        cts.Cancel()  
+    let private downloadAndSaveTimetables =
 
         reader
-
             {
                 let! context = fun env -> env 
 
@@ -792,20 +780,19 @@ module KODIS_SubmainDataTable =
                                                             } 
                                                                          
                                                     match pathToFileExist with
-                                                    | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile      //Original FsHttp library function    
-                                                    | None   -> return ()  //nechame chybu tise projit  
+                                                    | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile       
+                                                    | None   -> return ()  //nechame chybu tise projit  //TODO chybu zaznamenat do logfile  
                                                                                                                                                               
                                                | _                
                                                    -> 
-                                                    return ()      //nechame chybu tise projit                                                                                                                            
+                                                    return ()      //nechame chybu tise projit //TODO chybu zaznamenat do logfile                                                                                                                             
                                   } 
                              |> Async.Catch
                              |> Async.RunSynchronously  
                              |> Result.ofChoice                      
                              |> function
-                                 | Ok _     -> Ok ()   
-                                 | Error ex -> Error (string ex.Message) 
-                                             
+                                 | Ok _    -> Ok String.Empty   
+                                 | Error _ -> Error FileDownloadError                                             
                         )  
                     |> List.head 
             } 
@@ -815,14 +802,14 @@ module KODIS_SubmainDataTable =
         //operation on data
         //input from saved json files -> change of input data -> output into array >> input from array -> change of input data -> output into datatable -> data filtering (links*paths)  
         
-        try digThroughJsonStructure >> filterTimetables () dt variant dir <| () |> Ok
-        with ex -> Error <| string ex.Message
-        
-        |> function
-            | Ok value  -> value  
-            | Error err -> []
-                           
-    let internal downloadAndSave = //: Reader<Context<string, string, unit>, unit> = 
+        try 
+            digThroughJsonStructure >> filterTimetables () dt variant dir <| () 
+        with
+            ex ->
+                string ex.Message |> ignore //TODO logfile"                 
+                Error DataFilteringError 
+                                   
+    let internal downloadAndSave = 
         
         reader
             {    
@@ -831,15 +818,15 @@ module KODIS_SubmainDataTable =
                 let result = 
                     match context.dir |> Directory.Exists with 
                     | false ->
-                             Error String.Empty                                              
+                             Error FileDownloadError                                             
                     | true  ->
                              try
                                  //input from data filtering (links * paths) -> http request -> saving pdf files on HD
                                  match context.list with
-                                 | [] -> Error String.Empty     
+                                 | [] -> Ok String.Empty   
                                  | _  -> downloadAndSaveTimetables context   
                              with
-                             | ex -> Error String.Empty  
+                             | _ -> Error FileDownloadError  
                                           
                 return result 
             }               

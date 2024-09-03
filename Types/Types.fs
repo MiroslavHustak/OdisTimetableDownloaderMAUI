@@ -14,7 +14,7 @@ module Types =
         }  
         
     [<Struct>] 
-    type Context<'a, 'b, 'c> = 
+    type internal Context<'a, 'b, 'c> = 
         {
             listMappingFunction : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
             reportProgress : (float * float) -> unit

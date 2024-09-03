@@ -11,22 +11,12 @@ open Helpers
 open Helpers.Builders
             
 module Result = 
-
-    let internal mapErr fOk (fErr : Lazy<'a>) =                          
-        function
-        | Ok value -> value |> fOk
-        | Error _  -> fErr.Force()       
-                   
+                          
     let internal toOption = 
         function   
         | Ok value -> Some value 
         | Error _  -> None  
-
-    let internal fromOption = 
-        function   
-        | Some value -> Ok value
-        | None       -> Error String.Empty  
-        
+            
     let internal sequence aListOfResults = //gets the first error - see the book Domain Modelling Made Functional
 
         let prepend firstR restR =
@@ -65,13 +55,6 @@ module Result =
                          )   
                  Ok okList 
 
-module CloseApp =  
-
-    let internal closeItBaby err = 
-        //msgParam1 err      
-        Console.ReadKey() |> ignore 
-        System.Environment.Exit(1)  
-
 module Option =
 
     let internal ofBool =                           
@@ -92,12 +75,7 @@ module Option =
     let internal ofNull (value : 'nullableValue) =
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
         | true  -> None
-        | false -> Some value     
-  
-    let internal toResult err = 
-        function   
-        | Some value -> Ok value 
-        | None       -> Error err              
+        | false -> Some value                 
 
     let internal ofStringOption str = 
         str
@@ -124,18 +102,6 @@ module Option =
     
                 return Some value
             }
-       
-    //************************************************************************
-
-    (*
-    The inline keyword in F# is primarily used for inlining code at the call site, which can lead to 
-    performance improvements in situations where performance optimization is crucial. The impact of inlining 
-    is most pronounced when working with generic functions and operations that involve value types.  
-    Inline functions are particularly useful when working with collections and higher-order functions.
-    Inline functions are a powerful feature that allows the F# compiler to generate specialized code for
-    a function at the call site. This can result in more efficient and optimized code, especially when working 
-    with generic functions.
-    *)    
                             
 module Casting = 
     

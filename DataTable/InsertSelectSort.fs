@@ -6,10 +6,10 @@ open System.Data
 //******************************
 
 open Types
+open Types.ErrorTypes
 
 open Helpers
 open Helpers.Builders
-open Helpers.CloseApp
 
 open Settings
 open Settings.SettingsKODIS
@@ -19,7 +19,8 @@ open DataModelling.DataModel
 
 open TransformationLayers.TransformationLayerGet
 
-//chyby vezme tryWith Err18
+
+//nutno byti v tryWith
 module InsertSelectSort =      
    
     let private insertIntoDataTable (dt : DataTable) (dataToBeInserted : DtDtoSend list) =
@@ -55,8 +56,8 @@ module InsertSelectSort =
                        dt.Rows.Add(newRow)
             )                  
 
-    let internal sortLinksOut dt (dataToBeInserted : DtDtoSend list) validity = 
-
+    let internal sortLinksOut (dt : DataTable) (dataToBeInserted : DtDtoSend list) validity : Result<(CompleteLink * FileToBeSaved) list, PdfDownloadErrors> = 
+               
         try            
             try                
                 insertIntoDataTable dt dataToBeInserted  
@@ -74,27 +75,16 @@ module InsertSelectSort =
                                                  dateValidityEnd = currentTime))
                                                  &&
                                                  (
-                                                     match currentTime >= DateTime(2024, 9, 2) with  
-                                                     | true  -> true
-                                                     | false -> not <| fileToBeSaved.Contains("046_2024_01_02_2024_12_14")
+                                                    not <| fileToBeSaved.Contains("046_2024_01_02_2024_12_14")
+                                                 )
+                                                 &&
+                                                 (
+                                                    not <| fileToBeSaved.Contains("020_2024_01_02_2024_12_14")
                                                  )
 
                     | FutureValidity            ->
                                                  dateValidityStart > currentTime
-                    (*  
-                    | ReplacementService        -> 
-                                                 ((dateValidityStart <= currentTime 
-                                                 && 
-                                                 dateValidityEnd >= currentTime)
-                                                 ||
-                                                 (dateValidityStart = currentTime 
-                                                 && 
-                                                 dateValidityEnd = currentTime))
-                                                 &&
-                                                 (fileToBeSaved.Contains("_v") 
-                                                 || fileToBeSaved.Contains("X")
-                                                 || fileToBeSaved.Contains("NAD"))
-                    *)
+                  
                     | WithoutReplacementService ->                                         
                                                  ((dateValidityStart <= currentTime 
                                                  && 
@@ -111,6 +101,10 @@ module InsertSelectSort =
                                                  (dateValidityEnd <> summerHolidayEnd1
                                                  && 
                                                  dateValidityEnd <> summerHolidayEnd2)
+                                                 &&
+                                                 (
+                                                    not <| fileToBeSaved.Contains("020_2024_01_02_2024_12_14")
+                                                 )
                                         
                 let currentTime = DateTime.Now.Date
 
@@ -124,18 +118,8 @@ module InsertSelectSort =
                         PartialLink = Convert.ToString (row.["PartialLink"]) |> Option.ofNullEmpty 
                     } 
 
-                let dataTransformation row =                                 
-                    try Ok (dtDataDtoGetDataTable >> dtDataTransformLayerGet <| row)                  
-                    with ex -> Error <| string ex.Message
-                                       
-                    |> function
-                        | Ok value  -> 
-                                     value  
-                        | Error err ->
-                                     //logInfoMsg <| sprintf "Err901A %s" err 
-                                     //closeItBaby err
-                                     dtDataDtoGetDataTable >> dtDataTransformLayerGet <| row 
-
+                let dataTransformation row = dtDataDtoGetDataTable >> dtDataTransformLayerGet <| row                  
+                  
                 let seqFromDataTable = dt.AsEnumerable() |> Seq.distinct 
                         
                 validity 
@@ -193,10 +177,7 @@ module InsertSelectSort =
             finally
                 dt.Clear()               
     
-        with ex -> Error <| string ex.Message
-        
-        |> function
-            | Ok value  -> value  
-            | Error err -> []
-
-          
+        with 
+        | ex ->
+              string ex.Message |> ignore //TODO logfile
+              Error DataTableError
