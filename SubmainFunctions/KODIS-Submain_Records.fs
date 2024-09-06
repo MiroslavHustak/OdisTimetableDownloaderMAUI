@@ -251,21 +251,6 @@ module KODIS_SubmainRecords =
                 @"https://kodis-files.s3.eu-central-1.amazonaws.com/46_B_2024_07_01_2024_09_01_b5f542c755.pdf"
             ]
             |> List.toSeq   
-        
-        let taskAllJsonLists () = //TODO nekdy overit rychlost
-            try 
-                let task1 = kodisAttachments pathToJsonList 
-                let task2 = kodisTimetables pathToJsonList 
-                let task3 = kodisTimetables2 pathToJsonList2 
-                   
-                let task = Seq.append <| task1 <| task2
-                let task = Seq.append <| task <| task3                         
-               
-                (Seq.append <| task <| addOn()) |> Seq.distinct |> Ok                    
-            with
-            | ex ->  
-                  string ex.Message |> ignore  //TODO logfile
-                  Error JsonFilteringError   
                   
         let taskAllJsonListsParallel () = //TODO nekdy overit rychlost
             try 
@@ -288,20 +273,9 @@ module KODIS_SubmainRecords =
             with
             | ex ->  
                   string ex.Message |> ignore  //TODO logfile
-                  Error JsonFilteringError           
+                  Error JsonFilteringError   
 
-        let taskJsonList2 () = 
-             try 
-                let task = kodisTimetables2 pathToJsonList2 
-                (Seq.append <| task <| addOn()) |> Seq.distinct |> Ok    
-                
-             with
-             | ex ->  
-                   string ex.Message |> ignore  //TODO logfile
-                   Error JsonFilteringError          
-
-        taskAllJsonLists ()
-        //taskJsonList2 ()
+        taskAllJsonListsParallel ()
     
     //input from array -> change of input data -> output into datatable -> filtering data from datable -> links*paths     
     let private filterTimetables () param (pathToDir : string) (diggingResult : Result<string seq, PdfDownloadErrors>) = 
