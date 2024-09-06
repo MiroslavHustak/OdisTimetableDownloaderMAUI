@@ -69,10 +69,9 @@
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\Dtos.fs" />
     <Compile Include="DataModelling\TransformationLayers.fs" />
-    <Compile Include="DataTable\CreateDt.fs" />
-    <Compile Include="DataTable\InsertSelectSort.fs" />
+    <Compile Include="Records\SortRecordData.fs" />
     <Compile Include="SubmainFunctions\DPO-Submain.fs" />
-    <Compile Include="SubmainFunctions\KODIS-Submain_DataTable.fs" />
+    <Compile Include="SubmainFunctions\KODIS-Submain_Records.fs" />
     <Compile Include="SubmainFunctions\MDPO-Submain.fs" />
     <Compile Include="AppStructure\DPO.fs" />
     <Compile Include="AppStructure\KODIS_DataTable.fs" />

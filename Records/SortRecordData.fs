@@ -1,66 +1,22 @@
-﻿namespace DataTable
+﻿namespace Records
 
 open System
 open System.Data
 
-//******************************
-
 open Types
-open Types.ErrorTypes
-
-open Helpers
-open Helpers.Builders
+open ErrorTypes
 
 open Settings.SettingsKODIS
 
-open DataModelling.Dto
 open DataModelling.DataModel
 
-open TransformationLayers.TransformationLayerGet
-
-
-//nutno byti v tryWith
-module InsertSelectSort =      
-   
-    let private insertIntoDataTable (dt : DataTable) (dataToBeInserted : DtDtoSend list) =
-            
-        dataToBeInserted 
-        |> List.iter 
-            (fun item ->
-                       (*
-                       let (startDate, endDate) =   
-
-                           pyramidOfDoom
-                               {
-                                   let! startDate = item.startDate, (DateTime.MinValue, DateTime.MinValue)                                                      
-                                   let! endDate = item.endDate, (DateTime.MinValue, DateTime.MinValue)                             
-                              
-                                   return (startDate, endDate)
-                               }
-                       *)
-                            
-                       let newRow = dt.NewRow()
-                       
-                       newRow.["OldPrefix"] <- item.OldPrefix
-                       newRow.["NewPrefix"] <- item.NewPrefix
-                       newRow.["StartDate"] <- item.StartDate
-                       newRow.["EndDate"] <- item.EndDate
-                       newRow.["TotalDateInterval"] <- item.TotalDateInterval
-                       newRow.["VT_Suffix"] <- item.Suffix
-                       newRow.["JS_GeneratedString"] <- item.JsGeneratedString
-                       newRow.["CompleteLink"] <- item.CompleteLink
-                       newRow.["FileToBeSaved"] <- item.FileToBeSaved
-                       newRow.["PartialLink"] <- item.PartialLink
-                       
-                       dt.Rows.Add(newRow)
-            )                  
-
-    let internal sortLinksOut (dt : DataTable) (dataToBeInserted : DtDtoSend list) validity : Result<(CompleteLink * FileToBeSaved) list, PdfDownloadErrors> = 
+//chyby vezme tryWith Err18
+module SortRecordData =  
+       
+    let internal sortLinksOut (dataToBeInserted : RcData list) validity = 
                
         try            
-            try                
-                insertIntoDataTable dt dataToBeInserted  
-
+            try          
                 let condition dateValidityStart dateValidityEnd currentTime (fileToBeSaved : string) = 
 
                     match validity with 
@@ -106,58 +62,57 @@ module InsertSelectSort =
                                                  )
                                         
                 let currentTime = DateTime.Now.Date
-
-                let dtDataDtoGetDataTable (row : DataRow) : DtDtoGet =                         
-                    {           
-                        NewPrefix = Convert.ToString (row.["NewPrefix"]) |> Option.ofNullEmpty
-                        StartDate = Convert.ToDateTime (row.["StartDate"]) |> Option.ofNull
-                        EndDate = Convert.ToDateTime (row.["EndDate"]) |> Option.ofNull
-                        CompleteLink = Convert.ToString (row.["CompleteLink"]) |> Option.ofNullEmpty
-                        FileToBeSaved = Convert.ToString (row.["FileToBeSaved"]) |> Option.ofNullEmpty
-                        PartialLink = Convert.ToString (row.["PartialLink"]) |> Option.ofNullEmpty 
-                    } 
-
-                let dataTransformation row = dtDataDtoGetDataTable >> dtDataTransformLayerGet <| row                  
-                  
-                let seqFromDataTable = dt.AsEnumerable() |> Seq.distinct 
-                        
+                let dataToBeInserted = dataToBeInserted |> List.toSeq |> Seq.distinct   
+                
                 validity 
                 |> function
-                    | FutureValidity ->                             
-                                      seqFromDataTable    
-                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).PartialLink)
+                    | FutureValidity ->  
+                                      dataToBeInserted                                                                           
+                                      |> Seq.groupBy (fun row -> row.PartialLinkRc)
                                       |> Seq.map (fun (partialLink, group) -> group |> Seq.head)
                                       |> Seq.filter
                                           (fun row ->
-                                                    let startDate = (row |> dataTransformation).StartDate |> function StartDateDt value -> value
-                                                    let endDate = (row |> dataTransformation).EndDate |> function EndDateDt value -> value
-                                                    let fileToBeSaved = (row |> dataTransformation).FileToBeSaved |> function FileToBeSaved value -> value                      
+                                                    let startDate = 
+                                                        row.StartDateRc
+                                                        |> function StartDateRcOpt value -> value
+                                                        |> function Some value -> value | None -> DateTime.MinValue
+                                                    let endDate = 
+                                                        row.EndDateRc                                                         
+                                                        |> function EndDateRcOpt value -> value
+                                                        |> function Some value -> value | None -> DateTime.MinValue
+                                                    let fileToBeSaved = row.FileToBeSavedRc |> function FileToBeSaved value -> value                         
                                         
                                                     condition startDate endDate currentTime fileToBeSaved
                                           )     
                                       |> Seq.map
                                           (fun row ->
-                                                    (row |> dataTransformation).CompleteLink,
-                                                    (row |> dataTransformation).FileToBeSaved
+                                                    row.CompleteLinkRc,
+                                                    row.FileToBeSavedRc
                                           )
                                       |> Seq.distinct //na rozdil od ITVF v SQL se musi pouzit distinct                                     
                                       |> List.ofSeq
                                       |> Ok
 
                     | _              -> 
-                                      seqFromDataTable
-                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).PartialLink)
+                                      dataToBeInserted  
+                                      |> Seq.groupBy (fun row -> row.PartialLinkRc)
                                       |> Seq.map (fun (partialLink, group) -> group |> Seq.head)
                                       |> Seq.filter
                                           (fun row ->
-                                                    let startDate = (row |> dataTransformation).StartDate |> function StartDateDt value -> value
-                                                    let endDate = (row |> dataTransformation).EndDate |> function EndDateDt value -> value
-                                                    let fileToBeSaved = (row |> dataTransformation).FileToBeSaved |> function FileToBeSaved value -> value                       
+                                                    let startDate = 
+                                                        row.StartDateRc
+                                                        |> function StartDateRcOpt value -> value
+                                                        |> function Some value -> value | None -> DateTime.MinValue
+                                                    let endDate = 
+                                                        row.EndDateRc                                                         
+                                                        |> function EndDateRcOpt value -> value
+                                                        |> function Some value -> value | None -> DateTime.MinValue
+                                                    let fileToBeSaved = row.FileToBeSavedRc  |> function FileToBeSaved value -> value                      
                                         
                                                     condition startDate endDate currentTime fileToBeSaved
                                           )           
-                                      |> Seq.sortByDescending (fun row -> (row |> dataTransformation).StartDate)
-                                      |> Seq.groupBy (fun row -> (row |> dataTransformation).NewPrefix)
+                                      |> Seq.sortByDescending (fun row -> row.StartDateRc)
+                                      |> Seq.groupBy (fun row -> row.NewPrefixRc)
                                       |> Seq.map
                                           (fun (newPrefix, group)
                                               ->
@@ -167,16 +122,16 @@ module InsertSelectSort =
                                       |> Seq.map
                                           (fun (newPrefix, row) 
                                               ->
-                                               (row |> dataTransformation).CompleteLink,
-                                               (row |> dataTransformation).FileToBeSaved
+                                               row.CompleteLinkRc,
+                                               row.FileToBeSavedRc
                                           )
                                       |> Seq.distinct 
                                       |> List.ofSeq
                                       |> Ok
             finally
-                dt.Clear()               
-    
+               ()    
+        
         with 
         | ex ->
               string ex.Message |> ignore //TODO logfile
-              Error DataTableError
+              Error RcError

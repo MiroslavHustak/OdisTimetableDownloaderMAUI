@@ -19,7 +19,7 @@ open ProgressCircle
 
 open MainFunctions.WebScraping_DPO
 open MainFunctions.WebScraping_MDPO
-open MainFunctions.WebScraping_KODISFMDataTable
+open MainFunctions.WebScraping_KODISFMRecords
 
 module App =
 

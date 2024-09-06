@@ -17,7 +17,7 @@ open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
 
-module WebScraping_KODISFMDataTable = 
+module WebScraping_KODISFMRecords = 
 
     type private State =  
         { 
@@ -32,7 +32,6 @@ module WebScraping_KODISFMDataTable =
     type private Context2 = 
         {
             DirList : string list 
-            Dt : Data.DataTable
             Variant : Validity
             Msg1 : string
             Msg2 : string
@@ -48,16 +47,16 @@ module WebScraping_KODISFMDataTable =
         {
             DownloadAndSaveJson : string list -> string list -> (float * float -> unit) -> Result<unit, JsonDownloadErrors>
             DeleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
-            OperationOnDataFromJson : unit -> Data.DataTable -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
+            OperationOnDataFromJson : unit -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
             DownloadAndSave : Context<string, string, Result<string, PdfDownloadErrors>> -> Result<string, PdfDownloadErrors>
         }
 
     let private environment : Environment =
         { 
-            DownloadAndSaveJson = KODIS_SubmainDataTable.downloadAndSaveJson 
-            DeleteAllODISDirectories = KODIS_SubmainDataTable.deleteAllODISDirectories   
-            OperationOnDataFromJson = KODIS_SubmainDataTable.operationOnDataFromJson
-            DownloadAndSave = KODIS_SubmainDataTable.downloadAndSave
+            DownloadAndSaveJson = KODIS_SubmainRecords.downloadAndSaveJson 
+            DeleteAllODISDirectories = KODIS_SubmainRecords.deleteAllODISDirectories   
+            OperationOnDataFromJson = KODIS_SubmainRecords.operationOnDataFromJson
+            DownloadAndSave = KODIS_SubmainRecords.downloadAndSave
         }    
 
     let private stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) (action : Actions) =
@@ -92,7 +91,7 @@ module WebScraping_KODISFMDataTable =
             ->    
              let errFn err =  
                  match err with
-                 | DataTableError     -> "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
+                 | RcError     -> "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
                  | JsonFilteringError -> "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
                  | DataFilteringError -> "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
                  | FileDeleteError    -> "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
@@ -104,7 +103,7 @@ module WebScraping_KODISFMDataTable =
                     dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se snaží, co může ..."
                      
                     let dir = context2.DirList |> List.item context2.VariantInt  
-                    let list = KODIS_SubmainDataTable.operationOnDataFromJson () context2.Dt context2.Variant dir 
+                    let list = KODIS_SubmainRecords.operationOnDataFromJson () context2.Variant dir 
 
                     match list with
                     | Ok list
@@ -137,14 +136,11 @@ module WebScraping_KODISFMDataTable =
                             ->
                              Error err     
              try 
-                 let dirList = KODIS_SubmainDataTable.createNewDirectoryPaths path listODISDefault4
-               
-                 let dt = DataTable.CreateDt.dt() 
+                 let dirList = KODIS_SubmainRecords.createNewDirectoryPaths path listODISDefault4
 
                  let contextCurrentValidity = 
                      {
                           DirList = dirList
-                          Dt = dt
                           Variant = CurrentValidity
                           Msg1 = msg1CurrentValidity
                           Msg2 = msg2CurrentValidity
@@ -155,7 +151,6 @@ module WebScraping_KODISFMDataTable =
                  let contextFutureValidity = 
                      {
                           DirList = dirList
-                          Dt = dt
                           Variant = FutureValidity
                           Msg1 = msg1FutureValidity
                           Msg2 = msg2FutureValidity
@@ -166,7 +161,6 @@ module WebScraping_KODISFMDataTable =
                  let contextWithoutReplacementService = 
                      {
                           DirList = dirList
-                          Dt = dt
                           Variant = WithoutReplacementService
                           Msg1 = msg1WithoutReplacementService
                           Msg2 = msg2WithoutReplacementService
@@ -177,7 +171,7 @@ module WebScraping_KODISFMDataTable =
                  pyramidOfInferno
                     {                                
                         let!_ = environment.DeleteAllODISDirectories path, errFn  
-                        let!_ = KODIS_SubmainDataTable.createFolders dirList, errFn 
+                        let!_ = KODIS_SubmainRecords.createFolders dirList, errFn 
 
                         let! msg1 = result contextCurrentValidity, errFn
                         let! msg2 = result contextFutureValidity, errFn

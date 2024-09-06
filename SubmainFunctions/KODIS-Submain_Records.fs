@@ -30,12 +30,9 @@ open Helpers
 open Helpers.MyString
 open Helpers.Builders
 
-open DataModelling.Dto
 open DataModelling.DataModel
-open TransformationLayers.TransformationLayerSend
 
-
-module KODIS_SubmainDataTable =    
+module KODIS_SubmainRecords =    
         
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
     // DO NOT DIVIDE this module into parts in line with the main design yet - KODIS keeps making unpredictable changes or amendments
@@ -135,7 +132,6 @@ module KODIS_SubmainDataTable =
                     let! pathToJsonList2 = fun env -> env 
 
                     return 
-
                         pathToJsonList2 
                         |> Seq.ofList 
                         |> Seq.collect 
@@ -308,7 +304,7 @@ module KODIS_SubmainDataTable =
         //taskJsonList2 ()
     
     //input from array -> change of input data -> output into datatable -> filtering data from datable -> links*paths     
-    let private filterTimetables () dt param (pathToDir : string) (diggingResult : Result<string seq, PdfDownloadErrors>) = 
+    let private filterTimetables () param (pathToDir : string) (diggingResult : Result<string seq, PdfDownloadErrors>) = 
 
         //*************************************Helpers for SQL columns********************************************
 
@@ -519,24 +515,23 @@ module KODIS_SubmainDataTable =
             let fileToBeSaved = sprintf "%s%s%s.pdf" (newPrefix oldPrefix) totalDateInterval suffix
 
             {
-                OldPrefix = OldPrefix oldPrefix
-                NewPrefix = NewPrefix (newPrefix oldPrefix)
-                StartDate = StartDateDtOpt (TryParserDate.parseDate () <| extractStartDate totalDateInterval)
-                endDate = EndDateDtOpt (TryParserDate.parseDate () <| extractEndDate totalDateInterval)
-                TotalDateInterval = TotalDateInterval totalDateInterval
-                Suffix = Suffix suffix
-                JsGeneratedString = JsGeneratedString jsGeneratedString
-                CompleteLink = CompleteLink input
-                FileToBeSaved = FileToBeSaved fileToBeSaved
-                PartialLink = 
+                OldPrefixRc = OldPrefix oldPrefix
+                NewPrefixRc = NewPrefix (newPrefix oldPrefix)
+                StartDateRc = StartDateRcOpt (TryParserDate.parseDate () <| extractStartDate totalDateInterval)
+                EndDateRc = EndDateRcOpt (TryParserDate.parseDate () <| extractEndDate totalDateInterval)
+                TotalDateIntervalRc = TotalDateInterval totalDateInterval
+                SuffixRc = Suffix suffix
+                JsGeneratedStringRc = JsGeneratedString jsGeneratedString
+                CompleteLinkRc = CompleteLink input
+                FileToBeSavedRc = FileToBeSaved fileToBeSaved
+                PartialLinkRc = 
                     let pattern = Regex.Escape(jsGeneratedString)
                     PartialLink <| Regex.Replace(input, pattern, String.Empty)
             }
-            |> dtDataTransformLayerSend  
 
      
         //**********************Filtering and datatable data inserting********************************************************
-        let dataToBeInserted : Result<DtDtoSend list, PdfDownloadErrors> = 
+        let dataToBeInserted : Result<RcData list, PdfDownloadErrors> = 
             
             diggingResult   
             |> function
@@ -558,7 +553,7 @@ module KODIS_SubmainDataTable =
                                             let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
                                             cond1 && cond2 
                                  )         
-                             |> Array.map 
+                             |> Array.Parallel.map 
                                  (fun item -> splitKodisLink item) 
                              |> Array.toList
                              |> Ok
@@ -624,9 +619,9 @@ module KODIS_SubmainDataTable =
         | Ok dataToBeInserted 
             -> 
              match param with 
-             | CurrentValidity           -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted CurrentValidity |> createPathsForDownloadedFiles
-             | FutureValidity            -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted FutureValidity |> createPathsForDownloadedFiles
-             | WithoutReplacementService -> DataTable.InsertSelectSort.sortLinksOut dt dataToBeInserted WithoutReplacementService |> createPathsForDownloadedFiles    
+             | CurrentValidity           -> Records.SortRecordData.sortLinksOut dataToBeInserted CurrentValidity |> createPathsForDownloadedFiles
+             | FutureValidity            -> Records.SortRecordData.sortLinksOut dataToBeInserted FutureValidity |> createPathsForDownloadedFiles
+             | WithoutReplacementService -> Records.SortRecordData.sortLinksOut dataToBeInserted WithoutReplacementService |> createPathsForDownloadedFiles    
 
         | Error err 
             ->
@@ -823,13 +818,13 @@ module KODIS_SubmainDataTable =
                     |> List.head 
             } 
 
-    let internal operationOnDataFromJson () dt variant dir =   
+    let internal operationOnDataFromJson () variant dir =   
 
         //operation on data
         //input from saved json files -> change of input data -> output into array >> input from array -> change of input data -> output into datatable -> data filtering (links*paths) 
         try 
               
-            digThroughJsonStructure >> filterTimetables () dt variant dir <| () 
+            digThroughJsonStructure >> filterTimetables () variant dir <| () 
         with
             ex ->
                 string ex.Message |> ignore //TODO logfile                 
