@@ -69,12 +69,12 @@
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\Dtos.fs" />
     <Compile Include="DataModelling\TransformationLayers.fs" />
-    <Compile Include="Records\SortRecordData.fs" />
+    <Compile Include="DataManipulation\SortRecordData.fs" />
     <Compile Include="SubmainFunctions\DPO-Submain.fs" />
-    <Compile Include="SubmainFunctions\KODIS-Submain_Records.fs" />
+    <Compile Include="SubmainFunctions\KODIS-Submain_Record.fs" />
     <Compile Include="SubmainFunctions\MDPO-Submain.fs" />
     <Compile Include="AppStructure\DPO.fs" />
-    <Compile Include="AppStructure\KODIS_DataTable.fs" />
+    <Compile Include="AppStructure\KODIS_Record.fs" />
     <Compile Include="AppStructure\MDPO.fs" />
     <Compile Include="XElmish\ProgressCircle.fs" />
     <Compile Include="XElmish\App.fs" />

@@ -9,6 +9,7 @@ open Types.Types
 
 open Helpers.Builders
 
+open Settings.Messages
 open Settings.SettingsGeneral
 
 open SubmainFunctions.MDPO_Submain    
@@ -65,7 +66,7 @@ module WebScraping_MDPO =
                                               |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                                               |> Ok
                                       with
-                                      |_ -> Error "Došlo k chybě, JŘ MDPO nebyly staženy."         
+                                      |_ -> Error mdpoMsg1      
                                           
             | CreateFolders          -> 
                                       try
@@ -73,7 +74,7 @@ module WebScraping_MDPO =
                                           |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
                                           |> Ok
                                       with
-                                      |_ -> Error "Došlo k chybě, JŘ MDPO nebyly staženy." 
+                                      |_ -> Error mdpoMsg1
                                       
             | FilterDownloadSave     -> 
                                      try
@@ -87,7 +88,7 @@ module WebScraping_MDPO =
                                                   environment.FilterTimetables () pathToSubdir   
                                                   |> environment.DownloadAndSaveTimetables reportProgress pathToSubdir  
                                      with
-                                     |_ -> Error "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."           
+                                     |_ -> Error mdpoMsg2         
                                                            
         pyramidOfInferno
             {  
@@ -98,5 +99,3 @@ module WebScraping_MDPO =
             
                 return! stateReducer stateDefault FilterDownloadSave environment
             }
-
-   

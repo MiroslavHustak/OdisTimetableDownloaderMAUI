@@ -1,6 +1,8 @@
 ﻿namespace Settings
 
 open System
+
+open SettingsGeneral
 open Microsoft.Maui.Storage
 
 module SettingsKODIS =
@@ -21,8 +23,7 @@ module SettingsKODIS =
     //let [<Literal>] internal pathJson = @"KODISJson/kodisMHDTotal.json" //v hl. adresari projektu
     //let [<Literal>] internal pathJson2 = @"KODISJson/kodisMHDTotal2_0.json" //v hl. adresari projektu
      
-    let internal partialPathJson = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
-    //let internal partialPathJson = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"
+    let internal partialPathJson = partialPathJsonTemp //viz SeetingsGeneral
 
     let internal summerHolidayEnd1 = DateTime(2024, 8, 31)
     let internal summerHolidayEnd2 = DateTime(2024, 9, 1)

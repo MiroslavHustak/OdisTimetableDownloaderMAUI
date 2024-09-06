@@ -17,9 +17,12 @@ open type Fabulous.Maui.View
 
 open ProgressCircle
 
+open Settings.Messages
+open Settings.SettingsGeneral
+
 open MainFunctions.WebScraping_DPO
 open MainFunctions.WebScraping_MDPO
-open MainFunctions.WebScraping_KODISFMRecords
+open MainFunctions.WebScraping_KODISFMRecord
 
 module App =
 
@@ -72,10 +75,8 @@ module App =
 
         | Kodis 
             -> 
-             let path =
-                 //@"/storage/emulated/0/FabulousTimetables/"
-                 @"c:\Users\User\Data\"
-
+             let path = kodisPathTemp
+                 
              let delayedCmd1 (dispatch : Msg -> unit) : Async<unit> =
                  async
                      {
@@ -135,16 +136,14 @@ module App =
             
              { 
                  m with                               
-                     ProgressMsg = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
+                     ProgressMsg = progressMsgOdis 
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub executeSequentially        
           
         | Dpo 
             -> 
-             let path =
-                 //@"/storage/emulated/0/FabulousTimetables/"
-                 @"c:\Users\User\Data\"
-
+             let path = dpoPathTemp
+                 
              let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
                  async
                      {
@@ -155,7 +154,7 @@ module App =
                              async 
                                  {
                                      match webscraping_DPO reportProgress path with
-                                     | Ok _      -> return "JŘ DPO úspěšně staženy."
+                                     | Ok _      -> return mauiDpoMsg 
                                      | Error err -> return err
                                  }
                              |> Async.StartChild 
@@ -170,16 +169,14 @@ module App =
 
              { 
                  m with                                  
-                     ProgressMsg = "Stahují se JŘ DPO ..." 
+                     ProgressMsg = progressMsgDpo 
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub execute     
 
         | Mdpo 
             -> 
-             let path =
-                 //@"/storage/emulated/0/FabulousTimetables/"
-                 @"c:\Users\User\Data\"
-
+             let path = mdpoPathTemp
+             
              let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
                  async
                      {
@@ -190,7 +187,7 @@ module App =
                              async 
                                  {
                                      match webscraping_MDPO reportProgress path with
-                                     | Ok _      -> return "Zastávkové JŘ MDPO úspěšně staženy."
+                                     | Ok _      -> return mauiMdpoMsg 
                                      | Error err -> return err
                                  } 
                              |> Async.StartChild 
@@ -205,7 +202,7 @@ module App =
 
              { 
                  m with                                  
-                     ProgressMsg = "Stahují se zastávkové JŘ MDPO ..."
+                     ProgressMsg = progressMsgMdpo 
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub execute                     
 
@@ -221,27 +218,27 @@ module App =
                         GraphicsView(progressDrawable)
                             .height(150.)
                             .width(150.)      
-                            
-                        Label("Stahování JŘ ODIS")
+                      
+                        Label(labelOdis)
                             .semantics(SemanticHeadingLevel.Level1)
                             .font(size = 26.)
                             .centerTextHorizontal()                            
     
                         Label(m.ProgressMsg)
-                            .semantics(SemanticHeadingLevel.Level2, "Welcome to dot net Multi platform App U I powered by Fabulous")
+                            .semantics(SemanticHeadingLevel.Level2, "Welcome to dot.net multi platform app UI powered by Fabulous")
                             .font(size = 14.)
                             .centerTextHorizontal()
     
-                        Button("Stahuj kompletní balík JŘ ODIS", Kodis)
-                            .semantics(hint = "Stahování kompletních JŘ ODIS všech dopravců")
+                        Button(buttonOdis, Kodis)
+                            .semantics(hint = hintOdis)
                             .centerHorizontal()
     
-                        Button("Stahuj JŘ dopravce DPO", Dpo)
-                            .semantics(hint = "Stahování aktuálních JŘ dopravce DPO")
+                        Button(buttonDpo, Dpo)
+                            .semantics(hint = hintDpo)
                             .centerHorizontal()
     
-                        Button("Stahuj JŘ dopravce MDPO", Mdpo)
-                            .semantics(hint = "Stahování zastávkových JŘ dopravce MDPO")
+                        Button(buttonMdpo, Mdpo)
+                            .semantics(hint = hintMdpo)
                             .centerHorizontal()
                     })
                         .padding(30., 0., 30., 0.)
@@ -252,4 +249,3 @@ module App =
     
     let program = 
         Program.statefulWithCmd init update view
-        

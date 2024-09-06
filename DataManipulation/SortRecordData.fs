@@ -10,7 +10,6 @@ open Settings.SettingsKODIS
 
 open DataModelling.DataModel
 
-//chyby vezme tryWith Err18
 module SortRecordData =  
        
     let internal sortLinksOut (dataToBeInserted : RcData list) validity = 

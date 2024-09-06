@@ -17,7 +17,7 @@ open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
 
-module WebScraping_KODISFMRecords = 
+module WebScraping_KODISFMRecord = 
 
     type private State =  
         { 
@@ -70,7 +70,7 @@ module WebScraping_KODISFMRecords =
              let downloadAndSaveJson reportProgress = 
                  let errFn err =  
                      match err with
-                     | JsonDownloadError -> "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 
+                     | JsonDownloadError -> jsonDownloadError
                     
                  try
                      environment.DownloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
@@ -82,7 +82,7 @@ module WebScraping_KODISFMRecords =
                        Error JsonDownloadError
                  
                  |> function
-                     | Ok _      -> "Dokončeno stahování JSON souborů." 
+                     | Ok _      -> dispatchMsg1
                      | Error err -> errFn err
 
              downloadAndSaveJson reportProgress  
@@ -91,16 +91,16 @@ module WebScraping_KODISFMRecords =
             ->    
              let errFn err =  
                  match err with
-                 | RcError     -> "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
-                 | JsonFilteringError -> "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
-                 | DataFilteringError -> "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
-                 | FileDeleteError    -> "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
-                 | CreateFolderError  -> "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy." 
-                 | FileDownloadError  -> "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
+                 | RcError            -> rcError
+                 | JsonFilteringError -> jsonFilteringError
+                 | DataFilteringError -> dataFilteringError
+                 | FileDeleteError    -> fileDeleteError 
+                 | CreateFolderError  -> createFolderError
+                 | FileDownloadError  -> fileDownloadError
 
              let result (context2 : Context2) =   
 
-                    dispatchWorkIsComplete "Chvíli strpení, prosím, CPU se snaží, co může ..."
+                    dispatchWorkIsComplete dispatchMsg2
                      
                     let dir = context2.DirList |> List.item context2.VariantInt  
                     let list = KODIS_SubmainRecords.operationOnDataFromJson () context2.Variant dir 
@@ -117,7 +117,7 @@ module WebScraping_KODISFMRecords =
                                      list = list
                                  }
                                  
-                             dispatchIterationMessage context2.Msg1 //"Stahují se aktuálně platné JŘ ODIS ..."
+                             dispatchIterationMessage context2.Msg1 
                                          
                              match list.Length >= 8 with //eqv of 8 threads
                              | true  -> context List.Parallel.map2
@@ -127,10 +127,10 @@ module WebScraping_KODISFMRecords =
 
                     | Ok list
                             ->                                                               
-                             dispatchIterationMessage context2.Msg2//"Momentálně nejsou dostupné odkazy na aktuálně platné JŘ ODIS." 
+                             dispatchIterationMessage context2.Msg2
                              System.Threading.Thread.Sleep(6000) 
 
-                             Ok context2.Msg3 //"Aktuálně platné JŘ ODIS nebyly k dispozici pro stažení."
+                             Ok context2.Msg3 
 
                     | Error err 
                             ->
@@ -177,13 +177,13 @@ module WebScraping_KODISFMRecords =
                         let! msg2 = result contextFutureValidity, errFn
                         let! msg3 = result contextWithoutReplacementService, errFn   
 
-                        return sprintf "Kompletní balík JŘ ODIS úspěšně stažen.\n%s\n%s\n%s" msg1 msg2 msg3
+                        return sprintf "%s\n%s\n%s\n%s" dispatchMsg3 msg1 msg2 msg3
                      }
                    
              with
              | ex ->
                    string ex.Message |> ignore  //TODO logfile 
-                   "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy."            
+                   dispatchMsg4            
     
     let stateReducerCmd1 path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
         stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadAndSaveJson

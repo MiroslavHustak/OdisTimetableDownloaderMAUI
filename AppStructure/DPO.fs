@@ -10,6 +10,7 @@ open Types.Types
 
 open Helpers.Builders
    
+open Settings.Messages 
 open Settings.SettingsGeneral    
 
 open SubmainFunctions.DPO_Submain
@@ -67,7 +68,7 @@ module WebScraping_DPO =
                                               |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                                               |> Ok
                                       with
-                                      | _ -> Error "Došlo k chybě, JŘ DPO nebyly staženy."                                           
+                                      | _ -> Error dpoMsg1                                         
                                     
             | CreateFolders          -> 
                                       try                                          
@@ -75,7 +76,7 @@ module WebScraping_DPO =
                                           |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
                                           |> Ok
                                       with
-                                      | _ -> Error "Došlo k chybě, JŘ DPO nebyly staženy." 
+                                      | _ -> Error dpoMsg1
 
             | FilterDownloadSave     ->                                      
                                       try     
@@ -88,7 +89,7 @@ module WebScraping_DPO =
                                                    environment.FilterTimetables () pathToSubdir 
                                                    |> environment.DownloadAndSaveTimetables reportProgress 
                                       with
-                                      | _ -> Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."                                                 
+                                      | _ -> Error dpoMsg2                                               
 
         pyramidOfInferno
             {  
@@ -99,5 +100,3 @@ module WebScraping_DPO =
                 
                 return! stateReducer stateDefault FilterDownloadSave environment
             }
-
-       
