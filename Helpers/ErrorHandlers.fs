@@ -58,7 +58,7 @@ module Option =
             {
                 let!_ = not <| System.Object.ReferenceEquals(value, null), None 
                 let value = string value 
-                let! _ = not <| (String.IsNullOrEmpty(value) || String.IsNullOrWhiteSpace(value)), None
+                let! _ = not <| String.IsNullOrWhiteSpace(value), None
     
                 return Some value
             }

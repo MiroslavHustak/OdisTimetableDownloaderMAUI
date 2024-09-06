@@ -136,7 +136,7 @@ module App =
             
              { 
                  m with                               
-                     ProgressMsg = progressMsgOdis 
+                     ProgressMsg = progressMsgKodis 
                      ProgressIndicator = InProgress (0.0, 0.0)
              }, Cmd.ofSub executeSequentially        
           
@@ -229,7 +229,7 @@ module App =
                             .font(size = 14.)
                             .centerTextHorizontal()
     
-                        Button(buttonOdis, Kodis)
+                        Button(buttonKodis, Kodis)
                             .semantics(hint = hintOdis)
                             .centerHorizontal()
     

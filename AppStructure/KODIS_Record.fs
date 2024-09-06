@@ -177,7 +177,15 @@ module WebScraping_KODISFMRecord =
                         let! msg2 = result contextFutureValidity, errFn
                         let! msg3 = result contextWithoutReplacementService, errFn   
 
-                        return sprintf "%s\n%s\n%s\n%s" dispatchMsg3 msg1 msg2 msg3
+                        let separator = String.Empty
+
+                        let combinedMessage = 
+                            [ msg1; msg2; msg3 ] 
+                            |> List.filter (fun msg -> not (String.IsNullOrWhiteSpace msg)) //IsNullOrWhiteSpace si vsima aji empty string
+                            |> List.map (fun msg -> sprintf "\n%s" msg)
+                            |> String.concat separator                         
+
+                        return sprintf "%s%s" dispatchMsg3 combinedMessage
                      }
                    
              with

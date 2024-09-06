@@ -504,8 +504,8 @@ module KODIS_SubmainRecords =
             }
 
      
-        //**********************Filtering and datatable data inserting********************************************************
-        let dataToBeInserted : Result<RcData list, PdfDownloadErrors> = 
+        //**********************Filtering********************************************************
+        let dataToBeFiltered : Result<RcData list, PdfDownloadErrors> = 
             
             diggingResult   
             |> function
@@ -589,13 +589,13 @@ module KODIS_SubmainRecords =
 
             | Error err -> Error err
         
-        match dataToBeInserted with
-        | Ok dataToBeInserted 
+        match dataToBeFiltered with
+        | Ok dataToBeFiltered 
             -> 
              match param with 
-             | CurrentValidity           -> Records.SortRecordData.sortLinksOut dataToBeInserted CurrentValidity |> createPathsForDownloadedFiles
-             | FutureValidity            -> Records.SortRecordData.sortLinksOut dataToBeInserted FutureValidity |> createPathsForDownloadedFiles
-             | WithoutReplacementService -> Records.SortRecordData.sortLinksOut dataToBeInserted WithoutReplacementService |> createPathsForDownloadedFiles    
+             | CurrentValidity           -> Records.SortRecordData.sortLinksOut dataToBeFiltered CurrentValidity |> createPathsForDownloadedFiles
+             | FutureValidity            -> Records.SortRecordData.sortLinksOut dataToBeFiltered FutureValidity |> createPathsForDownloadedFiles
+             | WithoutReplacementService -> Records.SortRecordData.sortLinksOut dataToBeFiltered WithoutReplacementService |> createPathsForDownloadedFiles    
 
         | Error err 
             ->

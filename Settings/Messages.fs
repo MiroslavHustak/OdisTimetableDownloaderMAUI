@@ -35,7 +35,7 @@ module Messages =
     let internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy."  
     let internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy." 
 
-    let internal progressMsgOdis = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
+    let internal progressMsgKodis = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
     let internal progressMsgDpo = "Stahují se JŘ DPO ..." 
     let internal progressMsgMdpo = "Stahují se zastávkové JŘ MDPO ..."
 
@@ -43,7 +43,7 @@ module Messages =
     let internal mauiMdpoMsg = "Zastávkové JŘ MDPO úspěšně staženy."
 
     let internal labelOdis = "Stahování JŘ ODIS"
-    let internal buttonOdis = "Stahuj kompletní balík JŘ ODIS"   
+    let internal buttonKodis = "Stahuj kompletní balík JŘ ODIS"   
     let internal hintOdis = "Stahování kompletních JŘ ODIS všech dopravců"
     let internal buttonDpo = "Stahuj JŘ dopravce DPO"
     let internal hintDpo = "Stahování aktuálních JŘ dopravce DPO"

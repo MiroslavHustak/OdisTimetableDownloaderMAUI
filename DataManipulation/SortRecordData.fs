@@ -12,7 +12,7 @@ open DataModelling.DataModel
 
 module SortRecordData =  
        
-    let internal sortLinksOut (dataToBeInserted : RcData list) validity = 
+    let internal sortLinksOut (dataToBeFiltered : RcData list) validity = 
                
         try            
             try          
@@ -61,12 +61,12 @@ module SortRecordData =
                                                  )
                                         
                 let currentTime = DateTime.Now.Date
-                let dataToBeInserted = dataToBeInserted |> List.toSeq |> Seq.distinct   
+                let dataToBeFiltered = dataToBeFiltered |> List.toSeq |> Seq.distinct   
                 
                 validity 
                 |> function
                     | FutureValidity ->  
-                                      dataToBeInserted                                                                           
+                                      dataToBeFiltered                                                                           
                                       |> Seq.groupBy (fun row -> row.PartialLinkRc)
                                       |> Seq.map (fun (partialLink, group) -> group |> Seq.head)
                                       |> Seq.filter
@@ -93,7 +93,7 @@ module SortRecordData =
                                       |> Ok
 
                     | _              -> 
-                                      dataToBeInserted  
+                                      dataToBeFiltered  
                                       |> Seq.groupBy (fun row -> row.PartialLinkRc)
                                       |> Seq.map (fun (partialLink, group) -> group |> Seq.head)
                                       |> Seq.filter
