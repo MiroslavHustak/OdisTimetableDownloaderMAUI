@@ -34,7 +34,10 @@ module App =
         {
             ProgressMsg : string
             ProgressIndicator : ProgressIndicator
-            Progress : float        
+            Progress : float 
+            KodisEnabled : bool
+            DpoEnabled : bool
+            MdpoEnabled : bool
         }
 
     type Msg =
@@ -50,6 +53,9 @@ module App =
             ProgressMsg = String.Empty
             ProgressIndicator = Idle
             Progress = 0.0 // Initialize progress
+            KodisEnabled = true
+            DpoEnabled = true
+            MdpoEnabled = true
         },
         Cmd.none
     
@@ -67,7 +73,14 @@ module App =
 
         | WorkIsComplete result 
             ->
-             { m with ProgressMsg = result; ProgressIndicator = Idle; Progress = 0.0 }, Cmd.none
+             { m with 
+                 ProgressMsg = result
+                 ProgressIndicator = Idle
+                 Progress = 0.0
+                 KodisEnabled = true
+                 DpoEnabled = true
+                 MdpoEnabled = true 
+             }, Cmd.none
 
         | IterationMessage message 
             ->
@@ -138,6 +151,9 @@ module App =
                  m with                               
                      ProgressMsg = progressMsgKodis 
                      ProgressIndicator = InProgress (0.0, 0.0)
+                     KodisEnabled = false
+                     DpoEnabled = false
+                     MdpoEnabled = false
              }, Cmd.ofSub executeSequentially        
           
         | Dpo 
@@ -171,6 +187,9 @@ module App =
                  m with                                  
                      ProgressMsg = progressMsgDpo 
                      ProgressIndicator = InProgress (0.0, 0.0)
+                     KodisEnabled = false
+                     DpoEnabled = false
+                     MdpoEnabled = false
              }, Cmd.ofSub execute     
 
         | Mdpo 
@@ -204,12 +223,15 @@ module App =
                  m with                                  
                      ProgressMsg = progressMsgMdpo 
                      ProgressIndicator = InProgress (0.0, 0.0)
+                     KodisEnabled = false
+                     DpoEnabled = false
+                     MdpoEnabled = false
              }, Cmd.ofSub execute                     
 
     let view (m : Model) =
 
         let progressDrawable = progressCircle m.Progress
-
+    
         Application(
             ContentPage(
                 ScrollView(
@@ -218,7 +240,7 @@ module App =
                         GraphicsView(progressDrawable)
                             .height(150.)
                             .width(150.)      
-                      
+    
                         Label(labelOdis)
                             .semantics(SemanticHeadingLevel.Level1)
                             .font(size = 26.)
@@ -232,14 +254,17 @@ module App =
                         Button(buttonKodis, Kodis)
                             .semantics(hint = hintOdis)
                             .centerHorizontal()
+                            .isEnabled(m.KodisEnabled)
     
                         Button(buttonDpo, Dpo)
                             .semantics(hint = hintDpo)
                             .centerHorizontal()
+                            .isEnabled(m.DpoEnabled)
     
                         Button(buttonMdpo, Mdpo)
                             .semantics(hint = hintMdpo)
                             .centerHorizontal()
+                            .isEnabled(m.MdpoEnabled)
                     })
                         .padding(30., 0., 30., 0.)
                         .centerVertical()
