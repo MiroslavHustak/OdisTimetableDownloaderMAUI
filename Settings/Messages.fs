@@ -49,3 +49,5 @@ module Messages =
     let internal hintDpo = "Stahování aktuálních JŘ dopravce DPO"
     let internal buttonMdpo = "Stahuj JŘ dopravce MDPO"
     let internal hintMdpo = "Stahování zastávkových JŘ dopravce MDPO"
+   
+    let internal noNetConn = "Není přístup k internetu, zkus to za chvíli znovu."   

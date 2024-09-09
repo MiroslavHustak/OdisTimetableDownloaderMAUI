@@ -1,6 +1,7 @@
 namespace OdisTimetableDownloaderMAUI
 
 open System
+open System.Net.NetworkInformation
 
 open Fabulous
 open Fabulous.Maui
@@ -19,6 +20,8 @@ open ProgressCircle
 
 open Settings.Messages
 open Settings.SettingsGeneral
+
+open Helpers.CheckNetConnection
 
 open MainFunctions.WebScraping_DPO
 open MainFunctions.WebScraping_MDPO
@@ -45,7 +48,7 @@ module App =
         | Dpo
         | Mdpo
         | UpdateStatus of progress : float * float
-        | WorkIsComplete of string //TODO predelat na Result
+        | WorkIsComplete of string 
         | IterationMessage of string      
 
     let init () =
@@ -69,18 +72,25 @@ module App =
                  match value >= 1.000 with
                  | true  -> 1.000
                  | false -> value
-             { m with ProgressIndicator = InProgress (progressValue, totalProgress); Progress = progress }, Cmd.none
+             { 
+                 m with 
+                     ProgressIndicator = InProgress (progressValue, totalProgress)
+                     Progress = progress 
+             }, 
+             Cmd.none
 
         | WorkIsComplete result 
             ->
-             { m with 
-                 ProgressMsg = result
-                 ProgressIndicator = Idle
-                 Progress = 0.0
-                 KodisEnabled = true
-                 DpoEnabled = true
-                 MdpoEnabled = true 
-             }, Cmd.none
+             {
+                m with 
+                    ProgressMsg = result
+                    ProgressIndicator = Idle
+                    Progress = 0.0
+                    KodisEnabled = true
+                    DpoEnabled = true
+                    MdpoEnabled = true 
+             }, 
+             Cmd.none
 
         | IterationMessage message 
             ->
@@ -91,54 +101,64 @@ module App =
              let path = kodisPathTemp
                  
              let delayedCmd1 (dispatch : Msg -> unit) : Async<unit> =
+
                  async
                      {
-                         let reportProgress (progressValue, totalProgress) =
-                             dispatch (UpdateStatus (progressValue, totalProgress)) 
+                         match checkNetConn 500 with
+                         | Some _ -> 
+                                   let reportProgress (progressValue, totalProgress) =
+                                       dispatch (UpdateStatus (progressValue, totalProgress)) 
                              
-                         let! hardWork =                                                              
-                              async 
-                                  {
-                                      return 
-                                          stateReducerCmd1
-                                          <| path
-                                          <| fun _ -> ()
-                                          <| fun _ -> ()
-                                          <| reportProgress
-                                  }
-                              |> Async.StartChild
+                                   let! hardWork =                                                              
+                                        async 
+                                            {
+                                                return 
+                                                    stateReducerCmd1
+                                                    <| path
+                                                    <| fun _ -> ()
+                                                    <| fun _ -> ()
+                                                    <| reportProgress
+                                            }
+                                        |> Async.StartChild
 
-                         let! result = hardWork 
-                         do! Async.Sleep 1000
-
-                         dispatch (WorkIsComplete result)
+                                   let! result = hardWork 
+                                   do! Async.Sleep 1000
+                                   dispatch (WorkIsComplete result)
+                         | None   -> 
+                                   dispatch (WorkIsComplete noNetConn)
                      }  
 
              let delayedCmd2 (dispatch : Msg -> unit) : Async<unit> =  
+
                  async 
-                     {
-                         let reportProgress (progressValue, totalProgress) =
-                             dispatch (UpdateStatus (progressValue, totalProgress))  
+                     {   
+                         match checkNetConn 500 with
+                         | Some _ -> 
+                                   let reportProgress (progressValue, totalProgress) =
+                                       dispatch (UpdateStatus (progressValue, totalProgress))  
 
-                         let! hardWork =                             
-                             async 
-                                 {   
-                                     return
-                                         stateReducerCmd2
-                                         <| path
-                                         <| fun message -> dispatch (WorkIsComplete message)
-                                         <| fun message -> dispatch (IterationMessage message) 
-                                         <| reportProgress            
-                                 }
-                             |> Async.StartChild 
+                                   let! hardWork =                             
+                                       async 
+                                           {   
+                                               return
+                                                   stateReducerCmd2
+                                                   <| path
+                                                   <| fun message -> dispatch (WorkIsComplete message)
+                                                   <| fun message -> dispatch (IterationMessage message) 
+                                                   <| reportProgress            
+                                           }
+                                       |> Async.StartChild 
                                
-                         let! result = hardWork 
-                         do! Async.Sleep 1000
+                                   let! result = hardWork 
+                                   do! Async.Sleep 1000
 
-                         dispatch (WorkIsComplete result)
+                                   dispatch (WorkIsComplete result)
+                         | None   -> 
+                                   dispatch (WorkIsComplete noNetConn)   
                      }     
                      
              let executeSequentially (dispatch : Msg -> unit) =
+
                  async 
                      {
                          do! delayedCmd1 dispatch 
@@ -154,33 +174,39 @@ module App =
                      KodisEnabled = false
                      DpoEnabled = false
                      MdpoEnabled = false
-             }, Cmd.ofSub executeSequentially        
+             }, 
+             Cmd.ofSub executeSequentially        
           
         | Dpo 
             -> 
              let path = dpoPathTemp
                  
              let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
+
                  async
                      {
-                         let reportProgress (progressValue, totalProgress) =
-                             dispatch (UpdateStatus (progressValue, totalProgress)) 
+                         match checkNetConn 500 with
+                         | Some _ -> 
+                                   let reportProgress (progressValue, totalProgress) =
+                                       dispatch (UpdateStatus (progressValue, totalProgress)) 
                                 
-                         let! hardWork =                            
-                             async 
-                                 {
-                                     match webscraping_DPO reportProgress path with
-                                     | Ok _      -> return mauiDpoMsg 
-                                     | Error err -> return err
-                                 }
-                             |> Async.StartChild 
+                                   let! hardWork =                            
+                                       async 
+                                           {
+                                               match webscraping_DPO reportProgress path with
+                                               | Ok _      -> return mauiDpoMsg 
+                                               | Error err -> return err
+                                           }
+                                       |> Async.StartChild 
                                
-                         let! result = hardWork 
-                         do! Async.Sleep 1000
+                                   let! result = hardWork 
+                                   do! Async.Sleep 1000
 
-                         dispatch (WorkIsComplete result)
-                     }   
-                    
+                                   dispatch (WorkIsComplete result)
+                         | None   -> 
+                                   dispatch (WorkIsComplete noNetConn)
+                     }  
+                     
              let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
 
              { 
@@ -190,32 +216,38 @@ module App =
                      KodisEnabled = false
                      DpoEnabled = false
                      MdpoEnabled = false
-             }, Cmd.ofSub execute     
+             },
+             Cmd.ofSub execute     
 
         | Mdpo 
             -> 
              let path = mdpoPathTemp
-             
+            
              let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
+
                  async
                      {
-                         let reportProgress (progressValue, totalProgress) =
-                             dispatch (UpdateStatus (progressValue, totalProgress)) 
-                                    
-                         let! hardWork = 
-                             async 
-                                 {
-                                     match webscraping_MDPO reportProgress path with
-                                     | Ok _      -> return mauiMdpoMsg 
-                                     | Error err -> return err
-                                 } 
-                             |> Async.StartChild 
+                         match checkNetConn 500 with
+                         | Some _ -> 
+                                   let reportProgress (progressValue, totalProgress) =
+                                       dispatch (UpdateStatus (progressValue, totalProgress)) 
                                 
-                         let! result = hardWork 
-                         do! Async.Sleep 1000
+                                   let! hardWork =                            
+                                       async 
+                                           {
+                                               match webscraping_MDPO reportProgress path with
+                                               | Ok _      -> return mauiMdpoMsg 
+                                               | Error err -> return err
+                                           }
+                                       |> Async.StartChild 
+                               
+                                   let! result = hardWork 
+                                   do! Async.Sleep 1000
 
-                         dispatch (WorkIsComplete result)
-                     }   
+                                   dispatch (WorkIsComplete result)
+                         | None   -> 
+                                   dispatch (WorkIsComplete noNetConn)
+                     }     
                         
              let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
 
@@ -226,7 +258,8 @@ module App =
                      KodisEnabled = false
                      DpoEnabled = false
                      MdpoEnabled = false
-             }, Cmd.ofSub execute                     
+             }, 
+             Cmd.ofSub execute                     
 
     let view (m : Model) =
 

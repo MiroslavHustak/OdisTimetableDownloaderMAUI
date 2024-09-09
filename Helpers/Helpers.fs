@@ -12,6 +12,7 @@ module MyString =
                   
 module CheckNetConnection =  
 
+    open FSharp.Control
     open System.Net.NetworkInformation
 
     //*****************************************
@@ -30,13 +31,28 @@ module CheckNetConnection =
      
             myPing.Send(host, timeout, buffer, pingOptions)
             |> (Option.ofNull >> Option.bind 
-                    (fun pingReply -> 
-                                    Option.fromBool
-                                        (pingReply |> ignore) 
-                                        ((=) pingReply.Status IPStatus.Success)                                           
+                    (fun pingReply
+                        -> 
+                         Option.fromBool
+                             (pingReply |> ignore) 
+                                 ((=) pingReply.Status IPStatus.Success)                                           
                     )
                ) 
         with
         | ex ->
               string ex.Message |> ignore    //TODO logfile
               None   
+
+    let internal startNetChecking () =  
+
+        AsyncSeq.initInfinite (fun _ -> NetworkInterface.GetIsNetworkAvailable())
+        |> AsyncSeq.takeWhile ((=) false) 
+        |> AsyncSeq.iterAsync
+            (fun _ ->
+                    async
+                        {                
+                            //TODO
+                            do! Async.Sleep(3000)                            
+                        }
+            )   
+        |> Async.StartImmediate    
