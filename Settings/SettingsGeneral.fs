@@ -60,3 +60,7 @@ module SettingsGeneral =
 
     //let internal mdpoPathTemp = @"c:\Users\User\Data\"
     let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables/"
+
+    //let internal connectionCheckSwitch = "Windows Machine"
+    let internal connectionCheckSwitch = "Android 7.1" 
+        

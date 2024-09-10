@@ -12,47 +12,20 @@ module MyString =
                   
 module CheckNetConnection =  
 
-    open FSharp.Control
+    open Microsoft.Maui.Networking
     open System.Net.NetworkInformation
 
-    //*****************************************
+    //**************************************
+
+    open Settings.SettingsGeneral
     
-    open Helpers
-      
-    let internal checkNetConn (timeout : int) =                 
-       
-        try
-            use myPing = new Ping()      
-                
-            let host : string = "8.8.4.4" //IP google.com
-            let buffer : byte[] = Array.zeroCreate <| 32
-            
-            let pingOptions: PingOptions = new PingOptions()                
-     
-            myPing.Send(host, timeout, buffer, pingOptions)
-            |> (Option.ofNull >> Option.bind 
-                    (fun pingReply
-                        -> 
-                         Option.fromBool
-                             (pingReply |> ignore) 
-                                 ((=) pingReply.Status IPStatus.Success)                                           
-                    )
-               ) 
-        with
-        | ex ->
-              string ex.Message |> ignore    //TODO logfile
-              None   
+    let internal checkInternetConnectivity () =
 
-    let internal startNetChecking () =  
-
-        AsyncSeq.initInfinite (fun _ -> NetworkInterface.GetIsNetworkAvailable())
-        |> AsyncSeq.takeWhile ((=) false) 
-        |> AsyncSeq.iterAsync
-            (fun _ ->
-                    async
-                        {                
-                            //TODO
-                            do! Async.Sleep(3000)                            
-                        }
-            )   
-        |> Async.StartImmediate    
+        match connectionCheckSwitch with
+        | "Windows Machine" -> 
+                             NetworkInterface.GetIsNetworkAvailable () |> Option.ofBool 
+        //"Android 7.1"  
+        | _                 -> 
+                             match Connectivity.NetworkAccess with
+                             | NetworkAccess.Internet -> Some ()
+                             | _                      -> None

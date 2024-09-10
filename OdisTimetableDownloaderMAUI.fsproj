@@ -143,6 +143,7 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.61" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.61" />
+    <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.82" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
