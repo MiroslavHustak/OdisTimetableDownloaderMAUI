@@ -292,7 +292,8 @@ module KODIS_SubmainRecords =
                 match matchResult.Success with
                 | true  -> Ok input 
                 | false -> Ok String.Empty 
-            with ex -> Error <| string ex.Message                  
+            with 
+            | ex -> Error <| string ex.Message                  
                   
             |> function
                 | Ok value  -> 
@@ -311,7 +312,8 @@ module KODIS_SubmainRecords =
                 match matchResult.Success with
                 | true  -> Ok matchResult.Value
                 | false -> Ok String.Empty
-            with ex -> Error <| string ex.Message                 
+            with 
+            | ex -> Error <| string ex.Message                    
 
             |> function
                 | Ok value  -> 
@@ -406,7 +408,8 @@ module KODIS_SubmainRecords =
                     |> Array.toList
                     |> List.item 1 
                     |> Ok
-                with ex -> Error <| string ex.Message
+                with 
+                | ex -> Error <| string ex.Message     
                          
                 |> function
                     | Ok value  -> 

@@ -104,57 +104,58 @@ module App =
 
                  async
                      {
-                         match checkNetConn 500 with
-                         | Some _ -> 
-                                   let reportProgress (progressValue, totalProgress) =
-                                       dispatch (UpdateStatus (progressValue, totalProgress)) 
+                         match NetworkInterface.GetIsNetworkAvailable() with
+                         | true  -> 
+                                  let reportProgress (progressValue, totalProgress) =
+                                      dispatch (UpdateStatus (progressValue, totalProgress)) 
                              
-                                   let! hardWork =                                                              
-                                        async 
-                                            {
-                                                return 
-                                                    stateReducerCmd1
-                                                    <| path
-                                                    <| fun _ -> ()
-                                                    <| fun _ -> ()
-                                                    <| reportProgress
-                                            }
-                                        |> Async.StartChild
+                                  let! hardWork =                                                              
+                                       async 
+                                           {
+                                               return 
+                                                   stateReducerCmd1
+                                                   <| path
+                                                   <| fun _ -> ()
+                                                   <| fun _ -> ()
+                                                   <| reportProgress
+                                           }
+                                       |> Async.StartChild
 
-                                   let! result = hardWork 
-                                   do! Async.Sleep 1000
-                                   dispatch (WorkIsComplete result)
-                         | None   -> 
-                                   dispatch (WorkIsComplete noNetConn)
+                                  let! result = hardWork 
+                                  do! Async.Sleep 1000
+                                  
+                                  dispatch (WorkIsComplete result)
+                         | false -> 
+                                  dispatch (WorkIsComplete noNetConn)
                      }  
 
              let delayedCmd2 (dispatch : Msg -> unit) : Async<unit> =  
 
                  async 
                      {   
-                         match checkNetConn 500 with
-                         | Some _ -> 
-                                   let reportProgress (progressValue, totalProgress) =
-                                       dispatch (UpdateStatus (progressValue, totalProgress))  
+                         match NetworkInterface.GetIsNetworkAvailable() with
+                         | true  -> 
+                                  let reportProgress (progressValue, totalProgress) =
+                                      dispatch (UpdateStatus (progressValue, totalProgress))  
 
-                                   let! hardWork =                             
-                                       async 
-                                           {   
-                                               return
-                                                   stateReducerCmd2
-                                                   <| path
-                                                   <| fun message -> dispatch (WorkIsComplete message)
-                                                   <| fun message -> dispatch (IterationMessage message) 
-                                                   <| reportProgress            
-                                           }
-                                       |> Async.StartChild 
+                                  let! hardWork =                             
+                                      async 
+                                          {   
+                                              return
+                                                  stateReducerCmd2
+                                                  <| path
+                                                  <| fun message -> dispatch (WorkIsComplete message)
+                                                  <| fun message -> dispatch (IterationMessage message) 
+                                                  <| reportProgress            
+                                          }
+                                      |> Async.StartChild 
                                
-                                   let! result = hardWork 
-                                   do! Async.Sleep 1000
+                                  let! result = hardWork 
+                                  do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete result)
-                         | None   -> 
-                                   dispatch (WorkIsComplete noNetConn)   
+                                  dispatch (WorkIsComplete result)
+                         | false -> 
+                                  dispatch (WorkIsComplete noNetConn)   
                      }     
                      
              let executeSequentially (dispatch : Msg -> unit) =
@@ -185,26 +186,26 @@ module App =
 
                  async
                      {
-                         match checkNetConn 500 with
-                         | Some _ -> 
-                                   let reportProgress (progressValue, totalProgress) =
-                                       dispatch (UpdateStatus (progressValue, totalProgress)) 
+                         match NetworkInterface.GetIsNetworkAvailable() with
+                         | true  -> 
+                                  let reportProgress (progressValue, totalProgress) =
+                                      dispatch (UpdateStatus (progressValue, totalProgress)) 
                                 
-                                   let! hardWork =                            
-                                       async 
-                                           {
-                                               match webscraping_DPO reportProgress path with
-                                               | Ok _      -> return mauiDpoMsg 
-                                               | Error err -> return err
-                                           }
-                                       |> Async.StartChild 
+                                  let! hardWork =                            
+                                      async 
+                                          {
+                                              match webscraping_DPO reportProgress path with
+                                              | Ok _      -> return mauiDpoMsg 
+                                              | Error err -> return err
+                                          }
+                                      |> Async.StartChild 
                                
-                                   let! result = hardWork 
-                                   do! Async.Sleep 1000
+                                  let! result = hardWork 
+                                  do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete result)
-                         | None   -> 
-                                   dispatch (WorkIsComplete noNetConn)
+                                  dispatch (WorkIsComplete result)
+                         | false -> 
+                                  dispatch (WorkIsComplete noNetConn)
                      }  
                      
              let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
@@ -227,26 +228,26 @@ module App =
 
                  async
                      {
-                         match checkNetConn 500 with
-                         | Some _ -> 
-                                   let reportProgress (progressValue, totalProgress) =
-                                       dispatch (UpdateStatus (progressValue, totalProgress)) 
+                         match NetworkInterface.GetIsNetworkAvailable() with
+                         | true  -> 
+                                  let reportProgress (progressValue, totalProgress) =
+                                      dispatch (UpdateStatus (progressValue, totalProgress)) 
                                 
-                                   let! hardWork =                            
-                                       async 
-                                           {
-                                               match webscraping_MDPO reportProgress path with
-                                               | Ok _      -> return mauiMdpoMsg 
-                                               | Error err -> return err
-                                           }
-                                       |> Async.StartChild 
+                                  let! hardWork =                            
+                                      async 
+                                          {
+                                              match webscraping_MDPO reportProgress path with
+                                              | Ok _      -> return mauiMdpoMsg 
+                                              | Error err -> return err
+                                          }
+                                      |> Async.StartChild 
                                
-                                   let! result = hardWork 
-                                   do! Async.Sleep 1000
+                                  let! result = hardWork 
+                                  do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete result)
-                         | None   -> 
-                                   dispatch (WorkIsComplete noNetConn)
+                                  dispatch (WorkIsComplete result)
+                         | false -> 
+                                  dispatch (WorkIsComplete noNetConn)
                      }     
                         
              let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
