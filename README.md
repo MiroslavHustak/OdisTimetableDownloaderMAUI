@@ -1,4 +1,4 @@
-Bulk downloader of ODIS timetables (preliminary code for a Android app, about 2,500 LoC)
+Bulk downloader of ODIS timetables (preliminary code for an Android app, about 2,500 LoC)
 
 Nenašel by se někdo, kdo se alespoň trochu vyzná v UI/UX/FE mobilních aplikací (nejlépe .NET MAUI nebo Avalonia), je zároveň fanda do veřejné dopravy (aby měl motivaci pro daný projekt), chce si vyzkoušet funkcionální programování (a zjistit, že je nesrovnatelně lepší, radostnější a minimálně o 30 % ziskovější, než OOP) a chtěl by se podílet na malém bezplatném projektu ve Fabulous (fabulous.dev)?
 
