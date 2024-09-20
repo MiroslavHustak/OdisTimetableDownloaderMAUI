@@ -148,10 +148,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="KODISJson2\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\EmbeddedTP\EmbeddedTP.fsproj" />
   </ItemGroup>
 

@@ -68,13 +68,14 @@ module WebScraping_KODISFMRecord =
             -> 
              //Http request and IO operation (data from settings -> http request -> IO operation -> saving json files on HD)
              let downloadAndSaveJson reportProgress = 
+
                  let errFn err =  
                      match err with
                      | JsonDownloadError -> jsonDownloadError
                     
                  try
-                     environment.DownloadAndSaveJson (jsonLinkList @ jsonLinkList2) (pathToJsonList @ pathToJsonList2) reportProgress
-                     //environment.downloadAndSaveJson jsonLinkList2 pathToJsonList2 reportProgress
+                     //environment.DownloadAndSaveJson (jsonLinkList @ jsonLinkList3) (pathToJsonList @ pathToJsonList3) reportProgress
+                     environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 reportProgress
                      |> Ok
                  with
                  | ex ->

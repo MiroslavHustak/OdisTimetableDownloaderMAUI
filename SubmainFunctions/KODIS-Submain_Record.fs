@@ -38,6 +38,22 @@ module KODIS_SubmainRecords =
     // DO NOT DIVIDE this module into parts in line with the main design yet - KODIS keeps making unpredictable changes or amendments
     // LEAVE THE COMMENTED CODE AS IT IS !!! DO NOT DELETE IT !!! IT IS THERE FOR A REASON.
 
+    //*************************Helpers************************************************************
+
+    let private readAllText pathToJson = 
+
+       pyramidOfDoom
+           {
+               let filepath = Path.GetFullPath(pathToJson) //pathToJson pod kontrolou, filepath nebude null
+                                           
+               let fInfoDat = new FileInfo(pathToJson)
+               let! _ = fInfoDat.Exists |> Option.ofBool, String.Empty
+
+               return File.ReadAllText(pathToJson) //pathToJson pod kontrolou, fs nebude null                                            
+           }    
+
+    let private tempJson1 = readAllText pathkodisMHDTotal
+    let private tempJson2 = readAllText pathkodisMHDTotal2_0
 
     //************************Main code***********************************************************
                 
@@ -103,21 +119,13 @@ module KODIS_SubmainRecords =
                         |> Seq.ofList 
                         |> Seq.collect 
                             (fun pathToJson 
-                                ->   
-                                 let json = 
-                                     pyramidOfDoom
-                                         {
-                                             let filepath = Path.GetFullPath(pathToJson) //pathToJson pod kontrolou, filepath nebude null
-                                                
-                                             let fInfoDat = new FileInfo(pathToJson)
-                                             let! _ = fInfoDat.Exists |> Option.ofBool, String.Empty
-                                     
-                                             let fs = File.ReadAllText(pathToJson) //pathToJson pod kontrolou, fs nebude null
-                                            
-                                             return fs
-                                         }   
-                                         
-                                 JsonProvider1.Parse(json) 
+                                ->                                   
+                                 try
+                                     let json = readAllText pathToJson
+                                     JsonProvider1.Parse(json) 
+                                 with 
+                                 | _ -> JsonProvider1.Parse(tempJson1)         
+                                 
                                  |> Option.ofNull  
                                  |> function 
                                      | Some value -> value |> Seq.map _.Timetable                                                
@@ -125,35 +133,27 @@ module KODIS_SubmainRecords =
                             )                    
                 }
             
-        let kodisTimetables2 : Reader<string list, string seq> = 
+        let kodisTimetables3 : Reader<string list, string seq> = 
 
             reader //Reader monad for educational purposes only, no real benefit here  
                 {
-                    let! pathToJsonList2 = fun env -> env 
+                    let! pathToJsonList3 = fun env -> env 
 
                     return 
-                        pathToJsonList2 
+                        pathToJsonList3 
                         |> Seq.ofList 
                         |> Seq.collect 
                             (fun pathToJson 
-                                ->                                       
-                                 let json = //tady nelze Result.sequence 
-                                     pyramidOfDoom
-                                         {
-                                             let filepath = Path.GetFullPath(pathToJson) //pathToJson pod kontrolou, filepath nebude null
-                                             
-                                             let fInfoDat = new FileInfo(pathToJson)
-                                             let! _ = fInfoDat.Exists |> Option.ofBool, String.Empty
-                                     
-                                             let fs = File.ReadAllText(pathToJson) //pathToJson pod kontrolou, fs nebude null                                       
-                                                                                                  
-                                             return fs
-                                         }    
-
-                                 let kodisJsonSamples = JsonProvider2.Parse(json) |> Option.ofNull
+                                ->    
+                                 let kodisJsonSamples =                                     
+                                     try   
+                                         let json = readAllText pathToJson //tady nelze Result.sequence 
+                                         JsonProvider2.Parse(json)
+                                     with 
+                                     | _ -> JsonProvider2.Parse(tempJson2) 
                                  
                                  let timetables = 
-                                     kodisJsonSamples 
+                                     kodisJsonSamples |> Option.ofNull
                                      |> function 
                                          | Some value -> 
                                                        value.Data
@@ -162,7 +162,7 @@ module KODIS_SubmainRecords =
                                                        Seq.empty  //TODO logfile
                                  
                                  let vyluky = 
-                                     kodisJsonSamples 
+                                     kodisJsonSamples |> Option.ofNull
                                      |> function 
                                         | Some value -> 
                                                       value.Data 
@@ -221,22 +221,15 @@ module KODIS_SubmainRecords =
                                              | Some value -> value |> Seq.collect fn2 
                                              | None       -> Seq.empty  //TODO logfile     
 
-                                     let json = //tady nelze Result.sequence 
-                                         pyramidOfDoom
-                                             {
-                                                 let filepath = Path.GetFullPath(pathToJson) //pathToJson pod kontrolou, filepath nebude null
-                                                 
-                                                 let fInfoDat = new FileInfo(pathToJson)
-                                                 let! _ = fInfoDat.Exists |> Option.ofBool, String.Empty
-                                     
-                                                 let fs = File.ReadAllText(pathToJson) //pathToJson pod kontrolou, fs nebude null
-
-                                                 return fs
-                                             }    
-                                                          
-                                     let kodisJsonSamples = JsonProvider1.Parse(json) |> Option.ofNull  
+                                     let kodisJsonSamples = 
+                                         try
+                                             let json = readAllText pathToJson //tady nelze Result.sequence 
+                                             JsonProvider1.Parse(json) 
+                                         with
+                                         | _ -> JsonProvider1.Parse(tempJson1)                                    
                                                           
                                      kodisJsonSamples 
+                                     |> Option.ofNull
                                      |> function 
                                          | Some value -> value |> Seq.collect fn3 
                                          | None       -> Seq.empty   //TODO logfile                                 
@@ -251,31 +244,14 @@ module KODIS_SubmainRecords =
                 @"https://kodis-files.s3.eu-central-1.amazonaws.com/46_B_2024_07_01_2024_09_01_b5f542c755.pdf"
             ]
             |> List.toSeq   
-                  
-        let taskAllJsonListsParallel () = //TODO nekdy overit rychlost
-            try 
-                [
-                    async { return kodisAttachments pathToJsonList }
-                    async { return kodisTimetables pathToJsonList }
-                    async { return kodisTimetables2 pathToJsonList2 }
-                ]         
-                |> Async.Parallel 
-                |> Async.Catch
-                |> Async.RunSynchronously
-                |> Result.ofChoice
-                |> function
-                    | Ok value ->
-                                let task = value |> Seq.ofArray |> Seq.concat
-                                (Seq.append <| task <| addOn()) |> Seq.distinct |> Ok
-                    | Error ex ->
-                                string ex.Message |> ignore  //TODO logfile
-                                Error JsonFilteringError  
-            with
-            | ex ->  
-                  string ex.Message |> ignore  //TODO logfile
-                  Error JsonFilteringError   
-
-        taskAllJsonListsParallel ()
+      
+        try 
+            let task = kodisTimetables3 pathToJsonList3 
+            (Seq.append <| task <| addOn()) |> Seq.distinct |> Ok               
+        with
+        | ex ->  
+              string ex.Message |> ignore  //TODO logfile
+              Error JsonFilteringError          
     
     //input from array -> change of input data -> output into datatable -> filtering data from datable -> links*paths     
     let private filterTimetables () param (pathToDir : string) (diggingResult : Result<string seq, PdfDownloadErrors>) = 

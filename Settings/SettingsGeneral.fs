@@ -49,18 +49,17 @@ module SettingsGeneral =
             connErrorCodeDefault.CofeeMakerUnavailable 
         ]   
 
-    //let internal partialPathJsonTemp = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
-    let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"
+    let internal partialPathJsonTemp = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
+    //let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"
     
-    //let internal kodisPathTemp = @"c:\Users\User\Data\"
-    let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
+    let internal kodisPathTemp = @"c:\Users\User\Data\"
+    //let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
 
-    //let internal dpoPathTemp = @"c:\Users\User\Data\"
-    let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables/"
+    let internal dpoPathTemp = @"c:\Users\User\Data\"
+    //let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables/"
 
-    //let internal mdpoPathTemp = @"c:\Users\User\Data\"
-    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables/"
+    let internal mdpoPathTemp = @"c:\Users\User\Data\"
+    //let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables/"
 
-    //let internal connectionCheckSwitch = "Windows Machine"
-    let internal connectionCheckSwitch = "Android 7.1" 
-        
+    let internal connectionCheckSwitch = "Windows Machine"
+    //let internal connectionCheckSwitch = "Android 7.1" 
