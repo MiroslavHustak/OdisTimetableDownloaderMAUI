@@ -775,13 +775,12 @@ module KODIS_SubmainRecords =
 
         //operation on data
         //input from saved json files -> change of input data -> output into array >> input from array -> change of input data -> output into datatable -> data filtering (links*paths) 
-        try 
-              
+        try               
             digThroughJsonStructure >> filterTimetables () variant dir <| () 
         with
-            ex ->
-                string ex.Message |> ignore //TODO logfile                 
-                Error DataFilteringError 
+        | ex ->
+              string ex.Message |> ignore //TODO logfile                 
+              Error DataFilteringError 
                     
     let internal downloadAndSave = 
         
