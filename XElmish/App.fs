@@ -48,7 +48,7 @@ module App =
         | Dpo
         | Mdpo
         | UpdateStatus of progress : float * float
-        | WorkIsComplete of string 
+        | WorkIsComplete of msgAndEnabled : string * bool 
         | IterationMessage of string      
 
     let init () =
@@ -79,16 +79,16 @@ module App =
              }, 
              Cmd.none
 
-        | WorkIsComplete result 
+        | WorkIsComplete (result, enabled)
             ->
              {
                 m with 
                     ProgressMsg = result
                     ProgressIndicator = Idle
                     Progress = 0.0
-                    KodisEnabled = true
-                    DpoEnabled = true
-                    MdpoEnabled = true 
+                    KodisEnabled = enabled
+                    DpoEnabled = enabled
+                    MdpoEnabled = enabled 
              }, 
              Cmd.none
 
@@ -124,9 +124,9 @@ module App =
                                    let! result = hardWork 
                                    do! Async.Sleep 1000
                                   
-                                   dispatch (WorkIsComplete result)
+                                   dispatch (WorkIsComplete (result, false))
                          | None   -> 
-                                   dispatch (WorkIsComplete noNetConn)
+                                   dispatch (WorkIsComplete (noNetConn, true))
                      }  
 
              let delayedCmd2 (dispatch : Msg -> unit) : Async<unit> =  
@@ -144,7 +144,7 @@ module App =
                                                return
                                                    stateReducerCmd2
                                                    <| path
-                                                   <| fun message -> dispatch (WorkIsComplete message)
+                                                   <| fun message -> dispatch (WorkIsComplete (message, false))
                                                    <| fun message -> dispatch (IterationMessage message) 
                                                    <| reportProgress            
                                            }
@@ -153,9 +153,9 @@ module App =
                                    let! result = hardWork 
                                    do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete result)
+                                   dispatch (WorkIsComplete (result, true))
                          | None   -> 
-                                   dispatch (WorkIsComplete noNetConn)   
+                                   dispatch (WorkIsComplete (noNetConn, true))   
                      }     
                      
              let executeSequentially (dispatch : Msg -> unit) =
@@ -203,9 +203,9 @@ module App =
                                    let! result = hardWork 
                                    do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete result)
+                                   dispatch (WorkIsComplete (result, true))
                          | None   -> 
-                                   dispatch (WorkIsComplete noNetConn)
+                                   dispatch (WorkIsComplete (noNetConn, true))
                      }  
                      
              let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
@@ -245,9 +245,9 @@ module App =
                                    let! result = hardWork 
                                    do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete result)
+                                   dispatch (WorkIsComplete (result, true))
                          | None   -> 
-                                   dispatch (WorkIsComplete noNetConn)
+                                   dispatch (WorkIsComplete (noNetConn, true))
                      }     
                         
              let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
