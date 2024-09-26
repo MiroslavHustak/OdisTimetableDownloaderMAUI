@@ -64,7 +64,7 @@ module DPO_Submain =
                                             let linkToPdf = sprintf"%s%s" pathDpoWeb item2  //https://www.dpo.cz // /jr/2023-04-01/024.pdf 
 
                                             let adaptedLineName =
-                                                let s (item2: string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
+                                                let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
                                                 let rec x s =                                                                            
                                                     match (getLastThreeCharacters s).Contains("?") with
                                                     | true  -> x (sprintf "%s%s" s "_")                                                                             
@@ -72,7 +72,7 @@ module DPO_Submain =
                                                 (x << s) item2
                                         
                                             let lineName = 
-                                                let s adaptedLineName = sprintf"%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
+                                                let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
                                                 let s1 s = removeLastFourCharacters s 
                                                 sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
                                             
