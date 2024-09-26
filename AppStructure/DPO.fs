@@ -80,8 +80,7 @@ module WebScraping_DPO =
 
             | FilterDownloadSave     ->                                      
                                       try     
-                                          let pathToSubdir = dirList pathToDir |> List.head    
-
+                                          let pathToSubdir = dirList pathToDir |> List.tryHead |> function Some value -> value | None -> String.Empty
                                           match pathToSubdir |> Directory.Exists with 
                                           | false ->
                                                    Error String.Empty                              

@@ -14,7 +14,7 @@ module SortRecordData =
        
     let internal sortLinksOut (dataToBeFiltered : RcData list) validity = 
                
-        try            
+        try //musi byt quli Seq.head           
             try          
                 let condition dateValidityStart dateValidityEnd currentTime (fileToBeSaved : string) = 
 
@@ -68,7 +68,8 @@ module SortRecordData =
                     | FutureValidity ->  
                                       dataToBeFiltered                                                                           
                                       |> Seq.groupBy (fun row -> row.PartialLinkRc)
-                                      |> Seq.map (fun (partialLink, group) -> group |> Seq.head)
+                                      |> Seq.map (fun (partialLink, group) -> group |> Seq.tryHead)
+                                      |> Seq.choose id
                                       |> Seq.filter
                                           (fun row ->
                                                     let startDate = 
@@ -95,7 +96,8 @@ module SortRecordData =
                     | _              -> 
                                       dataToBeFiltered  
                                       |> Seq.groupBy (fun row -> row.PartialLinkRc)
-                                      |> Seq.map (fun (partialLink, group) -> group |> Seq.head)
+                                      |> Seq.map (fun (partialLink, group) -> group |> Seq.tryHead)
+                                      |> Seq.choose id
                                       |> Seq.filter
                                           (fun row ->
                                                     let startDate = 
@@ -116,8 +118,8 @@ module SortRecordData =
                                           (fun (newPrefix, group)
                                               ->
                                                newPrefix, 
-                                               group |> Seq.head
-                                          )
+                                               group |> Seq.head //nejde tryHead quli tuple                                             
+                                          )                                      
                                       |> Seq.map
                                           (fun (newPrefix, row) 
                                               ->
