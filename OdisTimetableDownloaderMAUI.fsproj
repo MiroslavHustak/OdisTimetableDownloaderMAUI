@@ -71,11 +71,11 @@
     <Compile Include="DataModelling\TransformationLayers.fs" />
     <Compile Include="DataManipulation\SortRecordData.fs" />
     <Compile Include="SubmainFunctions\DPO-Submain.fs" />
-    <Compile Include="SubmainFunctions\KODIS-Submain_Record.fs" />
     <Compile Include="SubmainFunctions\MDPO-Submain.fs" />
+    <Compile Include="SubmainFunctions\KODIS-Submain_Record.fs" />
     <Compile Include="AppStructure\DPO.fs" />
-    <Compile Include="AppStructure\KODIS_Record.fs" />
     <Compile Include="AppStructure\MDPO.fs" />
+    <Compile Include="AppStructure\KODIS_Record.fs" />
     <Compile Include="XElmish\ProgressCircle.fs" />
     <Compile Include="XElmish\App.fs" />
     <Compile Include="MauiProgram.fs" />
