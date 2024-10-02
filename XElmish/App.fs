@@ -104,6 +104,7 @@ module App =
 
                  async
                      {
+                         //async tady ignoruje async code obsahujici Request.sendAsync request/result (FsHttp)
                          match checkInternetConnectivity () with
                          | Some _ -> 
                                    let reportProgress (progressValue, totalProgress) =

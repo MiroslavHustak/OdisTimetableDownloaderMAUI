@@ -56,7 +56,7 @@ module KODIS_SubmainRecords =
     let private tempJson2 = readAllText pathkodisMHDTotal2_0
 
     //************************Main code***********************************************************
-                
+                        
     //data from settings -> http request -> IO operation -> saving json files on HD 
     let internal downloadAndSaveJson jsonLinkList pathToJsonList reportProgress = //FsHttp
                

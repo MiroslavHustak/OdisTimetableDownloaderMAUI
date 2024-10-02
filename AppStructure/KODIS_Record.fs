@@ -16,7 +16,7 @@ open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
-
+//Vzhledem k pouziti Elmishe se jeho MVU zda byti dostatecnym a dalsi pokus o design je zbytecny, nicmene hodi se to pro dekonstrukci Result type
 module WebScraping_KODISFMRecord = 
 
     type private State =  
