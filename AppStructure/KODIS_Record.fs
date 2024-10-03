@@ -74,7 +74,7 @@ module WebScraping_KODISFMRecord =
                      | JsonDownloadError -> jsonDownloadError
                     
                  try
-                     //environment.DownloadAndSaveJson (jsonLinkList @ jsonLinkList3) (pathToJsonList @ pathToJsonList3) reportProgress
+                     //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
                      environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 reportProgress
                      |> Ok
                  with
