@@ -367,7 +367,8 @@ module KODIS_SubmainRecords =
                     |> splitString
                     |> List.item 1
                     |> Ok
-                with ex -> Error <| string ex.Message
+                with 
+                | ex -> Error <| string ex.Message
                      
                 |> function
                     | Ok value  -> 
