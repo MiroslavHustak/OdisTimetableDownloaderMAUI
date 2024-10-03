@@ -99,6 +99,15 @@ module App =
         | Kodis 
             -> 
              let path = kodisPathTemp
+
+             let delayedCmd0 (dispatch : Msg -> unit) : Async<unit> =
+
+                 async
+                     {       
+                         let! result = SubmainFunctions.KODIS_SubmainRecords.downloadAndSaveJsonTest ()  
+                         do! Async.Sleep 1000                                  
+                         dispatch (WorkIsComplete (result, false))                         
+                     }  
                  
              let delayedCmd1 (dispatch : Msg -> unit) : Async<unit> =
 
@@ -163,6 +172,7 @@ module App =
 
                  async 
                      {
+                         //do! delayedCmd0 dispatch 
                          do! delayedCmd1 dispatch 
                          do! Async.Sleep 2000
                          do! delayedCmd2 dispatch 

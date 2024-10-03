@@ -56,7 +56,21 @@ module KODIS_SubmainRecords =
     let private tempJson2 = readAllText pathkodisMHDTotal2_0
 
     //************************Main code***********************************************************
-                        
+
+    //For testing purposes
+    let internal downloadAndSaveJsonTest () =   
+        
+        let pathKodisWeb9 = @"https://kodis-backend-staging-85d01eccf627.herokuapp.com/api/linky-search?"           
+        let jsonLink9 = sprintf "%s%s" pathKodisWeb9 "groups%5B0%5D=MHD%20Brunt%C3%A1l&groups%5B1%5D=MHD%20%C4%8Cesk%C3%BD%20T%C4%9B%C5%A1%C3%ADn&groups%5B2%5D=MHD%20Fr%C3%BDdek-M%C3%ADstek&groups%5B3%5D=MHD%20Hav%C3%AD%C5%99ov&groups%5B4%5D=MHD%20Karvin%C3%A1&groups%5B5%5D=MHD%20Krnov&groups%5B6%5D=MHD%20Nov%C3%BD%20Ji%C4%8D%C3%ADn&groups%5B7%5D=MHD%20Opava&groups%5B8%5D=MHD%20Orlov%C3%A1&groups%5B9%5D=MHD%20Ostrava&groups%5B10%5D=MHD%20Stud%C3%A9nka&groups%5B11%5D=MHD%20T%C5%99inec&groups%5B12%5D=NAD%20MHD&start=0&limit=12"       
+                
+        async
+            {    
+                use! response = get >> Request.sendAsync <| jsonLink9 
+                do! (>>) response.SaveFileAsync Async.AwaitTask <| @"e:\FabulousMAUI\test.json"    
+
+                return "Test"
+            }    
+   
     //data from settings -> http request -> IO operation -> saving json files on HD 
     let internal downloadAndSaveJson jsonLinkList pathToJsonList reportProgress = //FsHttp
                
