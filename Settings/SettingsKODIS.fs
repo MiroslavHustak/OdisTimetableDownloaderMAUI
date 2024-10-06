@@ -13,11 +13,27 @@ module SettingsKODIS =
      
     let internal partialPathJson = partialPathJsonTemp //viz SeetingsGeneral
 
-    let internal summerHolidayEnd1 = DateTime(2024, 8, 31)
+    let internal summerHolidayEnd1 = DateTime (2024, 8, 31)
     let internal summerHolidayEnd2 = DateTime(2024, 9, 1)
 
     let internal currentTime = DateTime.Now.Date
     let internal dateTimeMinValue = DateTime.MinValue
+
+    type internal Context2 = 
+        {
+            summerHolidayEnd1 : DateTime
+            summerHolidayEnd2 : DateTime
+            currentTime : DateTime
+            dateTimeMinValue : DateTime     
+        }
+
+    let internal context2 =  
+        {
+            summerHolidayEnd1  = DateTime (2024, 8, 31)
+            summerHolidayEnd2 = DateTime(2024, 9, 1)
+            currentTime = DateTime.Now.Date
+            dateTimeMinValue = DateTime.MinValue  
+        }
 
     //let [<Literal>] internal pathKodisWeb = @"https://kodisweb-backend.herokuapp.com/"
     let [<Literal>] internal pathKodisWeb2 = @"https://kodis-backend-staging-85d01eccf627.herokuapp.com/api/linky-search?"

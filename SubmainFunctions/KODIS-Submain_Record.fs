@@ -575,9 +575,9 @@ module KODIS_SubmainRecords =
         | Ok dataToBeFiltered 
             -> 
              match param with 
-             | CurrentValidity           -> Records.SortRecordData.sortLinksOut dataToBeFiltered currentTime dateTimeMinValue CurrentValidity |> createPathsForDownloadedFiles |> Ok
-             | FutureValidity            -> Records.SortRecordData.sortLinksOut dataToBeFiltered currentTime dateTimeMinValue FutureValidity |> createPathsForDownloadedFiles |> Ok
-             | WithoutReplacementService -> Records.SortRecordData.sortLinksOut dataToBeFiltered currentTime dateTimeMinValue WithoutReplacementService |> createPathsForDownloadedFiles |> Ok    
+             | CurrentValidity           -> Records.SortRecordData.sortLinksOut dataToBeFiltered CurrentValidity |> createPathsForDownloadedFiles |> Ok
+             | FutureValidity            -> Records.SortRecordData.sortLinksOut dataToBeFiltered FutureValidity |> createPathsForDownloadedFiles |> Ok
+             | WithoutReplacementService -> Records.SortRecordData.sortLinksOut dataToBeFiltered WithoutReplacementService |> createPathsForDownloadedFiles |> Ok    
 
         | Error err 
             ->
