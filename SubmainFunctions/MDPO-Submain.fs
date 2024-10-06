@@ -37,14 +37,22 @@ module MDPO_Submain =
         urlList    
         |> Seq.collect 
             (fun url -> 
-                      let document = FSharp.Data.HtmlDocument.Load(url) //neni nullable, nesu exn
+                      let document = FSharp.Data.HtmlDocument.Load url //neni nullable, nesu exn
                       //HtmlDocument -> web scraping -> extracting data from HTML pages
                                                                                     
                       document.Descendants "a"                  
                       |> Seq.choose 
                           (fun htmlNode    ->
-                                            htmlNode.TryGetAttribute("href") //inner text zatim nepotrebuji, cisla linek mam resena jinak 
-                                            |> Option.map (fun a -> string <| htmlNode.InnerText(), string <| a.Value()) //priste to uz tak nerobit, u string zrob Option.ofStringObj, atd.                                            
+                                            htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
+                                            |> Option.bind
+                                                (fun attr -> 
+                                                           let nodes = htmlNode.InnerText() |> Option.ofNullEmpty
+                                                           let attr = attr.Value() |> Option.ofNullEmpty
+                                                        
+                                                           match nodes, attr with
+                                                           | Some nodes, Some attr -> Some (nodes, attr)
+                                                           | _                     -> None 
+                                                )                                                     
                           )      
                       |> Seq.filter 
                           (fun (_ , item2) -> 
@@ -73,7 +81,7 @@ module MDPO_Submain =
                             
                             pyramidOfDoom
                                 {
-                                    let!_ = not <| File.Exists(pathToFile) |> Option.ofBool, Error String.Empty
+                                    let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
                                     let! response = get >> Request.sendAsync <| uri |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
                                     return Ok response        

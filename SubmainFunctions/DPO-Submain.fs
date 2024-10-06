@@ -47,13 +47,21 @@ module DPO_Submain =
         urlList
         |> List.collect 
             (fun url -> 
-                      let document = FSharp.Data.HtmlDocument.Load(url) //neni nullable, nesu exn
+                      let document = FSharp.Data.HtmlDocument.Load url //neni nullable, nesu exn
                   
                       document.Descendants "a"
                       |> Seq.choose 
                           (fun htmlNode    ->
-                                            htmlNode.TryGetAttribute("href") //inner text zatim nepotrebuji, cisla linek mam resena jinak  
-                                            |> Option.map (fun a -> string <| htmlNode.InnerText(), string <| a.Value()) //priste to uz tak nerobit, u string zrob Option.ofNull, atd.                                         
+                                            htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
+                                            |> Option.bind
+                                                (fun attr -> 
+                                                           let nodes = htmlNode.InnerText() |> Option.ofNullEmpty
+                                                           let attr = attr.Value() |> Option.ofNullEmpty
+                                                        
+                                                           match nodes, attr with
+                                                           | Some nodes, Some attr -> Some (nodes, attr)
+                                                           | _                     -> None 
+                                                )          
                           )  
                       |> Seq.filter
                           (fun (_ , item2) ->
@@ -97,7 +105,7 @@ module DPO_Submain =
                             
                             pyramidOfDoom
                                 {
-                                    let!_ = not <| File.Exists(pathToFile) |> Option.ofBool, Error String.Empty
+                                    let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
                                     let! client = new HttpClient() |> Option.ofNull, Error String.Empty
 
                                     return Ok client        
@@ -105,14 +113,14 @@ module DPO_Submain =
                         
                         match client with  
                         | Ok client ->      
-                                     use! response = client.GetAsync(uri) |> Async.AwaitTask
+                                     use! response = client.GetAsync uri |> Async.AwaitTask
                         
                                      match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
                                      | true  -> 
                                               let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask  
                                               let pathToFile = pathToFile.Replace("?", String.Empty)
                                               use fileStream = new FileStream(pathToFile, FileMode.CreateNew) 
-                                              do! stream.CopyToAsync(fileStream) |> Async.AwaitTask  
+                                              do! stream.CopyToAsync fileStream |> Async.AwaitTask  
                                               
                                               return Ok ()
                                      | false -> 

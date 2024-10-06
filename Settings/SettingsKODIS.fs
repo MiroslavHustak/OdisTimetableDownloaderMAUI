@@ -16,12 +16,15 @@ module SettingsKODIS =
     let internal summerHolidayEnd1 = DateTime(2024, 8, 31)
     let internal summerHolidayEnd2 = DateTime(2024, 9, 1)
 
+    let internal currentTime = DateTime.Now.Date
+    let internal dateTimeMinValue = DateTime.MinValue
+
     //let [<Literal>] internal pathKodisWeb = @"https://kodisweb-backend.herokuapp.com/"
     let [<Literal>] internal pathKodisWeb2 = @"https://kodis-backend-staging-85d01eccf627.herokuapp.com/api/linky-search?"
     let [<Literal>] internal pathKodisAmazonLink = @"https://kodis-files.s3.eu-central-1.amazonaws.com/" 
 
     let [<Literal>] internal lineNumberLength = 3 //3 je delka retezce pouze pro linky 001 az 999
-
+    
     let internal sortedLines =
         [ 
             "linky 001-199"; "linky 200-299"; "linky 300-399"; 

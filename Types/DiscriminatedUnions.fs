@@ -6,11 +6,6 @@ type internal Validity =
     | FutureValidity 
     | WithoutReplacementService 
 
-//for educational code only
-type internal Msg =
-    | Incr of int
-    | Fetch of AsyncReplyChannel<int>
-
 [<Struct>]
 type internal MsgIncrement =
     | Inc of int  

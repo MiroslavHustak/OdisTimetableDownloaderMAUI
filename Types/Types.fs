@@ -12,8 +12,7 @@ module Types =
             OdisDir5 : string
             OdisDir6 : string
         }  
-        
-    [<Struct>] 
+   
     type internal Context<'a, 'b, 'c> = 
         {
             listMappingFunction : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
