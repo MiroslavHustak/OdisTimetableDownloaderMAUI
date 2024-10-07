@@ -88,21 +88,21 @@ module KODIS_SubmainRecords =
         ||> List.Parallel.map2
             (fun (uri: string) path
                 ->                       
-                    async
-                        {    
-                            use! response = get >> Request.sendAsync <| uri 
+                 async
+                     {    
+                         use! response = get >> Request.sendAsync <| uri 
 
-                            match response.statusCode with
-                            | HttpStatusCode.OK
-                                ->                                                                                                   
-                                 counterAndProgressBar.Post(Inc 1)                                                   
-                                 return! response.SaveFileAsync >> Async.AwaitTask <| path                                
-                            | _ ->  
-                                 return () //TODO zaznamenat do logfile a nechat chybu tise projit  
-                        }  
-                    |> Async.Catch
-                    |> Async.RunSynchronously
-                    |> Result.ofChoice
+                         match response.statusCode with
+                         | HttpStatusCode.OK
+                             ->                                                                                                   
+                              counterAndProgressBar.Post(Inc 1)                                                   
+                              return! response.SaveFileAsync >> Async.AwaitTask <| path                                
+                         | _ ->  
+                              return () //TODO zaznamenat do logfile a nechat chybu tise projit  
+                     }  
+                |> Async.Catch
+                |> Async.RunSynchronously
+                |> Result.ofChoice
             )
         |> Result.sequence 
         |> function
