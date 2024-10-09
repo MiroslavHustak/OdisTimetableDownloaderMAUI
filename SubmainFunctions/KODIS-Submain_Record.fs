@@ -29,6 +29,7 @@ open Settings.SettingsGeneral
 open Helpers
 open Helpers.MyString
 open Helpers.Builders
+open Helpers.FileInfoHelper
 
 open DataModelling.DataModel
 
@@ -38,22 +39,28 @@ module KODIS_SubmainRecords =
     // DO NOT DIVIDE this module into parts in line with the main design yet - KODIS keeps making unpredictable changes or amendments
     // LEAVE THE COMMENTED CODE AS IT IS !!! DO NOT DELETE IT !!! IT IS THERE FOR A REASON.
 
+
     //*************************Helpers************************************************************
+      
+    let private tempJson1, tempJson2 = 
 
-    let private readAllText pathToJson = 
+        let jsonEmpty = """[ {} ]"""
 
-       pyramidOfDoom
-           {
-               let filepath = Path.GetFullPath pathToJson //pathToJson pod kontrolou, filepath nebude null
-                                           
-               let fInfoDat = FileInfo pathToJson
-               let! _ = fInfoDat.Exists |> Option.ofBool, String.Empty
-
-               return File.ReadAllText pathToJson //pathToJson pod kontrolou, fs nebude null                                            
-           }    
-
-    let private tempJson1 = readAllText pathkodisMHDTotal
-    let private tempJson2 = readAllText pathkodisMHDTotal2_0
+        [
+            readAllTextAsync pathkodisMHDTotal 
+            readAllTextAsync pathkodisMHDTotal2_0 
+        ]         
+        |> Async.Parallel 
+        |> Async.Catch
+        |> Async.RunSynchronously
+        |> Result.ofChoice                      
+        |> function
+            | Ok [|a; b|] -> 
+                           a, b
+            | Ok _        ->                          
+                           jsonEmpty, jsonEmpty                                             
+            | Error exn   ->                           
+                           jsonEmpty, jsonEmpty
 
     //************************Main code***********************************************************
 
@@ -110,7 +117,7 @@ module KODIS_SubmainRecords =
                         Ok ()
             | Error ex ->
                         string ex.Message |> ignore // TODO logfile
-                        Error JsonDownloadError  
+                        Error JsonDownloadError 
     
     //input from saved json files -> change of input data -> output into array
     let private digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
