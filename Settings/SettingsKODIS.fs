@@ -49,7 +49,7 @@ module SettingsKODIS =
             "vlakové linky S"; "vlakové linky R"; "linky X, NAD a AE"
         ]
 
-    let private codes = [ "0"; "12"; "24"; "48"; "60"; "72" ]
+    let private codes = [ "0"; "12"; "24"; "36"; "48"; "60"; "72"; "84" ]
         
     let private jsonLinkListPartial code =
         [        
