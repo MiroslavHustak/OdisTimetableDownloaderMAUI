@@ -55,5 +55,5 @@ module Messages =
    
     let internal noNetConn = "Není přístup k internetu, zkus to za chvíli znovu."  
     
-    let internal cancelMsg1 = "Proces se ukončuje ..."
+    let internal cancelMsg1 = "Proces se ukončuje, může to chvíli trvat ..."
     let internal cancelMsg2 = "Stahování JŘ ODIS předčasně ukončeno uživatelem."

@@ -43,6 +43,10 @@ module App =
             DpoEnabled : bool
             MdpoEnabled : bool
             CancelEnabled : bool
+            KodisVisible : bool
+            DpoVisible : bool
+            MdpoVisible : bool
+            CancelVisible : bool
             Cts : CancellationTokenSource
         }
 
@@ -65,13 +69,15 @@ module App =
             DpoEnabled = true
             MdpoEnabled = true
             CancelEnabled = false
+            KodisVisible = true
+            DpoVisible = true
+            MdpoVisible = true
+            CancelVisible = false
             Cts = new CancellationTokenSource() 
         },
         Cmd.none
     
     let update msg m =
-
-        let ctsAllOtherCases = new CancellationTokenSource()
 
         match msg with      
         | UpdateStatus (progressValue, totalProgress)
@@ -99,6 +105,10 @@ module App =
                     DpoEnabled = enabled1
                     MdpoEnabled = enabled1 
                     CancelEnabled = enabled2
+                    KodisVisible = enabled1
+                    DpoVisible = enabled1
+                    MdpoVisible = enabled1
+                    CancelVisible = enabled2
              }, 
              Cmd.none
 
@@ -220,6 +230,10 @@ module App =
                      DpoEnabled = false
                      MdpoEnabled = false
                      CancelEnabled = true
+                     KodisVisible = false
+                     DpoVisible = false
+                     MdpoVisible = false
+                     CancelVisible = true
                      Cts = newCts  // Update the cts
              }, 
              Cmd.ofSub executeSequentially        
@@ -272,6 +286,10 @@ module App =
                      DpoEnabled = false
                      MdpoEnabled = false
                      CancelEnabled = true
+                     KodisVisible = false
+                     DpoVisible = false
+                     MdpoVisible = false
+                     CancelVisible = true
                      Cts = newCts
              },
              Cmd.ofSub execute     
@@ -325,6 +343,10 @@ module App =
                      DpoEnabled = false
                      MdpoEnabled = false
                      CancelEnabled = true
+                     KodisVisible = false
+                     DpoVisible = false
+                     MdpoVisible = false
+                     CancelVisible = true
                      Cts = newCts
              }, 
              Cmd.ofSub execute   
@@ -339,7 +361,7 @@ module App =
              let delayedCmdCancel (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
                  async 
                      {   
-                         dispatch (WorkIsComplete (cancelMsg1, true, false))
+                         dispatch (WorkIsComplete (cancelMsg1, false, false))
                      }                    
 
              let execute dispatch = async { do! delayedCmdCancel newCts.Token dispatch } |> Async.StartImmediate  
@@ -353,6 +375,10 @@ module App =
                      DpoEnabled = true
                      MdpoEnabled = true
                      CancelEnabled = false
+                     KodisVisible = true
+                     DpoVisible = true
+                     MdpoVisible = true
+                     CancelVisible = false
                      Cts = newCts  // Replace the old cts with a new one
              },
              Cmd.ofSub execute
@@ -384,21 +410,25 @@ module App =
                             .semantics(hint = hintOdis)
                             .centerHorizontal()
                             .isEnabled(m.KodisEnabled)
+                            .isVisible(m.KodisVisible)
     
                         Button(buttonDpo, Dpo)
                             .semantics(hint = hintDpo)
                             .centerHorizontal()
                             .isEnabled(m.DpoEnabled)
+                            .isVisible(m.DpoVisible)
     
                         Button(buttonMdpo, Mdpo)
                             .semantics(hint = hintMdpo)
                             .centerHorizontal()
                             .isEnabled(m.MdpoEnabled)
+                            .isVisible(m.MdpoVisible)
 
                         Button("Cancel", Cancel)
                             .semantics(hint = hintCancel)
                             .centerHorizontal()
                             .isEnabled(m.CancelEnabled)
+                            .isVisible(m.CancelVisible)
                     })
                         .padding(30., 0., 30., 0.)
                         .centerVertical()

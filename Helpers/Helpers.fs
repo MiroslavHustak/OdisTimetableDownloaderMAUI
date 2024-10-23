@@ -69,7 +69,7 @@ module CheckNetConnection =
         match connectionCheckSwitch with
         | "Windows Machine" -> 
                              NetworkInterface.GetIsNetworkAvailable () |> Option.ofBool 
-        //"Android 7.1"  
+        //"Android 7.1, 12"  
         | _                 -> 
                              match Connectivity.NetworkAccess with
                              | NetworkAccess.Internet -> Some ()

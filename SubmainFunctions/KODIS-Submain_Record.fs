@@ -94,11 +94,11 @@ module KODIS_SubmainRecords =
         (jsonLinkList, pathToJsonList)
         ||> List.Parallel.map2
             (fun (uri: string) path
-                ->                      
-                 match token.IsCancellationRequested with
-                 | false -> 
-                          async
-                              {    
+                ->           
+                 async
+                     {    
+                         match token.IsCancellationRequested with
+                         | false -> 
                                   use! response = get >> Request.sendAsync <| uri 
                                   
                                   match response.statusCode with
@@ -107,21 +107,13 @@ module KODIS_SubmainRecords =
                                        counterAndProgressBar.Post(Inc 1)                                                   
                                        return! response.SaveFileAsync >> Async.AwaitTask <| path                                
                                   | _ ->  
-                                       return () //TODO zaznamenat do logfile a nechat chybu tise projit  
-                              }  
-                          |> Async.Catch
-                          |> Async.RunSynchronously
-                          |> Result.ofChoice            
-                         
-                 | true  -> 
-                          async                                                
-                              {        
-                                  //counterAndProgressBar.Dispose()
-                                  return! async { return failwith "failwith to be used because the Choice type requires exn" }                                                                                                                              
-                              } 
-                          |> Async.Catch
-                          |> Async.RunSynchronously
-                          |> Result.ofChoice  
+                                       return () //TODO zaznamenat do logfile a nechat chybu tise projit      
+                         | true  -> 
+                                  return! async { return failwith "failwith to be used because the Choice type requires exn" } 
+                     }  
+                 |> Async.Catch
+                 |> Async.RunSynchronously
+                 |> Result.ofChoice                          
             )
         |> Result.sequence 
         |> function
@@ -130,39 +122,42 @@ module KODIS_SubmainRecords =
             | Error ex ->
                         string ex.Message |> ignore // TODO logfile
                         match (string ex.Message).Contains("failwith to be used because the Choice type requires exn") with
-                        | true  -> Error JsonDownloadError 
-                        | false -> Error CancelJsonProcess //nahrada za empty DU case
+                        | false -> Error JsonDownloadError 
+                        | true  -> Error CancelJsonProcess //nahrada za empty DU case
     
     //input from saved json files -> change of input data -> output into array
     let private digThroughJsonStructure (token : CancellationToken) = //prohrabeme se strukturou json souboru 
         
-        let kodisTimetables : Reader<string list, string seq> = 
-
-            reader //Reader monad for educational purposes only, no real benefit here  
+        let kodisTimetables (token : CancellationToken) : Reader<string list, string seq> =
+        
+            reader
                 {
-                    let! pathToJsonList = fun env -> env 
-
+                    let! pathToJsonList = fun env -> env
+        
                     return 
-                        pathToJsonList 
-                        |> Seq.ofList 
-                        |> Seq.collect 
+                        pathToJsonList
+                        |> Seq.ofList
+                        |> Seq.collect
                             (fun pathToJson 
-                                ->                                   
-                                    try
-                                        match token.IsCancellationRequested with
-                                        | false -> 
-                                                 let json = readAllText pathToJson
-                                                 JsonProvider1.Parse json 
-                                        | true  ->
-                                                 JsonProvider1.Parse tempJson1  
-                                    with 
-                                    | _ -> JsonProvider1.Parse tempJson1         
-                                 
-                                    |> Option.ofNull  
-                                    |> function 
-                                        | Some value -> value |> Seq.map _.Timetable                                                
-                                        | None       -> Seq.empty //tady nelze Result.sequence //TODO logfile
-                            )       
+                                ->    
+                                 async
+                                     {
+                                         try
+                                             match token.IsCancellationRequested with
+                                             | false ->
+                                                      let! json = readAllTextAsync pathToJson
+                                                      return JsonProvider1.Parse json
+                                             | true  -> 
+                                                      return JsonProvider1.Parse tempJson1
+                                         with 
+                                         | _ -> return JsonProvider1.Parse tempJson1
+                                     }
+                                 |> Async.RunSynchronously
+                                 |> Option.ofNull
+                                 |> function
+                                     | Some value -> value |> Seq.map (_.Timetable)
+                                     | None       -> Seq.empty
+                            )
                 }
             
         let kodisTimetables3 : Reader<string list, string seq> = 
@@ -177,46 +172,50 @@ module KODIS_SubmainRecords =
                         |> Seq.collect 
                             (fun pathToJson 
                                 ->    
-                                    let kodisJsonSamples =                                     
-                                        try   
-                                            match token.IsCancellationRequested with
-                                            | false -> 
-                                                     let json = readAllText pathToJson //tady nelze Result.sequence 
-                                                     JsonProvider2.Parse json
-                                            | true  -> 
-                                                     JsonProvider2.Parse tempJson2 
-                                        with 
-                                        | _ -> JsonProvider2.Parse tempJson2 
+                                 let kodisJsonSamples =    
+                                     async
+                                         {
+                                             try
+                                                 match token.IsCancellationRequested with
+                                                 | false ->
+                                                          let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                          return JsonProvider2.Parse json
+                                                 | true  -> 
+                                                          return JsonProvider2.Parse tempJson2
+                                             with 
+                                             | _ -> return JsonProvider2.Parse tempJson2
+                                         }
+                                     |> Async.RunSynchronously                                       
                                  
-                                    let timetables = 
-                                        kodisJsonSamples
-                                        |> Option.ofNull
-                                        |> function 
-                                            | Some value -> value.Data |> Seq.map _.Timetable  //nejde Some, nejde Ok
-                                            | None       -> Seq.empty  //TODO logfile
+                                 let timetables = 
+                                     kodisJsonSamples
+                                     |> Option.ofNull
+                                     |> function 
+                                         | Some value -> value.Data |> Seq.map _.Timetable  //nejde Some, nejde Ok
+                                         | None       -> Seq.empty  //TODO logfile
                                  
-                                    let vyluky = 
-                                        kodisJsonSamples
-                                        |> Option.ofNull
-                                        |> function 
+                                 let vyluky = 
+                                     kodisJsonSamples
+                                     |> Option.ofNull
+                                     |> function 
                                         | Some value -> value.Data |> Seq.collect _.Vyluky  //nejde Some, nejde Ok
                                         | None       -> Seq.empty  //TODO logfile
                                  
-                                    let attachments = 
-                                        vyluky
-                                        |> Option.ofNull 
-                                        |> function
-                                            | Some value ->
-                                                          value
-                                                          |> Seq.collect (fun item -> item.Attachments)
-                                                          |> List.ofSeq
-                                                          |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
-                                                          |> List.choose id //co neprojde, to beze slova ignoruju
-                                                          |> List.toSeq
-                                            | None       ->
-                                                          Seq.empty  //TODO logfile
+                                 let attachments = 
+                                     vyluky
+                                     |> Option.ofNull 
+                                     |> function
+                                         | Some value ->
+                                                       value
+                                                       |> Seq.collect (fun item -> item.Attachments)
+                                                       |> List.ofSeq
+                                                       |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
+                                                       |> List.choose id //co neprojde, to beze slova ignoruju
+                                                       |> List.toSeq
+                                         | None       ->
+                                                       Seq.empty  //TODO logfile
 
-                                    Seq.append timetables attachments   
+                                 Seq.append timetables attachments   
                             )  
                 }       
          
@@ -254,15 +253,19 @@ module KODIS_SubmainRecords =
                                          | None       -> Seq.empty  //TODO logfile     
 
                                  let kodisJsonSamples = 
-                                     try
-                                         match token.IsCancellationRequested with
-                                         | false -> 
-                                                  let json = readAllText pathToJson //tady nelze Result.sequence 
-                                                  JsonProvider1.Parse json 
-                                         | true  -> 
-                                                  JsonProvider1.Parse tempJson1
-                                     with
-                                     | _ -> JsonProvider1.Parse tempJson1                                    
+                                     async
+                                         {
+                                             try
+                                                 match token.IsCancellationRequested with
+                                                 | false ->
+                                                          let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                          return JsonProvider1.Parse json
+                                                 | true  -> 
+                                                          return JsonProvider1.Parse tempJson1
+                                             with 
+                                             | _ -> return JsonProvider1.Parse tempJson1
+                                         }
+                                     |> Async.RunSynchronously      
                                                           
                                  kodisJsonSamples 
                                  |> Option.ofNull
@@ -290,7 +293,7 @@ module KODIS_SubmainRecords =
               Error JsonFilteringError          
     
     //input from array -> change of input data -> output into datatable -> filtering data from datable -> links*paths     
-    let private filterTimetables (token : CancellationToken) param (pathToDir : string) (diggingResult : Result<string seq, PdfDownloadErrors>) = 
+    let private filterTimetables param (pathToDir : string) (diggingResult : Result<string seq, PdfDownloadErrors>) = 
 
         //*************************************Helpers for SQL columns********************************************
 
@@ -515,43 +518,40 @@ module KODIS_SubmainRecords =
                 CompleteLinkRc = CompleteLink input
                 FileToBeSavedRc = FileToBeSaved fileToBeSaved
                 PartialLinkRc = 
-                    let pattern = Regex.Escape(jsGeneratedString)
+                    let pattern = Regex.Escape jsGeneratedString
                     PartialLink <| Regex.Replace(input, pattern, String.Empty)
             }
      
         //**********************Filtering********************************************************
         let dataToBeFiltered : Result<RcData list, PdfDownloadErrors> = 
 
-            match token.IsCancellationRequested with
-            | false ->             
-                     diggingResult   
-                     |> function
-                         | Ok value  -> 
-                                      value
-                                      |> List.ofSeq
-                                      |> List.Parallel.map 
-                                          (fun item -> 
-                                                     let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
+            diggingResult   
+            |> function
+                | Ok value  -> 
+                             value
+                             |> List.ofSeq
+                             |> List.Parallel.map 
+                                 (fun item -> 
+                                            let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
                            
-                                                     match item.Contains @"timetables/" with
-                                                     | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
-                                                     | false -> item                                       
-                                          )  
-                                      |> List.sort //jen quli testovani
-                                      |> List.filter
-                                          (fun item -> 
-                                                     let cond1 = (item |> Option.ofNullEmptySpace).IsSome
-                                                     let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
-                                                     cond1 && cond2 
-                                          )         
-                                      |> List.Parallel.map 
-                                          (fun item -> splitKodisLink item) 
-                                      |> Ok
+                                            match item.Contains @"timetables/" with
+                                            | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
+                                            | false -> item                                       
+                                 )  
+                             |> List.sort //jen quli testovani
+                             |> List.filter
+                                 (fun item -> 
+                                            let cond1 = (item |> Option.ofNullEmptySpace).IsSome
+                                            let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
+                                            cond1 && cond2 
+                                 )         
+                             |> List.Parallel.map 
+                                 (fun item -> splitKodisLink item) 
+                             |> Ok
 
-                         | Error err -> 
-                                      Error err 
-            | true  -> 
-                    Error CancelPdfProcess 
+                | Error err -> 
+                             Error err 
+          
                            
         //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
         let createPathsForDownloadedFiles filteredList : (string * string) list = 
@@ -743,11 +743,11 @@ module KODIS_SubmainRecords =
                     |> List.unzip             
                     ||> context.listMappingFunction
                         (fun uri (pathToFile: string) 
-                            ->    
-                             match token.IsCancellationRequested with
-                             | false ->   
-                                      async
-                                          {    
+                            -> 
+                             async
+                                 {            
+                                     match token.IsCancellationRequested with
+                                     | false ->   
                                               //match not <| NetworkInterface.GetIsNetworkAvailable() with
                                               match false with
                                               | true  ->                                    
@@ -785,30 +785,22 @@ module KODIS_SubmainRecords =
                                                                                                                                                               
                                                        | _                
                                                            -> 
-                                                            return ()      //nechame chybu tise projit //TODO chybu zaznamenat do logfile                                                                                                                             
-                                          } 
-                                      |> Async.Catch
-                                      |> Async.RunSynchronously  
-                                      |> Result.ofChoice                      
-                                      |> function
-                                          | Ok _     -> 
-                                                      Ok String.Empty   
-                                          | Error ex ->
-                                                      string ex.Message |> ignore //TODO chybu zaznamenat do logfile  
-                                                      Error FileDownloadError       
-                                                     
-                             | true  ->  
-                                      async                                                
-                                          {        
-                                              //counterAndProgressBar.Dispose()
-                                              return! async { return failwith "failwith to be used because the Choice type requires exn" }                                                                                                                              
-                                          } 
-                                      |> Async.Catch
-                                      |> Async.RunSynchronously
-                                      |> Result.ofChoice  
-                                      |> function
-                                             | Ok _    -> Ok String.Empty   
-                                             | Error _ -> Error CancelPdfProcess //nahrada za empty DU case      
+                                                            return ()      //nechame chybu tise projit //TODO chybu zaznamenat do logfile 
+                                     | true  ->
+                                              return! async { return failwith "failwith to be used because the Choice type requires exn" }             
+                                } 
+                            |> Async.Catch
+                            |> Async.RunSynchronously  
+                            |> Result.ofChoice                      
+                            |> function
+                                | Ok _     -> 
+                                            Ok String.Empty   
+                                | Error ex ->
+                                            string ex.Message |> ignore //TODO chybu zaznamenat do logfile  
+                                                        
+                                            match (string ex.Message).Contains("failwith to be used because the Choice type requires exn") with
+                                            | false -> Error FileDownloadError  
+                                            | true  -> Error CancelPdfProcess //nahrada za empty DU case                                
                         )  
                     |> List.head 
             } 
@@ -818,7 +810,7 @@ module KODIS_SubmainRecords =
         //operation on data
         //input from saved json files -> change of input data -> output into array >> input from array -> change of input data -> output into datatable -> data filtering (links*paths) 
         try               
-            digThroughJsonStructure >> filterTimetables token variant dir <| token 
+            digThroughJsonStructure >> filterTimetables variant dir <| token 
         with
         | ex ->
               string ex.Message |> ignore //TODO logfile                 
