@@ -40,7 +40,7 @@ module WebScraping_DPO =
     type private Environment = 
         {
             FilterTimetables : unit -> string -> (string * string) list
-            DownloadAndSaveTimetables : (float * float -> unit) -> (string * string) list -> Result<unit, string>
+            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> (string * string) list -> Result<unit, string>
         }
 
     let private environment: Environment =
@@ -49,9 +49,9 @@ module WebScraping_DPO =
             DownloadAndSaveTimetables = downloadAndSaveTimetables
         }    
 
-    let internal webscraping_DPO reportProgress pathToDir =  
+    let internal webscraping_DPO reportProgress token pathToDir =  
 
-        let stateReducer (state: State) (action: Actions) (environment: Environment) =
+        let stateReducer token (state : State) (action : Actions) (environment : Environment) =
             
             let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir5 ] //Android jen forward slash %s/%s
 
@@ -86,7 +86,7 @@ module WebScraping_DPO =
                                                    Error String.Empty                              
                                           | true  -> 
                                                    environment.FilterTimetables () pathToSubdir 
-                                                   |> environment.DownloadAndSaveTimetables reportProgress
+                                                   |> environment.DownloadAndSaveTimetables reportProgress token
                                       with
                                       | _ -> Error dpoMsg2                                               
 
@@ -94,8 +94,8 @@ module WebScraping_DPO =
             {  
                 let item = String.Empty //jen abych mohl vyuzit tento builder a netvorit novy
 
-                let! _ = stateReducer stateDefault DeleteOneODISDirectory environment, fun item -> Error item
-                let! _ = stateReducer stateDefault CreateFolders environment, fun item -> Error item
+                let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun item -> Error item
+                let! _ = stateReducer token stateDefault CreateFolders environment, fun item -> Error item
                 
-                return! stateReducer stateDefault FilterDownloadSave environment
+                return! stateReducer token stateDefault FilterDownloadSave environment
             }

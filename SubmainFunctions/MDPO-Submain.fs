@@ -111,12 +111,12 @@ module MDPO_Submain =
                                                                              return Error connErrorCodeDefault.CofeeMakerUnavailable                                 
                         | Error err   -> 
                                        err |> ignore  //TODO logfile
-                                       return Error String.Empty 
+                                       return Error String.Empty   //TODO mozna nekdy...
                            
                     with                                                         
                     | ex ->
                           string ex.Message |> ignore  //TODO logfile
-                          return Error String.Empty   
+                          return Error String.Empty  //TODO mozna nekdy...
                 } 
     
         let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, string> = 
@@ -128,25 +128,18 @@ module MDPO_Submain =
             |> List.mapi  //bohuzel s Map nelze mapi nebo iteri
                 (fun i (link, pathToFile) 
                     ->  
-                     match token.IsCancellationRequested with
-                     | false -> 
-                              async                                                
-                                  {                                         
-                                      reportProgress (float i + 1.0, float l)   
-                                      return! downloadFileTaskAsync link pathToFile                                                                                                                               
-                                  } 
-                              |> Async.Catch
-                              |> Async.RunSynchronously
-                              |> Result.ofChoice              
-                             
-                     | true  -> 
-                              async                                                
-                                  {                                        
-                                      return! async { return failwith "had to use failwith because of the Choice type" }                                                                                                                              
-                                  } 
-                              |> Async.Catch
-                              |> Async.RunSynchronously
-                              |> Result.ofChoice  
+                     async                                                
+                         {   
+                             match token.IsCancellationRequested with
+                             | false -> 
+                                      reportProgress (float i + 1.0, float l)  
+                                      return! downloadFileTaskAsync link pathToFile    
+                             | true  -> 
+                                      return! async { return failwith "failwith to be used because the Choice type requires exn" }    
+                         } 
+                     |> Async.Catch
+                     |> Async.RunSynchronously
+                     |> Result.ofChoice      
                 )  
             |> Result.sequence  
             |> function
@@ -154,8 +147,8 @@ module MDPO_Submain =
                             Ok ()   
                 | Error ex -> 
                             string ex.Message |> ignore //TODO logfile
-                            match (string ex.Message).Contains("had to use failwith because of the Choice type") with
-                            | true  -> Error mdpoMsg3
+                            match (string ex.Message).Contains("failwith to be used because the Choice type requires exn") with
+                            | true  -> Error mdpoCancelMsg
                             | false -> Error mdpoMsg2
                             
         downloadTimetables reportProgress token

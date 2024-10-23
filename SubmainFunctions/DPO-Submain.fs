@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Net
 open System.Net.Http
+open System.Threading
 
 //******************************************
 
@@ -17,6 +18,7 @@ open Helpers.Builders
 
 open Types.ErrorTypes  
 
+open Settings.Messages
 open Settings.SettingsDPO
 open Settings.SettingsGeneral
 
@@ -95,7 +97,7 @@ module DPO_Submain =
                       |> List.distinct
             ) 
 
-    let internal downloadAndSaveTimetables reportProgress (filterTimetables : (string * string) list) =  
+    let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) (filterTimetables : (string * string) list) =  
 
         let downloadFileTaskAsync (uri : string) (pathToFile : string) : Async<Result<unit, string>> =  
        
@@ -146,31 +148,36 @@ module DPO_Submain =
                           return Error String.Empty   
                 } 
     
-        let downloadTimetables reportProgress : Result<unit, string> = 
+        let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, string> = 
         
             let l = filterTimetables |> List.length
         
             filterTimetables 
             |> List.mapi
                 (fun i (link, pathToFile)
-                    ->                                                 
+                    ->  
                      async                                                
                          {   
-                             reportProgress (float i + 1.0, float l)  
-                             return! downloadFileTaskAsync link pathToFile                                                                                                                               
-                         } 
-                     |> Async.Catch
-                     |> Async.RunSynchronously
-                     |> Result.ofChoice  
+                             match token.IsCancellationRequested with
+                             | false -> 
+                                      reportProgress (float i + 1.0, float l)  
+                                      return! downloadFileTaskAsync link pathToFile    
+                             | true  -> 
+                                      return! async { return failwith "failwith to be used because the Choice type requires exn" }    
+                        } 
+                    |> Async.Catch
+                    |> Async.RunSynchronously
+                    |> Result.ofChoice                             
                 ) 
             |> Result.sequence  
             |> function
                 | Ok _     ->
-                            //client.Dispose() 
                             Ok ()   
-                | Error ex ->
-                            //client.Dispose() 
+                | Error ex -> 
                             string ex.Message |> ignore //TODO logfile
-                            Error "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy."
+                            //quli rozliseni chyb, Result.sequence da pouze jednu
+                            match (string ex.Message).Contains("failwith to be used because the Choice type requires exn") with
+                            | true  -> Error dpoCancelMsg 
+                            | false -> Error dpoMsg2
 
-        downloadTimetables reportProgress    
+        downloadTimetables reportProgress token    

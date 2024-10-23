@@ -31,10 +31,11 @@ module Messages =
 
     let internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy."  
     let internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy." 
-    let internal mdpoMsg3 = "Stahování přerušeno uživatelem, všechny JŘ MDPO nebyly úspěšně staženy."
+    let internal mdpoCancelMsg = "Stahování JŘ MDPO předčasně ukončeno uživatelem."
 
     let internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy."  
     let internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy." 
+    let internal dpoCancelMsg = "Stahování JŘ DPO předčasně ukončeno uživatelem."
 
     let internal progressMsgKodis = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
     let internal progressMsgDpo = "Stahují se JŘ DPO ..." 

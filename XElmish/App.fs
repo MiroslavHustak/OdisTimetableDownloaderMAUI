@@ -226,9 +226,11 @@ module App =
           
         | Dpo 
             -> 
+             let newCts = new CancellationTokenSource()
+             
              let path = dpoPathTemp
                  
-             let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
+             let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
                  async
                      {
@@ -240,7 +242,7 @@ module App =
                                    let! hardWork =                            
                                        async 
                                            {
-                                               match webscraping_DPO reportProgress path with
+                                               match webscraping_DPO reportProgress token path with
                                                | Ok _      -> return mauiDpoMsg 
                                                | Error err -> return err
                                            }
@@ -254,7 +256,13 @@ module App =
                                    dispatch (WorkIsComplete (noNetConn, true, false))
                      }  
                      
-             let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
+             let execute dispatch = 
+                 async 
+                     { 
+                         let token = newCts.Token
+                         do! delayedCmd newCts.Token dispatch
+                     } 
+                 |> Async.StartImmediate
 
              { 
                  m with                                  
@@ -264,6 +272,7 @@ module App =
                      DpoEnabled = false
                      MdpoEnabled = false
                      CancelEnabled = true
+                     Cts = newCts
              },
              Cmd.ofSub execute     
 
@@ -300,7 +309,13 @@ module App =
                      }     
                         
              //let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
-             let execute dispatch = async { do! delayedCmd newCts.Token dispatch } |> Async.StartImmediate
+             let execute dispatch = 
+                 async 
+                     { 
+                         let token = newCts.Token
+                         do! delayedCmd newCts.Token dispatch
+                     } 
+                 |> Async.StartImmediate
 
              { 
                  m with                                  
@@ -310,6 +325,7 @@ module App =
                      DpoEnabled = false
                      MdpoEnabled = false
                      CancelEnabled = true
+                     Cts = newCts
              }, 
              Cmd.ofSub execute   
              
