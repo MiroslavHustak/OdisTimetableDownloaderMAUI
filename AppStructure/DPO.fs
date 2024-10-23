@@ -3,6 +3,7 @@
 open System
 open System.IO
 open System.Net
+open System.Threading
 
 //**********************************
 
@@ -55,8 +56,7 @@ module WebScraping_DPO =
             let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir5 ] //Android jen forward slash %s/%s
 
             match action with       
-            | DeleteOneODISDirectory ->                                     
-                                                                          
+            | DeleteOneODISDirectory ->                                   
                                       try
                                           let dirName = ODISDefault.OdisDir5
 
@@ -86,7 +86,7 @@ module WebScraping_DPO =
                                                    Error String.Empty                              
                                           | true  -> 
                                                    environment.FilterTimetables () pathToSubdir 
-                                                   |> environment.DownloadAndSaveTimetables reportProgress 
+                                                   |> environment.DownloadAndSaveTimetables reportProgress
                                       with
                                       | _ -> Error dpoMsg2                                               
 

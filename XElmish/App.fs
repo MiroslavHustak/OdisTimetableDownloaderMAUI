@@ -1,6 +1,7 @@
 namespace OdisTimetableDownloaderMAUI
 
 open System
+open System.Threading
 open System.Net.NetworkInformation
 
 open Fabulous
@@ -41,17 +42,21 @@ module App =
             KodisEnabled : bool
             DpoEnabled : bool
             MdpoEnabled : bool
+            CancelEnabled : bool
+            Cts : CancellationTokenSource
         }
 
     type Msg =
         | Kodis  
         | Dpo
         | Mdpo
+        | Cancel
         | UpdateStatus of progress : float * float
-        | WorkIsComplete of msgAndEnabled : string * bool 
-        | IterationMessage of string      
-
+        | WorkIsComplete of msgAndEnabled : string * bool * bool 
+        | IterationMessage of string    
+       
     let init () =
+
         { 
             ProgressMsg = String.Empty
             ProgressIndicator = Idle
@@ -59,10 +64,14 @@ module App =
             KodisEnabled = true
             DpoEnabled = true
             MdpoEnabled = true
+            CancelEnabled = false
+            Cts = new CancellationTokenSource() 
         },
         Cmd.none
     
     let update msg m =
+
+        let ctsAllOtherCases = new CancellationTokenSource()
 
         match msg with      
         | UpdateStatus (progressValue, totalProgress)
@@ -79,25 +88,28 @@ module App =
              }, 
              Cmd.none
 
-        | WorkIsComplete (result, enabled)
+        | WorkIsComplete (result, enabled1, enabled2)
             ->
              {
                 m with 
                     ProgressMsg = result
                     ProgressIndicator = Idle
                     Progress = 0.0
-                    KodisEnabled = enabled
-                    DpoEnabled = enabled
-                    MdpoEnabled = enabled 
+                    KodisEnabled = enabled1
+                    DpoEnabled = enabled1
+                    MdpoEnabled = enabled1 
+                    CancelEnabled = enabled2
              }, 
              Cmd.none
 
         | IterationMessage message 
             ->
-             { m with ProgressMsg = message }, Cmd.none         
+             { m with ProgressMsg = message }, Cmd.none          
 
         | Kodis 
-            -> 
+            ->          
+             let newCts = new CancellationTokenSource()
+             
              let path = kodisPathTemp
 
              let delayedCmd0 (dispatch : Msg -> unit) : Async<unit> =
@@ -106,10 +118,10 @@ module App =
                      {       
                          let! result = SubmainFunctions.KODIS_SubmainRecords.downloadAndSaveJsonTest ()  
                          do! Async.Sleep 1000                                  
-                         dispatch (WorkIsComplete (result, false))                         
+                         dispatch (WorkIsComplete (result, false, true))                         
                      }  
                  
-             let delayedCmd1 (dispatch : Msg -> unit) : Async<unit> =
+             let delayedCmd1 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
                  async
                      {
@@ -124,6 +136,7 @@ module App =
                                             {
                                                 return 
                                                     stateReducerCmd1
+                                                    <| token
                                                     <| path
                                                     <| fun _ -> ()
                                                     <| fun _ -> ()
@@ -134,12 +147,12 @@ module App =
                                    let! result = hardWork 
                                    do! Async.Sleep 1000
                                   
-                                   dispatch (WorkIsComplete (result, false))
+                                   dispatch (WorkIsComplete (result, false, true))
                          | None   -> 
-                                   dispatch (WorkIsComplete (noNetConn, true))
+                                   dispatch (WorkIsComplete (noNetConn, true, false))
                      }  
 
-             let delayedCmd2 (dispatch : Msg -> unit) : Async<unit> =  
+             let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
 
                  async 
                      {   
@@ -153,8 +166,9 @@ module App =
                                            {   
                                                return
                                                    stateReducerCmd2
+                                                   <| token
                                                    <| path
-                                                   <| fun message -> dispatch (WorkIsComplete (message, false))
+                                                   <| fun message -> dispatch (WorkIsComplete (message, false, true))
                                                    <| fun message -> dispatch (IterationMessage message) 
                                                    <| reportProgress            
                                            }
@@ -163,19 +177,38 @@ module App =
                                    let! result = hardWork 
                                    do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete (result, true))
+                                   dispatch (WorkIsComplete (result, true, false))
                          | None   -> 
-                                   dispatch (WorkIsComplete (noNetConn, true))   
+                                   dispatch (WorkIsComplete (noNetConn, true, false))   
                      }     
+
+             let delayedCmdCancelMessage (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
+             
+                 async 
+                     {   
+                         dispatch (WorkIsComplete (cancelMsg2, true, false))
+                     }                    
                      
              let executeSequentially (dispatch : Msg -> unit) =
 
                  async 
                      {
-                         //do! delayedCmd0 dispatch 
-                         do! delayedCmd1 dispatch 
-                         do! Async.Sleep 2000
-                         do! delayedCmd2 dispatch 
+                         //do! delayedCmd0 dispatch                     
+                         let token = newCts.Token
+                         
+                         do! delayedCmd1 token dispatch                          
+                        
+                         match token.IsCancellationRequested with
+                         | true  ->
+                                  do! delayedCmdCancelMessage token dispatch                                   
+                         | false ->
+                                  do! Async.Sleep 2000
+                                  do! delayedCmd2 token dispatch    
+                                  match token.IsCancellationRequested with
+                                  | true  ->
+                                           do! delayedCmdCancelMessage token dispatch                                   
+                                  | false ->
+                                           ()    
                      }
                  |> Async.StartImmediate
             
@@ -186,6 +219,8 @@ module App =
                      KodisEnabled = false
                      DpoEnabled = false
                      MdpoEnabled = false
+                     CancelEnabled = true
+                     Cts = newCts  // Update the cts
              }, 
              Cmd.ofSub executeSequentially        
           
@@ -214,9 +249,9 @@ module App =
                                    let! result = hardWork 
                                    do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete (result, true))
+                                   dispatch (WorkIsComplete (result, true, false))
                          | None   -> 
-                                   dispatch (WorkIsComplete (noNetConn, true))
+                                   dispatch (WorkIsComplete (noNetConn, true, false))
                      }  
                      
              let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
@@ -228,14 +263,17 @@ module App =
                      KodisEnabled = false
                      DpoEnabled = false
                      MdpoEnabled = false
+                     CancelEnabled = true
              },
              Cmd.ofSub execute     
 
         | Mdpo 
             -> 
+             let newCts = new CancellationTokenSource()
+             
              let path = mdpoPathTemp
             
-             let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
+             let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
                  async
                      {
@@ -247,7 +285,7 @@ module App =
                                    let! hardWork =                            
                                        async 
                                            {
-                                               match webscraping_MDPO reportProgress path with
+                                               match webscraping_MDPO reportProgress token path with
                                                | Ok _      -> return mauiMdpoMsg 
                                                | Error err -> return err
                                            }
@@ -256,12 +294,13 @@ module App =
                                    let! result = hardWork 
                                    do! Async.Sleep 1000
 
-                                   dispatch (WorkIsComplete (result, true))
+                                   dispatch (WorkIsComplete (result, true, false))
                          | None   -> 
-                                   dispatch (WorkIsComplete (noNetConn, true))
+                                   dispatch (WorkIsComplete (noNetConn, true, false))
                      }     
                         
-             let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
+             //let execute dispatch = async { do! delayedCmd dispatch } |> Async.StartImmediate
+             let execute dispatch = async { do! delayedCmd newCts.Token dispatch } |> Async.StartImmediate
 
              { 
                  m with                                  
@@ -270,8 +309,37 @@ module App =
                      KodisEnabled = false
                      DpoEnabled = false
                      MdpoEnabled = false
+                     CancelEnabled = true
              }, 
-             Cmd.ofSub execute                     
+             Cmd.ofSub execute   
+             
+        | Cancel 
+            ->    
+             m.Cts.Cancel()
+             
+             // Create a new CancellationTokenSource for future use
+             let newCts = new CancellationTokenSource()
+
+             let delayedCmdCancel (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
+                 async 
+                     {   
+                         dispatch (WorkIsComplete (cancelMsg1, true, false))
+                     }                    
+
+             let execute dispatch = async { do! delayedCmdCancel newCts.Token dispatch } |> Async.StartImmediate  
+             
+             { 
+                 m with
+                     ProgressMsg = String.Empty
+                     ProgressIndicator = Idle
+                     Progress = 0.0
+                     KodisEnabled = true
+                     DpoEnabled = true
+                     MdpoEnabled = true
+                     CancelEnabled = false
+                     Cts = newCts  // Replace the old cts with a new one
+             },
+             Cmd.ofSub execute
 
     let view (m : Model) =
 
@@ -310,6 +378,11 @@ module App =
                             .semantics(hint = hintMdpo)
                             .centerHorizontal()
                             .isEnabled(m.MdpoEnabled)
+
+                        Button("Cancel", Cancel)
+                            .semantics(hint = hintCancel)
+                            .centerHorizontal()
+                            .isEnabled(m.CancelEnabled)
                     })
                         .padding(30., 0., 30., 0.)
                         .centerVertical()

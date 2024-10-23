@@ -1,6 +1,7 @@
 ﻿namespace MainFunctions
 
 open System
+open System.Threading
 
 //**********************************
 
@@ -45,10 +46,10 @@ module WebScraping_KODISFMRecord =
 
     type private Environment = 
         {
-            DownloadAndSaveJson : string list -> string list -> (float * float -> unit) -> Result<unit, JsonDownloadErrors>
+            DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> Result<unit, JsonDownloadErrors>
             DeleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
-            OperationOnDataFromJson : unit -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
-            DownloadAndSave : Context<string, string, Result<string, PdfDownloadErrors>> -> Result<string, PdfDownloadErrors>
+            OperationOnDataFromJson : CancellationToken -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
+            DownloadAndSave : CancellationToken -> Context<string, string, Result<string, PdfDownloadErrors>> -> Result<string, PdfDownloadErrors>
         }
 
     let private environment : Environment =
@@ -59,7 +60,7 @@ module WebScraping_KODISFMRecord =
             DownloadAndSave = KODIS_SubmainRecords.downloadAndSave
         }    
 
-    let private stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) (action : Actions) =
+    let private stateReducer (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) (action : Actions) =
 
         let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.OdisDir5 ]
 
@@ -67,16 +68,16 @@ module WebScraping_KODISFMRecord =
         | DownloadAndSaveJson 
             -> 
              //Http request and IO operation (data from settings -> http request -> IO operation -> saving json files on HD)
-             let downloadAndSaveJson reportProgress = 
+             let downloadAndSaveJson reportProgress token = 
 
                  let errFn err =  
                      match err with
                      | JsonDownloadError -> jsonDownloadError
+                     | CancelJsonProcess -> "dummy text CancelJsonProcess"
                     
                  try
                      //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
-                     environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 reportProgress
-                     |> Ok
+                     environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress                     
                  with
                  | ex ->
                        string ex.Message |> ignore  //TODO logfile
@@ -86,8 +87,8 @@ module WebScraping_KODISFMRecord =
                      | Ok _      -> dispatchMsg1
                      | Error err -> errFn err
 
-             downloadAndSaveJson reportProgress  
-
+             downloadAndSaveJson reportProgress token   
+             
         | DownloadSelectedVariant 
             ->    
              let errFn err =  
@@ -98,44 +99,47 @@ module WebScraping_KODISFMRecord =
                  | FileDeleteError    -> fileDeleteError 
                  | CreateFolderError  -> createFolderError
                  | FileDownloadError  -> fileDownloadError
+                 | CancelPdfProcess   -> "dummy text CancelPdfProcess"
 
              let result (context2 : Context2) =   
 
-                    dispatchWorkIsComplete dispatchMsg2
+                 if token.IsCancellationRequested then () else dispatchWorkIsComplete dispatchMsg2
                      
-                    let dir = context2.DirList |> List.item context2.VariantInt  
-                    let list = KODIS_SubmainRecords.operationOnDataFromJson () context2.Variant dir 
+                 let dir = context2.DirList |> List.item context2.VariantInt  
+                 let list = KODIS_SubmainRecords.operationOnDataFromJson token context2.Variant dir 
 
-                    match list with
-                    | Ok list
-                        when list <> List.empty
-                            -> 
-                             let context listMappingFunction = 
-                                 {
-                                     listMappingFunction = listMappingFunction
-                                     reportProgress = reportProgress
-                                     dir = dir
-                                     list = list
-                                 }
-                                 
-                             dispatchIterationMessage context2.Msg1 
+                 match list with
+                 | Ok list
+                     when list <> List.empty
+                         -> 
+                          let context listMappingFunction = 
+                              {
+                                  listMappingFunction = listMappingFunction
+                                  reportProgress = reportProgress
+                                  dir = dir
+                                  list = list
+                              }
+                                
+                          token.IsCancellationRequested |> function true -> () | false -> dispatchIterationMessage context2.Msg1
                                          
-                             match list.Length >= 8 with //eqv of 8 threads
-                             | true  -> context List.Parallel.map2
-                             | false -> context List.map2
+                          match list.Length >= 8 with //eqv of 8 threads
+                          | true  -> context List.Parallel.map2
+                          | false -> context List.map2
 
-                             |> environment.DownloadAndSave     
+                          |> environment.DownloadAndSave token     
 
-                    | Ok list
-                            ->                                                               
-                             dispatchIterationMessage context2.Msg2
-                             System.Threading.Thread.Sleep(6000) 
+                 | Ok list
+                         ->                                                               
+                          token.IsCancellationRequested |> function true -> () | false -> dispatchIterationMessage context2.Msg2
 
-                             Ok context2.Msg3 
+                          System.Threading.Thread.Sleep(6000) 
 
-                    | Error err 
-                            ->
-                             Error err     
+                          Ok context2.Msg3 
+
+                 | Error err 
+                         ->
+                          Error err  
+                             
              try 
                  let dirList = KODIS_SubmainRecords.createNewDirectoryPaths path listODISDefault4
 
@@ -194,8 +198,8 @@ module WebScraping_KODISFMRecord =
                    string ex.Message |> ignore  //TODO logfile 
                    dispatchMsg4            
     
-    let stateReducerCmd1 path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
-        stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadAndSaveJson
+    let stateReducerCmd1 token path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
+        stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadAndSaveJson
 
-    let stateReducerCmd2 path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
-        stateReducer path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadSelectedVariant
+    let stateReducerCmd2 token path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
+        stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment DownloadSelectedVariant

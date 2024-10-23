@@ -1,12 +1,11 @@
 ﻿namespace SubmainFunctions
 
-open Helpers.Builders
-
 module MDPO_Submain =
 
     open System
     open System.IO
     open System.Net
+    open System.Threading
 
     //**********************************
 
@@ -17,9 +16,11 @@ module MDPO_Submain =
     //**********************************
 
     open Helpers
+    open Helpers.Builders
 
     open Types.ErrorTypes
 
+    open Settings.Messages
     open Settings.SettingsMDPO
     open Settings.SettingsGeneral    
 
@@ -71,7 +72,7 @@ module MDPO_Submain =
         |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
 
     //FsHttp
-    let internal downloadAndSaveTimetables reportProgress (pathToDir : string) (filterTimetables : Map<string, string>) =  
+    let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) (pathToDir : string) (filterTimetables : Map<string, string>) =  
 
         let downloadFileTaskAsync (uri : string) (pathToFile : string) : Async<Result<unit, string>> =  
        
@@ -118,7 +119,7 @@ module MDPO_Submain =
                           return Error String.Empty   
                 } 
     
-        let downloadTimetables reportProgress : Result<unit, string> = 
+        let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, string> = 
         
             let l = filterTimetables |> Map.count
         
@@ -126,15 +127,26 @@ module MDPO_Submain =
             |> Map.toList 
             |> List.mapi  //bohuzel s Map nelze mapi nebo iteri
                 (fun i (link, pathToFile) 
-                    ->                                                  
-                     async                                                
-                         {   
-                             reportProgress (float i + 1.0, float l)   
-                             return! downloadFileTaskAsync link pathToFile                                                                                                                               
-                         } 
-                     |> Async.Catch
-                     |> Async.RunSynchronously
-                     |> Result.ofChoice                       
+                    ->  
+                     match token.IsCancellationRequested with
+                     | false -> 
+                              async                                                
+                                  {                                         
+                                      reportProgress (float i + 1.0, float l)   
+                                      return! downloadFileTaskAsync link pathToFile                                                                                                                               
+                                  } 
+                              |> Async.Catch
+                              |> Async.RunSynchronously
+                              |> Result.ofChoice              
+                             
+                     | true  -> 
+                              async                                                
+                                  {                                        
+                                      return! async { return failwith "had to use failwith because of the Choice type" }                                                                                                                              
+                                  } 
+                              |> Async.Catch
+                              |> Async.RunSynchronously
+                              |> Result.ofChoice  
                 )  
             |> Result.sequence  
             |> function
@@ -142,6 +154,8 @@ module MDPO_Submain =
                             Ok ()   
                 | Error ex -> 
                             string ex.Message |> ignore //TODO logfile
-                            Error "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy."    
-
-        downloadTimetables reportProgress 
+                            match (string ex.Message).Contains("had to use failwith because of the Choice type") with
+                            | true  -> Error mdpoMsg3
+                            | false -> Error mdpoMsg2
+                            
+        downloadTimetables reportProgress token

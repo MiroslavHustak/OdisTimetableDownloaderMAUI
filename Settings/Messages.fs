@@ -31,6 +31,7 @@ module Messages =
 
     let internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy."  
     let internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy." 
+    let internal mdpoMsg3 = "Stahování přerušeno uživatelem, všechny JŘ MDPO nebyly úspěšně staženy."
 
     let internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy."  
     let internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy." 
@@ -49,5 +50,9 @@ module Messages =
     let internal hintDpo = "Stahování aktuálních JŘ dopravce DPO"
     let internal buttonMdpo = "Stahuj JŘ dopravce MDPO"
     let internal hintMdpo = "Stahování zastávkových JŘ dopravce MDPO"
+    let internal hintCancel = "Zrušení práce aplikace"
    
-    let internal noNetConn = "Není přístup k internetu, zkus to za chvíli znovu."   
+    let internal noNetConn = "Není přístup k internetu, zkus to za chvíli znovu."  
+    
+    let internal cancelMsg1 = "Proces se ukončuje ..."
+    let internal cancelMsg2 = "Stahování JŘ ODIS předčasně ukončeno uživatelem."

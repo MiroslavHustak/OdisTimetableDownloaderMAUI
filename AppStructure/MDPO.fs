@@ -2,6 +2,7 @@
 
 open System
 open System.IO
+open System.Threading
 
 //**********************************
 
@@ -38,7 +39,7 @@ module WebScraping_MDPO =
     type private Environment = 
         {
             FilterTimetables : unit -> string -> Map<string, string>
-            DownloadAndSaveTimetables : (float * float -> unit) -> string -> Map<string, string> -> Result<unit, string>
+            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> Map<string, string> -> Result<unit, string>
         }
 
     let private environment : Environment =
@@ -47,9 +48,9 @@ module WebScraping_MDPO =
             DownloadAndSaveTimetables = downloadAndSaveTimetables       
         }    
 
-    let internal webscraping_MDPO reportProgress pathToDir =  
+    let internal webscraping_MDPO reportProgress token pathToDir =  
 
-        let stateReducer (state : State) (action: Actions) (environment : Environment) =
+        let stateReducer token (state : State) (action: Actions) (environment : Environment) =
 
             let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir6 ]
          
@@ -66,7 +67,7 @@ module WebScraping_MDPO =
                                               |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                                               |> Ok
                                       with
-                                      |_ -> Error mdpoMsg1      
+                                      | _ -> Error mdpoMsg1      
                                           
             | CreateFolders          -> 
                                       try
@@ -74,27 +75,27 @@ module WebScraping_MDPO =
                                           |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
                                           |> Ok
                                       with
-                                      |_ -> Error mdpoMsg1
+                                      | _ -> Error mdpoMsg1
                                       
             | FilterDownloadSave     -> 
-                                     try
+                                      try
                                           //filtering timetable links, downloading and saving timetables in the pdf format 
-                                         let pathToSubdir = dirList pathToDir |> List.tryHead |> function Some value -> value | None -> String.Empty
-                                         match pathToSubdir |> Directory.Exists with 
-                                         | false -> 
-                                                  Error String.Empty                            
-                                         | true  -> 
-                                                  environment.FilterTimetables () pathToSubdir   
-                                                  |> environment.DownloadAndSaveTimetables reportProgress pathToSubdir  
-                                     with
-                                     |_ -> Error mdpoMsg2         
+                                          let pathToSubdir = dirList pathToDir |> List.tryHead |> function Some value -> value | None -> String.Empty
+                                          match pathToSubdir |> Directory.Exists with 
+                                          | false -> 
+                                                   Error String.Empty                            
+                                          | true  -> 
+                                                   environment.FilterTimetables () pathToSubdir   
+                                                   |> environment.DownloadAndSaveTimetables reportProgress token pathToSubdir   
+                                      with
+                                      | _ -> Error mdpoMsg2         
                                                            
         pyramidOfInferno
             {  
                 let item = String.Empty //jen abych mohl vyuzit tento builder a netvorit novy
 
-                let! _ = stateReducer stateDefault DeleteOneODISDirectory environment, fun item -> Error item
-                let! _ = stateReducer stateDefault CreateFolders environment, fun item -> Error item
+                let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun item -> Error item
+                let! _ = stateReducer token stateDefault CreateFolders environment, fun item -> Error item
             
-                return! stateReducer stateDefault FilterDownloadSave environment
+                return! stateReducer token stateDefault FilterDownloadSave environment
             }

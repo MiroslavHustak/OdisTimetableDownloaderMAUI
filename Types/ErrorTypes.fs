@@ -22,7 +22,8 @@ module ErrorTypes =
 
     [<Struct>]     
     type internal JsonDownloadErrors = 
-        | JsonDownloadError        
+        | JsonDownloadError     
+        | CancelJsonProcess    
 
     [<Struct>]     
     type internal PdfDownloadErrors =
@@ -32,5 +33,6 @@ module ErrorTypes =
         | FileDeleteError
         | CreateFolderError
         | FileDownloadError
+        | CancelPdfProcess  
 
    
