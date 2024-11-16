@@ -64,6 +64,7 @@ module App =
             KodisVisible : bool
             DpoVisible : bool
             MdpoVisible : bool
+            RestartVisible : bool
             CloudVisible : bool
             LabelVisible : bool
             Label2Visible : bool
@@ -81,7 +82,7 @@ module App =
         | NetConnMessage of string
         | IterationMessage of string    
         | UpdateStatus of float * float * bool
-        | WorkIsComplete of string 
+        | WorkIsComplete of string * bool
 
     let actor = //actor model
 
@@ -183,6 +184,7 @@ module App =
                 KodisVisible = true
                 DpoVisible = true
                 MdpoVisible = true
+                RestartVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
@@ -199,6 +201,7 @@ module App =
                 KodisVisible = false
                 DpoVisible = false
                 MdpoVisible = false
+                RestartVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
@@ -240,10 +243,11 @@ module App =
                     KodisVisible = false
                     DpoVisible = false
                     MdpoVisible = false
+                    RestartVisible = false
             }, 
             Cmd.none
 
-        | WorkIsComplete result
+        | WorkIsComplete (result, isVisible)
             ->
             {
                 m with                    
@@ -254,6 +258,7 @@ module App =
                     KodisVisible = false
                     DpoVisible = false
                     MdpoVisible = false
+                    RestartVisible = isVisible
             }, 
             Cmd.none
 
@@ -326,11 +331,11 @@ module App =
                                 
                             match token.IsCancellationRequested with
                             | true  -> 
-                                    WorkIsComplete >> dispatch <| netConnError
+                                    WorkIsComplete >> dispatch <| (netConnError, false)
                             | false ->          
                                     match result with
-                                    | Ok result -> WorkIsComplete >> dispatch <| result  
-                                    | Error err -> WorkIsComplete >> dispatch <| err 
+                                    | Ok result -> WorkIsComplete >> dispatch <| (result, false)  
+                                    | Error err -> WorkIsComplete >> dispatch <| (err, false) 
                         }  
 
                 let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
@@ -349,7 +354,7 @@ module App =
                                             stateReducerCmd2 
                                             <| token
                                             <| path
-                                            <| fun message -> WorkIsComplete >> dispatch <| message
+                                            <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                             <| fun message -> IterationMessage >> dispatch <| message 
                                             <| reportProgress            
                                     }
@@ -359,8 +364,8 @@ module App =
                             do! Async.Sleep 1000
                           
                             match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| result
-                            | true  -> WorkIsComplete >> dispatch <| netConnError
+                            | false -> WorkIsComplete >> dispatch <| (result, true)
+                            | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
                         }     
 
                 let executeSequentially dispatch =
@@ -376,8 +381,6 @@ module App =
                             match token with
                             | Some token 
                                 -> 
-                                //RestartVisible2 >> dispatch <| (false, false) 
-
                                 match token.IsCancellationRequested with
                                 | true  -> 
                                         UpdateStatus >> dispatch <| (0.0, 1.0, false)
@@ -455,7 +458,7 @@ module App =
                                             stateReducerCmd4
                                             <| token
                                             <| path
-                                            <| fun message -> WorkIsComplete >> dispatch <| message
+                                            <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                             <| fun message -> IterationMessage >> dispatch <| message 
                                             <| reportProgress            
                                     }
@@ -465,8 +468,8 @@ module App =
                             do! Async.Sleep 1000
                           
                             match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| result
-                            | true  -> WorkIsComplete >> dispatch <| netConnError
+                            | false -> WorkIsComplete >> dispatch <| (result, true)
+                            | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
                         }     
 
                 let executeSequentially dispatch =
@@ -551,8 +554,8 @@ module App =
                                             | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                             | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)    
 
-                                        match webscraping_DPO reportProgress token path with  //match webscraping_MDPO reportProgress token path with
-                                        | Ok _      -> return mauiDpoMsg //mauiMdpoMsg
+                                        match webscraping_DPO reportProgress token path with  
+                                        | Ok _      -> return mauiDpoMsg
                                         | Error err -> return err
                                     }
                                 |> Async.StartChild 
@@ -561,10 +564,8 @@ module App =
                             do! Async.Sleep 1000
                            
                             match token.IsCancellationRequested with
-                            | false -> 
-                                    WorkIsComplete >> dispatch <| result
-                            | true  -> 
-                                    WorkIsComplete >> dispatch <| netConnError
+                            | false -> WorkIsComplete >> dispatch <| (result, true)
+                            | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
                         }  
                      
                 let execute dispatch = 
@@ -585,10 +586,8 @@ module App =
                                         UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                 | false ->                                                               
                                         match token.IsCancellationRequested with
-                                        | true  ->
-                                                UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false ->
-                                                do! delayedCmd token dispatch  
+                                        | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                        | false -> do! delayedCmd token dispatch  
                             | None      
                                 -> 
                                 ()  
@@ -659,10 +658,8 @@ module App =
                             do! Async.Sleep 1000
                            
                             match token.IsCancellationRequested with
-                            | false -> 
-                                    WorkIsComplete >> dispatch <| result
-                            | true  -> 
-                                    WorkIsComplete >> dispatch <| netConnError
+                            | false -> WorkIsComplete >> dispatch <| (result, true)
+                            | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
                         }  
                      
                 let execute dispatch = 
@@ -683,10 +680,8 @@ module App =
                                         UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                 | false ->                                                               
                                         match token.IsCancellationRequested with
-                                        | true  ->
-                                                UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false ->
-                                                do! delayedCmd token dispatch  
+                                        | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                        | false -> do! delayedCmd token dispatch  
                             | None      
                                 -> 
                                 ()  
@@ -812,7 +807,7 @@ module App =
 
                             Button(buttonRestart, Restart)
                                 .semantics(hint = String.Empty)
-                                .isVisible(not m.DpoVisible && m.ProgressIndicator = Idle)
+                                .isVisible(m.RestartVisible)
                                 .centerHorizontal()
 
                             Button(buttonQuit, Quit)
