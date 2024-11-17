@@ -149,10 +149,11 @@ module App =
                                             match isConnected |> Option.ofBool with
                                             | Some _
                                                     ->                                    
-                                                    ()                                            
+                                                    NetConnMessage >> dispatch <| yesNetConn                                            
                                             | None
                                                     -> 
-                                                    return!
+                                                    () //NetConnMessage >> dispatch <| noNetConn
+                                                        (*
                                                         [ 20 .. -1 .. 0 ]  //20 vterin // -1 for backward counting
                                                         |> List.toSeq                                             
                                                         |> AsyncSeq.ofSeq
@@ -165,6 +166,7 @@ module App =
                                                                 | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
                                                                 | _ -> Async.Sleep 1000
                                                             )  
+                                                        *)
                                         }    
                                     |> Async.Start  //muze byt Async.Start, dany blok nemusi byt spusten hned s hlavnim blokem //Async.Start runs the task asynchronously on the thread pool, while Async.StartImmediate attempts to run the task immediately on the current thread. *)
                                 ) 
@@ -466,10 +468,27 @@ module App =
                                
                             let! result = hardWork 
                             do! Async.Sleep 1000
-                          
-                            match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| (result, true)
-                            | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
+
+                            match result.Contains("timeout") with
+                            | true  -> 
+                                    [ 30 .. -1 .. 0 ]  //30 vterin // -1 for backward counting
+                                    |> List.toSeq                                             
+                                    |> AsyncSeq.ofSeq
+                                    |> AsyncSeq.iterAsync
+                                        (fun remaining 
+                                            ->                                                               
+                                            QuitCountdown >> dispatch <| (quitMsg1 remaining)
+                                        
+                                            match remaining with
+                                            | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
+                                            | _ -> Async.Sleep 1000
+                                        )  
+                                    |> Async.StartImmediate 
+
+                            | false ->                           
+                                    match token.IsCancellationRequested with
+                                    | false -> WorkIsComplete >> dispatch <| (result, true)
+                                    | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
                         }     
 
                 let executeSequentially dispatch =

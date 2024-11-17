@@ -72,6 +72,7 @@ module WebScraping_KODISFMRecord4 =
             | CreateFolderError      -> createFolderError
             | FileDownloadError      -> fileDownloadError
             | CanopyError            -> canopyError
+            | Timeout                -> "timeout"
             | PdfConnectionError     -> cancelMsg2 
             | CancelPdfProcess       -> cancelMsg2      
             | ApiResponseError err   -> err

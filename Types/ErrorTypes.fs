@@ -27,6 +27,7 @@ module ErrorTypes =
         | CreateFolderError
         | FileDownloadError
         | CanopyError
+        | Timeout
         | CancelPdfProcess  
         | PdfConnectionError
         | ApiResponseError of string

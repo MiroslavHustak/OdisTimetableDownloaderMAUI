@@ -63,7 +63,7 @@ module Messages =
    
     let internal noNetConn = "Není přístup k internetu." 
     let internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena, vyčkej na Restart." 
-    let internal noNetConn1 = "Operace nebyla provedena, není přístup k internetu, nutno vyčkat, až bude." 
+    let internal noNetConn1 = "Operace nebyla provedena, není přístup k internetu." 
     let internal noNetConn2 = "Není přístup k internetu, nutno vyčkat, až bude." 
     let internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se na internet a spusť ji znovu."  
    
@@ -79,6 +79,12 @@ module Messages =
     let internal netConnError = "Přerušené internetové připojení způsobilo přerušení stahování souborů. Stahuj vše znova."
     let internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
 
-    let internal buttonQuit = "Vypnutí aplikace" 
-    let internal quitMsg1 = sprintf "Aplikace bude vypnuta za %i vteřin."
-    let internal quitMsg2 = "Kvůli přerušení připojení k internetu bude tato aplikace automaticky vypnuta."
+    let internal buttonQuit = "Okamžité vypnutí aplikace" 
+
+    let internal quitMsg1 param = 
+        match param with
+        | 1         -> sprintf "Aplikace bude vypnuta za %i vteřinu." param
+        | 2 | 3 | 4 -> sprintf "Aplikace bude vypnuta za %i vteřiny." param
+        | _         -> sprintf "Aplikace bude vypnuta za %i vteřin." param
+
+    let internal quitMsg2 = "Kvůli přerušení připojení k internetu delšímu než 2 minuty bude tato aplikace automaticky vypnuta."
