@@ -77,50 +77,49 @@ module KODIS_BL_Record4 =
                                 (fun uri (pathToFile: string) 
                                     -> 
                                     async
-                                        {            
-                                            match token.IsCancellationRequested with
-                                            | false ->  
-                                                    counterAndProgressBar.Post(Inc 1)
+                                        {    
+                                            counterAndProgressBar.Post(Inc 1)
         
-                                                    let get uri =
-                                                        http 
-                                                            {
-                                                                config_timeoutInSeconds 300  
-                                                                GET(uri) 
-                                                            }    
+                                            let get uri =
+                                                http 
+                                                    {
+                                                        GET(uri) 
+                                                        config_timeoutInSeconds 180
+                                                        config_cancellationToken token
+                                                    }    
         
-                                                    use! response = get >> Request.sendAsync <| uri  
+                                            use! response = get >> Request.sendAsync <| uri  
         
-                                                    match response.statusCode with
-                                                    | HttpStatusCode.OK 
-                                                        -> 
-                                                        let pathToFileExist =  
-                                                            pyramidOfDoom
-                                                                {
-                                                                    let filepath = Path.GetFullPath(pathToFile) |> Option.ofNullEmpty 
-                                                                    let! filepath = filepath, None
+                                            match response.statusCode with
+                                            | HttpStatusCode.OK 
+                                                -> 
+                                                let pathToFileExist =  
+                                                    pyramidOfDoom
+                                                        {
+                                                            let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
+                                                            let! filepath = filepath, None
         
-                                                                    let fInfodat: FileInfo = FileInfo filepath
-                                                                    let! _ = not fInfodat.Exists |> Option.ofBool, None   
+                                                            let fInfodat: FileInfo = FileInfo filepath
+                                                            let! _ = not fInfodat.Exists |> Option.ofBool, None   //tady potrebuju vedet, ze ten file tam este neni
                                                                                      
-                                                                    return Some ()
-                                                                } 
+                                                            return Some ()
+                                                        } 
                                                                                  
-                                                        match pathToFileExist with
-                                                        | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile       
-                                                        | None   -> return ()  //nechame chybu tise projit  //TODO chybu zaznamenat do logfile  
+                                                match pathToFileExist with
+                                                | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile       
+                                                | None   -> return ()  //nechame chybu tise projit  //TODO chybu zaznamenat do logfile  
                                                                                                                                                                       
-                                                    | _                
-                                                        -> 
-                                                        return ()      //chyba se projevi dale
-                                            | true  ->
-                                                    return! async { return token.ThrowIfCancellationRequested() }           
+                                            | _                
+                                                -> 
+                                                return ()      //chyba se projevi dale
                                         } 
                                     |> Async.RunSynchronously                                                        
                                 )  
                             |> ignore
                             
-                            Ok String.Empty
+                            match token.IsCancellationRequested with
+                            | false -> Ok String.Empty
+                            | true  -> Error CancelPdfProcess
 
                         with
                         | :? OperationCanceledException 

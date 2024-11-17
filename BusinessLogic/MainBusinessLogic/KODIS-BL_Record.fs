@@ -73,33 +73,36 @@ module KODIS_BL_Record =
                 (fun (uri: string) path
                     ->           
                     async
-                        {    
-                            //each async task or thread only stops when it reaches a point where it checks the token status (IsCancellationRequested), which can lead to a slight delay.     
-                            match token.IsCancellationRequested with
-                            | false -> 
-                                    let get uri =
-                                        http 
-                                            {
-                                                config_timeoutInSeconds 300  
-                                                GET(uri) 
-                                            }    
+                        {   
+                            let get uri =
+                                http 
+                                    {
+                                        GET(uri) 
+                                        config_timeoutInSeconds 180
+                                        config_cancellationToken token
+                                    }    
 
-                                    use! response = get >> Request.sendAsync <| uri 
+                            use! response = get >> Request.sendAsync <| uri 
                                   
-                                    match response.statusCode with
-                                    | HttpStatusCode.OK
-                                        ->                                                                                                   
-                                        counterAndProgressBar.Post(Inc 1)                                                   
-                                        return! response.SaveFileAsync >> Async.AwaitTask <| path                                
-                                    | _ ->  
-                                        return () //TODO zaznamenat do logfile a nechat chybu tise projit      
-                            | true  ->                                
-                                    return! async { return token.ThrowIfCancellationRequested() } 
+                            match response.statusCode with
+                            | HttpStatusCode.OK
+                                ->                                                                                                   
+                                counterAndProgressBar.Post(Inc 1)                                                   
+                                return! response.SaveFileAsync >> Async.AwaitTask <| path                                
+                            | _ ->  
+                                return () //TODO zaznamenat do logfile a nechat chybu tise projit  
                         }  
                     |> Async.RunSynchronously
                 )
             |> ignore
-            |> Ok                     
+            
+            match token.IsCancellationRequested with
+            | false -> 
+                    Ok ()
+            | true  -> 
+                    myDelete ()
+                    Error CancelJsonProcess  
+            
         with
         | :? OperationCanceledException 
             when 
@@ -159,49 +162,48 @@ module KODIS_BL_Record =
                                     -> 
                                     async
                                         {            
-                                            match token.IsCancellationRequested with
-                                            | false ->  
-                                                    counterAndProgressBar.Post(Inc 1)
+                                            counterAndProgressBar.Post(Inc 1)
         
-                                                    let get uri =
-                                                        http 
-                                                            {
-                                                                config_timeoutInSeconds 300  //for educational purposes
-                                                                GET(uri) 
-                                                            }    
+                                            let get uri =
+                                                http 
+                                                    {
+                                                        GET(uri) 
+                                                        config_timeoutInSeconds 180
+                                                        config_cancellationToken token
+                                                    }    
         
-                                                    use! response = get >> Request.sendAsync <| uri  
+                                            use! response = get >> Request.sendAsync <| uri  
         
-                                                    match response.statusCode with
-                                                    | HttpStatusCode.OK 
-                                                        -> 
-                                                        let pathToFileExist =  
-                                                            pyramidOfDoom
-                                                                {
-                                                                    let filepath = Path.GetFullPath(pathToFile) |> Option.ofNullEmpty 
-                                                                    let! filepath = filepath, None
+                                            match response.statusCode with
+                                            | HttpStatusCode.OK 
+                                                -> 
+                                                let pathToFileExist =  
+                                                    pyramidOfDoom
+                                                        {
+                                                            let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
+                                                            let! filepath = filepath, None
         
-                                                                    let fInfodat: FileInfo = FileInfo filepath
-                                                                    let! _ = not fInfodat.Exists |> Option.ofBool, None   
+                                                            let fInfodat: FileInfo = FileInfo filepath
+                                                            let! _ = not fInfodat.Exists |> Option.ofBool, None   
                                                                                      
-                                                                    return Some ()
-                                                                } 
+                                                            return Some ()
+                                                        } 
                                                                                  
-                                                        match pathToFileExist with
-                                                        | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile       
-                                                        | None   -> return ()  //nechame chybu tise projit  //TODO chybu zaznamenat do logfile  
+                                                match pathToFileExist with
+                                                | Some _ -> return! response.SaveFileAsync >> Async.AwaitTask <| pathToFile       
+                                                | None   -> return ()  //nechame chybu tise projit  //TODO chybu zaznamenat do logfile  
                                                                                                                                                                       
-                                                    | _                
-                                                        -> 
-                                                        return ()      //nechame chybu tise projit //TODO chybu zaznamenat do logfile 
-                                            | true  ->
-                                                    return! async { return token.ThrowIfCancellationRequested() }           
+                                            | _                
+                                                -> 
+                                                return ()      //nechame chybu tise projit //TODO chybu zaznamenat do logfile 
                                     } 
                                     |> Async.RunSynchronously                                                        
                                 )  
                             |> ignore
                             
-                            Ok String.Empty                         
+                            match token.IsCancellationRequested with
+                            | false -> Ok String.Empty
+                            | true  -> Error CancelPdfProcess
 
                         with
                         | :? OperationCanceledException 

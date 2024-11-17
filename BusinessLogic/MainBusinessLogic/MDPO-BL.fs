@@ -80,7 +80,7 @@ module MDPO_BL =
     //FsHttp
     let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) (pathToDir : string) (filterTimetables : Map<string, string>) =  
 
-        let downloadFileTaskAsync (uri : string) (pathToFile : string) : Async<Result<unit, string>> =  
+        let downloadFileTaskAsync (token : CancellationToken) (uri : string) (pathToFile : string) : Async<Result<unit, string>> =  
        
             async
                 {                      
@@ -89,6 +89,13 @@ module MDPO_BL =
                             
                             pyramidOfDoom
                                 {
+                                    let get uri =
+                                        http 
+                                            {
+                                                GET(uri) 
+                                                config_timeoutInSeconds 180
+                                                config_cancellationToken token
+                                            }                                        
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
                                     let! response = get >> Request.sendAsync <| uri |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
@@ -144,7 +151,7 @@ module MDPO_BL =
                                 match token.IsCancellationRequested with
                                 | false -> 
                                         reportProgress (float i + 1.0, float l)  
-                                        return! downloadFileTaskAsync link pathToFile    
+                                        return! downloadFileTaskAsync token link pathToFile    
                                 | true  -> 
                                         return! async { return Ok <| token.ThrowIfCancellationRequested() }  
                             } 
