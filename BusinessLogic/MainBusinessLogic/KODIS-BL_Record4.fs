@@ -35,7 +35,11 @@ module KODIS_BL_Record4 =
         
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 
-    let private actor = //actor model
+    //*************************** Cancellation tokens ********************************
+    
+    // For educational purposes only. Tokens are not required due to the use of `config_timeoutInSeconds`.    
+
+    let private actor =
 
         MailboxProcessor.StartImmediate(fun inbox ->
 
@@ -62,7 +66,7 @@ module KODIS_BL_Record4 =
 
         AsyncSeq.initInfinite (fun _ -> true)
         |> AsyncSeq.mapi (fun index _ -> index) 
-        |> AsyncSeq.takeWhile ((=) true << fun index -> index >= 0) // indefinite sequence
+        |> AsyncSeq.takeWhile ((=) true << fun index -> index >= 0) //indefinite sequence
         |> AsyncSeq.iterAsync 
             (fun index 
                 ->        
@@ -86,7 +90,7 @@ module KODIS_BL_Record4 =
                                 |> Async.StartImmediate  
                             ) 
                                 
-                        do! Async.Sleep 20    
+                        do! Async.Sleep 5000    
                     }
             )
         |> Async.StartImmediate  
@@ -102,7 +106,6 @@ module KODIS_BL_Record4 =
                 match new CancellationTokenSource() |> Option.ofNull with
                 | Some newCts ->
                     try
-                        // Try to get the token
                         let newToken =
                             try
                                 Some newCts.Token
@@ -133,18 +136,10 @@ module KODIS_BL_Record4 =
         |> function    
             | true  -> CancellationToken.None   
             | false -> token2 () 
-    
-    let private myDelete () = 
 
-        let pathToDir = kodisPathTemp                   
-                        
-        match deleteAllODISDirectories pathToDir with
-        | Ok _    -> ()
-        | Error _ -> () //potlacime to, nestoji to za to s tim neco robit
-
-    //************************Main code***********************************************************
+    //************************ Main code *********************************
         
-    let internal operationOnDataFromJson token variant dir =   
+    let internal operationOnDataFromJson token variant dir =  //v parametru je token jen quli educational code v App.fs
 
         try          
             getFromRestApi >> filterTimetableLinks variant dir <| ()
@@ -154,170 +149,159 @@ module KODIS_BL_Record4 =
             string ex.Message |> ignore //TODO logfile                 
             Error DataFilteringError 
                     
-    let internal downloadAndSave token = 
+    let internal downloadAndSave token = //v parametru je token jen quli educational code v App.fs
         
-        let downloadAndSaveTimetables (token : CancellationToken) =
+        let downloadAndSaveTimetables (token : CancellationToken) =  //v parametru je token jen quli educational code v App.fs
             
-                reader
-                    {             
-                        let checkFileCondition pathToFile condition =
+            reader
+                {             
+                    let checkFileCondition pathToFile condition =
                         
-                            pyramidOfDoom
-                                {
-                                    let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
-                                    let! filepath = filepath, None
+                        pyramidOfDoom
+                            {
+                                let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
+                                let! filepath = filepath, None
                                     
-                                    let fInfodat: FileInfo = FileInfo filepath
-                                    let! _ = condition fInfodat |> Option.ofBool, None  
+                                let fInfodat: FileInfo = FileInfo filepath
+                                let! _ = condition fInfodat |> Option.ofBool, None  
                                                                  
-                                    return Some ()
-                                }                    
+                                return Some ()
+                            }                    
                         
-                        let! context = fun env -> env 
+                    let! context = fun env -> env 
             
-                        let l = context.list |> List.length
+                    let l = context.list |> List.length
             
-                        let counterAndProgressBar =
-                            MailboxProcessor.Start <|
-                                fun inbox 
-                                    ->
-                                    let rec loop n = 
-                                        async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
-                                    loop 0
+                    let counterAndProgressBar =
+                        MailboxProcessor.Start <|
+                            fun inbox 
+                                ->
+                                let rec loop n = 
+                                    async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
+                                loop 0
                                                                 
-                        return    
-                            try 
-                                monitorConnectivity (token : CancellationToken)
+                    return    
+                        try 
+                            monitorConnectivity (token : CancellationToken)
                                 
-                                context.list
-                                |> List.unzip             
-                                ||> context.listMappingFunction
-                                    (fun uri (pathToFile: string) 
-                                        -> 
-                                        let token2 = tokenTrigger ()
+                            context.list
+                            |> List.unzip             
+                            ||> context.listMappingFunction
+                                (fun uri (pathToFile: string) 
+                                    -> 
+                                    let token2 = tokenTrigger ()
                                        
-                                        async
-                                            {    
-                                                counterAndProgressBar.Post(Inc 1)
+                                    async
+                                        {    
+                                            counterAndProgressBar.Post(Inc 1)
 
-                                                try                                                                    
-                                                    // enforcing TLS 1.2 and 1.3.
-                                                    ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
+                                            try                                                                    
+                                                // enforcing TLS 1.2 and 1.3.
+                                                ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
 
-                                                    let pathToFileExistFirstCheck = 
-                                                        checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
+                                                let pathToFileExistFirstCheck = 
+                                                    checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
                             
-                                                    match pathToFileExistFirstCheck with  //tady nelze |> function - smesuje to async a pyramidOfDoom computation expressions
-                                                    | Some _
-                                                        -> 
-                                                        let existingFileLength =                               
-                                                            checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                            |> function
-                                                                | Some _ -> (FileInfo pathToFile).Length
-                                                                | None   -> 0L
+                                                match pathToFileExistFirstCheck with  //tady nelze |> function - smesuje to async a pyramidOfDoom computation expressions
+                                                | Some _
+                                                    -> 
+                                                    let existingFileLength =                               
+                                                        checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                                        |> function
+                                                            | Some _ -> (FileInfo pathToFile).Length
+                                                            | None   -> 0L
                                                         
-                                                        let get uri = 
+                                                    let get uri = 
 
-                                                            let headerContent1 = "Range" 
-                                                            let headerContent2 = sprintf "bytes=%d-" existingFileLength 
+                                                        let headerContent1 = "Range" 
+                                                        let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                         
-                                                            match existingFileLength > 0L with
-                                                            | true  -> 
-                                                                    http
-                                                                        {
-                                                                            GET uri
-                                                                            config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                            config_cancellationToken token2
-                                                                            header headerContent1 headerContent2
-                                                                        }
-                                                            | false ->
-                                                                    http
-                                                                        {
-                                                                            GET uri
-                                                                            config_timeoutInSeconds 120
-                                                                            config_cancellationToken token2
-                                                                        }
+                                                        match existingFileLength > 0L with
+                                                        | true  -> 
+                                                                http
+                                                                    {
+                                                                        GET uri
+                                                                        config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_cancellationToken token2
+                                                                        header headerContent1 headerContent2
+                                                                    }
+                                                        | false ->
+                                                                http
+                                                                    {
+                                                                        GET uri
+                                                                        config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_cancellationToken token2
+                                                                    }
 
-                                                        use! response = get >> Request.sendAsync <| uri  
+                                                    use! response = get >> Request.sendAsync <| uri  
                                                        
-                                                        (* 
-                                                        let! response =
-                                                            Async.StartChild(
-                                                                async {
-                                                                        let get uri = 
-
-                                                                            let headerContent1 = "Range" 
-                                                                            let headerContent2 = sprintf "bytes=%d-" existingFileLength 
-                        
-                                                                            match existingFileLength > 0L with
-                                                                            | true  -> 
-                                                                                    http
-                                                                                        {
-                                                                                            GET uri
-                                                                                            //config_timeoutInSeconds 120
-                                                                                            config_cancellationToken token2
-                                                                                            header headerContent1 headerContent2
-                                                                                        }
-                                                                            | false ->
-                                                                                    http
-                                                                                        {
-                                                                                            GET uri
-                                                                                            //config_timeoutInSeconds 120
-                                                                                            config_cancellationToken token2
-                                                                                        }
-
+                                                    (* 
+                                                    //anebo aji takto
+                                                    let! response =
+                                                        Async.StartChild
+                                                            (
+                                                                async
+                                                                    {
+                                                                        let get uri = //vyse uvedeny kod                                                                            
                                                                         return! (get >> Request.sendAsync <| uri) 
-                                                                }, 15 * 1000
+                                                                    },
+                                                                    timeInSeconds * 1000
                                                             )
                                                         
-                                                        let! response = response
-                                                         *)
+                                                    let! response = response
+                                                        *)
 
-                                                        match response.statusCode with
-                                                        | HttpStatusCode.PartialContent // 206
-                                                        | HttpStatusCode.OK  // 200
-                                                            ->         
-                                                            do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
-                                                        | _ ->
-                                                            failwith String.Empty
-                                                    | None 
-                                                        ->
-                                                        failwith String.Empty                  
+                                                    match response.statusCode with
+                                                    | HttpStatusCode.PartialContent // 206
+                                                    | HttpStatusCode.OK  // 200
+                                                        ->         
+                                                        do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+                                                    | _ ->
+                                                        failwith "FileDownloadError"
+
+                                                | None 
+                                                    ->
+                                                    failwith "FileDeleteError"                 
                                                     
-                                                with
-                                                | :? TimeoutException 
-                                                    -> 
-                                                    failwith "Timeout" 
+                                            with
+                                            | :? TimeoutException as ex 
+                                                -> 
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "Timeout" 
 
-                                                | :? System.Net.Http.HttpRequestException as ex when ex.Message.Contains("timeout") 
-                                                    -> 
-                                                    failwith "Timeout" 
+                                            | :? System.Net.Http.HttpRequestException as ex                                                     
+                                                    when ex.Message.Contains("timeout") 
+                                                -> 
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "Timeout" 
+                                                                                 
+                                            | ex 
+                                                when ex.Message.Contains("FileDeleteError") 
+                                                -> 
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "FileDeleteError"
 
-                                                | :? OperationCanceledException 
-                                                    when 
-                                                        token2.IsCancellationRequested 
-                                                            -> 
-                                                            failwith "Timeout"                                                
-                                                | ex 
-                                                    -> 
-                                                    string ex.Message |> ignore //TODO logfile
-                                                    failwith "FileDownloadError"
-                                            } 
-                                        |> Async.RunSynchronously   
-                                    )  
-                                |> ignore
-                                |> Ok
+                                            | ex 
+                                                -> 
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "FileDownloadError"   
+                                        } 
+                                    |> Async.RunSynchronously   
+                                )  
+                            |> ignore
+                            |> Ok
                              
-                            with
-                            | ex 
-                                when ex.Message.Contains("Timeout")
-                                    -> 
-                                    Error <| Timeout 
-                            | ex    
-                                    ->
-                                    string ex.Message |> ignore //TODO logfile         
-                                    Error <| FileDownloadError
-                    } 
+                        with
+                        | ex 
+                            when ex.Message.Contains("Timeout")
+                                -> 
+                                string ex.Message |> ignore //TODO logfile
+                                Error <| TimeoutError 
+                        | ex    
+                                ->
+                                string ex.Message |> ignore //TODO logfile         
+                                Error <| FileDownloadError
+                } 
         
         reader
             {    
@@ -326,6 +310,7 @@ module KODIS_BL_Record4 =
                 return
                     match context.dir |> Directory.Exists with 
                     | false ->
+                            "FileDownloadError" |> ignore //TODO logfile  
                             Error FileDownloadError                                             
                     | true  ->
                             try
@@ -344,12 +329,23 @@ module KODIS_BL_Record4 =
                                          let pathToDir = kodisPathTemp                   
                                                                                      
                                          match deleteAllODISDirectories pathToDir with
-                                         | Ok _    -> Error err
-                                         | Error _ -> Error FileDeleteError
+                                         | Ok _   
+                                             -> 
+                                             string err |> ignore //TODO logfile  
+                                             Error err
+
+                                         | Error _ 
+                                             ->
+                                             "FileDeleteError" |> ignore //TODO logfile  
+                                             Error FileDeleteError
                             with
                             | ex 
                                 ->
                                 string ex.Message |> ignore //TODO logfile   
-                                myDelete () 
-                                Error FileDownloadError 
+
+                                let pathToDir = kodisPathTemp                   
+                        
+                                match deleteAllODISDirectories pathToDir with
+                                | Ok _    -> Error FileDownloadError 
+                                | Error _ -> Error FileDownloadError  //tady uz nestoji za to resit zaroven FileDeleteError
             }               

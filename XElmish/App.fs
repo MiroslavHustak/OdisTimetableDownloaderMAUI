@@ -38,7 +38,7 @@ open ApplicationDesign.WebScraping_KODISFMRecord
 open ApplicationDesign4.WebScraping_KODISFMRecord4
 
 (*     
-    AndroidManifest.xml !!!!!!!!!!!!
+    AndroidManifest.xml: Do not forget to review and update it if necessary. 
 *)
 
 module App =
@@ -68,7 +68,7 @@ module App =
             CloudVisible : bool
             LabelVisible : bool
             Label2Visible : bool            
-            Cts : CancellationTokenSource  //Cancellation tokens for learning purposes only 
+            Cts : CancellationTokenSource  //Cancellation tokens for educational purposes only 
             Token : CancellationToken
         }
 
@@ -79,14 +79,13 @@ module App =
         | Mdpo
         | Restart
         | Quit
-        | CancellationToken2  //Cancellation tokens for learning purposes only 
-        | QuitCountdown of string
+        | CancellationToken2  //Cancellation tokens for educational purposes only 
         | NetConnMessage of string
         | IterationMessage of string    
         | UpdateStatus of float * float * bool
         | WorkIsComplete of string * bool    
                    
-    let init () =  //Cancellation tokens for learning purposes only 
+    let init () =  //Cancellation tokens for educational purposes only 
         
         let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =  
 
@@ -115,7 +114,7 @@ module App =
                 )
             |> Async.StartImmediate  //tady musim hned, nelze Async.Start
         
-        let initialModel = //Cancellation tokens for learning purposes only 
+        let initialModel = //Cancellation tokens for educational purposes only 
             {                 
                 ProgressMsg = String.Empty
                 NetConnMsg = String.Empty
@@ -206,25 +205,7 @@ module App =
                     RestartVisible = isVisible
             }, 
             Cmd.none
-
-        | QuitCountdown message
-            ->
-            {
-                m with                    
-                    ProgressMsg = quitMsg2
-                    NetConnMsg = message
-                    ProgressIndicator = Idle
-                    Progress = 0.0 
-                    CloudProgressMsg = String.Empty                    
-                    KodisVisible = false
-                    DpoVisible = false
-                    MdpoVisible = false
-                    CloudVisible = false  //nechej to false, zatim nebudu pouzivat
-                    LabelVisible = true
-                    Label2Visible = true
-            }, 
-            Cmd.none 
-
+       
         | CancellationToken2 //Template for cancellation tokens 
             ->             
             pyramidOfDoom
@@ -276,7 +257,7 @@ module App =
             HardRestart.exitApp () 
             m, Cmd.none
 
-         | Restart  
+        | Restart  
             -> 
             init ()
              
@@ -286,7 +267,7 @@ module App =
              
         | Kodis 
             ->
-            match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for learning purposes only 
+            match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for educational purposes only 
             | Some newCts 
                 ->
                 let path = kodisPathTemp 
@@ -390,7 +371,7 @@ module App =
 
         | Kodis4 
             -> 
-            match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for learning purposes only 
+            match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for educational purposes only 
             | Some newCts
                 ->   
                 let path = kodisPathTemp4                  
@@ -420,25 +401,7 @@ module App =
                             let! result = hardWork 
                             do! Async.Sleep 1000
 
-                            let countDown () = 
-                                [ 30 .. -1 .. 0 ]  //30 vterin // -1 for backward counting
-                                |> List.toSeq                                             
-                                |> AsyncSeq.ofSeq
-                                |> AsyncSeq.iterAsync
-                                    (fun remaining 
-                                        ->                                                               
-                                        QuitCountdown >> dispatch <| (quitMsg1 remaining)
-                                        
-                                        match remaining with
-                                        | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
-                                        | _ -> Async.Sleep 1000
-                                    )  
-                                |> Async.StartImmediate 
-
-                            match result.Contains("timeout") with
-                            | true  -> countDown ()
-                            | false -> WorkIsComplete >> dispatch <| (result, true)
-                           
+                            WorkIsComplete >> dispatch <| (result, true)
                         }     
 
                 let executeSequentially dispatch =                    
@@ -714,7 +677,7 @@ module App =
                                                                 .width(200.)
                                                                 .horizontalOptions(LayoutOptions.Start)
 
-                                                            Button("x", QuitCountdown String.Empty)
+                                                            Button("x", Restart)
                                                                 .font(size = 20., attributes = FontAttributes.Bold)
                                                                 .padding(2.5,-5.5,2.5,2.5)
                                                                 .width(25.)
