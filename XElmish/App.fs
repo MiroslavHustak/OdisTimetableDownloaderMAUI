@@ -104,34 +104,13 @@ module App =
                                     async
                                         {
                                             match isConnected with
-                                            | true  ->
-                                                     NetConnMessage >> dispatch <| yesNetConn    
-                                            | false ->
-                                                    do! Async.Sleep 5000 //pozdeji 180000
-
-                                                    match isConnected with
-                                                    | true  -> 
-                                                             NetConnMessage >> dispatch <| yesNetConn    
-                                                    | false -> 
-                                                            //TODO myDelete () nejak vyresit
-                                                            [ 20 .. -1 .. 0 ]  //20 vterin // -1 for backward counting
-                                                            |> List.toSeq                                             
-                                                            |> AsyncSeq.ofSeq
-                                                            |> AsyncSeq.iterAsync
-                                                                (fun remaining 
-                                                                    ->                                                               
-                                                                    QuitCountdown >> dispatch <| (quitMsg1 remaining)
-                                                                                                      
-                                                                    match remaining with
-                                                                    | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
-                                                                    | _ -> Async.Sleep 1000
-                                                                )  
-                                                            |> Async.StartImmediate                                                               
+                                            | true  -> NetConnMessage >> dispatch <| yesNetConn    
+                                            | false -> NetConnMessage >> dispatch <| noNetConnPlusPlus
                                         }    
                                     |> Async.StartImmediate  //muze byt aji Async.Start, pokud dany blok nemusi byt spusten hned s hlavnim blokem //Async.Start runs the task asynchronously on the thread pool, while Async.StartImmediate attempts to run the task immediately on the current thread. *)
                                 )                                  
                                 
-                            do! Async.Sleep 5000     
+                            do! Async.Sleep 20     
                         }
                 )
             |> Async.StartImmediate  //tady musim hned, nelze Async.Start

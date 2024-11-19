@@ -215,7 +215,7 @@ module KODIS_BL_Record4 =
                                                             |> function
                                                                 | Some _ -> (FileInfo pathToFile).Length
                                                                 | None   -> 0L
-                                                        (* 
+                                                        
                                                         let get uri = 
 
                                                             let headerContent1 = "Range" 
@@ -226,7 +226,7 @@ module KODIS_BL_Record4 =
                                                                     http
                                                                         {
                                                                             GET uri
-                                                                            config_timeoutInSeconds 5
+                                                                            config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                             config_cancellationToken token2
                                                                             header headerContent1 headerContent2
                                                                         }
@@ -234,13 +234,13 @@ module KODIS_BL_Record4 =
                                                                     http
                                                                         {
                                                                             GET uri
-                                                                            config_timeoutInSeconds 5
+                                                                            config_timeoutInSeconds 120
                                                                             config_cancellationToken token2
                                                                         }
 
                                                         use! response = get >> Request.sendAsync <| uri  
-                                                        *)
-                                                        
+                                                       
+                                                        (* 
                                                         let! response =
                                                             Async.StartChild(
                                                                 async {
@@ -267,21 +267,22 @@ module KODIS_BL_Record4 =
                                                                                         }
 
                                                                         return! (get >> Request.sendAsync <| uri) 
-                                                                }, 120 * 1000
+                                                                }, 15 * 1000
                                                             )
                                                         
                                                         let! response = response
-                                                    
+                                                         *)
+
                                                         match response.statusCode with
                                                         | HttpStatusCode.PartialContent // 206
                                                         | HttpStatusCode.OK  // 200
                                                             ->         
                                                             do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                                         | _ ->
-                                                            failwith "FileDownloadError"
+                                                            failwith String.Empty
                                                     | None 
                                                         ->
-                                                        failwith "FileDeleteError"                   
+                                                        failwith String.Empty                  
                                                     
                                                 with
                                                 | :? TimeoutException 
@@ -294,15 +295,9 @@ module KODIS_BL_Record4 =
 
                                                 | :? OperationCanceledException 
                                                     when 
-                                                        token.IsCancellationRequested 
+                                                        token2.IsCancellationRequested 
                                                             -> 
-                                                            failwith "Timeout" 
-                                                | :? AggregateException
-                                                    as aggEx
-                                                        ->
-                                                        match aggEx.InnerExceptions |> Seq.exists (fun ex -> ex :? TaskCanceledException) with
-                                                        | true  -> failwith "Timeout"
-                                                        | false -> failwith "FileDownloadError"
+                                                            failwith "Timeout"                                                
                                                 | ex 
                                                     -> 
                                                     string ex.Message |> ignore //TODO logfile
@@ -318,14 +313,6 @@ module KODIS_BL_Record4 =
                                 when ex.Message.Contains("Timeout")
                                     -> 
                                     Error <| Timeout 
-                            | ex 
-                                when ex.Message.Contains("FileDownloadError")
-                                    -> 
-                                    Error <| FileDownloadError 
-                            | ex 
-                                when ex.Message.Contains("FileDeleteError")
-                                    -> 
-                                    Error <| FileDeleteError                            
                             | ex    
                                     ->
                                     string ex.Message |> ignore //TODO logfile         
