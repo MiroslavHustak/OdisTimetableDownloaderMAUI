@@ -43,7 +43,7 @@ open ApplicationDesign4.WebScraping_KODISFMRecord4
 
 //Cancellation tokens only work under the Windows Machine mode.
 
-module AppWM =
+module AppCT =
 
     //******************************** Potential helpers *******************************************
 

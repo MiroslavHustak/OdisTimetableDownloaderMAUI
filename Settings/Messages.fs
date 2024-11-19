@@ -63,6 +63,7 @@ module Messages =
    
     let internal noNetConn = "Není přístup k internetu." 
     let internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena, vyčkej na Restart." 
+    let internal noNetConnPlusPlus = "Není přístup k internetu, dvě minuty to snesu ...." 
     let internal noNetConn1 = "Operace nebyla provedena, není přístup k internetu." 
     let internal noNetConn2 = "Není přístup k internetu, nutno vyčkat, až bude." 
     let internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se na internet a spusť ji znovu."  

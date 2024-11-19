@@ -76,6 +76,7 @@
     <Compile Include="Helpers\ListParallel.fs" />
     <Compile Include="Helpers\Parsing.fs" />
     <Compile Include="Helpers\HardRestart.fs" />
+    <Compile Include="Helpers\Connectivity.fs" />
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\Dtos.fs" />
     <Compile Include="DataModelling\TransformationLayers.fs" />
@@ -94,8 +95,8 @@
     <Compile Include="ApplicationDesign\KODIS_Record.fs" />
     <Compile Include="ApplicationDesign\KODIS_Record4.fs" />
     <Compile Include="XElmish\ProgressCircle.fs" />
-    <Compile Include="XElmish\AppAE.fs" />
-    <Compile Include="XElmish\AppWM.fs" />
+    <Compile Include="XElmish\App.fs" />
+    <Compile Include="XElmish\EducationalCode\AppCT.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 

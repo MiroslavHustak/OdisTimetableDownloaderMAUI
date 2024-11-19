@@ -30,7 +30,7 @@ open Types.Types
 
 open Helpers
 open Helpers.Builders
-open Helpers.CheckNetConnection
+open Helpers.Connectivity
 
 open ApplicationDesign.WebScraping_DPO
 open ApplicationDesign.WebScraping_MDPO
@@ -67,8 +67,9 @@ module App =
             RestartVisible : bool
             CloudVisible : bool
             LabelVisible : bool
-            Label2Visible : bool
-            Cts : CancellationTokenSource
+            Label2Visible : bool            
+            Cts : CancellationTokenSource  //Cancellation tokens for learning purposes only 
+            Token : CancellationToken
         }
 
     type Msg =
@@ -78,58 +79,14 @@ module App =
         | Mdpo
         | Restart
         | Quit
+        | CancellationToken2  //Cancellation tokens for learning purposes only 
         | QuitCountdown of string
         | NetConnMessage of string
         | IterationMessage of string    
         | UpdateStatus of float * float * bool
-        | WorkIsComplete of string * bool
-
-    let actor = //actor model
-
-        MailboxProcessor.StartImmediate(fun inbox ->
-
-            let rec loop (isConnected : bool) = 
-                async
-                    {
-                        match! inbox.Receive() with
-                        | UpdateState newState
-                            ->
-                            return! loop newState
-
-                        | CheckState replyChannel
-                            ->                            
-                            replyChannel.Reply(isConnected) 
-                            return! loop isConnected
-                    }
-            
-            loop false // Start the loop with whatever initial value
-        )
-
-    let connectivityListener () = //vysledek je bool
-    
-        let initialConnected = Connectivity.NetworkAccess = NetworkAccess.Internet
-        actor.Post(UpdateState initialConnected) // prvotni inicializace mailboxu
-    
-        let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
-
-            let isConnected = args.NetworkAccess = NetworkAccess.Internet  
-            actor.Post(UpdateState isConnected)
-    
-        Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
-            
-        actor.PostAndAsyncReply (fun replyChannel -> CheckState replyChannel)
-        |> Async.RunSynchronously
-
-    let connectivityListener2 onConnectivityChange = //vysledek je unit
-        
-        let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
-        
-            let isConnected = args.NetworkAccess = NetworkAccess.Internet
-            onConnectivityChange isConnected
-            
-        Connectivity.ConnectivityChanged.Add connectivityChangedHandler
+        | WorkIsComplete of string * bool    
                    
-    let init () =    
+    let init () =  //Cancellation tokens for learning purposes only 
         
         let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =  
 
@@ -146,37 +103,40 @@ module App =
                                     ->
                                     async
                                         {
-                                            match isConnected |> Option.ofBool with
-                                            | Some _
-                                                    ->                                    
-                                                    NetConnMessage >> dispatch <| yesNetConn                                            
-                                            | None
-                                                    -> 
-                                                    () //NetConnMessage >> dispatch <| noNetConn
-                                                        (*
-                                                        [ 20 .. -1 .. 0 ]  //20 vterin // -1 for backward counting
-                                                        |> List.toSeq                                             
-                                                        |> AsyncSeq.ofSeq
-                                                        |> AsyncSeq.iterAsync
-                                                            (fun remaining 
-                                                                ->                                                               
-                                                                QuitCountdown >> dispatch <| quitMsg1 remaining
-                                                                
-                                                                match remaining with
-                                                                | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
-                                                                | _ -> Async.Sleep 1000
-                                                            )  
-                                                        *)
+                                            match isConnected with
+                                            | true  ->
+                                                     NetConnMessage >> dispatch <| yesNetConn    
+                                            | false ->
+                                                    do! Async.Sleep 5000 //pozdeji 180000
+
+                                                    match isConnected with
+                                                    | true  -> 
+                                                             NetConnMessage >> dispatch <| yesNetConn    
+                                                    | false -> 
+                                                            //TODO myDelete () nejak vyresit
+                                                            [ 20 .. -1 .. 0 ]  //20 vterin // -1 for backward counting
+                                                            |> List.toSeq                                             
+                                                            |> AsyncSeq.ofSeq
+                                                            |> AsyncSeq.iterAsync
+                                                                (fun remaining 
+                                                                    ->                                                               
+                                                                    QuitCountdown >> dispatch <| (quitMsg1 remaining)
+                                                                                                      
+                                                                    match remaining with
+                                                                    | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
+                                                                    | _ -> Async.Sleep 1000
+                                                                )  
+                                                            |> Async.StartImmediate                                                               
                                         }    
-                                    |> Async.Start  //muze byt Async.Start, dany blok nemusi byt spusten hned s hlavnim blokem //Async.Start runs the task asynchronously on the thread pool, while Async.StartImmediate attempts to run the task immediately on the current thread. *)
-                                ) 
+                                    |> Async.StartImmediate  //muze byt aji Async.Start, pokud dany blok nemusi byt spusten hned s hlavnim blokem //Async.Start runs the task asynchronously on the thread pool, while Async.StartImmediate attempts to run the task immediately on the current thread. *)
+                                )                                  
                                 
-                            do! Async.Sleep 20     
+                            do! Async.Sleep 5000     
                         }
                 )
             |> Async.StartImmediate  //tady musim hned, nelze Async.Start
         
-        let initialModel = 
+        let initialModel = //Cancellation tokens for learning purposes only 
             {                 
                 ProgressMsg = String.Empty
                 NetConnMsg = String.Empty
@@ -191,9 +151,10 @@ module App =
                 LabelVisible = true
                 Label2Visible = true
                 Cts = new CancellationTokenSource() //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
+                Token = (new CancellationTokenSource()).Token
             } 
 
-        let initialModelNoConn = 
+        let initialModelNoConn = //Cancellation tokens for learning purposes only 
             {                 
                 ProgressMsg = String.Empty
                 NetConnMsg = noNetConnInitial
@@ -207,22 +168,25 @@ module App =
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
-                Cts = new CancellationTokenSource() //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
+                Cts = initialModel.Cts //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
+                Token = initialModel.Token
             }     
         
         try
             pyramidOfDoom
                 {
-                    let initialModelCtsToken =    
+                    let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
                         try
                             Some <| initialModel.Cts.Token               
                         with
                         | _ -> None    
 
-                    let! initialModelCtsToken = initialModelCtsToken, ({ initialModel with NetConnMsg = ctsMsg }, Cmd.none)
-                    let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelCtsToken))
+                    //initialModelNoConn.Token uz neni tra overovat, bo je zavisly na vyse uvedenem
 
-                    return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelCtsToken)
+                    let! initialModelToken = initialModelCtsToken, ({ initialModel with NetConnMsg = ctsMsg }, Cmd.none)
+                    let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
+
+                    return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
                 }  
         with
         | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
@@ -282,6 +246,48 @@ module App =
             }, 
             Cmd.none 
 
+        | CancellationToken2 //Template for cancellation tokens 
+            ->             
+            pyramidOfDoom
+                {  
+                    // Create a new CancellationTokenSource for future use //v danem pripade aji pro konkretni pouziti
+                    let! newCts = new CancellationTokenSource() |> Option.ofNull, (m, Cmd.none) 
+
+                    let newToken =    
+                        try
+                            Some <| m.Cts.Token                                                 
+                        with
+                        | _ -> None         
+
+                    let! newToken = newToken, (m, Cmd.none) 
+
+                    let ctsCancel () =    
+                        try
+                            try
+                                Some <| newCts.Cancel() //This signal is irreversible once sent.
+                               //newCts.CancelAfter(TimeSpan.FromSeconds(float timeOutInSeconds)) zvazit pouziti, neb requesting je az po danem case, ne ze zrobi cancel po danem case
+                            finally                      
+                                m.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
+                        with
+                        | _ -> None
+
+                    let!_ = ctsCancel (), (m, Cmd.none) 
+                   
+                    return  
+                        { 
+                            m with     
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                Progress = 0.0
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false
+                                RestartVisible = false
+                                Cts = newCts  // Replace the old cts with a new one
+                                Token = newToken
+                        },
+                        Cmd.none
+                }    
+
         | IterationMessage message 
             ->
             { m with ProgressMsg = message }, Cmd.none   
@@ -301,7 +307,7 @@ module App =
              
         | Kodis 
             ->
-            match new CancellationTokenSource() |> Option.ofNull with
+            match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for learning purposes only 
             | Some newCts 
                 ->
                 let path = kodisPathTemp 
@@ -316,9 +322,7 @@ module App =
                                 async 
                                     {
                                         let reportProgress (progressValue, totalProgress) = 
-                                            match token.IsCancellationRequested with
-                                            | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                            | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)                                           
+                                            UpdateStatus >> dispatch <| (progressValue, totalProgress, true)                                         
 
                                         return 
                                             stateReducerCmd1
@@ -330,14 +334,10 @@ module App =
 
                             let! result = hardWork 
                             do! Async.Sleep 1000
-                                
-                            match token.IsCancellationRequested with
-                            | true  -> 
-                                    WorkIsComplete >> dispatch <| (netConnError, false)
-                            | false ->          
-                                    match result with
-                                    | Ok result -> WorkIsComplete >> dispatch <| (result, false)  
-                                    | Error err -> WorkIsComplete >> dispatch <| (err, false) 
+                            
+                            match result with
+                            | Ok result -> WorkIsComplete >> dispatch <| (result, false)  
+                            | Error err -> WorkIsComplete >> dispatch <| (err, false) 
                         }  
 
                 let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
@@ -348,9 +348,7 @@ module App =
                                 async 
                                     {   
                                         let reportProgress (progressValue, totalProgress) = 
-                                            match token.IsCancellationRequested with
-                                            | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                            | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)        
+                                            UpdateStatus >> dispatch <| (progressValue, totalProgress, true)  
                                        
                                         return
                                             stateReducerCmd2 
@@ -365,41 +363,15 @@ module App =
                             let! result = hardWork 
                             do! Async.Sleep 1000
                           
-                            match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| (result, true)
-                            | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
+                            WorkIsComplete >> dispatch <| (result, true)
                         }     
 
                 let executeSequentially dispatch =
 
                     async 
                         {                                         
-                            let token =    
-                                try
-                                    Some <| newCts.Token                                                 
-                                with
-                                | _ -> None       
-                         
-                            match token with
-                            | Some token 
-                                -> 
-                                match token.IsCancellationRequested with
-                                | true  -> 
-                                        UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                | false ->
-                                        do! delayedCmd1 token dispatch      
-                                                      
-                                        match token.IsCancellationRequested with
-                                        | true  ->
-                                                UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false ->                                                               
-                                                match token.IsCancellationRequested with
-                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                                | false -> do! delayedCmd2 token dispatch  
-                               
-                            | None      
-                                -> 
-                                ()    
+                            do! delayedCmd1 m.Token dispatch                                        
+                            do! delayedCmd2 m.Token dispatch 
                         }
                     |> Async.StartImmediate
 
@@ -408,16 +380,17 @@ module App =
                     ->             
                     { 
                         m with                               
-                            ProgressMsg = progressMsgKodis 
-                            NetConnMsg = String.Empty
+                            ProgressMsg = progressMsgKodis1 
+                            //NetConnMsg = String.Empty
                             ProgressIndicator = InProgress (0.0, 0.0)
                             KodisVisible = false
                             DpoVisible = false
                             MdpoVisible = false
-                            Cts = newCts  // Update the cts
+                            Cts = new CancellationTokenSource()  // Update the cts
+                            Token = newCts.Token
                     }, 
                     Cmd.ofSub executeSequentially  
-                       
+                   
                 | None  
                     ->
                     { 
@@ -427,9 +400,10 @@ module App =
                             KodisVisible = false
                             DpoVisible = false
                             MdpoVisible = false  
-                            Cts = newCts  // Update the cts
+                            Cts = new CancellationTokenSource()  // Update the cts
+                            Token = newCts.Token
                     }, 
-                    Cmd.none      
+                    Cmd.none 
                                    
             | None      
                 -> 
@@ -437,10 +411,10 @@ module App =
 
         | Kodis4 
             -> 
-            match new CancellationTokenSource() |> Option.ofNull with
+            match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for learning purposes only 
             | Some newCts
                 ->   
-                let path = kodisPathTemp4   
+                let path = kodisPathTemp4                  
                             
                 //delayedCmd1 nebude, neb json se zde nestahuje
 
@@ -452,9 +426,7 @@ module App =
                                 async 
                                     {   
                                         let reportProgress (progressValue, totalProgress) = 
-                                            match token.IsCancellationRequested with
-                                            | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                            | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)        
+                                            UpdateStatus >> dispatch <| (progressValue, totalProgress, true)        
                                        
                                         return
                                             stateReducerCmd4
@@ -469,54 +441,32 @@ module App =
                             let! result = hardWork 
                             do! Async.Sleep 1000
 
-                            match result.Contains("timeout") with
-                            | true  -> 
-                                    [ 30 .. -1 .. 0 ]  //30 vterin // -1 for backward counting
-                                    |> List.toSeq                                             
-                                    |> AsyncSeq.ofSeq
-                                    |> AsyncSeq.iterAsync
-                                        (fun remaining 
-                                            ->                                                               
-                                            QuitCountdown >> dispatch <| (quitMsg1 remaining)
+                            let countDown () = 
+                                [ 30 .. -1 .. 0 ]  //30 vterin // -1 for backward counting
+                                |> List.toSeq                                             
+                                |> AsyncSeq.ofSeq
+                                |> AsyncSeq.iterAsync
+                                    (fun remaining 
+                                        ->                                                               
+                                        QuitCountdown >> dispatch <| (quitMsg1 remaining)
                                         
-                                            match remaining with
-                                            | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
-                                            | _ -> Async.Sleep 1000
-                                        )  
-                                    |> Async.StartImmediate 
+                                        match remaining with
+                                        | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
+                                        | _ -> Async.Sleep 1000
+                                    )  
+                                |> Async.StartImmediate 
 
-                            | false ->                           
-                                    match token.IsCancellationRequested with
-                                    | false -> WorkIsComplete >> dispatch <| (result, true)
-                                    | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
+                            match result.Contains("timeout") with
+                            | true  -> countDown ()
+                            | false -> WorkIsComplete >> dispatch <| (result, true)
+                           
                         }     
 
-                let executeSequentially dispatch =
+                let executeSequentially dispatch =                    
 
                     async 
-                        {                                         
-                            let token =    
-                                try
-                                    Some <| newCts.Token                                                 
-                                with
-                                | _ -> None       
-                         
-                            match token with
-                            | Some token 
-                                ->        
-                                match token.IsCancellationRequested with
-                                | true  ->
-                                        UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                | false ->  
-                                        do! Async.Sleep 4000
-                                        
-                                        match token.IsCancellationRequested with
-                                        | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false -> do! delayedCmd2 token dispatch  
-                               
-                            | None      
-                                -> 
-                                ()    
+                        {  
+                            do! delayedCmd2 m.Token dispatch   
                         }
                     |> Async.StartImmediate  
 
@@ -526,12 +476,13 @@ module App =
                     { 
                         m with                               
                             ProgressMsg = progressMsgKodis1 
-                            NetConnMsg = String.Empty
+                            //NetConnMsg = String.Empty
                             ProgressIndicator = InProgress (0.0, 0.0)
                             KodisVisible = false
                             DpoVisible = false
                             MdpoVisible = false
-                            Cts = newCts  // Update the cts
+                            Cts = new CancellationTokenSource()  // Update the cts
+                            Token = newCts.Token
                     }, 
                     Cmd.ofSub executeSequentially  
                    
@@ -544,9 +495,10 @@ module App =
                             KodisVisible = false
                             DpoVisible = false
                             MdpoVisible = false  
-                            Cts = newCts  // Update the cts
+                            Cts = new CancellationTokenSource()  // Update the cts
+                            Token = newCts.Token
                     }, 
-                    Cmd.none  
+                    Cmd.none 
 
             | None        
                 -> 

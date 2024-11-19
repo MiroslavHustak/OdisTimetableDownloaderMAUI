@@ -47,7 +47,9 @@ module SettingsGeneral =
             connErrorCodeDefault.ServiceUnavailable              
             connErrorCodeDefault.NotFound              
             connErrorCodeDefault.CofeeMakerUnavailable 
-        ]   
+        ] 
+        
+    let internal timeOutInSeconds = 10 
 
     //let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"  //Android 7.1      
     
