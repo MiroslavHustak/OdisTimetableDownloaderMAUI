@@ -90,7 +90,7 @@ module KODIS_BL_Record4 =
                                 |> Async.StartImmediate  
                             ) 
                                 
-                        do! Async.Sleep 5000    
+                        do! Async.Sleep 1000    
                     }
             )
         |> Async.StartImmediate  
@@ -221,7 +221,7 @@ module KODIS_BL_Record4 =
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_timeoutInSeconds 1 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token2
                                                                         header headerContent1 headerContent2
                                                                     }
@@ -229,7 +229,7 @@ module KODIS_BL_Record4 =
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_timeoutInSeconds 1 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token2
                                                                     }
 
@@ -257,23 +257,42 @@ module KODIS_BL_Record4 =
                                                         ->         
                                                         do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                                     | _ ->
-                                                        failwith "FileDownloadError"
+                                                        failwith "FileDownloadError"  
 
                                                 | None 
                                                     ->
                                                     failwith "FileDeleteError"                 
                                                     
                                             with
+                                            | :? System.Threading.Tasks.TaskCanceledException as ex
+                                                ->
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "TimeoutError" 
+
+                                            | :? System.Net.Http.HttpRequestException as ex 
+                                                when 
+                                                    ex.InnerException 
+                                                    |> Option.ofObj
+                                                    |> Option.exists (fun inner -> inner.Message.Contains("The request was canceled due to the configured HttpClient.Timeout")) 
+                                                        ->
+                                                        string ex.Message |> ignore //TODO logfile
+                                                        failwith "TimeoutError"                                           
+
+                                            | :? System.Net.Http.HttpRequestException as ex  
+                                                -> 
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "TimeoutError" 
+
                                             | :? TimeoutException as ex 
                                                 -> 
                                                 string ex.Message |> ignore //TODO logfile
-                                                failwith "Timeout" 
+                                                failwith "TimeoutError" 
 
-                                            | :? System.Net.Http.HttpRequestException as ex                                                     
-                                                    when ex.Message.Contains("timeout") 
+                                            | ex 
+                                                when ex.Message.Contains("A task was cancelled") 
                                                 -> 
                                                 string ex.Message |> ignore //TODO logfile
-                                                failwith "Timeout" 
+                                                failwith "TimeoutError"   
                                                                                  
                                             | ex 
                                                 when ex.Message.Contains("FileDeleteError") 
@@ -282,9 +301,15 @@ module KODIS_BL_Record4 =
                                                 failwith "FileDeleteError"
 
                                             | ex 
+                                                when ex.Message.Contains("FileDownloadError") 
                                                 -> 
                                                 string ex.Message |> ignore //TODO logfile
-                                                failwith "FileDownloadError"   
+                                                failwith "FileDownloadError" 
+
+                                            | ex 
+                                                -> 
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "TimeoutError"   
                                         } 
                                     |> Async.RunSynchronously   
                                 )  
@@ -293,14 +318,14 @@ module KODIS_BL_Record4 =
                              
                         with
                         | ex 
-                            when ex.Message.Contains("Timeout")
+                            when ex.Message.Contains("TimeoutError")
                                 -> 
                                 string ex.Message |> ignore //TODO logfile
-                                Error <| TimeoutError 
+                                Error TimeoutError 
                         | ex    
                                 ->
                                 string ex.Message |> ignore //TODO logfile         
-                                Error <| FileDownloadError
+                                Error FileDownloadError //FileDownloadError
                 } 
         
         reader

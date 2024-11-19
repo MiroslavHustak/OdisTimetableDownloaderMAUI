@@ -79,6 +79,7 @@ module App =
         | Mdpo
         | Restart
         | Quit
+        | QuitCountdown of string
         | CancellationToken2  //Cancellation tokens for educational purposes only 
         | NetConnMessage of string
         | IterationMessage of string    
@@ -109,7 +110,7 @@ module App =
                                     |> Async.StartImmediate  //muze byt aji Async.Start, pokud dany blok nemusi byt spusten hned s hlavnim blokem //Async.Start runs the task asynchronously on the thread pool, while Async.StartImmediate attempts to run the task immediately on the current thread. *)
                                 )                                  
                                 
-                            do! Async.Sleep 20     
+                            do! Async.Sleep 5000    
                         }
                 )
             |> Async.StartImmediate  //tady musim hned, nelze Async.Start
@@ -205,6 +206,24 @@ module App =
                     RestartVisible = isVisible
             }, 
             Cmd.none
+
+        | QuitCountdown message
+            ->
+            {
+                m with                    
+                    ProgressMsg = quitMsg2
+                    NetConnMsg = message
+                    ProgressIndicator = Idle
+                    Progress = 0.0 
+                    CloudProgressMsg = String.Empty                    
+                    KodisVisible = false
+                    DpoVisible = false
+                    MdpoVisible = false
+                    CloudVisible = false  //nechej to false, zatim nebudu pouzivat
+                    LabelVisible = true
+                    Label2Visible = true
+            }, 
+            Cmd.none  
        
         | CancellationToken2 //Template for cancellation tokens 
             ->             
@@ -401,7 +420,24 @@ module App =
                             let! result = hardWork 
                             do! Async.Sleep 1000
 
-                            WorkIsComplete >> dispatch <| (result, true)
+                            let countDown () = 
+                                [ 30 .. -1 .. 0 ]  //30 vterin // -1 for backward counting
+                                |> List.toSeq                                             
+                                |> AsyncSeq.ofSeq
+                                |> AsyncSeq.iterAsync
+                                    (fun remaining 
+                                        ->                                                               
+                                        QuitCountdown >> dispatch <| (quitMsg1 remaining)
+                                        
+                                        match remaining with
+                                        | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
+                                        | _ -> Async.Sleep 1000
+                                    )  
+                                |> Async.StartImmediate 
+
+                            match result.Contains("timeout") with
+                            | true  -> countDown ()
+                            | false -> WorkIsComplete >> dispatch <| (result, true)
                         }     
 
                 let executeSequentially dispatch =                    
