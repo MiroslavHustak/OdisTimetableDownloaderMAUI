@@ -31,7 +31,7 @@ open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
 open Fabulous.Maui
 
-module KODIS_BL_Record4 =    
+module KODIS_BL_Record4-Copy =    
         
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 
@@ -39,7 +39,7 @@ module KODIS_BL_Record4 =
     
     // For educational purposes only. Tokens are not required due to the use of `config_timeoutInSeconds`.    
 
-    let private cancellationActor =
+    let private actor =
 
         MailboxProcessor.StartImmediate(fun inbox ->
 
@@ -62,7 +62,7 @@ module KODIS_BL_Record4 =
 
     let private monitorConnectivity (token : CancellationToken) =  
 
-        cancellationActor.Post(UpdateState true) //inicializace
+        actor.Post(UpdateState true) //inicializace
 
         AsyncSeq.initInfinite (fun _ -> true)
         |> AsyncSeq.mapi (fun index _ -> index) 
@@ -78,16 +78,22 @@ module KODIS_BL_Record4 =
                                 async
                                     {
                                         match isConnected with
-                                        | true  -> ()
-                                        | false -> () //cancellationActor.Post(UpdateState false)
+                                        | true  ->
+                                                ()
+                                        | false ->
+                                                do! Async.Sleep 120000
+
+                                                match isConnected with
+                                                | true  -> ()
+                                                | false -> actor.Post(UpdateState false)
                                     }    
                                 |> Async.StartImmediate  
                             ) 
                                 
-                        do! Async.Sleep 600000 //zatim nepotrebujeme, token sice funguje, RunSynchronously ale zaridi cancel az po pripojeni k netu     
+                        do! Async.Sleep 1000    
                     }
             )
-        |> Async.StartImmediate 
+        |> Async.StartImmediate  
 
     let private tokenTrigger () = 
                   
@@ -125,7 +131,7 @@ module KODIS_BL_Record4 =
             | _ ->
                 defaultToken               
 
-        cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState replyChannel)
+        actor.PostAndAsyncReply (fun replyChannel -> CheckState replyChannel)
         |> Async.RunSynchronously
         |> function    
             | true  -> CancellationToken.None   
@@ -187,8 +193,6 @@ module KODIS_BL_Record4 =
                                        
                                     async
                                         {    
-                                            //invoking config_timeoutInSeconds config_cancellationToken se projevi az po RunSynchronously, bohuzel...
-
                                             counterAndProgressBar.Post(Inc 1)
 
                                             try                                                                    
@@ -206,68 +210,46 @@ module KODIS_BL_Record4 =
                                                         |> function
                                                             | Some _ -> (FileInfo pathToFile).Length
                                                             | None   -> 0L
-                                                    
+                                                        
                                                     let get uri = 
 
                                                         let headerContent1 = "Range" 
                                                         let headerContent2 = sprintf "bytes=%d-" existingFileLength 
-                          
-                                                        //300 vterin, aby to nekolidovalo s odpocitavadlem 
+                        
                                                         match existingFileLength > 0L with
                                                         | true  -> 
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        //config_cancellationToken token2  //funguje
+                                                                        config_timeoutInSeconds 1 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_cancellationToken token2
                                                                         header headerContent1 headerContent2
                                                                     }
                                                         | false ->
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        //config_cancellationToken token2 //funguje
+                                                                        config_timeoutInSeconds 1 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_cancellationToken token2
                                                                     }
 
                                                     use! response = get >> Request.sendAsync <| uri  
-
-                                                    (*
-
+                                                       
+                                                    (* 
+                                                    //anebo aji takto
                                                     let! response =
                                                         Async.StartChild
                                                             (
                                                                 async
                                                                     {
-                                                                        let get uri = 
-                                                                        
-                                                                            let headerContent1 = "Range" 
-                                                                            let headerContent2 = sprintf "bytes=%d-" existingFileLength 
-                                                                                                
-                                                                            match existingFileLength > 0L with
-                                                                            | true  -> 
-                                                                                    http
-                                                                                        {
-                                                                                            GET uri
-                                                                                            config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                                            config_cancellationToken token2
-                                                                                            header headerContent1 headerContent2
-                                                                                        }
-                                                                            | false ->
-                                                                                    http
-                                                                                        {
-                                                                                            GET uri
-                                                                                            config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                                            config_cancellationToken token2
-                                                                                        }
-
+                                                                        let get uri = //vyse uvedeny kod                                                                            
                                                                         return! (get >> Request.sendAsync <| uri) 
                                                                     },
-                                                                    5 * 1000
+                                                                    timeInSeconds * 1000
                                                             )
                                                         
-                                                    let! response = response                                                       
-                                                     *)
+                                                    let! response = response
+                                                        *)
 
                                                     match response.statusCode with
                                                     | HttpStatusCode.PartialContent // 206
@@ -275,15 +257,39 @@ module KODIS_BL_Record4 =
                                                         ->         
                                                         do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                                     | _ ->
-                                                        ()
+                                                        failwith "FileDownloadError"  
 
                                                 | None 
                                                     ->
                                                     failwith "FileDeleteError"                 
                                                     
                                             with
+                                            | :? System.Threading.Tasks.TaskCanceledException as ex
+                                                ->
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "TimeoutError" 
+
+                                            | :? System.Net.Http.HttpRequestException as ex 
+                                                when 
+                                                    ex.InnerException 
+                                                    |> Option.ofObj
+                                                    |> Option.exists (fun inner -> inner.Message.Contains("The request was canceled due to the configured HttpClient.Timeout")) 
+                                                        ->
+                                                        string ex.Message |> ignore //TODO logfile
+                                                        failwith "TimeoutError"                                           
+
+                                            | :? System.Net.Http.HttpRequestException as ex  
+                                                -> 
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "TimeoutError" 
+
+                                            | :? TimeoutException as ex 
+                                                -> 
+                                                string ex.Message |> ignore //TODO logfile
+                                                failwith "TimeoutError" 
+
                                             | ex 
-                                                when ex.Message.Contains("A task was canceled") 
+                                                when ex.Message.Contains("A task was cancelled") 
                                                 -> 
                                                 string ex.Message |> ignore //TODO logfile
                                                 failwith "TimeoutError"   
@@ -303,11 +309,9 @@ module KODIS_BL_Record4 =
                                             | ex 
                                                 -> 
                                                 string ex.Message |> ignore //TODO logfile
-                                                failwith "FileDownloadError"   
+                                                failwith "TimeoutError"   
                                         } 
-                                    |> Async.RunSynchronously //vsechny exn az po "dokonceni", tj. az po zapnuti internetu
-                                    //Async.RunSynchronously (asyncWork (), 5000, token2) nepomohlo, opet ceka na dokonceni, tj. po zapnuti internetu
-                                    //Async.Catch tady neni vhodny
+                                    |> Async.RunSynchronously   
                                 )  
                             |> ignore
                             |> Ok

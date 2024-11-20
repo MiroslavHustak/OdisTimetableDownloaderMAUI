@@ -88,4 +88,4 @@ module Messages =
         | 2 | 3 | 4 -> sprintf "Aplikace bude vypnuta za %i vteřiny." param
         | _         -> sprintf "Aplikace bude vypnuta za %i vteřin." param
 
-    let internal quitMsg2 = "Kvůli přerušení připojení k internetu delšímu než 2 minuty bude tato aplikace automaticky vypnuta."
+    let internal quitMsg2 = "Kvůli přerušení připojení k internetu bude tato aplikace automaticky vypnuta za 2 minuty, pokud nedojde k obnovení připojení."

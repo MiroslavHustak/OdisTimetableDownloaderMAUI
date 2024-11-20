@@ -85,11 +85,52 @@ module App =
         | IterationMessage of string    
         | UpdateStatus of float * float * bool
         | WorkIsComplete of string * bool    
+           
+    let countDown dispatch = //varianta s vypnutim (vsimni si |> Async.executeOnMainThread)
+
+        [ 5 .. -1 .. 0 ]  //30 vterin // -1 for backward counting
+        |> List.toSeq                                             
+        |> AsyncSeq.ofSeq
+        |> AsyncSeq.iterAsync
+            (fun remaining 
+                ->                                                               
+                QuitCountdown >> dispatch <| (quitMsg1 remaining)
+                
+                match remaining with
+                | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
+                | _ -> Async.Sleep 1000 //po vterine to odpocitava
+            )  
+       |> Async.StartImmediate 
+
+    let countDown2 dispatch (token : CancellationToken) = 
+
+        let neco =  token.IsCancellationRequested
+
+        let neco1 = neco
+    
+        [ 120 .. -1 .. 0 ]  //120 vterin // -1 for backward counting
+        |> List.toSeq                                             
+        |> AsyncSeq.ofSeq
+        |> AsyncSeq.takeWhile (fun _ -> not token.IsCancellationRequested) 
+        |> AsyncSeq.iterAsync
+            (fun remaining 
+                ->    
+                async
+                    {
+                        QuitCountdown >> dispatch <| (quitMsg1 remaining)
+                    
+                        match remaining with
+                        | 0 -> return () // End immediately at 0
+                        | _ -> do! Async.Sleep 1000 // Wait for 1 second
+                    }
+            )
+        |> Async.StartImmediate
+           
                    
     let init () =  //Cancellation tokens for educational purposes only 
         
-        let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =  
-
+        let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =              
+                   
             AsyncSeq.initInfinite (fun _ -> true)
             |> AsyncSeq.mapi (fun index _ -> index) 
             |> AsyncSeq.takeWhile ((=) true << fun index -> index >= 0) // indefinite sequence
@@ -104,13 +145,20 @@ module App =
                                     async
                                         {
                                             match isConnected with
-                                            | true  -> NetConnMessage >> dispatch <| yesNetConn    
-                                            | false -> NetConnMessage >> dispatch <| noNetConnPlusPlus
+                                            | true  ->   
+                                                    dispatch CancellationToken2    
+                                                    NetConnMessage >> dispatch <| yesNetConn  
+                                            | false ->                                                    
+                                                    countDown2 dispatch token
+                                                    do! Async.Sleep 120000
+                                                    match isConnected with
+                                                    | true  -> NetConnMessage >> dispatch <| yesNetConn  
+                                                    | false -> dispatch Quit
                                         }    
-                                    |> Async.StartImmediate  //muze byt aji Async.Start, pokud dany blok nemusi byt spusten hned s hlavnim blokem //Async.Start runs the task asynchronously on the thread pool, while Async.StartImmediate attempts to run the task immediately on the current thread. *)
+                                    |> Async.Start  //muze byt aji Async.Start, pokud dany blok nemusi byt spusten hned s hlavnim blokem //Async.Start runs the task asynchronously on the thread pool, while Async.StartImmediate attempts to run the task immediately on the current thread. *)
                                 )                                  
                                 
-                            do! Async.Sleep 5000    
+                            do! Async.Sleep 1000    
                         }
                 )
             |> Async.StartImmediate  //tady musim hned, nelze Async.Start
@@ -150,7 +198,7 @@ module App =
                 Cts = initialModel.Cts //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
                 Token = initialModel.Token
             }     
-        
+       
         try
             pyramidOfDoom
                 {
@@ -169,6 +217,9 @@ module App =
                 }  
         with
         | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
+       
+        
+        //initialModel, Cmd.none
 
     let update msg m =
 
@@ -204,18 +255,17 @@ module App =
                     DpoVisible = false
                     MdpoVisible = false
                     RestartVisible = isVisible
+                    Cts = new CancellationTokenSource() //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
+                    Token = (new CancellationTokenSource()).Token
             }, 
             Cmd.none
-
+                   
         | QuitCountdown message
             ->
             {
                 m with                    
-                    ProgressMsg = quitMsg2
+                    //ProgressMsg = quitMsg2
                     NetConnMsg = message
-                    ProgressIndicator = Idle
-                    Progress = 0.0 
-                    CloudProgressMsg = String.Empty                    
                     KodisVisible = false
                     DpoVisible = false
                     MdpoVisible = false
@@ -255,12 +305,6 @@ module App =
                     return  
                         { 
                             m with     
-                                ProgressIndicator = InProgress (0.0, 0.0)
-                                Progress = 0.0
-                                KodisVisible = false
-                                DpoVisible = false
-                                MdpoVisible = false
-                                RestartVisible = false
                                 Cts = newCts  // Replace the old cts with a new one
                                 Token = newToken
                         },
@@ -419,24 +463,9 @@ module App =
                                
                             let! result = hardWork 
                             do! Async.Sleep 1000
-
-                            let countDown () = 
-                                [ 30 .. -1 .. 0 ]  //30 vterin // -1 for backward counting
-                                |> List.toSeq                                             
-                                |> AsyncSeq.ofSeq
-                                |> AsyncSeq.iterAsync
-                                    (fun remaining 
-                                        ->                                                               
-                                        QuitCountdown >> dispatch <| (quitMsg1 remaining)
-                                        
-                                        match remaining with
-                                        | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
-                                        | _ -> Async.Sleep 1000
-                                    )  
-                                |> Async.StartImmediate 
-
+                            
                             match result.Contains("timeout") with
-                            | true  -> countDown ()
+                            | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
                             | false -> WorkIsComplete >> dispatch <| (result, true)
                         }     
 
