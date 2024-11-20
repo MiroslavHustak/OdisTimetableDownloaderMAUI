@@ -102,30 +102,64 @@ module App =
             )  
        |> Async.StartImmediate 
 
-    let countDown2 dispatch (token : CancellationToken) = 
-
-        let neco =  token.IsCancellationRequested
-
-        let neco1 = neco
-    
-        [ 120 .. -1 .. 0 ]  //120 vterin // -1 for backward counting
+    let countDown2 dispatch (token2 : CancellationToken) = 
+           
+        [ 10 .. -1 .. 0 ]  //120 vterin // -1 for backward counting
         |> List.toSeq                                             
         |> AsyncSeq.ofSeq
-        |> AsyncSeq.takeWhile (fun _ -> not token.IsCancellationRequested) 
-        |> AsyncSeq.iterAsync
+        |> AsyncSeq.takeWhile ((=) true << fun _ -> not token2.IsCancellationRequested) // indefinite sequence
+        |> AsyncSeq.iterAsync 
             (fun remaining 
                 ->    
                 async
                     {
+                        let remaining = 
+                            match connectivityListener () with
+                            | true -> 0
+                            | false -> remaining
+                            
                         QuitCountdown >> dispatch <| (quitMsg1 remaining)
                     
                         match remaining with
-                        | 0 -> return () // End immediately at 0
+                        | 0 -> return NetConnMessage >> dispatch <| yesNetConn // End immediately at 0
                         | _ -> do! Async.Sleep 1000 // Wait for 1 second
                     }
             )
         |> Async.StartImmediate
-           
+
+    let token2 () =
+        
+         let defaultToken = CancellationToken.None
+     
+         try
+             // Create a new CancellationTokenSource
+             match new CancellationTokenSource() |> Option.ofNull with
+             | Some newCts ->
+                 try
+                     let newToken =
+                         try
+                             Some newCts.Token
+                         with
+                         | _ -> None
+     
+                     match newToken with
+                     | Some newToken 
+                         ->
+                         newCts.Cancel() // This signal is irreversible once sent.
+                         newToken
+
+                     | None 
+                         ->
+                         newCts.Dispose()
+                         defaultToken
+                 finally
+                     newCts.Dispose()
+             | None
+                 ->
+                 defaultToken
+         with
+         | _ ->
+             defaultToken   
                    
     let init () =  //Cancellation tokens for educational purposes only 
         
@@ -139,23 +173,24 @@ module App =
                     ->        
                     async 
                         {    
+                            let token2 = token2 ()
+                            
                             connectivityListener2 
                                 (fun isConnected 
                                     ->
                                     async
                                         {
                                             match isConnected with
-                                            | true  ->   
-                                                    dispatch CancellationToken2    
+                                            | true
+                                                    ->                                                         
                                                     NetConnMessage >> dispatch <| yesNetConn  
-                                            | false ->                                                    
-                                                    countDown2 dispatch token
-                                                    do! Async.Sleep 120000
-                                                    match isConnected with
-                                                    | true  -> NetConnMessage >> dispatch <| yesNetConn  
-                                                    | false -> dispatch Quit
-                                        }    
-                                    |> Async.Start  //muze byt aji Async.Start, pokud dany blok nemusi byt spusten hned s hlavnim blokem //Async.Start runs the task asynchronously on the thread pool, while Async.StartImmediate attempts to run the task immediately on the current thread. *)
+
+                                            | false -> 
+                                                    countDown2 dispatch token2
+                                                    do! Async.Sleep 10000
+                                                    dispatch Quit
+                                        }
+                                    |> Async.StartImmediate                                      
                                 )                                  
                                 
                             do! Async.Sleep 1000    
@@ -211,6 +246,19 @@ module App =
                     //initialModelNoConn.Token uz neni tra overovat, bo je zavisly na vyse uvedenem
 
                     let! initialModelToken = initialModelCtsToken, ({ initialModel with NetConnMsg = ctsMsg }, Cmd.none)
+
+                    let ctsCancel () =    
+                        try
+                            try
+                                Some <| initialModel.Cts.Cancel() //This signal is irreversible once sent.
+                            finally                      
+                                initialModel.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
+                        with
+                        | _ -> None
+
+                    //cancellation token to be signalled if needed
+                    //let!_ = ctsCancel (), (initialModel, Cmd.none) 
+
                     let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
 
                     return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
