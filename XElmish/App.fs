@@ -86,117 +86,134 @@ module App =
         | UpdateStatus of float * float * bool
         | WorkIsComplete of string * bool    
            
-    let countDown dispatch = //varianta s vypnutim (vsimni si |> Async.executeOnMainThread)
-
-        [ 5 .. -1 .. 0 ]  //30 vterin // -1 for backward counting
+    let private countDown dispatch = //vsimni si |> Async.executeOnMainThread
+      
+        [ 60 .. -1 .. 0 ]  //60 vterin // -1 for backward counting
         |> List.toSeq                                             
         |> AsyncSeq.ofSeq
         |> AsyncSeq.iterAsync
             (fun remaining 
-                ->                                                               
-                QuitCountdown >> dispatch <| (quitMsg1 remaining)
+                ->      
+                QuitCountdown >> dispatch <| (quitMsg remaining)
                 
-                match remaining with
-                | 0 -> async { return dispatch Quit } |> Async.executeOnMainThread
-                | _ -> Async.Sleep 1000 //po vterine to odpocitava
-            )  
-       |> Async.StartImmediate 
-
-    let countDown2 dispatch (token2 : CancellationToken) = 
-           
-        [ 10 .. -1 .. 0 ]  //120 vterin // -1 for backward counting
-        |> List.toSeq                                             
-        |> AsyncSeq.ofSeq
-        |> AsyncSeq.takeWhile ((=) true << fun _ -> not token2.IsCancellationRequested) // indefinite sequence
-        |> AsyncSeq.iterAsync 
-            (fun remaining 
-                ->    
-                async
-                    {
-                        let remaining = 
-                            match connectivityListener () with
-                            | true -> 0
-                            | false -> remaining
-                            
-                        QuitCountdown >> dispatch <| (quitMsg1 remaining)
-                    
-                        match remaining with
-                        | 0 -> return NetConnMessage >> dispatch <| yesNetConn // End immediately at 0
-                        | _ -> do! Async.Sleep 1000 // Wait for 1 second
-                    }
-            )
-        |> Async.StartImmediate
-
-    let token2 () =
+                match connectivityListener () with
+                | false 
+                    when remaining = 0  
+                        ->
+                        async { return dispatch Quit } |> Async.executeOnMainThread                        
+               
+                | false
+                    when remaining <> 0
+                        -> 
+                        Async.Sleep 1000 //po vterine to odpocitava
+                | _
+                        -> 
+                        async
+                            { 
+                                //tato varianta v pozadi jede dal
+                                return NetConnMessage >> dispatch <| continueDownload
+                            } 
+                        |> Async.executeOnMainThread                           
+            ) 
         
-         let defaultToken = CancellationToken.None
-     
-         try
-             // Create a new CancellationTokenSource
-             match new CancellationTokenSource() |> Option.ofNull with
-             | Some newCts ->
-                 try
-                     let newToken =
-                         try
-                             Some newCts.Token
-                         with
-                         | _ -> None
-     
-                     match newToken with
-                     | Some newToken 
-                         ->
-                         newCts.Cancel() // This signal is irreversible once sent.
-                         newToken
+    let private countDown2 dispatch =
 
-                     | None 
-                         ->
-                         newCts.Dispose()
-                         defaultToken
-                 finally
-                     newCts.Dispose()
-             | None
-                 ->
-                 defaultToken
-         with
-         | _ ->
-             defaultToken   
+        let rec loop remaining =
+            async
+                {
+                    QuitCountdown >> dispatch <| (quitMsg remaining)
+    
+                    match connectivityListener () with
+                    | false 
+                        when remaining = 0
+                            ->
+                            do! 
+                                async { return dispatch Quit }
+                                |> Async.executeOnMainThread                             
+                    | false 
+                        when remaining <> 0 
+                            ->
+                            do! Async.Sleep 1000
+                            // Recurring with the next remaining value
+                            return! loop (remaining - 1)
+                    | _ 
+                            ->
+                            do! 
+                                async { return NetConnMessage >> dispatch <| continueDownload } 
+                                |> Async.executeOnMainThread 
+                }
+    
+        // Starting the countdown from 60
+        Async.StartImmediate (loop 60)
                    
-    let init () =  //Cancellation tokens for educational purposes only 
+    let private token2 () = //Cancellation tokens (token, token2) for educational purposes only 
+        
+        //Template_002 for cancellation tokens 
+
+        let defaultToken = CancellationToken.None
+     
+        try
+            // Create a new CancellationTokenSource
+            match new CancellationTokenSource() |> Option.ofNull with
+            | Some newCts ->
+                try
+                    let newToken =
+                        try
+                            Some newCts.Token
+                        with
+                        | _ -> None
+     
+                    match newToken with
+                    | Some newToken 
+                        ->
+                        newCts.Cancel() // This signal is irreversible once sent.
+                        newToken
+
+                    | None 
+                        ->
+                        newCts.Dispose()
+                        defaultToken
+                finally
+                    newCts.Dispose()
+            | None
+                ->
+                defaultToken
+        with
+        | _ ->
+            defaultToken   
+                   
+    let init () =  //Cancellation tokens (token, token2) for educational purposes only 
         
         let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =              
                    
             AsyncSeq.initInfinite (fun _ -> true)
             |> AsyncSeq.mapi (fun index _ -> index) 
-            |> AsyncSeq.takeWhile ((=) true << fun index -> index >= 0) // indefinite sequence
+            |> AsyncSeq.takeWhile ((=) true << fun index -> index >= 0) // indefinite sequence //for educational purposes
             |> AsyncSeq.iterAsync 
                 (fun index 
                     ->        
                     async 
-                        {    
-                            let token2 = token2 ()
-                            
+                        {                                
                             connectivityListener2 
                                 (fun isConnected 
                                     ->
                                     async
                                         {
                                             match isConnected with
-                                            | true
-                                                    ->                                                         
-                                                    NetConnMessage >> dispatch <| yesNetConn  
-
+                                            | true  ->
+                                                    () //NetConnMessage >> dispatch <| yesNetConn 
                                             | false -> 
-                                                    countDown2 dispatch token2
-                                                    do! Async.Sleep 10000
-                                                    dispatch Quit
+                                                    NetConnMessage >> dispatch <| noNetConn 
+                                                    do! Async.Sleep 2000
+                                                    countDown2 dispatch 
                                         }
-                                    |> Async.StartImmediate                                      
+                                    |> Async.StartImmediate                                     
                                 )                                  
                                 
-                            do! Async.Sleep 1000    
+                            do! Async.Sleep 1000   
                         }
                 )
-            |> Async.StartImmediate  //tady musim hned, nelze Async.Start
+            |> Async.StartImmediate  
         
         let initialModel = //Cancellation tokens for educational purposes only 
             {                 
@@ -234,7 +251,77 @@ module App =
                 Token = initialModel.Token
             }     
        
-        try
+        try          
+            pyramidOfDoom
+                {
+                    let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
+                        try
+                            Some <| initialModel.Cts.Token               
+                        with
+                        | _ -> None    
+
+                    //initialModelNoConn.Token uz neni tra overovat, bo je zavisly na vyse uvedenem
+
+                    let! initialModelToken = initialModelCtsToken, ({ initialModel with NetConnMsg = ctsMsg }, Cmd.none)
+
+                    let ctsCancel () =    
+                        try
+                            try
+                                Some <| initialModel.Cts.Cancel() //This signal is irreversible once sent.
+                            finally                      
+                                initialModel.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
+                        with
+                        | _ -> None
+
+                    //cancellation token to be signalled if needed
+                    let!_ = ctsCancel (), (initialModel, Cmd.none) 
+
+                    let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
+
+                    return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
+                }  
+        with
+        | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
+
+    let init2 () =  //Cancellation tokens (token, token2) for educational purposes only         
+               
+        let initialModel = //Cancellation tokens for educational purposes only 
+            {                 
+                ProgressMsg = String.Empty
+                NetConnMsg = String.Empty
+                CloudProgressMsg = String.Empty
+                ProgressIndicator = Idle
+                Progress = 0.0 
+                KodisVisible = true
+                DpoVisible = true
+                MdpoVisible = true
+                RestartVisible = false
+                CloudVisible = false  //nechej to false, zatim nebudu pouzivat
+                LabelVisible = true
+                Label2Visible = true
+                Cts = new CancellationTokenSource() //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
+                Token = (new CancellationTokenSource()).Token
+            } 
+
+        let initialModelNoConn = //Cancellation tokens for learning purposes only 
+            {                 
+                ProgressMsg = String.Empty
+                NetConnMsg = noNetConnInitial
+                CloudProgressMsg = String.Empty
+                ProgressIndicator = Idle
+                Progress = 0.0 
+                KodisVisible = false
+                DpoVisible = false
+                MdpoVisible = false
+                RestartVisible = false
+                CloudVisible = false  //nechej to false, zatim nebudu pouzivat
+                LabelVisible = true
+                Label2Visible = true
+                Cts = initialModel.Cts //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
+                Token = initialModel.Token
+            }     
+       
+        try          
             pyramidOfDoom
                 {
                     let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
@@ -259,15 +346,12 @@ module App =
                     //cancellation token to be signalled if needed
                     //let!_ = ctsCancel (), (initialModel, Cmd.none) 
 
-                    let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
+                    let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.none)
 
-                    return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
+                    return initialModel, Cmd.none
                 }  
         with
         | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
-       
-        
-        //initialModel, Cmd.none
 
     let update msg m =
 
@@ -312,7 +396,6 @@ module App =
             ->
             {
                 m with                    
-                    //ProgressMsg = quitMsg2
                     NetConnMsg = message
                     KodisVisible = false
                     DpoVisible = false
@@ -323,7 +406,7 @@ module App =
             }, 
             Cmd.none  
        
-        | CancellationToken2 //Template for cancellation tokens 
+        | CancellationToken2 //Template_001 for cancellation tokens 
             ->             
             pyramidOfDoom
                 {  
@@ -370,7 +453,7 @@ module App =
 
         | Restart  
             -> 
-            init ()
+            init2 ()
              
         | NetConnMessage message
             ->
@@ -531,7 +614,7 @@ module App =
                     { 
                         m with                               
                             ProgressMsg = progressMsgKodis1 
-                            //NetConnMsg = String.Empty
+                            NetConnMsg = yesNetConn
                             ProgressIndicator = InProgress (0.0, 0.0)
                             KodisVisible = false
                             DpoVisible = false

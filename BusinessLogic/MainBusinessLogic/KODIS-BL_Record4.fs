@@ -29,7 +29,6 @@ open Settings.SettingsGeneral
 open Api.CallApi
 open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
-open Fabulous.Maui
 
 module KODIS_BL_Record4 =    
         
@@ -37,9 +36,9 @@ module KODIS_BL_Record4 =
 
     //*************************** Cancellation tokens ********************************
     
-    // For educational purposes only. Tokens are not required due to the use of `config_timeoutInSeconds`.    
+    // For educational purposes only. 
 
-    let private cancellationActor =
+    let private cancellationActor = //zatim nepotrebne
 
         MailboxProcessor.StartImmediate(fun inbox ->
 
@@ -60,7 +59,7 @@ module KODIS_BL_Record4 =
             loop true // Start the loop with whatever initial value
         )
 
-    let private monitorConnectivity (token : CancellationToken) =  
+    let private monitorConnectivity (token : CancellationToken) =  //zatim nepotrebne
 
         cancellationActor.Post(UpdateState true) //inicializace
 
@@ -89,7 +88,7 @@ module KODIS_BL_Record4 =
             )
         |> Async.StartImmediate 
 
-    let private tokenTrigger () = 
+    let private tokenTrigger () = //zatim nepotrebne
                   
         let token2 () =
            
@@ -176,14 +175,14 @@ module KODIS_BL_Record4 =
                                                                 
                     return    
                         try 
-                            monitorConnectivity (token : CancellationToken)
+                            //monitorConnectivity (token : CancellationToken)
                                 
                             context.list
                             |> List.unzip             
                             ||> context.listMappingFunction
                                 (fun uri (pathToFile: string) 
                                     -> 
-                                    let token2 = tokenTrigger ()
+                                    //let token2 = tokenTrigger ()  //zatim nepotrebne
                                        
                                     async
                                         {    
@@ -212,7 +211,7 @@ module KODIS_BL_Record4 =
                                                         let headerContent1 = "Range" 
                                                         let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                           
-                                                        //300 vterin, aby to nekolidovalo s odpocitavadlem 
+                                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 120 vterin) v XElmish 
                                                         match existingFileLength > 0L with
                                                         | true  -> 
                                                                 http
@@ -249,7 +248,7 @@ module KODIS_BL_Record4 =
                                                                                     http
                                                                                         {
                                                                                             GET uri
-                                                                                            config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                            config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                                             config_cancellationToken token2
                                                                                             header headerContent1 headerContent2
                                                                                         }
@@ -257,7 +256,7 @@ module KODIS_BL_Record4 =
                                                                                     http
                                                                                         {
                                                                                             GET uri
-                                                                                            config_timeoutInSeconds 120 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                            config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                                             config_cancellationToken token2
                                                                                         }
 

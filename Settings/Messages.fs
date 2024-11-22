@@ -82,10 +82,10 @@ module Messages =
 
     let internal buttonQuit = "Okamžité vypnutí aplikace" 
 
-    let internal quitMsg1 param = 
+    let internal quitMsg param = 
         match param with
-        | 1         -> sprintf "Aplikace bude vypnuta za %i vteřinu." param
-        | 2 | 3 | 4 -> sprintf "Aplikace bude vypnuta za %i vteřiny." param
-        | _         -> sprintf "Aplikace bude vypnuta za %i vteřin." param
+        | 1         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu, pokud nedojde k obnovení připojení." param
+        | 2 | 3 | 4 -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny, pokud nedojde k obnovení připojení." param
+        | _         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin, pokud nedojde k obnovení připojení." param
 
-    let internal quitMsg2 = "Kvůli přerušení připojení k internetu bude tato aplikace automaticky vypnuta za 2 minuty, pokud nedojde k obnovení připojení."
+    let internal continueDownload = "Příslušná stahovací operace po přerušení pokračuje."
