@@ -31,15 +31,7 @@ open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
 
 module KODIS_BL_Record =            
-   
-    let private myDelete () = 
-
-        let pathToDir = kodisPathTemp                   
-                        
-        match deleteAllODISDirectories pathToDir with
-        | Ok _    -> ()
-        | Error _ -> () //potlacime to, nestoji to za to s tim neco robit
-
+        
     //************************Main code***********************************************************
 
     //For testing purposes
