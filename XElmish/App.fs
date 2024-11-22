@@ -84,11 +84,15 @@ module App =
         | NetConnMessage of string
         | IterationMessage of string    
         | UpdateStatus of float * float * bool
-        | WorkIsComplete of string * bool    
-           
+        | WorkIsComplete of string * bool          
+
+    let private waitingForNetConn = 30 // 30 vterin
+    
     let private countDown dispatch = //vsimni si |> Async.executeOnMainThread
+
+        //tato varianta odpocitadla v pozadi jede dal
       
-        [ 60 .. -1 .. 0 ]  //60 vterin // -1 for backward counting
+        [ waitingForNetConn .. -1 .. 0 ]  // -1 for backward counting
         |> List.toSeq                                             
         |> AsyncSeq.ofSeq
         |> AsyncSeq.iterAsync
@@ -144,8 +148,7 @@ module App =
                                 |> Async.executeOnMainThread 
                 }
     
-        // Starting the countdown from 60
-        Async.StartImmediate (loop 60)
+        Async.StartImmediate (loop waitingForNetConn) 
                       
     let init () =  //Cancellation tokens (token, token2) for educational purposes only 
         
@@ -239,7 +242,7 @@ module App =
                         | _ -> None
 
                     //cancellation token to be signalled if needed
-                    let!_ = ctsCancel (), (initialModel, Cmd.none) 
+                    //let!_ = ctsCancel (), (initialModel, Cmd.none) 
 
                     let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
 
@@ -483,6 +486,12 @@ module App =
                             do! Async.Sleep 1000
                           
                             WorkIsComplete >> dispatch <| (result, true)
+
+                            (*
+                                match result.Contains("timeout") with
+                                | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
+                                | false -> WorkIsComplete >> dispatch <| (result, true)
+                            *)
                         }     
 
                 let executeSequentially dispatch =
@@ -499,7 +508,7 @@ module App =
                     ->             
                     { 
                         m with                               
-                            ProgressMsg = progressMsgKodis1 
+                            ProgressMsg = progressMsgKodis 
                             //NetConnMsg = String.Empty
                             ProgressIndicator = InProgress (0.0, 0.0)
                             KodisVisible = false
@@ -559,10 +568,14 @@ module App =
                                
                             let! result = hardWork 
                             do! Async.Sleep 1000
+
+                            WorkIsComplete >> dispatch <| (result, true)
                             
-                            match result.Contains("timeout") with
-                            | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
-                            | false -> WorkIsComplete >> dispatch <| (result, true)
+                            (*
+                                match result.Contains("timeout") with
+                                | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
+                                | false -> WorkIsComplete >> dispatch <| (result, true)
+                            *)
                         }     
 
                 let executeSequentially dispatch =                    

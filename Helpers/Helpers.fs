@@ -48,6 +48,19 @@ module FileInfoHelper =
         |> function
             | Ok value -> value                      
             | Error _  -> async { return jsonEmpty } //TODO logfile, nestoji to za to vytahovat Result nahoru
+
+    let internal checkFileCondition pathToFile condition =
+        
+        pyramidOfDoom
+            {
+                let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
+                let! filepath = filepath, None
+                    
+                let fInfodat: FileInfo = FileInfo filepath
+                let! _ = condition fInfodat |> Option.ofBool, None  
+                                                 
+                return Some ()
+            }              
        
 module MyString = 
         

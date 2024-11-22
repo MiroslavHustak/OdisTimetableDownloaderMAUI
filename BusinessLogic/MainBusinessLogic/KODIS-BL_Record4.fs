@@ -22,6 +22,7 @@ open Types.ErrorTypes
 open Helpers
 open Helpers.Builders
 open Helpers.Connectivity
+open Helpers.FileInfoHelper
 
 open Settings.Messages
 open Settings.SettingsGeneral
@@ -59,7 +60,7 @@ module KODIS_BL_Record4 =
             loop true // Start the loop with whatever initial value
         )
 
-    let private monitorConnectivity (token : CancellationToken) =  //zatim nepotrebne
+    let private monitorConnectivity (token : CancellationToken) =  //zatim nepouzivano
 
         cancellationActor.Post(UpdateState true) //inicializace
 
@@ -83,7 +84,7 @@ module KODIS_BL_Record4 =
                                 |> Async.StartImmediate  
                             ) 
                                 
-                        do! Async.Sleep 600000 //zatim nepotrebujeme, token sice funguje, RunSynchronously ale zaridi cancel az po pripojeni k netu     
+                        do! Async.Sleep 600000 //zatim nepotrebujeme, token sice funguje, RunSynchronously ale umozni cancel az po pripojeni k netu     
                     }
             )
         |> Async.StartImmediate 
@@ -147,20 +148,7 @@ module KODIS_BL_Record4 =
         let downloadAndSaveTimetables (token : CancellationToken) =  //v parametru je token jen quli educational code v App.fs
             
             reader
-                {             
-                    let checkFileCondition pathToFile condition =
-                        
-                        pyramidOfDoom
-                            {
-                                let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
-                                let! filepath = filepath, None
-                                    
-                                let fInfodat: FileInfo = FileInfo filepath
-                                let! _ = condition fInfodat |> Option.ofBool, None  
-                                                                 
-                                return Some ()
-                            }                    
-                        
+                {                         
                     let! context = fun env -> env 
             
                     let l = context.list |> List.length
@@ -211,7 +199,7 @@ module KODIS_BL_Record4 =
                                                         let headerContent1 = "Range" 
                                                         let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                           
-                                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 120 vterin) v XElmish 
+                                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
                                                         match existingFileLength > 0L with
                                                         | true  -> 
                                                                 http
@@ -292,12 +280,6 @@ module KODIS_BL_Record4 =
                                                 -> 
                                                 string ex.Message |> ignore //TODO logfile
                                                 failwith "FileDeleteError"
-
-                                            | ex 
-                                                when ex.Message.Contains("FileDownloadError") 
-                                                -> 
-                                                string ex.Message |> ignore //TODO logfile
-                                                failwith "FileDownloadError" 
 
                                             | ex 
                                                 -> 

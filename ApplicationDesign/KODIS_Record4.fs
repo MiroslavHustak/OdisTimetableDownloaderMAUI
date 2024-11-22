@@ -66,16 +66,15 @@ module WebScraping_KODISFMRecord4 =
         let errFn err =  
             match err with
             | RcError                -> rcError
+            | NoFolderError          -> noFolderError
             | JsonFilteringError     -> jsonFilteringError
             | DataFilteringError     -> dataFilteringError
             | FileDeleteError        -> fileDeleteError 
             | CreateFolderError      -> createFolderError
-            | NoFolderError          -> createFolderError
             | FileDownloadError      -> fileDownloadError
             | CanopyError            -> canopyError
             | TimeoutError           -> "timeout"
             | PdfConnectionError     -> cancelMsg2 
-            | CancelPdfProcess       -> cancelMsg2    //TODO zrusit  
             | ApiResponseError err   -> err
             | ApiDecodingError       -> canopyError
             | NetConnPdfError err    -> err

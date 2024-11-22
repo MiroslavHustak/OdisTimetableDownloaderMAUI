@@ -89,4 +89,4 @@ module Messages =
         | 2 | 3 | 4 -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny, pokud nedojde k obnovení připojení." param
         | _         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin, pokud nedojde k obnovení připojení." param
 
-    let internal continueDownload = "Příslušná stahovací operace po přerušení pokračuje."
+    let internal continueDownload = "Stahovací operace se po přerušení pokusí automaticky obnovit, vznik chyby je možný."

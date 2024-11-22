@@ -14,22 +14,21 @@ module ErrorTypes =
         }
 
     type internal JsonDownloadErrors = 
+        | JsonTimeoutError
         | JsonDownloadError     
-        | CancelJsonProcess  
-        | JsonConnectionError
+        | JsonConnectionError       
         | NetConnJsonError of string
            
     type internal PdfDownloadErrors =
-        | RcError 
-        | JsonFilteringError
+        | RcError         
         | DataFilteringError
+        | JsonFilteringError //vyjimecne to musime dat tady
         | FileDeleteError
         | CreateFolderError
         | FileDownloadError
         | NoFolderError
         | CanopyError
         | TimeoutError
-        | CancelPdfProcess  //TODO zrusit
         | PdfConnectionError
         | ApiResponseError of string
         | ApiDecodingError
