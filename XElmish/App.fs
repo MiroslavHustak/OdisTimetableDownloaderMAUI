@@ -119,6 +119,7 @@ module App =
     let private countDown2 dispatch =
 
         let rec loop remaining =
+
             async
                 {
                     QuitCountdown >> dispatch <| (quitMsg remaining)
