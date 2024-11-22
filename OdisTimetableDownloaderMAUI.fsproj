@@ -96,7 +96,6 @@
     <Compile Include="ApplicationDesign\KODIS_Record4.fs" />
     <Compile Include="XElmish\ProgressCircle.fs" />
     <Compile Include="XElmish\App.fs" />
-    <Compile Include="XElmish\EducationalCode\AppCT.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 

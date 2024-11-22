@@ -26,9 +26,10 @@ module ErrorTypes =
         | FileDeleteError
         | CreateFolderError
         | FileDownloadError
+        | NoFolderError
         | CanopyError
         | TimeoutError
-        | CancelPdfProcess  
+        | CancelPdfProcess  //TODO zrusit
         | PdfConnectionError
         | ApiResponseError of string
         | ApiDecodingError

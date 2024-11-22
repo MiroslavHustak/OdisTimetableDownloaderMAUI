@@ -146,43 +146,7 @@ module App =
     
         // Starting the countdown from 60
         Async.StartImmediate (loop 60)
-                   
-    let private token2 () = //Cancellation tokens (token, token2) for educational purposes only 
-        
-        //Template_002 for cancellation tokens 
-
-        let defaultToken = CancellationToken.None
-     
-        try
-            // Create a new CancellationTokenSource
-            match new CancellationTokenSource() |> Option.ofNull with
-            | Some newCts ->
-                try
-                    let newToken =
-                        try
-                            Some newCts.Token
-                        with
-                        | _ -> None
-     
-                    match newToken with
-                    | Some newToken 
-                        ->
-                        newCts.Cancel() // This signal is irreversible once sent.
-                        newToken
-
-                    | None 
-                        ->
-                        newCts.Dispose()
-                        defaultToken
-                finally
-                    newCts.Dispose()
-            | None
-                ->
-                defaultToken
-        with
-        | _ ->
-            defaultToken   
-                   
+                      
     let init () =  //Cancellation tokens (token, token2) for educational purposes only 
         
         let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =              
@@ -250,10 +214,10 @@ module App =
                 Label2Visible = true
                 Cts = initialModel.Cts //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
                 Token = initialModel.Token
-            }     
+            }             
        
         try          
-            pyramidOfDoom
+            pyramidOfDoom   //Template_001a for initial cancellation tokens 
                 {
                     let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
                         try
@@ -268,7 +232,7 @@ module App =
                     let ctsCancel () =    
                         try
                             try
-                                Some <| initialModel.Cts.Cancel() //This signal is irreversible once sent.
+                                Some () //Some <| initialModel.Cts.Cancel() //Zatim nepotrebne //This signal is irreversible once sent.
                             finally                      
                                 initialModel.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
                         with
@@ -284,7 +248,7 @@ module App =
         with
         | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
 
-    let init2 () =  //Cancellation tokens (token, token2) for educational purposes only         
+    let init2 () =       
                
         let initialModel = //Cancellation tokens for educational purposes only 
             {                 
@@ -323,7 +287,7 @@ module App =
             }     
        
         try          
-            pyramidOfDoom
+            pyramidOfDoom  //Template_001b for initial cancellation tokens 
                 {
                     let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
                         try
@@ -338,7 +302,7 @@ module App =
                     let ctsCancel () =    
                         try
                             try
-                                Some <| initialModel.Cts.Cancel() //This signal is irreversible once sent.
+                                Some () //Some <| initialModel.Cts.Cancel() //Zatim nepotrebne //This signal is irreversible once sent.
                             finally                      
                                 initialModel.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
                         with
@@ -407,11 +371,11 @@ module App =
             }, 
             Cmd.none  
        
-        | CancellationToken2 //Template_001 for cancellation tokens 
+        | CancellationToken2 //Template_002 for cancellation tokens in messages (Msg) 
             ->             
             pyramidOfDoom
                 {  
-                    // Create a new CancellationTokenSource for future use //v danem pripade aji pro konkretni pouziti
+                    // Create a new CancellationTokenSource for future use 
                     let! newCts = new CancellationTokenSource() |> Option.ofNull, (m, Cmd.none) 
 
                     let newToken =    
@@ -425,7 +389,7 @@ module App =
                     let ctsCancel () =    
                         try
                             try
-                                Some <| newCts.Cancel() //This signal is irreversible once sent.
+                                Some () //Some <| newCts.Cancel() //zatim nepotrebne //This signal is irreversible once sent.
                                //newCts.CancelAfter(TimeSpan.FromSeconds(float timeOutInSeconds)) zvazit pouziti, neb requesting je az po danem case, ne ze zrobi cancel po danem case
                             finally                      
                                 m.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.

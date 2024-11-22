@@ -38,7 +38,7 @@ module KODIS_BL_Record4 =
     
     // For educational purposes only. 
 
-    let private cancellationActor = //zatim nepotrebne
+    let private cancellationActor = //Template 004a for cancellation tokens (actor)
 
         MailboxProcessor.StartImmediate(fun inbox ->
 
@@ -88,9 +88,9 @@ module KODIS_BL_Record4 =
             )
         |> Async.StartImmediate 
 
-    let private tokenTrigger () = //zatim nepotrebne
+    let private tokenTrigger () = //Template 004b for cancellation tokens (tokenTrigger)
                   
-        let token2 () =
+        let token2 () = //Template 003 for cancellation tokens 
            
             let defaultToken = CancellationToken.None
         
@@ -337,8 +337,8 @@ module KODIS_BL_Record4 =
                 return
                     match context.dir |> Directory.Exists with 
                     | false ->
-                            "FileDownloadError" |> ignore //TODO logfile  
-                            Error FileDownloadError                                             
+                            noFolderError |> ignore //TODO logfile  
+                            Error NoFolderError                                             
                     | true  ->
                             try
                                 match context.list with

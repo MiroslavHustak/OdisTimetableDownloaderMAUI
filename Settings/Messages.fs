@@ -22,6 +22,7 @@ module Messages =
     let internal dataFilteringError = "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
     let internal fileDeleteError = "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
     let internal createFolderError = "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy." 
+    let internal noFolderError = "Nejsou vytvořeny adresáře pro příslušné soubory, JŘ ODIS nebyly úspěšně staženy."
     let internal fileDownloadError = "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
     let internal canopyError = "REST API error." 
 
