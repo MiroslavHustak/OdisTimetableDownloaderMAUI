@@ -88,7 +88,7 @@ module App =
 
     let private waitingForNetConn = 30 // 30 vterin
     
-    let private countDown dispatch = //vsimni si |> Async.executeOnMainThread
+    let private countDown dispatch = //vsimni si Async.executeOnMainThread
 
         //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
       
@@ -242,7 +242,7 @@ module App =
                         | _ -> None
 
                     //cancellation token to be signalled if needed
-                    let!_ = ctsCancel (), (initialModel, Cmd.none) 
+                    //let!_ = ctsCancel (), (initialModel, Cmd.none) 
 
                     let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
 

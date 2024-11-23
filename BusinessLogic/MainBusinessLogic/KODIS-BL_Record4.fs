@@ -19,10 +19,16 @@ open FsToolkit.ErrorHandling
 open Types.Types
 open Types.ErrorTypes
 
+//*******************
+
 open Helpers
 open Helpers.Builders
 open Helpers.Connectivity
 open Helpers.FileInfoHelper
+
+#if ANDROID
+open Helpers.AndroidDownloadService
+#endif 
 
 open Settings.Messages
 open Settings.SettingsGeneral
@@ -188,6 +194,34 @@ module KODIS_BL_Record4 =
                                                     match pathToFileExistFirstCheck with  //tady nelze |> function - smesuje to async a pyramidOfDoom computation expressions
                                                     | Some _
                                                         -> 
+                                                        #if ANDROID 
+                                                        
+                                                        let result = downloadManager uri pathToFile //downloadManager, downloadId downloadManager.Enqueue(request)
+                                                        let downloadManager, downloadId =
+                                                            result
+                                                            |> function Some (v1, v2) -> v1, v2 | None -> failwith "FileDownloadError"                                                            
+                                                        
+                                                        (downloadManager, downloadId)  |> ignore //TODO
+
+                                                        (*  
+                                                        let query = new DownloadManager.Query()
+                                                            
+                                                        // Later, you can query the download status
+                                                        let dataReader = downloadManager.Query((new DownloadManager.Query()).SetFilterById(downloadId))
+                                                        
+                                                        if cursor.MoveToFirst() then
+                                                            let status = cursor.GetInt(cursor.GetColumnIndex(DownloadManager.ColumnStatus))
+                                                            match status with
+                                                            | DownloadManager.StatusSucceeded -> ()
+                                                                // Handle success
+                                                            | DownloadManager.StatusFailed -> ()
+                                                                // Handle failure
+                                                            | _ -> ()
+                                                                // Handle other statuses  
+                                                        *)
+
+                                                        #else                                                        
+                                                        
                                                         let existingFileLength =                               
                                                             checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                                             |> function
@@ -219,43 +253,6 @@ module KODIS_BL_Record4 =
 
                                                         use! response = get >> Request.sendAsync <| uri  
 
-                                                        (*
-
-                                                        let! response =
-                                                            Async.StartChild
-                                                                (
-                                                                    async
-                                                                        {
-                                                                            let get uri = 
-                                                                        
-                                                                                let headerContent1 = "Range" 
-                                                                                let headerContent2 = sprintf "bytes=%d-" existingFileLength 
-                                                                                                
-                                                                                match existingFileLength > 0L with
-                                                                                | true  -> 
-                                                                                        http
-                                                                                            {
-                                                                                                GET uri
-                                                                                                config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                                                config_cancellationToken token2
-                                                                                                header headerContent1 headerContent2
-                                                                                            }
-                                                                                | false ->
-                                                                                        http
-                                                                                            {
-                                                                                                GET uri
-                                                                                                config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                                                config_cancellationToken token2
-                                                                                            }
-
-                                                                            return! (get >> Request.sendAsync <| uri) 
-                                                                        },
-                                                                        5 * 1000
-                                                                )
-                                                        
-                                                        let! response = response                                                       
-                                                         *)
-
                                                         match response.statusCode with
                                                         | HttpStatusCode.PartialContent // 206
                                                         | HttpStatusCode.OK  // 200
@@ -263,6 +260,8 @@ module KODIS_BL_Record4 =
                                                             do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                                         | _ ->
                                                             ()
+
+                                                        #endif  
 
                                                     | None 
                                                         ->

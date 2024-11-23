@@ -22,7 +22,8 @@ open Settings.SettingsGeneral
 
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 
-//Vzhledem k pouziti Elmishe se jeho MVU zda byti dostatecnym a dalsi pokus o design je zbytecny, nicmene hodi se to pro dekonstrukci Result type
+//Vzhledem k pouziti Elmishe se jeho MVU zda byti dostatecnym a dalsi pokus o design je zbytecny
+//Priste tady zrobit transformation layer
 module WebScraping_KODISFMRecord4 = 
 
     type private State =  
