@@ -34,6 +34,3 @@ module Types =
         | CurrentValidity 
         | FutureValidity 
         | WithoutReplacementService  
-
-    type IConnectivityHelper =
-        abstract member ShowRestartDialog: unit -> unit

@@ -27,6 +27,17 @@ module MDPO_BL =
 
     //FsHttp
 
+    let private myDelete dirName pathTemp = 
+
+        try
+            let dirInfo = DirectoryInfo pathTemp    
+                in 
+                dirInfo.EnumerateDirectories()
+                |> Seq.filter (fun item -> item.Name = dirName) 
+                |> Seq.iter _.Delete(true) 
+        with
+        | _ -> ()  
+
     //************************Submain functions************************************************************************
 
     let internal filterTimetables () pathToDir = 
@@ -127,12 +138,14 @@ module MDPO_BL =
                         | Error err 
                             -> 
                             err |> ignore  //TODO logfile
+                            failwith "NetConnPdfError" 
                             return Error String.Empty   //TODO mozna nekdy...
                            
                     with                                                         
                     | ex
                         ->
                         string ex.Message |> ignore  //TODO logfile
+                        failwith "FileDownloadError" 
                         return Error String.Empty  //TODO mozna nekdy...
                 } 
     
@@ -161,31 +174,22 @@ module MDPO_BL =
                 |> Ok
 
             with
-            | :? OperationCanceledException 
-                when 
-                    token.IsCancellationRequested 
-                        -> 
-                        let dirName = ODISDefault.OdisDir6                        
-                                     
-                        try
-                            let dirInfo = DirectoryInfo mdpoPathTemp    
-                                in 
-                                dirInfo.EnumerateDirectories()
-                                |> Seq.filter (fun item -> item.Name = dirName) 
-                                |> Seq.iter _.Delete(true) 
-                        with
-                        | _ -> ()  
-                    
-                        Error mdpoCancelMsg 
+            | ex 
+                when ex.Message.Contains("NetConnPdfError")
+                    -> 
+                    let dirName = ODISDefault.OdisDir6                       
+                        in
+                        myDelete dirName mdpoPathTemp                                    
+                                                     
+                    string ex.Message |> ignore //TODO logfile
+                    Error mdpoMsg2 //NetConnPdfError 
+            | ex    
+                    ->
+                    let dirName = ODISDefault.OdisDir6                       
+                        in
+                        myDelete dirName mdpoPathTemp      
 
-            | :? HttpRequestException as ex 
-                ->
-                match ex.InnerException with
-                | :? System.Security.Authentication.AuthenticationException 
-                    ->
-                    Error mdpoMsg2
-                | _ 
-                    ->
+                    string ex.Message |> ignore //TODO logfile         
                     Error mdpoMsg2   
                             
         downloadTimetables reportProgress token

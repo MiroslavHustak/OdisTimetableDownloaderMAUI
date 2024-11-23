@@ -25,6 +25,17 @@ open Settings.SettingsGeneral
 //HttpClient
 module DPO_BL =
 
+    let private myDelete dirName pathTemp = 
+
+        try
+            let dirInfo = DirectoryInfo pathTemp    
+                in 
+                dirInfo.EnumerateDirectories()
+                |> Seq.filter (fun item -> item.Name = dirName) 
+                |> Seq.iter _.Delete(true) 
+        with
+        | _ -> ()  
+
     //************************Submain functions************************************************************************
      
     let internal filterTimetables () pathToDir = 
@@ -147,12 +158,14 @@ module DPO_BL =
                         | Error err 
                             -> 
                             err |> ignore //TODO logfile  
+                            failwith "NetConnPdfError" 
                             return Error String.Empty 
                            
                     with                                                         
                     | ex 
                         ->
                         string ex.Message |> ignore //TODO logfile
+                        failwith "FileDownloadError" 
                         return Error String.Empty   
                 } 
     
@@ -167,44 +180,32 @@ module DPO_BL =
                         ->  
                         async                                                
                             {   
-                                match token.IsCancellationRequested with
-                                | false -> 
-                                        reportProgress (float i + 1.0, float l)  
-                                        return! downloadFileTaskAsync link pathToFile    
-                                | true  -> 
-                                        return! async { return Ok <| token.ThrowIfCancellationRequested() }     
+                                reportProgress (float i + 1.0, float l)  
+                                return! downloadFileTaskAsync link pathToFile  
                             } 
                         |> Async.RunSynchronously
                     ) 
                 |> ignore
                 |> Ok
                
+             
             with
-            | :? OperationCanceledException 
-                when 
-                    token.IsCancellationRequested 
-                        -> 
-                        let dirName = ODISDefault.OdisDir5                        
-                                     
-                        try
-                            let dirInfo = DirectoryInfo dpoPathTemp    
-                                in 
-                                dirInfo.EnumerateDirectories()
-                                |> Seq.filter (fun item -> item.Name = dirName) 
-                                |> Seq.iter _.Delete(true) 
-                        with
-                        | _ -> ()  
-                    
-                        Error dpoCancelMsg 
+            | ex 
+                when ex.Message.Contains("NetConnPdfError")
+                    -> 
+                    let dirName = ODISDefault.OdisDir5   
+                        in
+                        myDelete dirName dpoPathTemp  
+                                   
+                    string ex.Message |> ignore //TODO logfile
+                    Error dpoMsg2 //NetConnPdfError 
+            | ex    
+                    ->
+                    let dirName = ODISDefault.OdisDir5                        
+                     in
+                     myDelete dirName dpoPathTemp  
 
-            | :? HttpRequestException as ex 
-                ->
-                match ex.InnerException with
-                | :? System.Security.Authentication.AuthenticationException 
-                    ->
-                    Error dpoMsg2
-                | _ 
-                    ->
-                    Error dpoMsg2                            
+                    string ex.Message |> ignore //TODO logfile         
+                    Error dpoMsg2   
 
         downloadTimetables reportProgress token    

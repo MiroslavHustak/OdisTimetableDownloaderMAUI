@@ -83,6 +83,9 @@ module Messages =
 
     let internal buttonQuit = "Okamžité vypnutí aplikace" 
 
+    // F# Compiler directives
+    #if WINDOWS 
+
     let internal quitMsg param = 
         match param with
         | 1         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu, pokud nedojde k obnovení připojení." param
@@ -90,3 +93,15 @@ module Messages =
         | _         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin, pokud nedojde k obnovení připojení." param
 
     let internal continueDownload = "Stahovací operace se po přerušení pokusí automaticky obnovit, vznik chyby je možný."
+
+    #else
+
+    let internal quitMsg param = 
+        match param with
+        | 1         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu ..." param
+        | 2 | 3 | 4 -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny ..." param
+        | _         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin ..." param
+
+    let internal continueDownload = String.Empty
+
+     #endif

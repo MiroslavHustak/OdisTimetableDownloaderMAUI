@@ -177,7 +177,7 @@ module KODIS_BL_Record4 =
                                 (fun uri (pathToFile: string) 
                                     -> 
                                     //let token2 = tokenTrigger ()  //zatim nepotrebne
-                                       
+                                   
                                     async
                                         {    
                                             //invoking config_timeoutInSeconds config_cancellationToken se projevi az po RunSynchronously, bohuzel...
@@ -194,34 +194,22 @@ module KODIS_BL_Record4 =
                                                     match pathToFileExistFirstCheck with  //tady nelze |> function - smesuje to async a pyramidOfDoom computation expressions
                                                     | Some _
                                                         -> 
+
+                                                        (*
+                                                        //!!! vytvorit adresar pod downloads (bez /storage/emulated/0), napr. /FabulousTimetables4/
                                                         #if ANDROID 
                                                         
-                                                        let result = downloadManager uri pathToFile //downloadManager, downloadId downloadManager.Enqueue(request)
-                                                        let downloadManager, downloadId =
-                                                            result
-                                                            |> function Some (v1, v2) -> v1, v2 | None -> failwith "FileDownloadError"                                                            
-                                                        
-                                                        (downloadManager, downloadId)  |> ignore //TODO
+                                                        let result = downloadManager uri pathToFile 
 
-                                                        (*  
-                                                        let query = new DownloadManager.Query()
-                                                            
-                                                        // Later, you can query the download status
-                                                        let dataReader = downloadManager.Query((new DownloadManager.Query()).SetFilterById(downloadId))
+                                                        let downloadId =
+                                                            result
+                                                            |> function Some downloadId -> downloadId | None -> failwith "FileDownloadError"                                                            
                                                         
-                                                        if cursor.MoveToFirst() then
-                                                            let status = cursor.GetInt(cursor.GetColumnIndex(DownloadManager.ColumnStatus))
-                                                            match status with
-                                                            | DownloadManager.StatusSucceeded -> ()
-                                                                // Handle success
-                                                            | DownloadManager.StatusFailed -> ()
-                                                                // Handle failure
-                                                            | _ -> ()
-                                                                // Handle other statuses  
+                                                        downloadId |> ignore 
+
+                                                        #else 
                                                         *)
 
-                                                        #else                                                        
-                                                        
                                                         let existingFileLength =                               
                                                             checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                                             |> function
@@ -240,7 +228,7 @@ module KODIS_BL_Record4 =
                                                                         {
                                                                             GET uri
                                                                             config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                            //config_cancellationToken token2  //funguje
+                                                                            config_cancellationToken CancellationToken.None //token2  //funguje
                                                                             header headerContent1 headerContent2
                                                                         }
                                                             | false ->
@@ -248,7 +236,7 @@ module KODIS_BL_Record4 =
                                                                         {
                                                                             GET uri
                                                                             config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                            //config_cancellationToken token2 //funguje
+                                                                            config_cancellationToken CancellationToken.None //token2  //funguje
                                                                         }
 
                                                         use! response = get >> Request.sendAsync <| uri  
@@ -261,7 +249,7 @@ module KODIS_BL_Record4 =
                                                         | _ ->
                                                             ()
 
-                                                        #endif  
+                                                        // #endif  
 
                                                     | None 
                                                         ->

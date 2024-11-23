@@ -1,10 +1,9 @@
 ﻿namespace Helpers
 
-#if ANDROID
-
 open System
 open Helpers.Builders
 
+#if ANDROID
 open Android.App
 open Android.Net
 open Android.Content
@@ -21,13 +20,11 @@ module AndroidDownloadService =
                 
                 let! request = new DownloadManager.Request(uri) |> Option.ofNull, None
                 
-                let! _ = request.SetNotificationVisibility(DownloadVisibility.VisibleNotifyCompleted) |> Option.ofNull, None
+                let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, None
 
                 let! _ = request.SetDestinationInExternalPublicDir(Android.OS.Environment.DirectoryDownloads, fileName) |> Option.ofNull, None                                
 
-                //let! _ = request.SetTitle("Downloading File ...") |> Option.ofNull, None  
-
-                return Some (downloadManager, downloadManager.Enqueue(request))        
+                return Some <| downloadManager.Enqueue(request)        
             }
 
 #endif

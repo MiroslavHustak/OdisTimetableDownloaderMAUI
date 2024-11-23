@@ -78,6 +78,7 @@ module App =
         | Dpo
         | Mdpo
         | Restart
+        | RestartVisible of bool
         | Quit
         | QuitCountdown of string
         | CancellationToken2  //Cancellation tokens for educational purposes only 
@@ -86,7 +87,7 @@ module App =
         | UpdateStatus of float * float * bool
         | WorkIsComplete of string * bool          
 
-    let private waitingForNetConn = 30 // 30 vterin
+    let private waitingForNetConn = 30 //vterin
     
     let private countDown dispatch = //vsimni si Async.executeOnMainThread
 
@@ -132,6 +133,8 @@ module App =
                     | false 
                         when remaining = 0
                             ->
+                            RestartVisible >> dispatch <| false
+
                             do! 
                                 async { return dispatch Quit }
                                 |> Async.executeOnMainThread                             
@@ -139,6 +142,7 @@ module App =
                         when remaining <> 0 
                             ->
                             do! Async.Sleep 1000
+                            RestartVisible >> dispatch <| false
                             // Recurring with the next remaining value
                             return! loop (remaining - 1)
                     | _ 
@@ -422,6 +426,10 @@ module App =
         | Restart  
             -> 
             init2 ()
+
+        | RestartVisible isVisible 
+            -> 
+            { m with RestartVisible = isVisible }, Cmd.none         
              
         | NetConnMessage message
             ->
@@ -485,7 +493,7 @@ module App =
                             let! result = hardWork 
                             do! Async.Sleep 1000
                           
-                            WorkIsComplete >> dispatch <| (result, true)
+                            WorkIsComplete >> dispatch <| (result, connectivityListener () |> function true -> true | false -> false)
 
                             (*
                                 match result.Contains("timeout") with
@@ -569,7 +577,7 @@ module App =
                             let! result = hardWork 
                             do! Async.Sleep 1000
 
-                            WorkIsComplete >> dispatch <| (result, true)
+                            WorkIsComplete >> dispatch <| (result, connectivityListener () |> function true -> true | false -> false)
                             
                             (*
                                 match result.Contains("timeout") with
@@ -651,8 +659,8 @@ module App =
                             do! Async.Sleep 1000
                            
                             match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| (result, true)
-                            | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
+                            | false -> WorkIsComplete >> dispatch <| (result, connectivityListener () |> function true -> true | false -> false)
+                            | true  -> WorkIsComplete >> dispatch <| (netConnError, connectivityListener () |> function true -> true | false -> false)
                         }  
                      
                 let execute dispatch = 
@@ -745,8 +753,8 @@ module App =
                             do! Async.Sleep 1000
                            
                             match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| (result, true)
-                            | true  -> WorkIsComplete >> dispatch <| (netConnError, true)
+                            | false -> WorkIsComplete >> dispatch <| (result, connectivityListener () |> function true -> true | false -> false)
+                            | true  -> WorkIsComplete >> dispatch <| (netConnError, connectivityListener () |> function true -> true | false -> false)
                         }  
                      
                 let execute dispatch = 
@@ -818,13 +826,14 @@ module App =
                             // Progress circle
                             GraphicsView(progressCircle m.Progress)
                                 .height(130.)
-                                .width(130.)      
-    
+                                .width(130.)  
+                                .isVisible(not m.KodisVisible)
+
                             Label(labelOdis)
                                 .semantics(SemanticHeadingLevel.Level1)
                                 .font(size = 24.)
-                                .centerTextHorizontal()                            
-    
+                                .centerTextHorizontal()    
+                           
                             Label(m.ProgressMsg)
                                 .semantics(SemanticHeadingLevel.Level2, "Welcome to dot.net multi platform app UI powered by Fabulous")
                                 .font(size = 14.)

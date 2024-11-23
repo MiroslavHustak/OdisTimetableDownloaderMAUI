@@ -133,9 +133,14 @@ module WebScraping_KODISFMRecord =
                             | true  -> environment.DeleteAllODISDirectories path |> ignore
                             | false -> dispatchIterationMessage context2.Msg1
                                              
+                            #if ANDROID//WINDOWS
                             match list.Length >= 8 with //eqv of 8 threads
                             | true  -> context List.Parallel.map2
                             | false -> context List.map2
+                       
+                            #else
+                            context List.Parallel.map2      
+                            #endif
     
                             |> environment.DownloadAndSave token     
     
