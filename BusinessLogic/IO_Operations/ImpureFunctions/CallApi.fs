@@ -30,12 +30,10 @@ module CallApi =
                 }
             )
 
-    let internal getFromRestApi () = 
+    let internal getFromRestApi url = 
     
         async
-            {
-                let url = "http://kodis.somee.com/api/" // nezapomen na trailing slash 
-                
+            {                
                 let! response = 
                     http
                         {

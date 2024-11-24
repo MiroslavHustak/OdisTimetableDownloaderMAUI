@@ -61,17 +61,17 @@ module SettingsGeneral =
     let internal partialPathJsonTemp = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
     let internal kodisPathTemp = @"c:\Users\User\Data\"
     let internal kodisPathTemp4 = @"c:\Users\User\Data4\"
-    let internal dpoPathTemp = @"c:\Users\User\Data\"
-    let internal mdpoPathTemp = @"c:\Users\User\Data\"
+    let internal dpoPathTemp = @"c:\Users\User\Data4\"
+    let internal mdpoPathTemp = @"c:\Users\User\Data4\"
 
     #else
 
     let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
     let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
     let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" //Nouzove reseni
-    //let internal kodisPathTemp4 = @"/FabulousTimetables4/" //Nouzove reseni
-    let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables/"
-    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables/"  
+    //let internal kodisPathTemp4 = @"/FabulousTimetables4/" //Nouzove reseni -> Android download manager
+    let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
+    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"  
     
     #endif
 

@@ -141,8 +141,32 @@ module KODIS_BL_Record4 =
         
     let internal operationOnDataFromJson token variant dir =  //v parametru je token jen quli educational code v App.fs
 
-        try          
-            getFromRestApi >> filterTimetableLinks variant dir <| ()
+        try   
+            let url1 = "http://kodis.somee.com/api/"             // nezapomen na trailing slash po api 
+            let url2 = "http://kodis.somee.com/api/jsonLinks"     
+
+            let result1 : Result<(string * string) list, PdfDownloadErrors> = 
+                getFromRestApi >> filterTimetableLinks variant dir <| url1
+
+            let result2 : Result<(string * string) list, PdfDownloadErrors> =
+                match variant with
+                | FutureValidity -> getFromRestApi >> filterTimetableLinks variant dir <| url2 // links filtered from json files, only future validity
+                | _              -> Ok []
+            
+            (*
+            match result1, result2 with
+            | Ok list1, Ok list2 -> Ok (list1 @ list2) 
+            | Error err, _       -> Error err               
+            | _, Error err       -> Error err 
+            *)
+                      
+            Result.bind 
+                (fun list1 ->
+                           result2 
+                           |> Result.map 
+                               (fun list2 -> list1 @ list2) 
+                ) result1 
+            
         with
         | ex 
             ->
