@@ -110,8 +110,6 @@ module WebScraping_MDPO =
                     | ConnectionError       -> noNetConn
                     | FileDeleteErrorMHD    -> fileDeleteError
 
-                let item = String.Empty //jen abych mohl vyuzit tento builder a netvorit novy
-
                 let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
                 let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
                 let! _ = stateReducer token stateDefault FilterDownloadSave environment, fun err -> Error <| errFn err
