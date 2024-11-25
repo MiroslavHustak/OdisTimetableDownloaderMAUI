@@ -11,7 +11,7 @@ module Builders =
          member _.Return x = x  
          member _.ReturnFrom x : 'a = x 
      
-    let internal pyramidOfInferno = MyBuilder3 
+    let internal pyramidOfInferno = MyBuilder3    
     
     //**************************************************************************************
 

@@ -31,7 +31,7 @@ module DPO_BL =
         try
             let dirInfo = DirectoryInfo pathTemp    
                 in 
-                dirInfo.EnumerateDirectories()
+                dirInfo.EnumerateDirectories ()
                 |> Seq.filter (fun item -> item.Name = dirName) 
                 |> Seq.iter _.Delete(true) 
         with
@@ -74,8 +74,8 @@ module DPO_BL =
                                 -> 
                                 pyramidOfDoom
                                     {
-                                        let! nodes = htmlNode.InnerText() |> Option.ofNullEmpty, None
-                                        let! attr = attr.Value() |> Option.ofNullEmpty, None
+                                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty, None
+                                        let! attr = attr.Value () |> Option.ofNullEmpty, None
                                                                
                                         return Some (nodes, attr)
                                     }                                                          
@@ -128,7 +128,7 @@ module DPO_BL =
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
                                     let! client = new HttpClient() |> Option.ofNull, Error String.Empty
 
-                                    client.Timeout <- TimeSpan.FromSeconds(float 300) //timeoutInSeconds
+                                    client.Timeout <- TimeSpan.FromSeconds <| float 300 //timeoutInSeconds
 
                                     return Ok client        
                                 }
@@ -163,8 +163,8 @@ module DPO_BL =
                                         | true  -> new FileStream(pathToFile, FileMode.Append) 
                                         | false -> new FileStream(pathToFile, FileMode.CreateNew)
 
-                                    let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask
-                                    do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
+                                    let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
+                                    do! stream.CopyToAsync fileStream |> Async.AwaitTask
                                     
                                     return Ok ()
 

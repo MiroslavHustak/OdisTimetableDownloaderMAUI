@@ -2,17 +2,17 @@
 
 module ErrorTypes =
    
-     [<Struct>] 
-     type internal MHDErrors =       
-         | BadRequest
-         | InternalServerError
-         | NotImplemented 
-         | ServiceUnavailable        
-         | NotFound
-         | CofeeMakerUnavailable
-         | FileDownloadErrorMHD
-         | ConnectionError
-         | FileDeleteErrorMHD
+    [<Struct>] 
+    type internal MHDErrors =       
+        | BadRequest
+        | InternalServerError
+        | NotImplemented 
+        | ServiceUnavailable        
+        | NotFound
+        | CofeeMakerUnavailable
+        | FileDownloadErrorMHD
+        | ConnectionError
+        | FileDeleteErrorMHD
    
     type internal JsonDownloadErrors = 
         | JsonTimeoutError

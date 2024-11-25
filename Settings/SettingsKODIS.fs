@@ -50,8 +50,11 @@ module SettingsKODIS =
             "linky 700-799"; "linky 800-899"; "linky 900-999"; 
             "vlakové linky S"; "vlakové linky R"; "linky X, NAD a AE"
         ]
+    
+    let private interval = 12 //menit dle json struktury
+    let private lastCode = 108 //menit dle json struktury
 
-    let private codes = [ "0"; "12"; "24"; "36"; "48"; "60"; "72"; "84"; "96"; "108" ]
+    let private codes = [ 0 .. interval .. lastCode ] |> List.map string //(fun x -> string x) 
         
     let private jsonLinkListPartial code =
         [        
@@ -85,7 +88,7 @@ module SettingsKODIS =
             sprintf "%s%s%s%s" pathKodisWeb2 "groups%5B0%5D=NAD&start=" code "&limit=12"            
         ]
 
-    let internal jsonLinkList3 = codes |> List.collect (fun code -> jsonLinkListPartial code)
+    let internal jsonLinkList3 = codes |> List.collect jsonLinkListPartial // (fun code -> jsonLinkListPartial code)
           
     let private pathToJsonListPartial code =     
         [         
@@ -119,4 +122,4 @@ module SettingsKODIS =
             sprintf "%s%s%s%s" partialPathJson @"kodisNAD2_" code ".json"
         ] 
 
-    let internal pathToJsonList3 = codes |> List.collect (fun code -> pathToJsonListPartial code) 
+    let internal pathToJsonList3 = codes |> List.collect pathToJsonListPartial //(fun code -> pathToJsonListPartial code) 

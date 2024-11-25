@@ -17,8 +17,8 @@ module Result =
             | Error err1, Error _ -> Error err1
 
         let initialValue = Ok [] 
-        List.foldBack prepend aListOfResults initialValue   
-
+        List.foldBack prepend aListOfResults initialValue  
+  
 module Option =
 
     let internal ofBool =                           
@@ -62,3 +62,18 @@ module Option =
     
                 return Some value
             }
+
+    let internal toResult err = 
+
+        function   
+        | Some value -> Ok value 
+        | None       -> Error err     
+
+    (*
+    //FsToolkit
+    let internal toResult (error: 'error) (opt: 'value option) : Result<'value, 'error> =
+
+        match opt with
+        | Some value -> Result.Ok value
+        | None       -> Result.Error error    
+    *)

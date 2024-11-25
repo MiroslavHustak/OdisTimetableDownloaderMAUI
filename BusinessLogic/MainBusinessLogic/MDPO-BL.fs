@@ -33,7 +33,7 @@ module MDPO_BL =
         try
             let dirInfo = DirectoryInfo pathTemp    
                 in 
-                dirInfo.EnumerateDirectories()
+                dirInfo.EnumerateDirectories ()
                 |> Seq.filter (fun item -> item.Name = dirName) 
                 |> Seq.iter _.Delete(true) 
         with
@@ -65,8 +65,8 @@ module MDPO_BL =
                                 -> 
                                 pyramidOfDoom
                                     {
-                                        let! nodes = htmlNode.InnerText() |> Option.ofNullEmpty, None
-                                        let! attr = attr.Value() |> Option.ofNullEmpty, None
+                                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty, None
+                                        let! attr = attr.Value () |> Option.ofNullEmpty, None
                                                                
                                         return Some (nodes, attr)
                                     }                                                          
