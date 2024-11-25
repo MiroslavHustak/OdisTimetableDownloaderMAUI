@@ -3,13 +3,16 @@
 open System.IO
 
 //************************************************************
+open Types
+open Types.ErrorTypes
 
 open Helpers.Builders
-open Types.ErrorTypes
+
 open CreatingPathsAndNames
 
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
+
 
 module IO_Operations =    
     

@@ -4,8 +4,11 @@ open Thoth.Json.Net
 
 //**************************
 
-open Helpers.Builders
+open Types
 open Types.ErrorTypes
+
+open Helpers.Builders
+
 open DataModelling.Dto
 
 module ApiTransformLayer =

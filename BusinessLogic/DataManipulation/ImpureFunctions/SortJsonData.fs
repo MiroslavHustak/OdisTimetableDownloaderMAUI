@@ -12,6 +12,7 @@ open EmbeddedTP.EmbeddedTP
 
 //************************************************************
 
+open Types
 open Types.ErrorTypes
 
 open Settings.SettingsKODIS

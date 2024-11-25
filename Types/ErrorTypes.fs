@@ -1,18 +1,19 @@
 ﻿namespace Types
 
 module ErrorTypes =
-
-    [<Struct>] 
-    type internal ConnErrorCode = 
-        {
-            BadRequest : string
-            InternalServerError : string
-            NotImplemented : string
-            ServiceUnavailable : string        
-            NotFound : string
-            CofeeMakerUnavailable : string
-        }
-
+   
+     [<Struct>] 
+     type internal MHDErrors =       
+         | BadRequest
+         | InternalServerError
+         | NotImplemented 
+         | ServiceUnavailable        
+         | NotFound
+         | CofeeMakerUnavailable
+         | FileDownloadErrorMHD
+         | ConnectionError
+         | FileDeleteErrorMHD
+   
     type internal JsonDownloadErrors = 
         | JsonTimeoutError
         | JsonDownloadError     

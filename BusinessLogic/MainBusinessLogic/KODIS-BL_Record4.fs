@@ -16,6 +16,7 @@ open FsToolkit.ErrorHandling
 
 //************************************************************
 
+open Types
 open Types.Types
 open Types.ErrorTypes
 

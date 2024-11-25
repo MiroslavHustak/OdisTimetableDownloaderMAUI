@@ -27,52 +27,29 @@ module SettingsGeneral =
             ODISDefault.OdisDir2
             //ODISDefault.odisDir3
             ODISDefault.OdisDir4 
-        ]  
-
-    let internal connErrorCodeDefault =                        
-        {
-            BadRequest            = "400 Bad Request"
-            InternalServerError   = "500 Internal Server Error"
-            NotImplemented        = "501 Not Implemented"
-            ServiceUnavailable    = "503 Service Unavailable"           
-            NotFound              = String.Empty  
-            CofeeMakerUnavailable = "418 I'm a teapot. Look for a coffee maker elsewhere."
-        }   
-
-    let internal listConnErrorCodeDefault =                        
-        [
-            connErrorCodeDefault.BadRequest
-            connErrorCodeDefault.InternalServerError 
-            connErrorCodeDefault.NotImplemented       
-            connErrorCodeDefault.ServiceUnavailable              
-            connErrorCodeDefault.NotFound              
-            connErrorCodeDefault.CofeeMakerUnavailable 
-        ] 
+        ]    
         
     let internal timeOutInSeconds = 10 
+    let internal waitingForNetConn = 30 //vterin
 
     //let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"  //Android 7.1      
     
     let internal apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" 
 
-    // F# Compiler directives
+    // F# compiler directives
     #if WINDOWS
-
     let internal partialPathJsonTemp = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
     let internal kodisPathTemp = @"c:\Users\User\Data\"
     let internal kodisPathTemp4 = @"c:\Users\User\Data4\"
     let internal dpoPathTemp = @"c:\Users\User\Data4\"
     let internal mdpoPathTemp = @"c:\Users\User\Data4\"
-
     #else
-
     let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
     let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
     let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" //Nouzove reseni
     //let internal kodisPathTemp4 = @"/FabulousTimetables4/" //Nouzove reseni -> Android download manager
     let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
-    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"  
-    
+    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"      
     #endif
 
     (*

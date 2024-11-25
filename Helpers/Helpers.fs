@@ -1,16 +1,16 @@
 ﻿namespace Helpers
 
-open Microsoft.Maui.ApplicationModel
-
 module FileInfoHelper = 
 
     open System
     open System.IO
 
     //*************************
-    
+    open Types
     open Types.ErrorTypes
+
     open Helpers.Builders
+    
     open Settings.Messages
     
     let private jsonEmpty = """[ {} ]"""

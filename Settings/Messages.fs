@@ -49,12 +49,12 @@ module Messages =
 
     let internal labelOdis = "Stahování JŘ ODIS"
 
-    let internal buttonKodis = "Stahuj kompletní balík JŘ ODIS"   
-    let internal buttonKodis4 = "Nouzové řešení do 14-12-2024"   
+    let internal buttonKodis = "Kompletní JŘ ODIS (Json TP)"   
+    let internal buttonKodis4 = "Kompletní JŘ ODIS (Canopy)"   
     let internal hintOdis = "Stahování kompletních JŘ ODIS všech dopravců"
-    let internal buttonDpo = "Stahuj JŘ dopravce DPO"
+    let internal buttonDpo = "JŘ dopravce DPO"
     let internal hintDpo = "Stahování aktuálních JŘ dopravce DPO"
-    let internal buttonMdpo = "Stahuj JŘ dopravce MDPO"
+    let internal buttonMdpo = "JŘ dopravce MDPO"
     let internal hintMdpo = "Stahování zastávkových JŘ dopravce MDPO"
     let internal hintCancel = "Zrušení práce aplikace"
     let internal buttonCancel = "Ukončit stahování"     
@@ -83,9 +83,8 @@ module Messages =
 
     let internal buttonQuit = "Okamžité vypnutí aplikace" 
 
-    // F# Compiler directives
+    // F# compiler directives
     #if WINDOWS 
-
     let internal quitMsg param = 
         match param with
         | 1         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu, pokud nedojde k obnovení připojení." param
@@ -93,9 +92,7 @@ module Messages =
         | _         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin, pokud nedojde k obnovení připojení." param
 
     let internal continueDownload = "Stahovací operace se po přerušení pokusí automaticky obnovit, vznik chyby je možný."
-
     #else
-
     let internal quitMsg param = 
         match param with
         | 1         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu ..." param
@@ -103,5 +100,4 @@ module Messages =
         | _         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin ..." param
 
     let internal continueDownload = String.Empty
-
      #endif

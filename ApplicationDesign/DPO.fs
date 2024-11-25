@@ -10,6 +10,7 @@ open System.Threading
 open Types.Types   
 
 open Helpers.Builders
+open Types.ErrorTypes
 
 open BusinessLogic.DPO_BL
    
@@ -40,7 +41,7 @@ module WebScraping_DPO =
     type private Environment = 
         {
             FilterTimetables : unit -> string -> (string * string) list
-            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> (string * string) list -> Result<unit, string>
+            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> (string * string) list -> Result<unit, MHDErrors>
         }
 
     let private environment: Environment =
@@ -69,7 +70,7 @@ module WebScraping_DPO =
                         |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                         |> Ok
                 with
-                | _ -> Error dpoMsg1                                         
+                | _ -> Error FileDownloadErrorMHD //dpoMsg1                                         
                                     
             | CreateFolders         
                 -> 
@@ -78,7 +79,7 @@ module WebScraping_DPO =
                     |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
                     |> Ok
                 with
-                | _ -> Error dpoMsg1
+                | _ -> Error FileDownloadErrorMHD //dpoMsg1
 
             | FilterDownloadSave   
                 ->                                      
@@ -86,19 +87,33 @@ module WebScraping_DPO =
                     let pathToSubdir = dirList pathToDir |> List.tryHead |> function Some value -> value | None -> String.Empty
                     match pathToSubdir |> Directory.Exists with 
                     | false ->
-                            Error String.Empty                              
+                            Error FileDeleteErrorMHD                             
                     | true  -> 
                             environment.FilterTimetables () pathToSubdir 
                             |> environment.DownloadAndSaveTimetables reportProgress token
                 with
-                | _ -> Error dpoMsg2                                               
-
+                | _ -> Error FileDownloadErrorMHD //dpoMsg2                                               
+                       
         pyramidOfInferno
             {  
+                let errFn err =  
+
+                    match err with
+                    | BadRequest            -> "400 Bad Request"
+                    | InternalServerError   -> "500 Internal Server Error"
+                    | NotImplemented        -> "501 Not Implemented"
+                    | ServiceUnavailable    -> "503 Service Unavailable"        
+                    | NotFound              -> "404 Page Not Found"
+                    | CofeeMakerUnavailable -> "418 I'm a teapot. Look for a coffee maker elsewhere."
+                    | FileDownloadErrorMHD  -> dpoMsg1
+                    | ConnectionError       -> noNetConn
+                    | FileDeleteErrorMHD    -> fileDeleteError
+
                 let item = String.Empty //jen abych mohl vyuzit tento builder a netvorit novy
 
-                let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error err
-                let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error err
-                
-                return! stateReducer token stateDefault FilterDownloadSave environment
+                let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
+                let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
+                let! _ = stateReducer token stateDefault FilterDownloadSave environment, fun err -> Error <| errFn err
+            
+                return Ok ()
             }

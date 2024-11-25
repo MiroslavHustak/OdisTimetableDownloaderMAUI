@@ -10,6 +10,7 @@ open Thoth.Json.Net
 
 //************************************************************
 
+open Types
 open Types.ErrorTypes
 open Settings.SettingsGeneral
 

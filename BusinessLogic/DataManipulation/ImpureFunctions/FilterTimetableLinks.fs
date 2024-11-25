@@ -381,7 +381,3 @@ module FilterTimetableLinks =
         | Error err 
             ->
             Error err   //prenos Result type "nahoru"  
-
-
-
-

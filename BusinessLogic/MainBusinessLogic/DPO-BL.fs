@@ -15,6 +15,7 @@ open FsToolkit.ErrorHandling
 
 open Helpers
 open Helpers.Builders
+open Helpers.FileInfoHelper
 
 open Types.ErrorTypes  
 
@@ -115,7 +116,7 @@ module DPO_BL =
 
     let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) (filterTimetables : (string * string) list) =  
 
-        let downloadFileTaskAsync (uri : string) (pathToFile : string) : Async<Result<unit, string>> =  
+        let downloadFileTaskAsync (uri : string) (pathToFile : string) : Async<Result<unit, MHDErrors>> =  
        
             async
                 {                      
@@ -127,49 +128,71 @@ module DPO_BL =
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
                                     let! client = new HttpClient() |> Option.ofNull, Error String.Empty
 
+                                    client.Timeout <- TimeSpan.FromSeconds(float 300) //timeoutInSeconds
+
                                     return Ok client        
                                 }
                         
                         match client with  
                         | Ok client
                             ->      
-                            use! response = client.GetAsync uri |> Async.AwaitTask
-                        
-                            match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
-                            | true  -> 
-                                    let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask  
+                            let existingFileLength =                               
+                                checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                |> function
+                                    | Some _ -> (FileInfo pathToFile).Length
+                                    | None   -> 0L
+                                                    
+                            let headerContent1 = "Range" 
+                            let headerContent2 = sprintf "bytes=%d-" existingFileLength   
+
+                            match existingFileLength > 0L with
+                            | true  -> client.DefaultRequestHeaders.Add(headerContent1, headerContent2)
+                            | false -> ()
+                                                        
+                            use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead) |> Async.AwaitTask
+                            //use! response = client.GetAsync uri |> Async.AwaitTask
+
+                            match response.IsSuccessStatusCode with
+                            | true  ->
                                     let pathToFile = pathToFile.Replace("?", String.Empty)
-                                    use fileStream = new FileStream(pathToFile, FileMode.CreateNew) 
-                                    do! stream.CopyToAsync fileStream |> Async.AwaitTask  
-                                              
+
+                                    //use fileStream = new FileStream(pathToFile, FileMode.CreateNew) 
+                                    
+                                    use fileStream =
+                                        match existingFileLength > 0L with 
+                                        | true  -> new FileStream(pathToFile, FileMode.Append) 
+                                        | false -> new FileStream(pathToFile, FileMode.CreateNew)
+
+                                    let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask
+                                    do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
+                                    
                                     return Ok ()
-                            | false -> 
-                                    let errorType = 
-                                        match response.StatusCode with        //TODO logfile
-                                        | HttpStatusCode.BadRequest          -> Error connErrorCodeDefault.BadRequest
-                                        | HttpStatusCode.InternalServerError -> Error connErrorCodeDefault.InternalServerError
-                                        | HttpStatusCode.NotImplemented      -> Error connErrorCodeDefault.NotImplemented
-                                        | HttpStatusCode.ServiceUnavailable  -> Error connErrorCodeDefault.ServiceUnavailable
-                                        | HttpStatusCode.NotFound            -> Error uri  
-                                        | _                                  -> Error connErrorCodeDefault.CofeeMakerUnavailable   
-                                         
-                                    return errorType   
-                                
+
+                            | false ->
+                                    let errorType =
+                                        match response.StatusCode with
+                                        | HttpStatusCode.BadRequest          -> Error BadRequest
+                                        | HttpStatusCode.InternalServerError -> Error InternalServerError
+                                        | HttpStatusCode.NotImplemented      -> Error NotImplemented
+                                        | HttpStatusCode.ServiceUnavailable  -> Error ServiceUnavailable
+                                        | HttpStatusCode.NotFound            -> Error NotFound
+                                        | _                                  -> Error CofeeMakerUnavailable 
+
+                                    return errorType       
+                           
                         | Error err 
                             -> 
-                            err |> ignore //TODO logfile  
-                            failwith "NetConnPdfError" 
-                            return Error String.Empty 
+                            err |> ignore  //TODO logfile
+                            return Error ConnectionError   
                            
                     with                                                         
-                    | ex 
+                    | ex
                         ->
-                        string ex.Message |> ignore //TODO logfile
-                        failwith "FileDownloadError" 
-                        return Error String.Empty   
+                        string ex.Message |> ignore  //TODO logfile
+                        return Error FileDownloadErrorMHD 
                 } 
     
-        let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, string> = 
+        let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, MHDErrors> = 
             
             try
                 let l = filterTimetables |> List.length
@@ -188,24 +211,14 @@ module DPO_BL =
                 |> ignore
                 |> Ok
                
-             
             with
-            | ex 
-                when ex.Message.Contains("NetConnPdfError")
-                    -> 
-                    let dirName = ODISDefault.OdisDir5   
-                        in
-                        myDelete dirName dpoPathTemp  
-                                   
-                    string ex.Message |> ignore //TODO logfile
-                    Error dpoMsg2 //NetConnPdfError 
             | ex    
-                    ->
-                    let dirName = ODISDefault.OdisDir5                        
-                     in
-                     myDelete dirName dpoPathTemp  
+                ->
+                let dirName = ODISDefault.OdisDir5                       
+                    in
+                    myDelete dirName mdpoPathTemp      
 
-                    string ex.Message |> ignore //TODO logfile         
-                    Error dpoMsg2   
+                string ex.Message |> ignore //TODO logfile         
+                Error FileDownloadErrorMHD //dpoMsg2
 
         downloadTimetables reportProgress token    

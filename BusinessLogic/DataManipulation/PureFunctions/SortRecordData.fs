@@ -25,11 +25,7 @@ module SortRecordData =
                 ||
                 (dateValidityStart = context2.currentTime 
                 && 
-                dateValidityEnd = context2.currentTime))
-                &&
-                (
-                not <| fileToBeSaved.Contains("046_2024_01_02_2024_12_14")
-                )
+                dateValidityEnd = context2.currentTime))              
                 &&
                 (
                 not <| fileToBeSaved.Contains("020_2024_01_02_2024_12_14")

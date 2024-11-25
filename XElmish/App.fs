@@ -85,11 +85,9 @@ module App =
         | NetConnMessage of string
         | IterationMessage of string    
         | UpdateStatus of float * float * bool
-        | WorkIsComplete of string * bool          
-
-    let private waitingForNetConn = 30 //vterin
+        | WorkIsComplete of string * bool         
     
-    let private countDown dispatch = //vsimni si Async.executeOnMainThread
+    let private countDown dispatch = 
 
         //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
       
@@ -122,7 +120,8 @@ module App =
             ) 
         
     let private countDown2 dispatch =
-
+        
+        //This "loop" fn anotated with [<TailCall>] tested as a module fn in another F# project; no warnings encountered
         let rec loop remaining =
 
             async
@@ -137,14 +136,14 @@ module App =
 
                             do! 
                                 async { return dispatch Quit }
-                                |> Async.executeOnMainThread                             
+                                |> Async.executeOnMainThread  
                     | false 
                         when remaining <> 0 
                             ->
                             do! Async.Sleep 1000
                             RestartVisible >> dispatch <| false
-                            // Recurring with the next remaining value
-                            return! loop (remaining - 1)
+                           
+                            return! loop (remaining - 1) // Recurring with the next remaining value
                     | _ 
                             ->
                             do! 
@@ -170,16 +169,23 @@ module App =
                                 (fun isConnected 
                                     ->
                                     async
-                                        {
+                                        {    
+                                            #if WINDOWS  // F# compiler directives
                                             match isConnected with
                                             | true  ->
-                                                    () //NetConnMessage >> dispatch <| yesNetConn 
+                                                    () 
                                             | false -> 
                                                     NetConnMessage >> dispatch <| noNetConn 
                                                     do! Async.Sleep 2000
-                                                    countDown2 dispatch 
+                                                    countDown2 dispatch
+                                            #else                                            
+                                            match isConnected with
+                                            | true  -> NetConnMessage >> dispatch <| yesNetConn 
+                                            | false -> NetConnMessage >> dispatch <| noNetConn                                                   
+                                            #endif
+                                           
                                         }
-                                    |> Async.StartImmediate                                     
+                                    |> Async.StartImmediate //nelze Async.Start                                   
                                 )                                  
                                 
                             do! Async.Sleep 1000   

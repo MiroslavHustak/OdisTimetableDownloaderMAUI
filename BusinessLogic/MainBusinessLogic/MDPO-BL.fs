@@ -18,6 +18,7 @@ module MDPO_BL =
 
     open Helpers
     open Helpers.Builders
+    open Helpers.FileInfoHelper
 
     open Types.ErrorTypes
 
@@ -91,7 +92,7 @@ module MDPO_BL =
     //FsHttp
     let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) (pathToDir : string) (filterTimetables : Map<string, string>) =  
 
-        let downloadFileTaskAsync (token : CancellationToken) (uri : string) (pathToFile : string) : Async<Result<unit, string>> =  
+        let downloadFileTaskAsync (token : CancellationToken) (uri : string) (pathToFile : string) : Async<Result<unit, MHDErrors>> =  
        
             async
                 {                      
@@ -100,13 +101,35 @@ module MDPO_BL =
                             
                             pyramidOfDoom
                                 {
-                                    let get uri =
-                                        http 
-                                            {
-                                                GET(uri) 
-                                                config_timeoutInSeconds 180
-                                                config_cancellationToken token
-                                            }                                        
+                                    let existingFileLength =                               
+                                        checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                        |> function
+                                            | Some _ -> (FileInfo pathToFile).Length
+                                            | None   -> 0L
+                                                    
+                                    let get uri = 
+
+                                        let headerContent1 = "Range" 
+                                        let headerContent2 = sprintf "bytes=%d-" existingFileLength 
+                          
+                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
+                                        match existingFileLength > 0L with
+                                        | true  -> 
+                                                http
+                                                    {
+                                                        GET uri
+                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                        config_cancellationToken CancellationToken.None //token
+                                                        header headerContent1 headerContent2
+                                                    }
+                                        | false ->
+                                                http
+                                                    {
+                                                        GET uri
+                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                        config_cancellationToken CancellationToken.None //token
+                                                    }
+                                                    
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
                                     let! response = get >> Request.sendAsync <| uri |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
@@ -123,50 +146,44 @@ module MDPO_BL =
                                                                  do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                                                  return Ok () 
                             | HttpStatusCode.BadRequest          ->                                                                       
-                                                                 return Error connErrorCodeDefault.BadRequest
+                                                                 return Error BadRequest
                             | HttpStatusCode.InternalServerError -> 
-                                                                 return Error connErrorCodeDefault.InternalServerError
+                                                                 return Error InternalServerError
                             | HttpStatusCode.NotImplemented      ->
-                                                                 return Error connErrorCodeDefault.NotImplemented
+                                                                 return Error NotImplemented
                             | HttpStatusCode.ServiceUnavailable  ->
-                                                                 return Error connErrorCodeDefault.ServiceUnavailable
+                                                                 return Error ServiceUnavailable
                             | HttpStatusCode.NotFound            ->
-                                                                 return Error uri  
+                                                                 return Error NotFound  
                             | _                                  ->
-                                                                 return Error connErrorCodeDefault.CofeeMakerUnavailable 
+                                                                 return Error CofeeMakerUnavailable 
                                                                  
                         | Error err 
                             -> 
                             err |> ignore  //TODO logfile
-                            failwith "NetConnPdfError" 
-                            return Error String.Empty   //TODO mozna nekdy...
+                            return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
                         string ex.Message |> ignore  //TODO logfile
-                        failwith "FileDownloadError" 
-                        return Error String.Empty  //TODO mozna nekdy...
+                        return Error FileDownloadErrorMHD  
                 } 
     
-        let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, string> = 
+        let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, MHDErrors> = 
         
             try
                 let l = filterTimetables |> Map.count
         
                 filterTimetables
                 |> Map.toList 
-                |> List.mapi  //bohuzel s Map nelze mapi nebo iteri
+                |> List.mapi  //bohuzel s Map nelze Map.mapi nebo Map.iteri
                     (fun i (link, pathToFile) 
                         ->  
                         async                                                
                             {   
-                                match token.IsCancellationRequested with
-                                | false -> 
-                                        reportProgress (float i + 1.0, float l)  
-                                        return! downloadFileTaskAsync token link pathToFile    
-                                | true  -> 
-                                        return! async { return Ok <| token.ThrowIfCancellationRequested() }  
+                                reportProgress (float i + 1.0, float l)  
+                                return! downloadFileTaskAsync token link pathToFile
                             } 
                         |> Async.RunSynchronously
                     )  
@@ -174,22 +191,13 @@ module MDPO_BL =
                 |> Ok
 
             with
-            | ex 
-                when ex.Message.Contains("NetConnPdfError")
-                    -> 
-                    let dirName = ODISDefault.OdisDir6                       
-                        in
-                        myDelete dirName mdpoPathTemp                                    
-                                                     
-                    string ex.Message |> ignore //TODO logfile
-                    Error mdpoMsg2 //NetConnPdfError 
             | ex    
-                    ->
-                    let dirName = ODISDefault.OdisDir6                       
-                        in
-                        myDelete dirName mdpoPathTemp      
+                ->
+                let dirName = ODISDefault.OdisDir6                       
+                    in
+                    myDelete dirName mdpoPathTemp      
 
-                    string ex.Message |> ignore //TODO logfile         
-                    Error mdpoMsg2   
+                string ex.Message |> ignore //TODO logfile         
+                Error FileDownloadErrorMHD //mdpoMsg2   
                             
         downloadTimetables reportProgress token

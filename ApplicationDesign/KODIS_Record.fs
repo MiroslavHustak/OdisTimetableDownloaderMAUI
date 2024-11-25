@@ -92,6 +92,7 @@ module WebScraping_KODISFMRecord =
             let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.OdisDir5 ]    
            
             let errFn err =  
+
                 match err with
                 | RcError                -> rcError
                 | NoFolderError          -> noFolderError
@@ -132,15 +133,10 @@ module WebScraping_KODISFMRecord =
                             match token.IsCancellationRequested with
                             | true  -> environment.DeleteAllODISDirectories path |> ignore
                             | false -> dispatchIterationMessage context2.Msg1
-                                             
-                            #if ANDROID//WINDOWS
+                          
                             match list.Length >= 8 with //eqv of 8 threads
                             | true  -> context List.Parallel.map2
-                            | false -> context List.map2
-                       
-                            #else
-                            context List.Parallel.map2      
-                            #endif
+                            | false -> context List.map2                          
     
                             |> environment.DownloadAndSave token     
     
