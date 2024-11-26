@@ -17,27 +17,27 @@ let private splitListIntoEqualParts (numParts : int) (originalList : 'a list) = 
     
         match remainingList with
         | [] -> 
-            partsAccumulator |> List.rev 
+             partsAccumulator |> List.rev 
         | _  ->                     
-            let currentPartLength =
+             let currentPartLength =
     
-                let partLength list n = 
+                 let partLength list n = 
 
-                    let totalLength = list |> List.length  
-                    let partLength = totalLength / n    
+                     let totalLength = list |> List.length  
+                     let partLength = totalLength / n    
                               
-                    totalLength % n > 0
-                    |> function
-                        | true  -> (+) partLength 1
-                        | false -> partLength 
+                     totalLength % n > 0
+                     |> function
+                         | true  -> (+) partLength 1
+                         | false -> partLength 
     
-                match acc.Equals(numParts) with
-                | true  -> partLength originalList numParts    
-                | false -> partLength remainingList acc                                 
+                 match acc.Equals(numParts) with
+                 | true  -> partLength originalList numParts    
+                 | false -> partLength remainingList acc                                 
         
-            let (part, rest) = remainingList |> List.splitAt currentPartLength 
+             let (part, rest) = remainingList |> List.splitAt currentPartLength 
 
-            splitAccumulator rest (part :: partsAccumulator) (acc - 1)
+             splitAccumulator rest (part :: partsAccumulator) (acc - 1)
                       
     splitAccumulator originalList [] numParts
         
@@ -61,33 +61,35 @@ let private numberOfThreads l =
 let iter' action list =  
         
     match list with
-    | [] -> ()
+    | [] ->
+         ()
     | _  ->
-            let listToParallel list = list |> List.iter action        
+         let listToParallel list = list |> List.iter action        
          
-            let l = list |> List.length
+         let l = list |> List.length
 
-            let numberOfThreads = numberOfThreads l   
+         let numberOfThreads = numberOfThreads l   
                            
-            let myList = splitListIntoEqualParts numberOfThreads list                             
+         let myList = splitListIntoEqualParts numberOfThreads list                             
                   
-            fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
-            |> List.init (List.length myList)
-            |> List.map _.Compile()      
-            |> Async.Parallel  
-            |> Async.RunSynchronously 
-            |> ignore
+         fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
+         |> List.init (List.length myList)
+         |> List.map _.Compile()      
+         |> Async.Parallel  
+         |> Async.RunSynchronously 
+         |> ignore
 
 let iter action list =
 
     match list with
-    | [] -> ()
+    | [] ->
+         ()
     | _  ->
-            list
-            |> List.map (fun item -> async { return action item })  // Create an async task for each item
-            |> Async.Parallel  
-            |> Async.RunSynchronously  
-            |> ignore 
+         list
+         |> List.map (fun item -> async { return action item })  // Create an async task for each item
+         |> Async.Parallel  
+         |> Async.RunSynchronously  
+         |> ignore 
 
 let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
     
@@ -116,33 +118,35 @@ let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) =
 let map' (action : 'a -> 'b) (list : 'a list) =
 
     match list with
-    | [] -> []
+    | [] -> 
+         []
     | _  ->
-            let listToParallel (list : 'a list) = list |> List.map action 
+         let listToParallel (list : 'a list) = list |> List.map action 
             
-            let l = list |> List.length
-            let numberOfThreads = numberOfThreads l   
+         let l = list |> List.length
+         let numberOfThreads = numberOfThreads l   
                                    
-            let myList : 'a list list = splitListIntoEqualParts numberOfThreads list 
+         let myList : 'a list list = splitListIntoEqualParts numberOfThreads list 
     
-            fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
-            |> List.init (List.length myList)
-            |> List.map _.Compile()       
-            |> Async.Parallel      
-            |> Async.RunSynchronously
-            |> List.ofArray
-            |> List.concat
+         fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
+         |> List.init (List.length myList)
+         |> List.map _.Compile()       
+         |> Async.Parallel      
+         |> Async.RunSynchronously
+         |> List.ofArray
+         |> List.concat
 
 let map (action : 'a -> 'b) (list : 'a list) =
 
     match list with
-    | [] -> []
+    | [] -> 
+         []
     | _  ->
-            list
-            |> List.map (fun item -> async { return action item })  
-            |> Async.Parallel  
-            |> Async.RunSynchronously  
-            |> List.ofArray
+         list
+         |> List.map (fun item -> async { return action item })  
+         |> Async.Parallel  
+         |> Async.RunSynchronously  
+         |> List.ofArray
  
 let map2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
     

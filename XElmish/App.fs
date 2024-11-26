@@ -159,7 +159,7 @@ module App =
                    
             AsyncSeq.initInfinite (fun _ -> true)
             |> AsyncSeq.mapi (fun index _ -> index) 
-            |> AsyncSeq.takeWhile ((=) true << fun index -> index >= 0) // indefinite sequence //for educational purposes
+            |> AsyncSeq.takeWhile ((=) true << (>=) 0) // indefinite sequence //for educational purposes fun index -> index >= 0
             |> AsyncSeq.iterAsync 
                 (fun index 
                     ->        
