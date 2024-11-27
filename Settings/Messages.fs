@@ -61,6 +61,7 @@ module Messages =
     let internal hintRestart = "Zpět na úvod anebo restart aplikace"
     let internal buttonRestart = "Zpět na úvod" //"Restart"   
     let internal buttonHome = "Zpět na úvod"  
+    let internal buttonRequestPermission = "Povolit manipulaci se soubory"  
    
     let internal noNetConn = "Není přístup k internetu." 
     let internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena, vyčkej na Restart." 

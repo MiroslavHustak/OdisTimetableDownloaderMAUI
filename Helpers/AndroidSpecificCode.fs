@@ -9,6 +9,10 @@ open Helpers.Builders
 open Android.App
 open Android.Net
 open Android.Content
+open Android.Provider 
+
+open Xamarin
+open Xamarin.Essentials
 
 module AndroidDownloadService =
 
@@ -44,11 +48,74 @@ module AndroidDownloadService =
                 }
         with
         | ex -> Error (sprintf "Error in StartDownload: %s" ex.Message)
+
+module AndroidUIHelpers =
+
+    let internal permissionCheck () =
     
+        async
+            {
+                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+    
+                match status with
+                | PermissionStatus.Granted
+                    -> 
+                    return true
+                | _ -> 
+                    return false
+            }   
+             
+    let internal bringAppToForeground () =
+        
+        try
+            pyramidOfDoom
+                {
+                    let! context = Application.Context |> Option.ofNull, None
+                    let! packageManager = context.PackageManager |> Option.ofNull, None
+                    let! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None  
+                    let! _ = intent.AddFlags(ActivityFlags.NewTask ||| ActivityFlags.ClearTask) |> Option.ofNull, None
+                    let! _ = context.StartActivity(intent) |> Option.ofNull, None
+                
+                    return Some ()        
+                }
+        with
+        | ex
+            -> 
+            string ex.Message |> ignore // TOTO logfile
+            None
+
+    let internal openAppSettings () =
+        try
+            pyramidOfDoom
+                {
+                    let!_ = bringAppToForeground (), None
+                    do async { return! Async.Sleep 500 } |> Async.RunSynchronously // Allow the app to stabilize in the foreground
+                    let! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
+                    let!_ = intent.AddFlags(ActivityFlags.NewTask) |> Option.ofNull, None
+                    let! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
+                    let!_ = intent.SetData(uri) |> Option.ofNull, None 
+                    let!_ = Application.Context.StartActivity(intent)|> Option.ofNull, None
+
+                    return Some ()
+                }
+        with
+        | ex
+            -> 
+            string ex.Message |> ignore // TOTO logfile
+            None 
+
+        |> function   
+            | Some value 
+                -> async { return value }
+            | None
+                -> async { return () } //TODO vymyslet, co tady dat   
        
 #endif
 
 (*
+
+C#
+
 //Predpoklad: url a fileName mame pod kontrolou ohledne null, nejsou z .NET library
 //Predpoklad: mame slozite typy, kde nejsou "default" hodnoty jako Cancellation.None nebo String.Empty 
 

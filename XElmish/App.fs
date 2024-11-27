@@ -17,8 +17,10 @@ open Microsoft.Maui.Networking
 open Microsoft.Maui.Primitives
 open Microsoft.Maui.Accessibility
 
+#if ANDROID
 open Xamarin
-open Xamarin.Essentials
+open Xamarin.Essentials  
+#endif
 
 open type Fabulous.Maui.View
 
@@ -36,6 +38,10 @@ open IO_Operations.IO_Operations
 open Helpers
 open Helpers.Builders
 open Helpers.Connectivity
+
+#if ANDROID
+open Helpers.AndroidUIHelpers    
+#endif
 
 open ApplicationDesign.WebScraping_DPO
 open ApplicationDesign.WebScraping_MDPO
@@ -93,22 +99,8 @@ module App =
         | NetConnMessage of string
         | IterationMessage of string    
         | UpdateStatus of float * float * bool
-        | WorkIsComplete of string * bool    
-        
-    let private permissionCheck () =
+        | WorkIsComplete of string * bool  
 
-        async
-            {
-                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-
-                match status with
-                | PermissionStatus.Granted
-                    -> 
-                    return true
-                | _ -> 
-                    return false
-            }
-    
     let private countDown dispatch = 
 
         //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
@@ -214,18 +206,24 @@ module App =
                         }
                 )
             |> Async.StartImmediate  
+
+        #if ANDROID
+        let permissionGranted = permissionCheck () |> Async.RunSynchronously
+        #else
+        let permissionGranted = true
+        #endif        
              
         let initialModel = //Cancellation tokens for educational purposes only 
             {         
-                PermissionGranted = false
+                PermissionGranted = permissionGranted
                 ProgressMsg = String.Empty
                 NetConnMsg = String.Empty
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
-                KodisVisible = false
-                DpoVisible = false
-                MdpoVisible = false
+                KodisVisible = permissionGranted
+                DpoVisible = permissionGranted
+                MdpoVisible = permissionGranted
                 RestartVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
@@ -236,7 +234,7 @@ module App =
 
         let initialModelNoConn = //Cancellation tokens for learning purposes only 
             {       
-                PermissionGranted = false
+                PermissionGranted = permissionGranted
                 ProgressMsg = String.Empty
                 NetConnMsg = noNetConnInitial
                 CloudProgressMsg = String.Empty
@@ -292,8 +290,12 @@ module App =
                   { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
     let init2 () =    
-    
+        
+        #if ANDROID
         let permissionGranted = permissionCheck () |> Async.RunSynchronously
+        #else
+        let permissionGranted = true
+        #endif       
                
         let initialModel = //Cancellation tokens for educational purposes only 
             {       
@@ -303,9 +305,9 @@ module App =
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
-                KodisVisible = true
-                DpoVisible = true
-                MdpoVisible = true
+                KodisVisible = permissionGranted
+                DpoVisible = permissionGranted
+                MdpoVisible = permissionGranted
                 RestartVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
@@ -370,7 +372,8 @@ module App =
         match msg with   
         | RequestPermission 
             ->
-            let cmd =
+            #if ANDROID            
+            let cmd msg fn =
                 Cmd.ofAsyncMsg
                     (
                         async
@@ -380,13 +383,19 @@ module App =
                                 match status with
                                 | PermissionStatus.Granted 
                                     -> 
-                                    return PermissionResult true
+                                    return msg
                                 | _ ->
+                                    do! fn ()
+                                    do! Async.Sleep 1000
                                     let! result = Permissions.RequestAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                                    return PermissionResult (result = PermissionStatus.Granted)
+                                    return (PermissionResult (result = PermissionStatus.Granted))
                             } 
-                    ) 
-            m, cmd            
+                    )
+                    
+            m, Cmd.batch <| seq { cmd (PermissionResult true) openAppSettings; cmd Restart openAppSettings }  
+            #else
+            m, Cmd.none
+            #endif
 
         | PermissionResult granted 
             ->
@@ -946,7 +955,7 @@ module App =
                                 .isVisible(m.CloudVisible)
 
                             #if ANDROID
-                            Button("Request Permission", RequestPermission)
+                            Button(buttonRequestPermission, RequestPermission)
                                     .centerHorizontal()
                                     .semantics(hint = "Grant permission to access storage")
                                     .padding(10.)

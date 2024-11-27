@@ -77,7 +77,7 @@
     <Compile Include="Helpers\HardRestart.fs" />
     <Compile Include="Helpers\Connectivity.fs" />
     <Compile Include="Helpers\ListParallel.fs" />
-    <Compile Include="Helpers\AndroidDownloadService.fs" />
+    <Compile Include="Helpers\AndroidSpecificCode.fs" />
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\Dtos.fs" />
     <Compile Include="DataModelling\TransformationLayers.fs" />
