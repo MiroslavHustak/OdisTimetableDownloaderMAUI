@@ -215,6 +215,8 @@ module App =
                         }
                 )
             |> Async.StartImmediate  
+        
+        //let permissionGranted = requestPermission () |> Async.RunSynchronously
              
         let initialModel = //Cancellation tokens for educational purposes only 
             {         
@@ -293,7 +295,9 @@ module App =
         | Error _ ->  
                   { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
-    let init2 () =       
+    let init2 () =    
+    
+        //let permissionGranted = requestPermission () |> Async.RunSynchronously
                
         let initialModel = //Cancellation tokens for educational purposes only 
             {       
