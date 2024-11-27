@@ -13,7 +13,6 @@ open CreatingPathsAndNames
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
-
 module IO_Operations =    
     
     let internal deleteAllODISDirectories pathToDir = 
@@ -88,10 +87,35 @@ module IO_Operations =
                                     Directory.CreateDirectory dir |> ignore
                                 )           
                     | false -> 
-                            Directory.CreateDirectory(sprintf "%s" dir) |> ignore           
+                            Directory.CreateDirectory dir |> ignore           
                 ) 
             |> Ok
 
+        with 
+        | ex
+            ->
+            string ex.Message |> ignore // TODO logfile 
+            Error CreateFolderError     
+
+        
+    let internal ensureMainDirectoriesExist () =
+       
+        try
+            [
+                partialPathJsonTemp 
+                kodisPathTemp 
+                kodisPathTemp4 
+                dpoPathTemp 
+                mdpoPathTemp
+            ]        
+            |> List.iter
+                (fun pathDir 
+                    ->
+                    match Directory.Exists pathDir with
+                    | true  -> () 
+                    | false -> Directory.CreateDirectory pathDir |> ignore 
+                )
+            |> Ok  
         with 
         | ex
             ->

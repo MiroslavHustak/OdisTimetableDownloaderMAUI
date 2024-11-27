@@ -17,6 +17,9 @@ open Microsoft.Maui.Networking
 open Microsoft.Maui.Primitives
 open Microsoft.Maui.Accessibility
 
+open Xamarin
+open Xamarin.Essentials
+
 open type Fabulous.Maui.View
 
 //**********************************
@@ -27,6 +30,8 @@ open Settings.Messages
 open Settings.SettingsGeneral
 
 open Types.Types
+
+open IO_Operations.IO_Operations
 
 open Helpers
 open Helpers.Builders
@@ -56,6 +61,7 @@ module App =
 
     type Model = 
         {
+            PermissionGranted : bool
             ProgressMsg : string
             NetConnMsg : string
             CloudProgressMsg : string
@@ -73,6 +79,8 @@ module App =
         }
 
     type Msg =
+        | RequestPermission
+        | PermissionResult of bool
         | Kodis  
         | Kodis4  
         | Dpo
@@ -85,7 +93,22 @@ module App =
         | NetConnMessage of string
         | IterationMessage of string    
         | UpdateStatus of float * float * bool
-        | WorkIsComplete of string * bool         
+        | WorkIsComplete of string * bool    
+        
+    let private requestPermission () =
+
+        async
+            {
+                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+
+                match status with
+                | PermissionStatus.Granted
+                    -> 
+                    return true
+                | _ -> 
+                    let! result = Permissions.RequestAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                    return result = PermissionStatus.Granted 
+            }
     
     let private countDown dispatch = 
 
@@ -192,9 +215,10 @@ module App =
                         }
                 )
             |> Async.StartImmediate  
-        
+             
         let initialModel = //Cancellation tokens for educational purposes only 
-            {                 
+            {         
+                PermissionGranted = false
                 ProgressMsg = String.Empty
                 NetConnMsg = String.Empty
                 CloudProgressMsg = String.Empty
@@ -212,7 +236,8 @@ module App =
             } 
 
         let initialModelNoConn = //Cancellation tokens for learning purposes only 
-            {                 
+            {       
+                PermissionGranted = false
                 ProgressMsg = String.Empty
                 NetConnMsg = noNetConnInitial
                 CloudProgressMsg = String.Empty
@@ -227,44 +252,52 @@ module App =
                 Label2Visible = true
                 Cts = initialModel.Cts //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
                 Token = initialModel.Token
-            }             
+            } 
+            
+        match ensureMainDirectoriesExist () with
+        | Ok _ 
+            ->
        
-        try          
-            pyramidOfDoom   //Template_001a for initial cancellation tokens 
-                {
-                    let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
-                        try
-                            Some <| initialModel.Cts.Token               
-                        with
-                        | _ -> None    
-
-                    //initialModelNoConn.Token uz neni tra overovat, bo je zavisly na vyse uvedenem
-
-                    let! initialModelToken = initialModelCtsToken, ({ initialModel with NetConnMsg = ctsMsg }, Cmd.none)
-
-                    let ctsCancel () =    
-                        try
+            try          
+                pyramidOfDoom   //Template_001a for initial cancellation tokens 
+                    {
+                        let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
                             try
-                                Some () //Some <| initialModel.Cts.Cancel() //Zatim nepotrebne //This signal is irreversible once sent.
-                            finally                      
-                                initialModel.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
-                        with
-                        | _ -> None
+                                Some <| initialModel.Cts.Token               
+                            with
+                            | _ -> None    
 
-                    //cancellation token to be signalled if needed
-                    //let!_ = ctsCancel (), (initialModel, Cmd.none) 
+                        //initialModelNoConn.Token uz neni tra overovat, bo je zavisly na vyse uvedenem
 
-                    let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
+                        let! initialModelToken = initialModelCtsToken, ({ initialModel with NetConnMsg = ctsMsg }, Cmd.none)
 
-                    return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
-                }  
-        with
-        | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
+                        let ctsCancel () =    
+                            try
+                                try
+                                    Some () //Some <| initialModel.Cts.Cancel() //Zatim nepotrebne //This signal is irreversible once sent.
+                                finally                      
+                                    initialModel.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
+                            with
+                            | _ -> None
+
+                        //cancellation token to be signalled if needed
+                        //let!_ = ctsCancel (), (initialModel, Cmd.none) 
+
+                        let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
+
+                        return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
+                    }  
+            with
+            | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
+
+        | Error _ ->  
+                  { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
     let init2 () =       
                
         let initialModel = //Cancellation tokens for educational purposes only 
-            {                 
+            {       
+                PermissionGranted = false
                 ProgressMsg = String.Empty
                 NetConnMsg = String.Empty
                 CloudProgressMsg = String.Empty
@@ -282,7 +315,8 @@ module App =
             } 
 
         let initialModelNoConn = //Cancellation tokens for learning purposes only 
-            {                 
+            {    
+                PermissionGranted = false
                 ProgressMsg = String.Empty
                 NetConnMsg = noNetConnInitial
                 CloudProgressMsg = String.Empty
@@ -333,7 +367,24 @@ module App =
 
     let update msg m =
 
-        match msg with      
+        match msg with   
+        | RequestPermission 
+            ->
+            let cmd =
+                Cmd.ofAsyncMsg
+                    (
+                        async
+                            {
+                                let! result = Permissions.RequestAsync<Xamarin.Essentials.Permissions.StorageRead>() |> Async.AwaitTask
+                                return PermissionResult (result = PermissionStatus.Granted)
+                            }
+                    )
+            m, cmd            
+
+        | PermissionResult granted 
+            ->
+            { m with PermissionGranted = granted }, Cmd.none
+
         | UpdateStatus (progressValue, totalProgress, isVisible)
             ->
             let progress =                 
@@ -886,7 +937,22 @@ module App =
                                 .width(250.)
                                 .centerVertical()
                                 .isVisible(m.CloudVisible)
-                                 
+
+                            #if ANDROID
+                            Button("Request Permission", 
+                                    async
+                                        {
+                                            let! permissionGranted = requestPermission ()
+                                            return PermissionResult permissionGranted
+                                        }
+                                        |> Async.RunSynchronously                            
+                                  )
+                                    .centerHorizontal()
+                                    .semantics(hint = "Grant permission to access storage")
+                                    .padding(10.)
+                                    .isVisible(not <| m.PermissionGranted)
+                            #endif
+                                                             
                             Button(buttonKodis, Kodis)
                                 .semantics(hint = hintOdis)
                                 .centerHorizontal()

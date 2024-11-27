@@ -73,6 +73,7 @@ module Messages =
     let internal yesNetConnPlus = "Vyčkej na objevení se tlačítka \"Restart\"."
    
     let internal ctsMsg = "Restartuj aplikaci. Pokud se tato chyba objeví vícekrát, kontaktuj programátora." 
+    let internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
     
     let internal cancelMsg1 = "Kvůli přerušení připojení k internetu se činnost aplikace ukončuje, může to chvíli trvat ..."
     let internal cancelMsg1NoConn = "Po obnovení připojení k internetu se činnost aplikace ukončí, může to chvíli trvat ..."
@@ -83,21 +84,24 @@ module Messages =
 
     let internal buttonQuit = "Okamžité vypnutí aplikace" 
 
+    let (|Second|Seconds|SecondPlural|) =
+        function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural
+
     // F# compiler directives
     #if WINDOWS 
-    let internal quitMsg param = 
+    let internal quitMsg param =         
         match param with
-        | 1         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu, pokud nedojde k obnovení připojení." param
-        | 2 | 3 | 4 -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny, pokud nedojde k obnovení připojení." param
-        | _         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin, pokud nedojde k obnovení připojení." param
+        | Second       -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu, pokud nedojde k obnovení připojení." param
+        | Seconds      -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny, pokud nedojde k obnovení připojení." param
+        | SecondPlural -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin, pokud nedojde k obnovení připojení." param
 
     let internal continueDownload = "Stahovací operace se po přerušení pokusí automaticky obnovit, vznik chyby je možný."
-    #else
-    let internal quitMsg param = 
+    #else           
+    let internal quitMsg param =
         match param with
-        | 1         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu ..." param
-        | 2 | 3 | 4 -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny ..." param
-        | _         -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin ..." param
+        | Second       -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřinu ..." param
+        | Seconds      -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny ..." param 
+        | SecondPlural -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin ..." param 
 
     let internal continueDownload = String.Empty
      #endif

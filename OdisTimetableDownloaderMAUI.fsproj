@@ -81,10 +81,10 @@
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\Dtos.fs" />
     <Compile Include="DataModelling\TransformationLayers.fs" />
+    <Compile Include="BusinessLogic\DataManipulation\PureFunctions\SortRecordData.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\SortJsonData.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\FilterTimetableLinks.fs" />
-    <Compile Include="BusinessLogic\DataManipulation\PureFunctions\SortRecordData.fs" />
-    <Compile Include="BusinessLogic\IO_Operations\PureFunctions\CreatePathsAndNames.fs" />
+	<Compile Include="BusinessLogic\IO_Operations\PureFunctions\CreatePathsAndNames.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\CallApi.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\IO_Operations.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic\DPO-BL.fs" />
@@ -163,6 +163,7 @@
     <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.92" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Thoth.Json.Net" Version="12.0.0" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.8.1" />
   </ItemGroup>
 
   <ItemGroup>
