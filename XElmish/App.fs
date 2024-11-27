@@ -95,7 +95,7 @@ module App =
         | UpdateStatus of float * float * bool
         | WorkIsComplete of string * bool    
         
-    let private requestPermission () =
+    let private permissionCheck () =
 
         async
             {
@@ -106,8 +106,7 @@ module App =
                     -> 
                     return true
                 | _ -> 
-                    let! result = Permissions.RequestAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                    return result = PermissionStatus.Granted 
+                    return false
             }
     
     let private countDown dispatch = 
@@ -215,8 +214,6 @@ module App =
                         }
                 )
             |> Async.StartImmediate  
-        
-        //let permissionGranted = requestPermission () |> Async.RunSynchronously
              
         let initialModel = //Cancellation tokens for educational purposes only 
             {         
@@ -226,9 +223,9 @@ module App =
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
-                KodisVisible = true
-                DpoVisible = true
-                MdpoVisible = true
+                KodisVisible = false
+                DpoVisible = false
+                MdpoVisible = false
                 RestartVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
@@ -259,7 +256,6 @@ module App =
         match ensureMainDirectoriesExist () with
         | Ok _ 
             ->
-       
             try          
                 pyramidOfDoom   //Template_001a for initial cancellation tokens 
                     {
@@ -297,11 +293,11 @@ module App =
 
     let init2 () =    
     
-        //let permissionGranted = requestPermission () |> Async.RunSynchronously
+        let permissionGranted = permissionCheck () |> Async.RunSynchronously
                
         let initialModel = //Cancellation tokens for educational purposes only 
             {       
-                PermissionGranted = false
+                PermissionGranted = permissionGranted //melo by byt vzdy true
                 ProgressMsg = String.Empty
                 NetConnMsg = String.Empty
                 CloudProgressMsg = String.Empty
@@ -320,7 +316,7 @@ module App =
 
         let initialModelNoConn = //Cancellation tokens for learning purposes only 
             {    
-                PermissionGranted = false
+                PermissionGranted = permissionGranted //melo by byt vzdy true
                 ProgressMsg = String.Empty
                 NetConnMsg = noNetConnInitial
                 CloudProgressMsg = String.Empty
@@ -379,10 +375,17 @@ module App =
                     (
                         async
                             {
-                                let! result = Permissions.RequestAsync<Xamarin.Essentials.Permissions.StorageRead>() |> Async.AwaitTask
-                                return PermissionResult (result = PermissionStatus.Granted)
-                            }
-                    )
+                                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+
+                                match status with
+                                | PermissionStatus.Granted 
+                                    -> 
+                                    return PermissionResult true
+                                | _ ->
+                                    let! result = Permissions.RequestAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                                    return PermissionResult (result = PermissionStatus.Granted)
+                            } 
+                    ) 
             m, cmd            
 
         | PermissionResult granted 
@@ -943,43 +946,36 @@ module App =
                                 .isVisible(m.CloudVisible)
 
                             #if ANDROID
-                            Button("Request Permission", 
-                                    async
-                                        {
-                                            let! permissionGranted = requestPermission ()
-                                            return PermissionResult permissionGranted
-                                        }
-                                        |> Async.RunSynchronously                            
-                                  )
+                            Button("Request Permission", RequestPermission)
                                     .centerHorizontal()
                                     .semantics(hint = "Grant permission to access storage")
                                     .padding(10.)
-                                    .isVisible(not <| m.PermissionGranted)
+                                    .isVisible(not m.PermissionGranted)
                             #endif
                                                              
                             Button(buttonKodis, Kodis)
                                 .semantics(hint = hintOdis)
                                 .centerHorizontal()
-                                .isVisible(m.KodisVisible)
+                                .isVisible(m.KodisVisible && m.PermissionGranted)
 
                             Button(buttonKodis4, Kodis4)
                                 .semantics(hint = hintOdis)
                                 .centerHorizontal()
-                                .isVisible(m.KodisVisible)   
+                                .isVisible(m.KodisVisible && m.PermissionGranted)   
     
                             Button(buttonDpo, Dpo)
                                 .semantics(hint = hintDpo)
                                 .centerHorizontal()
-                                .isVisible(m.DpoVisible)
+                                .isVisible(m.DpoVisible && m.PermissionGranted)
     
-                            Button(buttonMdpo, Mdpo)
+                            Button(buttonMdpo, Mdpo )
                                 .semantics(hint = hintMdpo)
                                 .centerHorizontal()
-                                .isVisible(m.MdpoVisible)
+                                .isVisible(m.MdpoVisible && m.PermissionGranted)
 
                             Button(buttonRestart, Restart)
                                 .semantics(hint = String.Empty)
-                                .isVisible(m.RestartVisible)
+                                .isVisible(m.RestartVisible && m.PermissionGranted)
                                 .centerHorizontal()
 
                             Button(buttonQuit, Quit)
