@@ -378,7 +378,7 @@ module App =
                     (
                         async
                             {
-                                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask 
 
                                 match status with
                                 | PermissionStatus.Granted 
