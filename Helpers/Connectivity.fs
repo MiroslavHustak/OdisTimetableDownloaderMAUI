@@ -73,53 +73,54 @@ module CheckNetConnection =
     
 
     //******************** Zatim se nepouziva ******************************************** 
-
+    #if ANDROID
     let internal checkInternetConnectivityAE () =
 
-            let requestLocationPermission () =
+        let requestLocationPermission () =
                 
-                async
-                    {
-                        let! status = 
-                            Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>() |> Async.AwaitTask
-
-                        match status <> PermissionStatus.Granted with
-                        | true  ->
-                                let! result = 
-                                    Permissions.RequestAsync<Permissions.LocationWhenInUse>() |> Async.AwaitTask
-
-                                return result = PermissionStatus.Granted
-                        | false ->
-                                return true
-                    }
-
             async
                 {
-                    try   
+                    let! status = 
+                        Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>() |> Async.AwaitTask
+
+                    match status <> PermissionStatus.Granted with
+                    | true  ->
+                            let! result = 
+                                Permissions.RequestAsync<Permissions.LocationWhenInUse>() |> Async.AwaitTask
+
+                            return result = PermissionStatus.Granted
+                    | false ->
+                            return true
+                }
+
+        async
+            {
+                try   
                         
-                        match Connectivity.Current.ConnectionProfiles |> Option.ofNull with            
-                        | Some profiles
+                    match Connectivity.Current.ConnectionProfiles |> Option.ofNull with            
+                    | Some profiles
+                        ->
+                        match profiles |> List.ofSeq with
+                        | [] 
+                            -> 
+                            return None                                         
+                        | _  
                             ->
-                            match profiles |> List.ofSeq with
-                            | [] 
-                                -> 
-                                return None                                         
-                            | _  
-                                ->
-                                let! hasPermission = requestLocationPermission ()
+                            let! hasPermission = requestLocationPermission ()
 
-                                let cond1 = profiles |> Seq.contains ConnectionProfile.WiFi
-                                let cond2 = Connectivity.NetworkAccess = NetworkAccess.Internet
+                            let cond1 = profiles |> Seq.contains ConnectionProfile.WiFi
+                            let cond2 = Connectivity.NetworkAccess = NetworkAccess.Internet
 
-                                match cond1 && cond2 && hasPermission with
-                                | true  -> return Some ()
-                                | false -> return None  
+                            match cond1 && cond2 && hasPermission with
+                            | true  -> return Some ()
+                            | false -> return None  
 
-                        | None 
-                            ->
-                            return None
-                    with
-                    | _ -> return None
+                    | None 
+                        ->
+                        return None
+                with
+                | _ -> return None
                 
-                }  
-            |> Async.RunSynchronously  
+            }  
+        |> Async.RunSynchronously  
+    #endif
