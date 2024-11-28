@@ -93,11 +93,13 @@ module AndroidUIHelpers =
             string ex.Message |> ignore // TOTO logfile
             None
 
-    let rec internal openAppSettings () =
+    let internal openAppSettings () =
 
         async 
             {
                 try
+                    do! Async.Sleep 1500 
+                    
                     pyramidOfDoom
                         {
                             let!_ = bringAppToForeground () |> Option.ofNull, None
@@ -125,13 +127,14 @@ module AndroidUIHelpers =
                             ->
                             value
                         | None
-                            -> openAppSettings () |> Async.RunSynchronously
+                            -> 
+                            () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                     
                 with
                 | ex
                     ->
                     string ex.Message |> ignore // Log error
-                    openAppSettings () |> Async.RunSynchronously
+                    ()
             }
 #endif
 
