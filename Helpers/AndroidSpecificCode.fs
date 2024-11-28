@@ -64,16 +64,25 @@ module AndroidUIHelpers =
                 | _ -> 
                     return false
             }   
-             
+
     let internal bringAppToForeground () =
-        
+
         try
             pyramidOfDoom
                 {
                     let! context = Application.Context |> Option.ofNull, None
                     let! packageManager = context.PackageManager |> Option.ofNull, None
                     let! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None  
-                    let! _ = intent.AddFlags(ActivityFlags.NewTask ||| ActivityFlags.ClearTask) |> Option.ofNull, None
+                    let! _ = 
+                        intent.AddFlags
+                            (
+                                ActivityFlags.NewTask ||| 
+                                ActivityFlags.ClearTop ||| 
+                                ActivityFlags.ClearTask ||| 
+                                ActivityFlags.BroughtToFront ||| 
+                                ActivityFlags.SingleTop
+                            )
+                            |> Option.ofNull, None
                     let! _ = context.StartActivity(intent) |> Option.ofNull, None
                 
                     return Some ()        
@@ -84,32 +93,46 @@ module AndroidUIHelpers =
             string ex.Message |> ignore // TOTO logfile
             None
 
-    let internal openAppSettings () =
-        try
-            pyramidOfDoom
-                {
-                    let!_ = bringAppToForeground (), None
-                    do async { return! Async.Sleep 500 } |> Async.RunSynchronously // Allow the app to stabilize in the foreground
-                    let! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
-                    let!_ = intent.AddFlags(ActivityFlags.NewTask) |> Option.ofNull, None
-                    let! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
-                    let!_ = intent.SetData(uri) |> Option.ofNull, None 
-                    let!_ = Application.Context.StartActivity(intent)|> Option.ofNull, None
+    let rec internal openAppSettings () =
 
-                    return Some ()
-                }
-        with
-        | ex
-            -> 
-            string ex.Message |> ignore // TOTO logfile
-            None 
+        async 
+            {
+                try
+                    pyramidOfDoom
+                        {
+                            let!_ = bringAppToForeground () |> Option.ofNull, None
+                            do async { return! Async.Sleep 1500 } |> Async.RunSynchronously
+                            let! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
+                            let! _ = 
+                                intent.AddFlags
+                                    (
+                                        ActivityFlags.NewTask ||| 
+                                        ActivityFlags.ClearTop ||| 
+                                        ActivityFlags.ClearTask ||| 
+                                        ActivityFlags.BroughtToFront ||| 
+                                        ActivityFlags.SingleTop
+                                    )
+                                    |> Option.ofNull, None
+                            let! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
+                            let!_ = intent.SetData(uri) |> Option.ofNull, None 
+                            let!_ = Application.Context.StartActivity(intent)|> Option.ofNull, None
 
-        |> function   
-            | Some value 
-                -> async { return value }
-            | None
-                -> async { return () } //TODO vymyslet, co tady dat   
-       
+                            return Some ()
+                        }
+
+                    |> function
+                        | Some value 
+                            ->
+                            value
+                        | None
+                            -> openAppSettings () |> Async.RunSynchronously
+                    
+                with
+                | ex
+                    ->
+                    string ex.Message |> ignore // Log error
+                    openAppSettings () |> Async.RunSynchronously
+            }
 #endif
 
 (*

@@ -208,6 +208,22 @@ module App =
             |> Async.StartImmediate  
 
         #if ANDROID
+        
+        let initialPermission () = 
+
+            async
+                {
+                    let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                    let permissionGranted = (status = PermissionStatus.Granted)
+                               
+                    match permissionGranted with
+                    | true  ->                                         
+                            return PermissionResult true
+                    | false -> 
+                            do! openAppSettings ()
+                            return PermissionResult false
+                }
+      
         let permissionGranted = permissionCheck () |> Async.RunSynchronously
         #else
         let permissionGranted = true
@@ -281,7 +297,16 @@ module App =
 
                         let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
 
-                        return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
+                        return 
+                            initialModel, 
+                                Cmd.ofSub 
+                                    (fun dispatch
+                                        ->
+                                        #if ANDROID
+                                        initialPermission () |> Async.RunSynchronously |> dispatch
+                                        #endif
+                                        monitorConnectivity dispatch initialModelToken
+                                    )
                     }  
             with
             | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
@@ -370,29 +395,26 @@ module App =
     let update msg m =
 
         match msg with   
-        | RequestPermission 
-            ->
-            #if ANDROID            
-            let cmd msg fn =
-                Cmd.ofAsyncMsg
+        | RequestPermission ->
+            #if ANDROID
+            let cmd =
+                Cmd.ofMsg
                     (
                         async
                             {
-                                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask 
-
-                                match status with
-                                | PermissionStatus.Granted 
-                                    -> 
-                                    return msg
-                                | _ ->
-                                    do! fn ()
-                                    do! Async.Sleep 1000
-                                    let! result = Permissions.RequestAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                                    return (PermissionResult (result = PermissionStatus.Granted))
-                            } 
-                    )
-                    
-            m, Cmd.batch <| seq { cmd (PermissionResult true) openAppSettings; cmd Restart openAppSettings }  
+                                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                                let permissionGranted = (status = PermissionStatus.Granted)
+                        
+                                match permissionGranted with
+                                | true  ->                                         
+                                        return PermissionResult true
+                                | false -> 
+                                        do! openAppSettings ()
+                                        return PermissionResult true
+                            }
+                        |> Async.RunSynchronously
+                )
+            m, cmd
             #else
             m, Cmd.none
             #endif
