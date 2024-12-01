@@ -96,7 +96,6 @@ module IO_Operations =
             ->
             string ex.Message |> ignore // TODO logfile 
             Error CreateFolderError     
-
         
     let internal ensureMainDirectoriesExist () =
        

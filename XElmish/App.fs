@@ -101,7 +101,7 @@ module App =
         | UpdateStatus of float * float * bool
         | WorkIsComplete of string * bool  
 
-    let private countDown dispatch = 
+    let private countDown dispatch = //Not used yet
 
         //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
       
@@ -172,7 +172,7 @@ module App =
         let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =              
                    
             AsyncSeq.initInfinite (fun _ -> true)
-            |> AsyncSeq.mapi (fun index _ -> index) 
+            |> AsyncSeq.mapi (fun index _ -> index)    //index for educational purposes
             |> AsyncSeq.takeWhile ((=) true << (>=) 0) // indefinite sequence //for educational purposes fun index -> index >= 0
             |> AsyncSeq.iterAsync 
                 (fun index 
