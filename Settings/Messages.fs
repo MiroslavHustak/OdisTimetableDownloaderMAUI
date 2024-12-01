@@ -61,7 +61,7 @@ module Messages =
     let internal hintRestart = "Zpět na úvod anebo restart aplikace"
     let internal buttonRestart = "Zpět na úvod" //"Restart"   
     let internal buttonHome = "Zpět na úvod"  
-    let internal buttonRequestPermission = "Povolit manipulaci se soubory"  
+    let internal buttonRequestPermission = "Spustit Nastavení/AppInfo"  
    
     let internal noNetConn = "Není přístup k internetu." 
     let internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena, vyčkej na Restart." 
@@ -84,7 +84,11 @@ module Messages =
     let internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
 
     let internal buttonQuit = "Okamžité vypnutí aplikace" 
-    let internal appInfoInvoker = "Pokud po stisknutí tlačítka \"Povolit manipulaci se soubory\" nedojde ke startu \"Nastavení/AppInfo\" pro tuto aplikaci, je to třeba udělat ručně a povolit manipulaci se soubory." 
+
+    let internal appInfoInvoker =
+        "V systémové aplikaci \"Nastavení/AppInfo\" je třeba povolit manipulaci se soubory pro tuto aplikaci. 
+        Pokud po stisknutí tlačítka \"Spustit Nastavení/AppInfo\" nedojde k jejímu spuštění, je potřeba toto udělat ručně. 
+        Po nastavení povolení vypni tuto aplikaci a spusť znovu." 
 
     let (|Second|Seconds|SecondPlural|) =
         function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural

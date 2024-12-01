@@ -207,23 +207,7 @@ module App =
                 )
             |> Async.StartImmediate  
 
-        #if ANDROID
-        
-        let initialPermission () = 
-
-            async
-                {
-                    let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                    let permissionGranted = (status = PermissionStatus.Granted)
-                               
-                    match permissionGranted with
-                    | true  ->                                         
-                            return PermissionResult true
-                    | false -> 
-                            //do! openAppSettings ()
-                            return PermissionResult false
-                }
-      
+        #if ANDROID        
         let permissionGranted = permissionCheck () |> Async.RunSynchronously
         #else
         let permissionGranted = true
@@ -232,7 +216,7 @@ module App =
         let initialModel = //Cancellation tokens for educational purposes only 
             {         
                 PermissionGranted = permissionGranted
-                ProgressMsg = appInfoInvoker
+                ProgressMsg = permissionGranted |> function true -> String.Empty | false -> appInfoInvoker
                 NetConnMsg = String.Empty
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
@@ -297,16 +281,7 @@ module App =
 
                         let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
 
-                        return 
-                            initialModel, 
-                                Cmd.ofSub 
-                                    (fun dispatch
-                                        ->
-                                        #if ANDROID
-                                        ()//initialPermission () |> Async.RunSynchronously |> dispatch
-                                        #endif
-                                        monitorConnectivity dispatch initialModelToken
-                                    )
+                        return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
                     }  
             with
             | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none

@@ -15,7 +15,8 @@ open Xamarin
 open Xamarin.Essentials
 
 module AndroidDownloadService =
-
+    
+    //Not used yet
     let internal downloadManager (url: string) (fileName: string) =
 
         pyramidOfDoom
@@ -31,6 +32,7 @@ module AndroidDownloadService =
                 return Some <| downloadManager.Enqueue(request)        
             }
 
+    //Not used yet 
     let internal downloadManagerResult (url: string) (fileName: string) =
 
         try
@@ -65,6 +67,7 @@ module AndroidUIHelpers =
                     return false
             }   
 
+    //Not used yet
     let internal bringAppToForeground () =
 
         try
@@ -93,6 +96,7 @@ module AndroidUIHelpers =
             string ex.Message |> ignore // TODO: logfile
             None  
     
+    //Not used yet
     let internal sendAppToBackground () =
         try
             pyramidOfDoom
@@ -100,7 +104,6 @@ module AndroidUIHelpers =
                     use! context = Application.Context |> Option.ofNull, None
                     use! packageManager = context.PackageManager |> Option.ofNull, None
                 
-                    // Create an intent for the home screen
                     use homeIntent = new Intent(Intent.ActionMain)
                     let! _ = 
                         homeIntent.AddCategory(Intent.CategoryHome)
