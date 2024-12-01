@@ -84,6 +84,7 @@ module Messages =
     let internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
 
     let internal buttonQuit = "Okamžité vypnutí aplikace" 
+    let internal appInfoInvoker = "Pokud po stisknutí tlačítka \"Povolit manipulaci se soubory\" nedojde ke startu \"Nastavení/AppInfo\" pro tuto aplikaci, je to třeba udělat ručně a povolit manipulaci se soubory." 
 
     let (|Second|Seconds|SecondPlural|) =
         function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural

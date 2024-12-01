@@ -20,10 +20,10 @@ module AndroidDownloadService =
 
         pyramidOfDoom
             {
-                let! context = Application.Context |> Option.ofNull, None
-                let! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, None                
-                let! uri = Uri.Parse(url) |> Option.ofNull, None                
-                let! request = new DownloadManager.Request(uri) |> Option.ofNull, None                
+                use! context = Application.Context |> Option.ofNull, None
+                use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, None                
+                use! uri = Uri.Parse(url) |> Option.ofNull, None                
+                use! request = new DownloadManager.Request(uri) |> Option.ofNull, None                
                 let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, None
                 let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNull, None
                 let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, None                                
@@ -36,10 +36,10 @@ module AndroidDownloadService =
         try
             pyramidOfDoom 
                 {
-                    let! context = Application.Context |> Option.ofNull, Error "Application context is not available."
-                    let! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, Error "DownloadManager service is not available on this device."
-                    let! uri = Uri.Parse(url) |> Option.ofNull, Error "Failed to parse the URL into a URI."
-                    let! request = new DownloadManager.Request(uri) |> Option.ofNull, Error "Failed to create request."
+                    use! context = Application.Context |> Option.ofNull, Error "Application context is not available."
+                    use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, Error "DownloadManager service is not available on this device."
+                    use! uri = Uri.Parse(url) |> Option.ofNull, Error "Failed to parse the URL into a URI."
+                    use! request = new DownloadManager.Request(uri) |> Option.ofNull, Error "Failed to create request."
                     let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, Error "Failed to set notification visibility."
                     let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNull, Error "Downloads directory is not accessible."
                     let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, Error "Failed to set destination directory."
@@ -70,9 +70,9 @@ module AndroidUIHelpers =
         try
             pyramidOfDoom
                 {
-                    let! context = Application.Context |> Option.ofNull, None
-                    let! packageManager = context.PackageManager |> Option.ofNull, None
-                    let! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None  
+                    use! context = Application.Context |> Option.ofNull, None
+                    use! packageManager = context.PackageManager |> Option.ofNull, None
+                    use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None  
                     let! _ = 
                         intent.AddFlags
                             (
@@ -90,21 +90,43 @@ module AndroidUIHelpers =
         with
         | ex
             -> 
-            string ex.Message |> ignore // TOTO logfile
+            string ex.Message |> ignore // TODO: logfile
+            None  
+    
+    let internal sendAppToBackground () =
+        try
+            pyramidOfDoom
+                {
+                    use! context = Application.Context |> Option.ofNull, None
+                    use! packageManager = context.PackageManager |> Option.ofNull, None
+                
+                    // Create an intent for the home screen
+                    use homeIntent = new Intent(Intent.ActionMain)
+                    let! _ = 
+                        homeIntent.AddCategory(Intent.CategoryHome)
+                                  .SetFlags(ActivityFlags.NewTask)
+                                  |> Option.ofNull, None
+                    let! _ = context.StartActivity(homeIntent) |> Option.ofNull, None
+                
+                    return Some ()
+                }
+        with
+        | ex 
+            ->
+            string ex.Message |> ignore  // TODO: logfile
             None
+    
 
     let internal openAppSettings () =
 
         async 
             {
                 try
-                    do! Async.Sleep 1500 
+                    do! Async.Sleep 500 
                     
                     pyramidOfDoom
                         {
-                            let!_ = bringAppToForeground () |> Option.ofNull, None
-                            do async { return! Async.Sleep 1500 } |> Async.RunSynchronously
-                            let! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
+                            use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
                             let! _ = 
                                 intent.AddFlags
                                     (
@@ -115,7 +137,7 @@ module AndroidUIHelpers =
                                         ActivityFlags.SingleTop
                                     )
                                     |> Option.ofNull, None
-                            let! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
+                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
                             let!_ = intent.SetData(uri) |> Option.ofNull, None 
                             let!_ = Application.Context.StartActivity(intent)|> Option.ofNull, None
 

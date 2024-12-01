@@ -220,7 +220,7 @@ module App =
                     | true  ->                                         
                             return PermissionResult true
                     | false -> 
-                            do! openAppSettings ()
+                            //do! openAppSettings ()
                             return PermissionResult false
                 }
       
@@ -232,7 +232,7 @@ module App =
         let initialModel = //Cancellation tokens for educational purposes only 
             {         
                 PermissionGranted = permissionGranted
-                ProgressMsg = String.Empty
+                ProgressMsg = appInfoInvoker
                 NetConnMsg = String.Empty
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
@@ -303,7 +303,7 @@ module App =
                                     (fun dispatch
                                         ->
                                         #if ANDROID
-                                        initialPermission () |> Async.RunSynchronously |> dispatch
+                                        ()//initialPermission () |> Async.RunSynchronously |> dispatch
                                         #endif
                                         monitorConnectivity dispatch initialModelToken
                                     )
