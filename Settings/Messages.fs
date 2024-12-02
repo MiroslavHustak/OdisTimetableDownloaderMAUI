@@ -23,7 +23,14 @@ module Messages =
     let internal fileDeleteError = "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
     let internal createFolderError = "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy." 
     let internal noFolderError = "Nejsou vytvořeny adresáře pro příslušné soubory, JŘ ODIS nebyly úspěšně staženy."
+    #if ANDROID
+    let internal fileDownloadError =
+        sprintf "%s %s"
+        <| "Chyba při stahování JŘ ODIS."
+        <| "Vypni aplikaci, připoj se k internetu, pokud je třeba, a spusť ji znovu." 
+    #else
     let internal fileDownloadError = "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
+    #endif
     let internal canopyError = "REST API error." 
 
     let internal dispatchMsg1 = "Dokončeno stahování JSON souborů." 
@@ -40,7 +47,7 @@ module Messages =
     let internal dpoCancelMsg = "Stahování JŘ DPO předčasně ukončeno."
 
     let internal progressMsgKodis = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
-    let internal progressMsgKodis1 = "Varianta bez stahování JSON souborů a s použitím web API." 
+    let internal progressMsgKodis1 = "Varianta bez stahování JSON souborů a s použitím web API. Vyčkej na zahájení ..." 
     let internal progressMsgDpo = "Stahují se JŘ DPO ..." 
     let internal progressMsgMdpo = "Stahují se zastávkové JŘ MDPO ..."
 
@@ -68,7 +75,7 @@ module Messages =
     let internal noNetConnPlusPlus = "Není přístup k internetu, počkám zhruba dvě minuty." 
     let internal noNetConn1 = "Operace nebyla provedena, není přístup k internetu." 
     let internal noNetConn2 = "Není přístup k internetu, nutno vyčkat, až bude." 
-    let internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se na internet a spusť ji znovu."  
+    let internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se k internetu a spusť ji znovu."  
    
     let internal yesNetConn = "Přípojení k internetu funguje." 
     let internal yesNetConnPlus = "Vyčkej na objevení se tlačítka \"Restart\"."
