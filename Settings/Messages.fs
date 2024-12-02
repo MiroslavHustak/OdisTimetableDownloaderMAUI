@@ -61,7 +61,7 @@ module Messages =
     let internal hintRestart = "Zpět na úvod anebo restart aplikace"
     let internal buttonRestart = "Zpět na úvod" //"Restart"   
     let internal buttonHome = "Zpět na úvod"  
-    let internal buttonRequestPermission = "Spustit Nastavení/AppInfo"  
+    let internal buttonRequestPermission = "Spustit \"Nastavení/AppInfo\""  
    
     let internal noNetConn = "Není přístup k internetu." 
     let internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena, vyčkej na Restart." 
@@ -85,13 +85,13 @@ module Messages =
 
     let internal buttonQuit = "Okamžité vypnutí aplikace" 
 
-    let internal appInfoInvoker =
-        "V systémové aplikaci \"Nastavení/AppInfo\" je třeba povolit manipulaci se soubory pro tuto aplikaci. 
-        Pokud po stisknutí tlačítka \"Spustit Nastavení/AppInfo\" nedojde k jejímu spuštění, je potřeba toto udělat ručně. 
-        Po nastavení povolení vypni tuto aplikaci a spusť znovu." 
+    let internal appInfoInvoker = 
+        sprintf "%s %s %s"
+        <| "V systémové aplikaci \"Nastavení/AppInfo\" je třeba povolit manipulaci se soubory pro tuto aplikaci." 
+        <| "Pokud po stisknutí tlačítka Spustit \"Nastavení/AppInfo\" nedojde k jejímu spuštění, je potřeba toto udělat ručně." 
+        <| "Po nastavení povolení vypni tuto aplikaci a spusť znovu."
 
-    let (|Second|Seconds|SecondPlural|) =
-        function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural
+    let (|Second|Seconds|SecondPlural|) = function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural
 
     // F# compiler directives
     #if WINDOWS 
