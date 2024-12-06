@@ -90,7 +90,7 @@ module Messages =
     let internal netConnError = "Přerušené internetové připojení způsobilo přerušení stahování souborů. Stahuj vše znova."
     let internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
 
-    let internal buttonQuit = "Okamžité vypnutí aplikace" 
+    let internal buttonQuit = "Vypnout aplikaci" 
 
     let internal appInfoInvoker = 
         sprintf "%s %s %s"

@@ -46,7 +46,7 @@ module SortJsonData =
         
         let kodisTimetables (token : CancellationToken) : Reader<string list, string seq> =
         
-            reader
+            reader  //Reader monad for educational purposes only, no real benefit here  
                 {
                     let! pathToJsonList = fun env -> env
         
