@@ -8,6 +8,6 @@ Zatím mám "stahovač" v konzolové podobě (proof of concept) https://github.c
 
 Prosím, neděste se toho, že kód je v Fabulous/Elmish/MVU (to je to, co vidíte v App.fs - domnívám se, že to snadno pochopíte a že vám to bude připadat daleko jednodušší, než C#, MVVM a XAML) a v F# (to je to, co vidíte všude). Můžete na mne mluvit i C Sharpem a XAMLem, já tomu nějak porozumím (C# jsem opustil v době, kdy vyšla verze 7.3, s XAMLem jsem se potýkal před třemi lety). Kontrolky jsou v .NET MAUI, takže se v tom rychle vyznáte. A s F# a Elmishem pomohu, pokud bude třeba (i když funkcionální programování je velmi jednoduché a intuitivní, to vám půjde samo). 
 
-Chtělo by to danou appku "zmobilnit" do slušně vypadající podoby ve Fabulous (fabulous.dev), kontrolky buď .NET MAUI nebo Avalonia. Našel by se někdo ochotný? Díky moc.
+Chtělo by to danou appku "zmobilnit" do slušně vypadající podoby ve Fabulous (fabulous.dev), kontrolky buď .NET MAUI nebo Avalonia. Našel by se někdo ochotný? Díky moc. Úsilí mohu odměnit lahví skvělé slivovice.
 
 Já osobně nemám talent pro UX/UI a z tohoto důvodu ani žádné velké nadšení pro FE. A ani jsem nic "mobilního" ještě nevyvíjel. Ale s Elmishem pomohu, co budu moci, už jsem v tom programoval. A samozřejme pomohu s F# obecně.
