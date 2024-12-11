@@ -15,9 +15,6 @@ module SettingsKODIS =
      
     let internal partialPathJson = partialPathJsonTemp //viz SeetingsGeneral
 
-    let internal summerHolidayEnd1 = DateTime (2024, 8, 31)
-    let internal summerHolidayEnd2 = DateTime(2024, 9, 1)
-
     let internal currentTime = DateTime.Now.Date
     let internal dateTimeMinValue = DateTime.MinValue
 

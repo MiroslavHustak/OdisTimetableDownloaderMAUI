@@ -56,7 +56,7 @@ module FileInfoHelper =
                 let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
                 let! filepath = filepath, None
                     
-                let fInfodat: FileInfo = FileInfo filepath
+                let fInfodat : FileInfo = FileInfo filepath
                 let! _ = condition fInfodat |> Option.ofBool, None  
                                                  
                 return Some ()
@@ -71,4 +71,8 @@ module MyString =
 
         [1 .. numberOfStrings]
         |> List.fold (fun acc i -> (+) acc stringToAdd) String.Empty
-                  
+
+module Xor = 
+
+    let internal xor2 a b = (a && not b) || (not a && b)   
+    let internal xor3 a b c = (a && not b && not c) || (not a && b && not c) || (not a && not b && c)

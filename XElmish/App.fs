@@ -53,14 +53,7 @@ open ApplicationDesign4.WebScraping_KODISFMRecord4
     AndroidManifest.xml: Do not forget to review and update it if necessary. 
 *)
 
-module App =
-
-    //******************************** Potential helpers *******************************************
-
-    let private xor2 a b = (a && not b) || (not a && b)   
-    let private xor3 a b c = (a && not b && not c) || (not a && b && not c) || (not a && not b && c)
-
-    //**********************************************************************************************
+module App =   
 
     type ProgressIndicator = 
         | Idle 

@@ -67,19 +67,19 @@ module WebScraping_KODISFMRecord4 =
         let errFn err =  
 
             match err with
-            | RcError                -> rcError
-            | NoFolderError          -> noFolderError
-            | JsonFilteringError     -> jsonFilteringError
-            | DataFilteringError     -> dataFilteringError
-            | FileDeleteError        -> fileDeleteError 
-            | CreateFolderError      -> createFolderError
-            | FileDownloadError      -> fileDownloadError
-            | CanopyError            -> canopyError
-            | TimeoutError           -> "timeout"
-            | PdfConnectionError     -> cancelMsg2 
-            | ApiResponseError err   -> err
-            | ApiDecodingError       -> canopyError
-            | NetConnPdfError err    -> err
+            | RcError              -> rcError
+            | NoFolderError        -> noFolderError
+            | JsonFilteringError   -> jsonFilteringError
+            | DataFilteringError   -> dataFilteringError
+            | FileDeleteError      -> fileDeleteError 
+            | CreateFolderError    -> createFolderError
+            | FileDownloadError    -> fileDownloadError
+            | CanopyError          -> canopyError
+            | TimeoutError         -> "timeout"
+            | PdfConnectionError   -> cancelMsg2 
+            | ApiResponseError err -> err
+            | ApiDecodingError     -> canopyError
+            | NetConnPdfError err  -> err
 
         let result (context2 : Context2) =   
 

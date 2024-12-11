@@ -68,18 +68,18 @@ module WebScraping_KODISFMRecord =
 
             let errFn err =  
                 match err with
-                | JsonDownloadError       -> jsonDownloadError
-                | JsonConnectionError     -> cancelMsg2
-                | NetConnJsonError err    -> err
-                | JsonTimeoutError        -> jsonDownloadError  
+                | JsonDownloadError    -> jsonDownloadError
+                | JsonConnectionError  -> cancelMsg2
+                | NetConnJsonError err -> err
+                | JsonTimeoutError     -> jsonDownloadError  
                     
             try
                 //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
                 environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress                     
             with
             | ex ->
-                  string ex.Message |> ignore  //TODO logfile
-                  Error JsonDownloadError
+                 string ex.Message |> ignore  //TODO logfile
+                 Error JsonDownloadError
                  
             |> function
                 | Ok _      -> Ok dispatchMsg1 
@@ -94,19 +94,19 @@ module WebScraping_KODISFMRecord =
             let errFn err =  
 
                 match err with
-                | RcError                -> rcError
-                | NoFolderError          -> noFolderError
-                | JsonFilteringError     -> jsonFilteringError
-                | DataFilteringError     -> dataFilteringError
-                | FileDeleteError        -> fileDeleteError 
-                | CreateFolderError      -> createFolderError
-                | FileDownloadError      -> fileDownloadError
-                | CanopyError            -> canopyError
-                | TimeoutError           -> "timeout"
-                | PdfConnectionError     -> cancelMsg2 
-                | ApiResponseError err   -> err
-                | ApiDecodingError       -> canopyError
-                | NetConnPdfError err    -> err
+                | RcError              -> rcError
+                | NoFolderError        -> noFolderError
+                | JsonFilteringError   -> jsonFilteringError
+                | DataFilteringError   -> dataFilteringError
+                | FileDeleteError      -> fileDeleteError 
+                | CreateFolderError    -> createFolderError
+                | FileDownloadError    -> fileDownloadError
+                | CanopyError          -> canopyError
+                | TimeoutError         -> "timeout"
+                | PdfConnectionError   -> cancelMsg2 
+                | ApiResponseError err -> err
+                | ApiDecodingError     -> canopyError
+                | NetConnPdfError err  -> err
     
             let result (context2 : Context2) =   
     
