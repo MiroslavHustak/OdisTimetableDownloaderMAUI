@@ -165,7 +165,7 @@ module KODIS_BL_Record4 =
                 (fun list1 ->
                            result2 
                            |> Result.map 
-                               (fun list2 -> list1 @ list2) 
+                               (fun list2 -> ((list1 |> List.distinct) @ (list2 |> List.distinct)) |> List.distinct) 
                 ) result1 
             
         with

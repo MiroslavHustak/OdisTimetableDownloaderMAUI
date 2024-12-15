@@ -23,5 +23,5 @@ module ApiTransformLayer =
 
                 let! links = response.GetLinks |> Decode.fromString decoder, fun _ -> Error ApiDecodingError  //TODO logfile  
 
-                return! Ok links
+                return! Ok (links |> List.distinct)
             }

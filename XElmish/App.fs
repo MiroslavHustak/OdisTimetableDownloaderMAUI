@@ -48,7 +48,6 @@ open ApplicationDesign.WebScraping_MDPO
 open ApplicationDesign.WebScraping_KODISFMRecord
 open ApplicationDesign4.WebScraping_KODISFMRecord4
 
-
 (*     
     AndroidManifest.xml: Do not forget to review and update it if necessary. 
 *)

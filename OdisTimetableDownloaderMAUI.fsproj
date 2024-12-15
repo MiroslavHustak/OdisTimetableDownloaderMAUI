@@ -154,7 +154,7 @@
     <PackageReference Include="Fabulous" Version="2.4.1" />
     <PackageReference Include="Fabulous.MauiControls" Version="8.0.5" />
     <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
-    <PackageReference Include="FSharp.Core" Version="9.0.100" />
+    <PackageReference Include="FSharp.Core" Version="8.0.403" />
     <PackageReference Include="FSharp.Data" Version="6.4.0" />
     <PackageReference Include="FSharp.Quotations.Evaluator" Version="2.1.0" />
     <PackageReference Include="FsHttp" Version="14.5.1" />

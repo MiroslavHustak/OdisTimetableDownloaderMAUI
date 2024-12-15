@@ -39,10 +39,10 @@ module SettingsGeneral =
     // F# compiler directives
     #if WINDOWS
     let internal partialPathJsonTemp = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
-    let internal kodisPathTemp = @"c:\Users\User\Data\"
-    let internal kodisPathTemp4 = @"c:\Users\User\Data4\"
-    let internal dpoPathTemp = @"c:\Users\User\Data4\"
-    let internal mdpoPathTemp = @"c:\Users\User\Data4\"
+    let internal kodisPathTemp = @"g:\Users\User\Data\"
+    let internal kodisPathTemp4 = @"g:\Users\User\Data4\"
+    let internal dpoPathTemp = @"g:\Users\User\Data4\"
+    let internal mdpoPathTemp = @"g:\Users\User\Data4\"
     #else
     let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
     let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
