@@ -363,7 +363,8 @@ module App =
     let update msg m =
 
         match msg with   
-        | RequestPermission ->
+        | RequestPermission 
+            ->
             #if ANDROID
             let cmd =
                 Cmd.ofMsg

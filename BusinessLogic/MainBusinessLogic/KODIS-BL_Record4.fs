@@ -41,6 +41,7 @@ open Filtering.FilterTimetableLinks
 module KODIS_BL_Record4 =    
         
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
+    // 16-12-2024 nic neni trvalejsiho, nez neco docasneho ...
 
     //*************************** Cancellation tokens ********************************
     
@@ -156,7 +157,7 @@ module KODIS_BL_Record4 =
             
             (*
             match result1, result2 with
-            | Ok list1, Ok list2 -> Ok (list1 @ list2) 
+            | Ok list1, Ok list2 -> Ok (list1 @ list2) |> List.distinct
             | Error err, _       -> Error err               
             | _, Error err       -> Error err 
             *)
@@ -165,7 +166,7 @@ module KODIS_BL_Record4 =
                 (fun list1 ->
                            result2 
                            |> Result.map 
-                               (fun list2 -> ((list1 |> List.distinct) @ (list2 |> List.distinct)) |> List.distinct) 
+                               (fun list2 -> (list1 @ list2) |> List.distinct) 
                 ) result1 
             
         with
