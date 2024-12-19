@@ -557,7 +557,7 @@ module App =
                             let! result = hardWork 
                             do! Async.Sleep 1000
                           
-                            WorkIsComplete >> dispatch <| (result, connectivityListener () |> function true -> true | false -> false)
+                            WorkIsComplete >> dispatch <| (result, connectivityListener ())
 
                             (*
                                 match result.Contains("timeout") with
@@ -641,7 +641,7 @@ module App =
                             let! result = hardWork 
                             do! Async.Sleep 1000
 
-                            WorkIsComplete >> dispatch <| (result, connectivityListener () |> function true -> true | false -> false)
+                            WorkIsComplete >> dispatch <| (result, connectivityListener ())
                             
                             (*
                                 match result.Contains("timeout") with
@@ -723,8 +723,8 @@ module App =
                             do! Async.Sleep 1000
                            
                             match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| (result, connectivityListener () |> function true -> true | false -> false)
-                            | true  -> WorkIsComplete >> dispatch <| (netConnError, connectivityListener () |> function true -> true | false -> false)
+                            | false -> WorkIsComplete >> dispatch <| (result, connectivityListener ())
+                            | true  -> WorkIsComplete >> dispatch <| (netConnError, connectivityListener ())
                         }  
                      
                 let execute dispatch = 
@@ -817,8 +817,8 @@ module App =
                             do! Async.Sleep 1000
                            
                             match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| (result, connectivityListener () |> function true -> true | false -> false)
-                            | true  -> WorkIsComplete >> dispatch <| (netConnError, connectivityListener () |> function true -> true | false -> false)
+                            | false -> WorkIsComplete >> dispatch <| (result, connectivityListener ())
+                            | true  -> WorkIsComplete >> dispatch <| (netConnError, connectivityListener ())
                         }  
                      
                 let execute dispatch = 
