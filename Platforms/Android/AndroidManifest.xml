@@ -8,7 +8,8 @@
         android:allowBackup="true"
         android:icon="@mipmap/appicon"
         android:roundIcon="@mipmap/appicon_round"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true">
     </application>
 
     <!-- Network Permissions -->
@@ -19,9 +20,7 @@
 
     <!-- External Storage Permissions (Scoped for older Android versions) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- Manage External Storage Permission (For Android 12 only) -->
     <uses-permission

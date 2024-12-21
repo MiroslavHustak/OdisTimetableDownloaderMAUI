@@ -161,6 +161,8 @@ module App =
         Async.StartImmediate (loop waitingForNetConn) 
                       
     let init () =  //Cancellation tokens (token, token2) for educational purposes only 
+
+        let ensureMainDirectoriesExist = ensureMainDirectoriesExist ()
         
         let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =              
                    
@@ -244,7 +246,7 @@ module App =
                 Token = initialModel.Token
             } 
             
-        match ensureMainDirectoriesExist () with
+        match ensureMainDirectoriesExist with
         | Ok _ 
             ->
             try          
