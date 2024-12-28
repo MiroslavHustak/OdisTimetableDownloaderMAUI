@@ -8,48 +8,57 @@ open Helpers.Builders
 #if ANDROID
 open Android.App
 open Android.Net
+open Android.Views
 open Android.Content
 open Android.Provider 
 
 open Xamarin
 open Xamarin.Essentials
+open Android.OS
 
-module AndroidDownloadService =
+module WakeLockHelper =
+
+    let internal acquireWakeLock (lock : PowerManager.WakeLock) = 
     
-    //Not used yet
-    let internal downloadManager (url: string) (fileName: string) =
+        match lock with
+        | lock
+            when lock.IsHeld 
+                ->
+                ()
+        | _     -> 
+                lock.Acquire()
+       
+    let internal releaseWakeLock (lock : PowerManager.WakeLock) =  
 
+        match lock with
+        | lock
+            when lock.IsHeld 
+                ->
+                lock.Release()
+        | _     -> 
+                ()
+
+module KeepScreenOnManager = //DeviceDisplay.KeepScreenOn z .NET MAUI hodil exn, proto primo API z Androidu
+
+    let internal keepScreenOn enable =
+        
         pyramidOfDoom
             {
-                use! context = Application.Context |> Option.ofNull, None
-                use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, None                
-                use! uri = Uri.Parse(url) |> Option.ofNull, None                
-                use! request = new DownloadManager.Request(uri) |> Option.ofNull, None                
-                let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, None
-                let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNull, None
-                let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, None                                
+                let! activity = Platform.CurrentActivity |> Option.ofNull, ()
 
-                return Some <| downloadManager.Enqueue(request)        
-            }
+                let flags =
+                    WakeLockFlags.ScreenDim ||| WakeLockFlags.AcquireCausesWakeup ||| WakeLockFlags.OnAfterRelease
 
-    //Not used yet 
-    let internal downloadManagerResult (url: string) (fileName: string) =
+                let lock : PowerManager.WakeLock =          
+                    let powerManager = activity.GetSystemService(Context.PowerService) :?> PowerManager        
+                    powerManager.NewWakeLock(flags, "MyApp:PreventSleepDuringDownload")  
+                    
+                let!_ = enable |> Option.ofBool, WakeLockHelper.releaseWakeLock lock
+                do WakeLockHelper.acquireWakeLock lock               
+                let!_ = enable |> Option.ofBool, activity.Window.ClearFlags(WindowManagerFlags.KeepScreenOn) 
 
-        try
-            pyramidOfDoom 
-                {
-                    use! context = Application.Context |> Option.ofNull, Error "Application context is not available."
-                    use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, Error "DownloadManager service is not available on this device."
-                    use! uri = Uri.Parse(url) |> Option.ofNull, Error "Failed to parse the URL into a URI."
-                    use! request = new DownloadManager.Request(uri) |> Option.ofNull, Error "Failed to create request."
-                    let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, Error "Failed to set notification visibility."
-                    let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNull, Error "Downloads directory is not accessible."
-                    let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, Error "Failed to set destination directory."
-    
-                    return Ok <| downloadManager.Enqueue(request)
-                }
-        with
-        | ex -> Error (sprintf "Error in StartDownload: %s" ex.Message)
+                return activity.Window.AddFlags(WindowManagerFlags.KeepScreenOn)        
+            }    
 
 module AndroidUIHelpers =
 
@@ -117,8 +126,7 @@ module AndroidUIHelpers =
         | ex 
             ->
             string ex.Message |> ignore  // TODO: logfile
-            None
-    
+            None    
 
     let internal openAppSettings () =
 
@@ -161,6 +169,44 @@ module AndroidUIHelpers =
                     string ex.Message |> ignore // Log error
                     ()
             }
+
+module AndroidDownloadService =
+    
+    //Not used yet
+    let internal downloadManager (url: string) (fileName: string) =
+
+        pyramidOfDoom
+            {
+                use! context = Application.Context |> Option.ofNull, None
+                use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, None                
+                use! uri = Uri.Parse(url) |> Option.ofNull, None                
+                use! request = new DownloadManager.Request(uri) |> Option.ofNull, None                
+                let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, None
+                let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNull, None
+                let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, None                                
+
+                return Some <| downloadManager.Enqueue(request)        
+            }
+
+    //Not used yet 
+    let internal downloadManagerResult (url: string) (fileName: string) =
+
+        try
+            pyramidOfDoom 
+                {
+                    use! context = Application.Context |> Option.ofNull, Error "Application context is not available."
+                    use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, Error "DownloadManager service is not available on this device."
+                    use! uri = Uri.Parse(url) |> Option.ofNull, Error "Failed to parse the URL into a URI."
+                    use! request = new DownloadManager.Request(uri) |> Option.ofNull, Error "Failed to create request."
+                    let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, Error "Failed to set notification visibility."
+                    let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNull, Error "Downloads directory is not accessible."
+                    let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, Error "Failed to set destination directory."
+    
+                    return Ok <| downloadManager.Enqueue(request)
+                }
+        with
+        | ex -> Error (sprintf "Error in StartDownload: %s" ex.Message)
+
 #endif
 
 (*

@@ -11,6 +11,7 @@ open Types.ErrorTypes
 
 open BusinessLogic4.KODIS_BL_Record4
 
+open Helpers
 open Helpers.Builders
 
 open IO_Operations.IO_Operations
@@ -21,9 +22,11 @@ open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
+// 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
 
 //Vzhledem k pouziti Elmishe se jeho MVU zda byti dostatecnym a dalsi pokus o design je zbytecny
-//Priste tady zrobit transformation layer
+//Priste tady zrobit asi jen transformation layer
+
 module WebScraping_KODISFMRecord4 = 
 
     type private State =  
@@ -128,58 +131,67 @@ module WebScraping_KODISFMRecord4 =
                     Error err  
                              
         try 
-            let dirList = IO_Operations.CreatingPathsAndNames.createNewDirectoryPaths path listODISDefault4
+            try
+                #if ANDROID
+                KeepScreenOnManager.keepScreenOn true
+                #endif
 
-            let contextCurrentValidity = 
-                {
-                    DirList = dirList
-                    Variant = CurrentValidity
-                    Msg1 = msg1CurrentValidity
-                    Msg2 = msg2CurrentValidity
-                    Msg3 = msg3CurrentValidity
-                    VariantInt = 0
-                }
+                let dirList = IO_Operations.CreatingPathsAndNames.createNewDirectoryPaths path listODISDefault4
 
-            let contextFutureValidity = 
-                {
-                    DirList = dirList
-                    Variant = FutureValidity
-                    Msg1 = msg1FutureValidity
-                    Msg2 = msg2FutureValidity
-                    Msg3 = msg3FutureValidity
-                    VariantInt = 1
-                }
+                let contextCurrentValidity = 
+                    {
+                        DirList = dirList
+                        Variant = CurrentValidity
+                        Msg1 = msg1CurrentValidity
+                        Msg2 = msg2CurrentValidity
+                        Msg3 = msg3CurrentValidity
+                        VariantInt = 0
+                    }
 
-            let contextWithoutReplacementService = 
-                {
-                    DirList = dirList
-                    Variant = WithoutReplacementService
-                    Msg1 = msg1WithoutReplacementService
-                    Msg2 = msg2WithoutReplacementService
-                    Msg3 = msg3WithoutReplacementService
-                    VariantInt = 2
-                }
+                let contextFutureValidity = 
+                    {
+                        DirList = dirList
+                        Variant = FutureValidity
+                        Msg1 = msg1FutureValidity
+                        Msg2 = msg2FutureValidity
+                        Msg3 = msg3FutureValidity
+                        VariantInt = 1
+                    }
+
+                let contextWithoutReplacementService = 
+                    {
+                        DirList = dirList
+                        Variant = WithoutReplacementService
+                        Msg1 = msg1WithoutReplacementService
+                        Msg2 = msg2WithoutReplacementService
+                        Msg3 = msg3WithoutReplacementService
+                        VariantInt = 2
+                    }
                                                    
-            pyramidOfInferno
-                {                                
-                    let!_ = environment.DeleteAllODISDirectories path, errFn  
-                    let!_ = IO_Operations.IO_Operations.createFolders dirList, errFn 
+                pyramidOfInferno
+                    {                                
+                        let!_ = environment.DeleteAllODISDirectories path, errFn  
+                        let!_ = IO_Operations.IO_Operations.createFolders dirList, errFn 
 
-                    let! msg1 = result contextCurrentValidity, errFn
-                    let! msg2 = result contextFutureValidity, errFn
-                    let! msg3 = result contextWithoutReplacementService, errFn   
+                        let! msg1 = result contextCurrentValidity, errFn
+                        let! msg2 = result contextFutureValidity, errFn
+                        let! msg3 = result contextWithoutReplacementService, errFn   
 
-                    let separator = String.Empty
+                        let separator = String.Empty
 
-                    let combinedMessage = 
-                        [ msg1; msg2; msg3 ] 
-                        |> List.filter (fun msg -> not (String.IsNullOrWhiteSpace msg)) //IsNullOrWhiteSpace si vsima aji empty string
-                        |> List.map (fun msg -> sprintf "\n%s" msg)
-                        |> String.concat separator                         
+                        let combinedMessage = 
+                            [ msg1; msg2; msg3 ] 
+                            |> List.filter (fun msg -> not (String.IsNullOrWhiteSpace msg)) //IsNullOrWhiteSpace si vsima aji empty string
+                            |> List.map (fun msg -> sprintf "\n%s" msg)
+                            |> String.concat separator                         
 
-                    return sprintf "%s%s" dispatchMsg3 combinedMessage
-                }
-                   
+                        return sprintf "%s%s" dispatchMsg3 combinedMessage
+                    }
+            finally
+                #if ANDROID
+                KeepScreenOnManager.keepScreenOn false
+                #endif
+                ()                     
         with
         | ex 
             ->

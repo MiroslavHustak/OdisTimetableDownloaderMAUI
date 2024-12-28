@@ -9,6 +9,7 @@ open System.Threading
 open Types.Types
 open Types.ErrorTypes
 
+open Helpers
 open Helpers.Builders
 
 open BusinessLogic.MDPO_BL  
@@ -79,21 +80,33 @@ module WebScraping_MDPO =
                     |> Ok
                 with
                 | _ -> Error FileDownloadErrorMHD //mdpoMsg1
-                                      
-            | FilterDownloadSave    
-                -> 
-                try
-                    //filtering timetable links, downloading and saving timetables in the pdf format 
-                    let pathToSubdir = dirList pathToDir |> List.tryHead |> function Some value -> value | None -> String.Empty
-                        in
-                        match pathToSubdir |> Directory.Exists with 
-                        | false -> 
-                                Error FileDeleteErrorMHD                            
-                        | true  -> 
-                                environment.FilterTimetables () pathToSubdir   
-                                |> environment.DownloadAndSaveTimetables reportProgress token pathToSubdir   
+           
+            | FilterDownloadSave   
+                ->                                      
+                try  
+                    try          
+                        #if ANDROID
+                        KeepScreenOnManager.keepScreenOn true
+                        #endif
+
+                        let pathToSubdir =
+                            dirList pathToDir 
+                            |> List.tryHead 
+                            |> function Some value -> value | None -> String.Empty
+                            in
+                            match pathToSubdir |> Directory.Exists with 
+                            | false ->
+                                    Error FileDeleteErrorMHD                             
+                            | true  -> 
+                                    environment.FilterTimetables () pathToSubdir 
+                                    |> environment.DownloadAndSaveTimetables reportProgress token pathToSubdir
+                    finally
+                        #if ANDROID
+                        KeepScreenOnManager.keepScreenOn false
+                        #endif
+                        ()                         
                 with
-                | _ -> Error FileDownloadErrorMHD //mdpoMsg2         
+                | _ -> Error FileDownloadErrorMHD //mdpoMsg2               
                                                            
         pyramidOfInferno
             {  

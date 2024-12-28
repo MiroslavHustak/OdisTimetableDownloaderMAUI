@@ -10,9 +10,10 @@ open Microsoft.Maui.Devices
 //**********************************
 
 open Types.Types   
-
-open Helpers.Builders
 open Types.ErrorTypes
+
+open Helpers
+open Helpers.Builders
 
 open BusinessLogic.DPO_BL
    
@@ -86,8 +87,12 @@ module WebScraping_DPO =
             | FilterDownloadSave   
                 ->                                      
                 try  
-                    try
+                    try                        
                         //DeviceDisplay.KeepScreenOn <- true //throws an exception
+
+                        #if ANDROID
+                        KeepScreenOnManager.keepScreenOn true
+                        #endif
 
                         let pathToSubdir =
                             dirList pathToDir 
@@ -101,7 +106,12 @@ module WebScraping_DPO =
                                     environment.FilterTimetables () pathToSubdir 
                                     |> environment.DownloadAndSaveTimetables reportProgress token
                     finally
-                        () //DeviceDisplay.KeepScreenOn <- false
+                        //DeviceDisplay.KeepScreenOn <- false //throws an exception
+
+                        #if ANDROID
+                        KeepScreenOnManager.keepScreenOn false
+                        #endif
+                        ()                         
                 with
                 | _ -> Error FileDownloadErrorMHD //dpoMsg2                                               
                        
@@ -126,3 +136,69 @@ module WebScraping_DPO =
             
                 return Ok ()
             }
+
+(*
+
+//ScreenHelper.fs (Android Project)
+namespace YourAppNamespace
+
+open Android.App
+open Android.Views
+open Microsoft.Maui
+
+module ScreenHelper =
+    let setKeepScreenOn (activity: Activity) (keepScreenOn: bool) =
+        if activity <> null then
+            if keepScreenOn then
+                activity.Window.AddFlags(WindowManagerFlags.KeepScreenOn)
+            else
+                activity.Window.ClearFlags(WindowManagerFlags.KeepScreenOn)
+
+
+KeepScreenOnManager.fs (Android Project)
+
+namespace YourAppNamespace
+
+open Android.App
+open YourAppNamespace.ScreenHelper
+open Microsoft.Maui
+
+module KeepScreenOnManager =
+    let setKeepScreenOn (enable: bool) =
+        let activity = Platform.CurrentActivity
+        setKeepScreenOn activity enable
+
+
+. Platform.CurrentActivity
+Ensure that your app is using MAUI Essentials or the required APIs to access Platform.CurrentActivity. This setup is typically already configured in a MAUI project. If Platform.CurrentActivity is not available, make sure your Android project has the correct setup.
+
+Check for MainActivity in MainActivity.fs:
+fsharp
+Copy code
+[<Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true)>]
+type MainActivity() =
+    inherit MauiAppCompatActivity()
+If the above is in place, you’re set to use Platform.CurrentActivity.
+
+
+open YourAppNamespace.KeepScreenOnManager
+
+let performDownload dispatch =
+    async {
+        try
+            // Keep the screen on during the download
+            setKeepScreenOn true
+
+            // Simulate a long-running download task
+            do! Async.Sleep 5000 // Replace this with your actual download logic
+
+            // Dispatch success message
+            dispatch "Download complete"
+        finally
+            // Always clear the KeepScreenOn flag to prevent battery drain
+            setKeepScreenOn false
+    }
+    |> Async.Start
+
+*)
+
