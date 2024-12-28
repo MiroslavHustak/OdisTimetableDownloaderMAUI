@@ -5,6 +5,8 @@ open System.IO
 open System.Net
 open System.Threading
 
+open Microsoft.Maui.Devices
+
 //**********************************
 
 open Types.Types   
@@ -83,14 +85,23 @@ module WebScraping_DPO =
 
             | FilterDownloadSave   
                 ->                                      
-                try     
-                    let pathToSubdir = dirList pathToDir |> List.tryHead |> function Some value -> value | None -> String.Empty
-                    match pathToSubdir |> Directory.Exists with 
-                    | false ->
-                            Error FileDeleteErrorMHD                             
-                    | true  -> 
-                            environment.FilterTimetables () pathToSubdir 
-                            |> environment.DownloadAndSaveTimetables reportProgress token
+                try  
+                    try
+                        //DeviceDisplay.KeepScreenOn <- true //throws an exception
+
+                        let pathToSubdir =
+                            dirList pathToDir 
+                            |> List.tryHead 
+                            |> function Some value -> value | None -> String.Empty
+                            in
+                            match pathToSubdir |> Directory.Exists with 
+                            | false ->
+                                    Error FileDeleteErrorMHD                             
+                            | true  -> 
+                                    environment.FilterTimetables () pathToSubdir 
+                                    |> environment.DownloadAndSaveTimetables reportProgress token
+                    finally
+                        () //DeviceDisplay.KeepScreenOn <- false
                 with
                 | _ -> Error FileDownloadErrorMHD //dpoMsg2                                               
                        

@@ -85,13 +85,13 @@ module WebScraping_MDPO =
                 try
                     //filtering timetable links, downloading and saving timetables in the pdf format 
                     let pathToSubdir = dirList pathToDir |> List.tryHead |> function Some value -> value | None -> String.Empty
-
-                    match pathToSubdir |> Directory.Exists with 
-                    | false -> 
-                            Error FileDeleteErrorMHD                            
-                    | true  -> 
-                            environment.FilterTimetables () pathToSubdir   
-                            |> environment.DownloadAndSaveTimetables reportProgress token pathToSubdir   
+                        in
+                        match pathToSubdir |> Directory.Exists with 
+                        | false -> 
+                                Error FileDeleteErrorMHD                            
+                        | true  -> 
+                                environment.FilterTimetables () pathToSubdir   
+                                |> environment.DownloadAndSaveTimetables reportProgress token pathToSubdir   
                 with
                 | _ -> Error FileDownloadErrorMHD //mdpoMsg2         
                                                            
