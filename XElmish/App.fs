@@ -10,6 +10,7 @@ open Fabulous
 open Fabulous.Maui
 
 open Microsoft.Maui
+open Microsoft.Maui.Devices
 open Microsoft.Maui.Storage
 open Microsoft.Maui.Controls
 open Microsoft.Maui.Graphics
@@ -49,7 +50,8 @@ open ApplicationDesign.WebScraping_KODISFMRecord
 open ApplicationDesign4.WebScraping_KODISFMRecord4
 
 (*     
-    AndroidManifest.xml: Do not forget to review and update it if necessary. 
+    AndroidManifest.xml : Remember to review and update it if necessary. 
+    OdisTimetableDownloaderMAUI.fsproj : Remember to review and update it if necessary.  
 *)
 
 module App =   
@@ -284,7 +286,7 @@ module App =
         | Error _ ->  
                   { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
-    let init2 () =    
+    let init2 () =   
         
         #if ANDROID
         let permissionGranted = permissionCheck () |> Async.RunSynchronously
@@ -569,9 +571,9 @@ module App =
                         }     
 
                 let executeSequentially dispatch =
-
+                    
                     async 
-                        {                                         
+                        {                
                             do! delayedCmd1 m.Token dispatch                                        
                             do! delayedCmd2 m.Token dispatch 
                         }
@@ -612,7 +614,7 @@ module App =
                 m, Cmd.none           
 
         | Kodis4 
-            -> 
+            ->
             match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for educational purposes only 
             | Some newCts
                 ->   
@@ -656,7 +658,7 @@ module App =
 
                     async 
                         {  
-                            do! delayedCmd2 m.Token dispatch   
+                            do! delayedCmd2 m.Token dispatch 
                         }
                     |> Async.StartImmediate  
 
@@ -845,7 +847,7 @@ module App =
                                         | false -> do! delayedCmd token dispatch  
                             | None      
                                 -> 
-                                ()  
+                                () 
                         } 
 
                     |> Async.StartImmediate
