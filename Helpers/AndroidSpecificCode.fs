@@ -6,6 +6,7 @@ open Helpers
 open Helpers.Builders
 
 #if ANDROID
+open Android.OS
 open Android.App
 open Android.Net
 open Android.Views
@@ -14,9 +15,8 @@ open Android.Provider
 
 open Xamarin
 open Xamarin.Essentials
-open Android.OS
 
-module WakeLockHelper =
+module WakeLockHelper = //pouze pro Android API 33 a Android API 34
 
     let internal acquireWakeLock (lock : PowerManager.WakeLock) = 
     
