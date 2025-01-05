@@ -74,5 +74,8 @@ module MyString =
 
 module Xor = 
 
-    let internal xor2 a b = (a && not b) || (not a && b)   
-    let internal xor3 a b c = (a && not b && not c) || (not a && b && not c) || (not a && not b && c)
+    open Helpers.Builders
+
+    //pro xor CE musi byt explicitne type, type inference bere u yield type unit, coz tady jaksi nejde, bo bool
+    let internal xor2 (a: bool) (b: bool) = xor { a; b }
+    let internal xor3 (a: bool) (b: bool) (c: bool) = xor { a; b; c }    
