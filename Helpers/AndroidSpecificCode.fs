@@ -182,7 +182,7 @@ module AndroidDownloadService =
                 use! uri = Uri.Parse(url) |> Option.ofNull, None                
                 use! request = new DownloadManager.Request(uri) |> Option.ofNull, None                
                 let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, None
-                let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNull, None
+                let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNullEmpty, None
                 let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, None                                
 
                 return Some <| downloadManager.Enqueue(request)        
@@ -199,7 +199,7 @@ module AndroidDownloadService =
                     use! uri = Uri.Parse(url) |> Option.ofNull, Error "Failed to parse the URL into a URI."
                     use! request = new DownloadManager.Request(uri) |> Option.ofNull, Error "Failed to create request."
                     let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, Error "Failed to set notification visibility."
-                    let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNull, Error "Downloads directory is not accessible."
+                    let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNullEmpty, Error "Downloads directory is not accessible."
                     let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, Error "Failed to set destination directory."
     
                     return Ok <| downloadManager.Enqueue(request)

@@ -67,23 +67,26 @@ module Builders =
        
     type internal XorBuilder = XorBuilder with
     
-        member _.Yield(value : bool) = [value]
+        member _.Yield(value : bool) = [ value ]
         member _.Combine(previous : bool list, following : bool list) = previous @ following
         member _.Delay(func : unit -> bool list) = func() 
     
         member _.Run(values : bool list) =   
+
             match values.Length with
             | MinLengthCE
                 ->
                 let a = values |> List.item 0
                 let b = values |> List.item 1
                 Ok ((a && not b) || (not a && b)) // XOR logic for 2 values
+
             | MaxLengthCE 
                 ->
                 let a = values |> List.item 0
                 let b = values |> List.item 1
                 let c = values |> List.item 2
                 Ok ((a && not b && not c) || (not a && b && not c) || (not a && not b && c)) // XOR logic for 3 values
+
             | _ ->
                 Error "Invalid number of values for XOR computation"
     
