@@ -62,9 +62,7 @@ module WebScraping_KODISFMRecord =
         }    
 
     let internal stateReducerCmd1 (token : CancellationToken) path reportProgress =
-
-        let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.OdisDir5 ]
-        
+       
         let downloadAndSaveJson reportProgress (token : CancellationToken) = 
 
             let errFn err =  
@@ -100,8 +98,6 @@ module WebScraping_KODISFMRecord =
 
     let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
     
-            let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.OdisDir5 ]    
-           
             let errFn err =  
 
                 match err with

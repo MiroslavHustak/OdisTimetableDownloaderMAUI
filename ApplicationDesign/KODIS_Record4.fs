@@ -64,8 +64,6 @@ module WebScraping_KODISFMRecord4 =
         }    
 
     let private stateReducer (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
-
-        let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODISDefault.OdisDir5 ]
               
         let errFn err =  
 
