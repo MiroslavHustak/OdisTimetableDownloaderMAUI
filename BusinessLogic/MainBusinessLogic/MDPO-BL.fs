@@ -101,6 +101,9 @@ module MDPO_BL =
                             
                             pyramidOfDoom
                                 {
+                                    // enforcing TLS 1.2 and 1.3.
+                                    ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
+
                                     let existingFileLength =                               
                                         checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                         |> function
@@ -117,17 +120,21 @@ module MDPO_BL =
                                         | true  -> 
                                                 http
                                                     {
-                                                        GET uri
+                                                        GET uri        
+                                                        #if WINDOWS
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                         config_cancellationToken CancellationToken.None //token
                                                         header headerContent1 headerContent2
+                                                        #endif
                                                     }
                                         | false ->
                                                 http
                                                     {
                                                         GET uri
+                                                        #if WINDOWS
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                         config_cancellationToken CancellationToken.None //token
+                                                        #endif
                                                     }
                                                     
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty

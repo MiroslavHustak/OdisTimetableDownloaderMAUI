@@ -61,6 +61,7 @@
 
   <ItemGroup>
     <!-- App Icon -->
+    <Content Include="res\xml\network_security_config.xml" />
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
     <Compile Include="Types\TDD.fs" />
     <Compile Include="Types\Types.fs" />

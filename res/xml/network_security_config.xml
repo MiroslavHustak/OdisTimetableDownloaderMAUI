@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+	<domain-config cleartextTrafficPermitted="false">
+		<!-- Did not help, unfortunatelly ... -->
+		<domain includeSubdomains="true">www.mdpo.cz</domain>
+	</domain-config>
+</network-security-config>
+
+
+
