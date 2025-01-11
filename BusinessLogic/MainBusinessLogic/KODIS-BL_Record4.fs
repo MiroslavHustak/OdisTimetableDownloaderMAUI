@@ -221,7 +221,6 @@ module KODIS_BL_Record4 =
                                                     match pathToFileExistFirstCheck with  //tady nelze |> function - smesuje to async a pyramidOfDoom computation expressions
                                                     | Some _
                                                         -> 
-
                                                         (*
                                                         //!!! vytvorit adresar pod downloads (bez /storage/emulated/0), napr. /FabulousTimetables4/
                                                         #if ANDROID 

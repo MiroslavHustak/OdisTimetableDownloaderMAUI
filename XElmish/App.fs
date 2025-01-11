@@ -54,6 +54,15 @@ open ApplicationDesign4.WebScraping_KODISFMRecord4
     OdisTimetableDownloaderMAUI.fsproj : Remember to review and update it if necessary.  
 *)
 
+(*
+   do *.fsproj pridat:
+   <PropertyGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
+	  <DefineConstants>WINDOWS</DefineConstants>
+   </PropertyGroup> 
+
+   <AndroidResource Include="Platforms\Android\Resources\xml\network_security_config.xml" />
+*)
+
 module App =   
 
     type ProgressIndicator = 

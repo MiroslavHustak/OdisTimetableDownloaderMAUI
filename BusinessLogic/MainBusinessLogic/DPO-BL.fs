@@ -23,19 +23,10 @@ open Settings.Messages
 open Settings.SettingsDPO
 open Settings.SettingsGeneral
 
+open IO_Operations.IO_Operations
+
 //HttpClient
 module DPO_BL =
-
-    let private myDelete dirName pathTemp = 
-
-        try
-            let dirInfo = DirectoryInfo pathTemp    
-                in 
-                dirInfo.EnumerateDirectories ()
-                |> Seq.filter (fun item -> item.Name = dirName) 
-                |> Seq.iter _.Delete(true) 
-        with
-        | _ -> ()  
 
     //************************Submain functions************************************************************************
      
@@ -220,7 +211,7 @@ module DPO_BL =
                 ->
                 let dirName = ODISDefault.OdisDir5                       
                     in
-                    myDelete dirName mdpoPathTemp      
+                    match deleteOneODISDirectoryMHD dirName dpoPathTemp with Ok _ -> () | Error _ -> ()      
 
                 string ex.Message |> ignore //TODO logfile         
                 Error StopDownloadingMHD 

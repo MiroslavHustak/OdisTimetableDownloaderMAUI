@@ -69,7 +69,20 @@ module IO_Operations =
                             Error FileDeleteError                       
                 }
 
-        deleteIt listODISDefault4              
+        deleteIt listODISDefault4    
+        
+    let internal deleteOneODISDirectoryMHD dirName pathToDir = 
+        
+            try      
+                //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                let dirInfo = DirectoryInfo pathToDir   
+                    in 
+                    dirInfo.EnumerateDirectories()
+                    |> Seq.filter (fun item -> item.Name = dirName) 
+                    |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
+                    |> Ok
+            with
+            | _ -> Error FileDownloadErrorMHD //dpoMsg1    
       
     let internal createFolders dirList =  
         try

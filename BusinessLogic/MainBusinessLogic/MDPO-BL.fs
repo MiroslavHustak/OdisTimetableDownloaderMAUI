@@ -1,43 +1,32 @@
 ﻿namespace BusinessLogic
 
-module MDPO_BL =
+open System
+open System.IO
+open System.Net
+open System.Net.Http
+open System.Threading
 
-    open System
-    open System.IO
-    open System.Net
-    open System.Net.Http
-    open System.Threading
+//**********************************
 
-    //**********************************
+open FsHttp
+open FSharp.Data
+open FsToolkit.ErrorHandling
 
-    open FsHttp
-    open FSharp.Data
-    open FsToolkit.ErrorHandling
+//**********************************
 
-    //**********************************
+open Helpers
+open Helpers.Builders
+open Helpers.FileInfoHelper
 
-    open Helpers
-    open Helpers.Builders
-    open Helpers.FileInfoHelper
+open Types.ErrorTypes
 
-    open Types.ErrorTypes
+open Settings.Messages
+open Settings.SettingsMDPO
+open Settings.SettingsGeneral    
 
-    open Settings.Messages
-    open Settings.SettingsMDPO
-    open Settings.SettingsGeneral    
+open IO_Operations.IO_Operations
 
-    //FsHttp
-
-    let private myDelete dirName pathTemp = 
-
-        try
-            let dirInfo = DirectoryInfo pathTemp    
-                in 
-                dirInfo.EnumerateDirectories ()
-                |> Seq.filter (fun item -> item.Name = dirName) 
-                |> Seq.iter _.Delete(true) 
-        with
-        | _ -> ()  
+module MDPO_BL = //FsHttp
 
     //************************Submain functions************************************************************************
 
@@ -203,9 +192,9 @@ module MDPO_BL =
                 ->
                 let dirName = ODISDefault.OdisDir6                       
                     in
-                    myDelete dirName mdpoPathTemp      
+                    match deleteOneODISDirectoryMHD dirName mdpoPathTemp with Ok _ -> () | Error _ -> ()      
 
                 string ex.Message |> ignore //TODO logfile         
-                Error StopDownloadingMHD  
+                Error StopDownloadingMHD 
                             
         downloadTimetables reportProgress token
