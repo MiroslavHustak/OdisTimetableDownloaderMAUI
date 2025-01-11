@@ -13,12 +13,14 @@ module ErrorTypes =
         | FileDownloadErrorMHD
         | ConnectionError
         | FileDeleteErrorMHD
+        | StopDownloadingMHD
    
     type internal JsonDownloadErrors = 
         | JsonTimeoutError
         | JsonDownloadError     
         | JsonConnectionError       
         | NetConnJsonError of string
+        | StopJsonDownloading
            
     type internal PdfDownloadErrors =
         | RcError         
@@ -34,3 +36,4 @@ module ErrorTypes =
         | ApiResponseError of string
         | ApiDecodingError
         | NetConnPdfError of string
+        | StopDownloading

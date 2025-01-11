@@ -64,9 +64,8 @@ module Messages =
     let internal buttonMdpo = "JŘ dopravce MDPO"
     let internal hintMdpo = "Stahování zastávkových JŘ dopravce MDPO"
     let internal hintCancel = "Zrušení práce aplikace"
-    let internal buttonCancel = "Ukončit stahování"     
-    let internal hintRestart = "Zpět na úvod anebo restart aplikace"
-    let internal buttonRestart = "Zpět na úvod" //"Restart"   
+    let internal buttonCancel = "Zrušit stahování"     
+    let internal hintRestart = "Zpět na úvod anebo restart aplikace"    
     let internal buttonHome = "Zpět na úvod"  
     let internal buttonRequestPermission = "Spustit \"Nastavení/AppInfo\""  
    
@@ -86,6 +85,7 @@ module Messages =
     let internal cancelMsg1 = "Kvůli přerušení připojení k internetu se činnost aplikace ukončuje, může to chvíli trvat ..."
     let internal cancelMsg1NoConn = "Po obnovení připojení k internetu se činnost aplikace ukončí, může to chvíli trvat ..."
     let internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
+    let internal cancelMsg3 = "Chvíli strpení, stahování se ukončuje ..."
 
     let internal netConnError = "Přerušené internetové připojení způsobilo přerušení stahování souborů. Stahuj vše znova."
     let internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."

@@ -24,8 +24,7 @@ open Settings.SettingsGeneral
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 // 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
 
-//Vzhledem k pouziti Elmishe se jeho MVU zda byti dostatecnym a dalsi pokus o design je zbytecny
-//Priste tady zrobit asi jen transformation layer
+//Vzhledem k pouziti Elmishe priste podumej nad timto designem, mozna bude lepsi pure transformation layer
 
 module WebScraping_KODISFMRecord4 = 
 
@@ -74,19 +73,18 @@ module WebScraping_KODISFMRecord4 =
             | DataFilteringError   -> dataFilteringError
             | FileDeleteError      -> fileDeleteError 
             | CreateFolderError    -> createFolderError
-            | FileDownloadError    -> fileDownloadError
+            | FileDownloadError    -> environment.DeleteAllODISDirectories path |> ignore; fileDownloadError
             | CanopyError          -> canopyError
             | TimeoutError         -> "timeout"
             | PdfConnectionError   -> cancelMsg2 
             | ApiResponseError err -> err
             | ApiDecodingError     -> canopyError
             | NetConnPdfError err  -> err
+            | StopDownloading      -> environment.DeleteAllODISDirectories path |> ignore; String.Empty  
 
         let result (context2 : Context2) =   
 
-            match token.IsCancellationRequested with
-            | true  -> environment.DeleteAllODISDirectories path |> ignore
-            | false -> dispatchWorkIsComplete dispatchMsg2
+            dispatchWorkIsComplete dispatchMsg2
                      
             let dir = context2.DirList |> List.item context2.VariantInt  
             let list = operationOnDataFromJson token context2.Variant dir 
@@ -103,10 +101,8 @@ module WebScraping_KODISFMRecord4 =
                                 dir = dir
                                 list = list
                             }
-                                
-                        match token.IsCancellationRequested with
-                        | true  -> environment.DeleteAllODISDirectories path |> ignore
-                        | false -> dispatchIterationMessage context2.Msg1
+                        
+                        dispatchIterationMessage context2.Msg1
                                                
                         match list.Length >= 8 with //eqv of 8 threads
                         | true  -> context List.Parallel.map2
@@ -115,13 +111,9 @@ module WebScraping_KODISFMRecord4 =
                         |> environment.DownloadAndSave token     
 
             | Ok list
-                    ->                                                               
-                    match token.IsCancellationRequested with
-                    | true  -> environment.DeleteAllODISDirectories path |> ignore
-                    | false -> dispatchIterationMessage context2.Msg2
-
+                    ->   
+                    dispatchIterationMessage context2.Msg2
                     System.Threading.Thread.Sleep(6000) 
-
                     Ok context2.Msg3 
 
             | Error err 

@@ -43,10 +43,8 @@ module KODIS_BL_Record4 =
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
     // 16-12-2024 nic neni trvalejsiho, nez neco docasneho ...
 
-    //*************************** Cancellation tokens ********************************
+    //*************************** Cancellation token templates ********************************
     
-    // For educational purposes only. 
-
     let private cancellationActor = //Template 004a for cancellation tokens (actor)
 
         MailboxProcessor.StartImmediate(fun inbox ->
@@ -132,7 +130,8 @@ module KODIS_BL_Record4 =
             with
             | _ ->
                 defaultToken               
-
+        
+        //template
         cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState replyChannel)
         |> Async.RunSynchronously
         |> function    
@@ -141,7 +140,7 @@ module KODIS_BL_Record4 =
 
     //************************ Main code *********************************
         
-    let internal operationOnDataFromJson token variant dir =  //v parametru je token jen quli educational code v App.fs
+    let internal operationOnDataFromJson token variant dir =  
 
         try   
             let url1 = "http://kodis.somee.com/api/"             // nezapomen na trailing slash po api 
@@ -175,9 +174,9 @@ module KODIS_BL_Record4 =
             string ex.Message |> ignore //TODO logfile                 
             Error DataFilteringError 
                     
-    let internal downloadAndSave token = //v parametru je token jen quli educational code v App.fs
+    let internal downloadAndSave token = 
         
-        let downloadAndSaveTimetables (token : CancellationToken) =  //v parametru je token jen quli educational code v App.fs
+        let downloadAndSaveTimetables (token : CancellationToken) =  
             
             reader
                 {                         
@@ -210,7 +209,9 @@ module KODIS_BL_Record4 =
 
                                             counterAndProgressBar.Post(Inc 1)
 
-                                            try                                                                    
+                                            try    
+                                                token.ThrowIfCancellationRequested ()
+
                                                 // enforcing TLS 1.2 and 1.3.
                                                 ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
 
@@ -243,6 +244,8 @@ module KODIS_BL_Record4 =
                                                                 | None   -> 0L
                                                     
                                                         let get uri = 
+
+                                                            token.ThrowIfCancellationRequested()
 
                                                             let headerContent1 = "Range" 
                                                             let headerContent2 = sprintf "bytes=%d-" existingFileLength 
@@ -282,6 +285,11 @@ module KODIS_BL_Record4 =
                                                         failwith "FileDeleteError"                 
                                                     
                                             with
+                                            | :? OperationCanceledException 
+                                                ->
+                                                "OperationCanceledException" |> ignore //TODO logfile
+                                                failwith "OperationCanceledException" 
+                                                
                                             | ex 
                                                 when ex.Message.Contains("A task was canceled") 
                                                 -> 
@@ -307,6 +315,12 @@ module KODIS_BL_Record4 =
                             |> Ok
                              
                         with
+                        | ex 
+                            when ex.Message.Contains("OperationCanceledException")
+                                -> 
+                                string ex.Message |> ignore //TODO logfile
+                                Error StopDownloading 
+
                         | ex 
                             when ex.Message.Contains("TimeoutError")
                                 -> 

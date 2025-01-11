@@ -13,7 +13,7 @@ module ProgressCircle =
         { 
             new IDrawable with
 
-                member _.Draw(canvas: ICanvas, dirtyRect: RectF) =
+                member _.Draw(canvas : ICanvas, dirtyRect : RectF) =
 
                     let centerX = dirtyRect.Width / 2f
                     let centerY = dirtyRect.Height / 2f

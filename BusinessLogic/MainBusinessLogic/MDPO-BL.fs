@@ -189,6 +189,7 @@ module MDPO_BL =
                         ->  
                         async                                                
                             {   
+                                token.ThrowIfCancellationRequested ()
                                 reportProgress (float i + 1.0, float l)  
                                 return! downloadFileTaskAsync token link pathToFile
                             } 
@@ -205,6 +206,6 @@ module MDPO_BL =
                     myDelete dirName mdpoPathTemp      
 
                 string ex.Message |> ignore //TODO logfile         
-                Error FileDownloadErrorMHD //mdpoMsg2   
+                Error StopDownloadingMHD  
                             
         downloadTimetables reportProgress token

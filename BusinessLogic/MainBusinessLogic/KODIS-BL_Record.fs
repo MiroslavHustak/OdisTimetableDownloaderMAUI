@@ -73,7 +73,9 @@ module KODIS_BL_Record =
 
                             counterAndProgressBar.Post(Inc 1)
 
-                            try                                                                    
+                            try 
+                                token.ThrowIfCancellationRequested ()
+
                                 // enforcing TLS 1.2 and 1.3.
                                 ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
                                                                      
@@ -117,6 +119,11 @@ module KODIS_BL_Record =
                                     ()                                           
                             
                             with
+                            | :? OperationCanceledException 
+                                ->
+                                "OperationCanceledException" |> ignore //TODO logfile
+                                failwith "OperationCanceledException" 
+
                             | ex 
                                 when ex.Message.Contains("A task was canceled") 
                                 -> 
@@ -136,6 +143,12 @@ module KODIS_BL_Record =
             |> Ok
                              
         with
+        | ex 
+            when ex.Message.Contains("OperationCanceledException")
+                -> 
+                string ex.Message |> ignore //TODO logfile
+                Error StopJsonDownloading 
+
         | ex 
             when ex.Message.Contains("TimeoutError")
                 -> 
@@ -157,9 +170,9 @@ module KODIS_BL_Record =
             string ex.Message |> ignore //TODO logfile                 
             Error DataFilteringError 
                     
-    let internal downloadAndSave token = //v parametru je token jen quli educational code v App.fs
+    let internal downloadAndSave token = 
         
-        let downloadAndSaveTimetables (token : CancellationToken) =  //v parametru je token jen quli educational code v App.fs
+        let downloadAndSaveTimetables (token : CancellationToken) =  
             
             reader
                 {             
@@ -205,7 +218,9 @@ module KODIS_BL_Record =
 
                                             counterAndProgressBar.Post(Inc 1)
 
-                                            try                                                                    
+                                            try 
+                                                token.ThrowIfCancellationRequested ()
+
                                                 // enforcing TLS 1.2 and 1.3.
                                                 ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
 
@@ -296,6 +311,11 @@ module KODIS_BL_Record =
                                                         failwith "FileDeleteError"                 
                                                     
                                             with
+                                            | :? OperationCanceledException 
+                                                ->
+                                                "OperationCanceledException" |> ignore //TODO logfile
+                                                failwith "OperationCanceledException"
+
                                             | ex 
                                                 when ex.Message.Contains("A task was canceled") 
                                                 -> 
@@ -321,6 +341,12 @@ module KODIS_BL_Record =
                             |> Ok
                              
                         with
+                        | ex 
+                            when ex.Message.Contains("OperationCanceledException")
+                                -> 
+                                string ex.Message |> ignore //TODO logfile
+                                Error StopDownloading 
+
                         | ex 
                             when ex.Message.Contains("TimeoutError")
                                 -> 

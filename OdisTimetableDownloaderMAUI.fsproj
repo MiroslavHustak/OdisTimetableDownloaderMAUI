@@ -43,7 +43,6 @@
   <PropertyGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
 	<DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidKeyStore>False</AndroidKeyStore>
@@ -61,7 +60,9 @@
 
   <ItemGroup>
     <!-- App Icon -->
-    <Content Include="res\xml\network_security_config.xml" />
+    <Resource Include="Platforms\Android\Resources\xml\network_security_config.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
     <Compile Include="Types\TDD.fs" />
     <Compile Include="Types\Types.fs" />
@@ -116,6 +117,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetPlatformIdentifier) == 'android'">
+	<!-- Pridano v ramci snahy eliminovat problem s www.mdpo.cz -->
+	 <AndroidResource Include="Platforms\Android\Resources\xml\network_security_config.xml" />
 	<!-- Pridano po problemech s kompilaci (nenalezeno colors.xml) -->  
 	<AndroidResource Include="Platforms\Android\Resources\values\colors.xml" />
 	<!-- ********************************************************* -->
@@ -181,10 +184,6 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="8.0.92" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Platforms\Android\" />
   </ItemGroup>
 
 </Project>

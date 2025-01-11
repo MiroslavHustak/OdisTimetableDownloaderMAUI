@@ -1,5 +1,7 @@
 ﻿namespace Types
 
+open System.Threading
+
 module Types =
 
     [<Struct>]   //vhodne pro 16 bytes => 4096 characters
@@ -16,7 +18,7 @@ module Types =
     type internal Context<'a, 'b, 'c> = 
         {
             listMappingFunction : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
-            reportProgress : (float * float) -> unit
+            reportProgress : (float * float ) -> unit
             dir : string
             list : (string * string) list
         }
@@ -28,6 +30,10 @@ module Types =
     type ConnectivityMessage =
         | UpdateState of bool
         | CheckState of AsyncReplyChannel<bool>    
+
+    type CancellationMessage =
+        | UpdateState2 of bool * CancellationTokenSource
+        | CheckState2 of AsyncReplyChannel<CancellationToken option>    
 
     [<Struct>]
     type internal Validity =

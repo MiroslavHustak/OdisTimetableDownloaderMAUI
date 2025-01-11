@@ -74,9 +74,7 @@ module App =
             RestartVisible : bool
             CloudVisible : bool
             LabelVisible : bool
-            Label2Visible : bool            
-            Cts : CancellationTokenSource  //Cancellation tokens for educational purposes only 
-            Token : CancellationToken
+            Label2Visible : bool      
         }
 
     type Msg =
@@ -86,15 +84,52 @@ module App =
         | Kodis4  
         | Dpo
         | Mdpo
-        | Restart
+        | Cancel
+        | Home
         | RestartVisible of bool
         | Quit
         | QuitCountdown of string
-        | CancellationToken2  //Cancellation tokens for educational purposes only 
         | NetConnMessage of string
         | IterationMessage of string    
-        | UpdateStatus of float * float * bool
+        | UpdateStatus of float * float * bool 
         | WorkIsComplete of string * bool  
+
+    let private cancellationActor = 
+
+        MailboxProcessor.StartImmediate
+            (fun inbox 
+                ->
+                let rec loop (cancelIsRequested : bool) (cts: CancellationTokenSource) =
+
+                    async
+                        {
+                            match! inbox.Receive() with
+                            | UpdateState2 (newState, newCts)
+                                ->
+                                match newState with
+                                | true  ->
+                                        cts.Cancel()
+                                        cts.Dispose()
+                                | false -> 
+                                        () 
+    
+                                return! loop newState newCts
+    
+                            | CheckState2 replyChannel 
+                                ->
+                                let ctsTokenOpt =                        
+                                    try
+                                        cts.Token |> Option.ofNull
+                                    with
+                                    | _ -> None                           
+                     
+                                replyChannel.Reply(ctsTokenOpt) 
+
+                                return! loop cancelIsRequested cts
+                        }
+    
+                loop true (new CancellationTokenSource()) //whatever to initialise
+            )
 
     let private countDown dispatch = //Not used yet
 
@@ -162,11 +197,15 @@ module App =
     
         Async.StartImmediate (loop waitingForNetConn) 
                       
-    let init () =  //Cancellation tokens (token, token2) for educational purposes only 
+    let init () =  
+
+        let ctsInitial = new CancellationTokenSource()
+
+        cancellationActor.Post(UpdateState2 (false, ctsInitial)) //inicializace
 
         let ensureMainDirectoriesExist = ensureMainDirectoriesExist ()
         
-        let monitorConnectivity (dispatch : Msg -> unit) (token : CancellationToken) =              
+        let monitorConnectivity (dispatch : Msg -> unit) =              
                    
             AsyncSeq.initInfinite (fun _ -> true)
             |> AsyncSeq.mapi (fun index _ -> index)    //index for educational purposes
@@ -225,8 +264,6 @@ module App =
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
-                Cts = new CancellationTokenSource() //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
-                Token = (new CancellationTokenSource()).Token
             } 
 
         let initialModelNoConn = //Cancellation tokens for learning purposes only 
@@ -244,41 +281,18 @@ module App =
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
-                Cts = initialModel.Cts //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
-                Token = initialModel.Token
             } 
             
         match ensureMainDirectoriesExist with
         | Ok _ 
-            ->
+            -> 
             try          
-                pyramidOfDoom   //Template_001a for initial cancellation tokens 
+                pyramidOfDoom   
                     {
-                        let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
-                            try
-                                Some <| initialModel.Cts.Token               
-                            with
-                            | _ -> None    
+                        //Po zruseni kodu zbylo jednoradkove CE, zatim ponechavam 
+                        let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch))
 
-                        //initialModelNoConn.Token uz neni tra overovat, bo je zavisly na vyse uvedenem
-
-                        let! initialModelToken = initialModelCtsToken, ({ initialModel with NetConnMsg = ctsMsg }, Cmd.none)
-
-                        let ctsCancel () =    
-                            try
-                                try
-                                    Some () //Some <| initialModel.Cts.Cancel() //Zatim nepotrebne //This signal is irreversible once sent.
-                                finally                      
-                                    initialModel.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
-                            with
-                            | _ -> None
-
-                        //cancellation token to be signalled if needed
-                        //let!_ = ctsCancel (), (initialModel, Cmd.none) 
-
-                        let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelNoConn.Token))
-
-                        return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch initialModelToken)
+                        return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch)
                     }  
             with
             | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
@@ -286,7 +300,10 @@ module App =
         | Error _ ->  
                   { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
-    let init2 () =   
+    let init2 () = 
+
+        let ctsNew = new CancellationTokenSource()
+        cancellationActor.Post(UpdateState2 (false, ctsNew))
         
         #if ANDROID
         let permissionGranted = permissionCheck () |> Async.RunSynchronously
@@ -294,7 +311,7 @@ module App =
         let permissionGranted = true
         #endif       
                
-        let initialModel = //Cancellation tokens for educational purposes only 
+        let initialModel = 
             {       
                 PermissionGranted = permissionGranted //melo by byt vzdy true
                 ProgressMsg = String.Empty
@@ -309,11 +326,9 @@ module App =
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
-                Cts = new CancellationTokenSource() //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
-                Token = (new CancellationTokenSource()).Token
             } 
 
-        let initialModelNoConn = //Cancellation tokens for learning purposes only 
+        let initialModelNoConn = 
             {    
                 PermissionGranted = permissionGranted //melo by byt vzdy true
                 ProgressMsg = String.Empty
@@ -328,35 +343,12 @@ module App =
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
-                Cts = initialModel.Cts //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
-                Token = initialModel.Token
             }     
        
         try          
-            pyramidOfDoom  //Template_001b for initial cancellation tokens 
+            pyramidOfDoom  
                 {
-                    let initialModelCtsToken =    //Cancellation tokens for learning purposes only 
-                        try
-                            Some <| initialModel.Cts.Token               
-                        with
-                        | _ -> None    
-
-                    //initialModelNoConn.Token uz neni tra overovat, bo je zavisly na vyse uvedenem
-
-                    let! initialModelToken = initialModelCtsToken, ({ initialModel with NetConnMsg = ctsMsg }, Cmd.none)
-
-                    let ctsCancel () =    
-                        try
-                            try
-                                Some () //Some <| initialModel.Cts.Cancel() //Zatim nepotrebne //This signal is irreversible once sent.
-                            finally                      
-                                initialModel.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
-                        with
-                        | _ -> None
-
-                    //cancellation token to be signalled if needed
-                    //let!_ = ctsCancel (), (initialModel, Cmd.none) 
-
+                    //Po zruseni kodu zbylo jednoradkove CE, zatim ponechavam 
                     let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.none)
 
                     return initialModel, Cmd.none
@@ -427,8 +419,6 @@ module App =
                     DpoVisible = false
                     MdpoVisible = false
                     RestartVisible = isVisible
-                    Cts = new CancellationTokenSource() //s tim nic tady nenarobim, pokud null, zrejme to vyhodi exn pro Cts.Token
-                    Token = (new CancellationTokenSource()).Token
             }, 
             Cmd.none
                    
@@ -445,43 +435,7 @@ module App =
                     Label2Visible = true
             }, 
             Cmd.none  
-       
-        | CancellationToken2 //Template_002 for cancellation tokens in messages (Msg) 
-            ->             
-            pyramidOfDoom
-                {  
-                    // Create a new CancellationTokenSource for future use 
-                    let! newCts = new CancellationTokenSource() |> Option.ofNull, (m, Cmd.none) 
-
-                    let newToken =    
-                        try
-                            Some <| m.Cts.Token                                                 
-                        with
-                        | _ -> None         
-
-                    let! newToken = newToken, (m, Cmd.none) 
-
-                    let ctsCancel () =    
-                        try
-                            try
-                                Some () //Some <| newCts.Cancel() //zatim nepotrebne //This signal is irreversible once sent.
-                               //newCts.CancelAfter(TimeSpan.FromSeconds(float timeOutInSeconds)) zvazit pouziti, neb requesting je az po danem case, ne ze zrobi cancel po danem case
-                            finally                      
-                                m.Cts.Dispose() //Any code that has already received or responded to the cancellation won’t be affected by the disposal.
-                        with
-                        | _ -> None
-
-                    let!_ = ctsCancel (), (m, Cmd.none) 
-                   
-                    return  
-                        { 
-                            m with     
-                                Cts = newCts  // Replace the old cts with a new one
-                                Token = newToken
-                        },
-                        Cmd.none
-                }    
-
+                 
         | IterationMessage message 
             ->
             { m with ProgressMsg = message }, Cmd.none   
@@ -491,9 +445,16 @@ module App =
             HardRestart.exitApp () 
             m, Cmd.none
 
-        | Restart  
+        | Home  
             -> 
             init2 ()
+
+        | Cancel 
+            ->
+            let ctsNew = new CancellationTokenSource() 
+            cancellationActor.Post(UpdateState2 (true, ctsNew))  
+
+            { m with ProgressMsg = cancelMsg3 }, Cmd.none 
 
         | RestartVisible isVisible 
             -> 
@@ -504,246 +465,254 @@ module App =
             { m with NetConnMsg = message; LabelVisible = true; Label2Visible = true }, Cmd.none           
              
         | Kodis 
-            ->
-            match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for educational purposes only 
-            | Some newCts 
-                ->
-                let path = kodisPathTemp 
+            ->  
+            cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState2 replyChannel)
+            |> Async.RunSynchronously
+            |> function
+                | Some token 
+                    ->
+                    let path = kodisPathTemp 
                                                 
-                let delayedCmd1 (token : CancellationToken) (dispatch : Msg -> unit) =                                
+                    let delayedCmd1 (token : CancellationToken) (dispatch : Msg -> unit) =                                
 
-                    async
-                        {
-                            //async tady ignoruje async code obsahujici Request.sendAsync request/result (FsHttp)   
+                        async
+                            {
+                                //async tady ignoruje async code obsahujici Request.sendAsync request/result (FsHttp)   
 
-                            let! hardWork =                                                              
-                                async 
-                                    {
-                                        let reportProgress (progressValue, totalProgress) = 
-                                            UpdateStatus >> dispatch <| (progressValue, totalProgress, true)                                         
+                                let! hardWork =                                                              
+                                    async 
+                                        {
+                                            let reportProgress (progressValue, totalProgress) = 
+                                                UpdateStatus >> dispatch <| (progressValue, totalProgress, true)                                         
 
-                                        return 
-                                            stateReducerCmd1
-                                            <| token
-                                            <| path
-                                            <| reportProgress
-                                    }
-                                |> Async.StartChild
+                                            return 
+                                                stateReducerCmd1
+                                                <| token
+                                                <| path
+                                                <| reportProgress
+                                        }
+                                    |> Async.StartChild
 
-                            let! result = hardWork 
-                            do! Async.Sleep 1000
-                            
-                            match result with
-                            | Ok result -> WorkIsComplete >> dispatch <| (result, false)  
-                            | Error err -> WorkIsComplete >> dispatch <| (err, false) 
-                        }  
+                                let! result = hardWork 
+                                do! Async.Sleep 1000
 
-                let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
+                                match token.IsCancellationRequested with
+                                | false ->
+                                        match result with
+                                        | Ok result -> WorkIsComplete >> dispatch <| (result, false)  
+                                        | Error err -> WorkIsComplete >> dispatch <| (err, false)     
+                                | true  ->
+                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
+                                        dispatch Home                                    
+                            }  
 
-                    async 
-                        {   
-                            let! hardWork =                             
-                                async 
-                                    {   
-                                        let reportProgress (progressValue, totalProgress) = 
-                                            UpdateStatus >> dispatch <| (progressValue, totalProgress, true)  
+                    let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
+
+                        async 
+                            {   
+                                let! hardWork =                             
+                                    async 
+                                        {   
+                                            let reportProgress (progressValue, totalProgress) = 
+                                                UpdateStatus >> dispatch <| (progressValue, totalProgress, true)  
                                        
-                                        return
-                                            stateReducerCmd2 
-                                            <| token
-                                            <| path
-                                            <| fun message -> WorkIsComplete >> dispatch <| (message, false)
-                                            <| fun message -> IterationMessage >> dispatch <| message 
-                                            <| reportProgress            
-                                    }
-                                |> Async.StartChild 
+                                            return
+                                                stateReducerCmd2 
+                                                <| token
+                                                <| path
+                                                <| fun message -> WorkIsComplete >> dispatch <| (message, false)
+                                                <| fun message -> IterationMessage >> dispatch <| message 
+                                                <| reportProgress            
+                                        }
+                                    |> Async.StartChild 
                                
-                            let! result = hardWork 
-                            do! Async.Sleep 1000
+                                let! result = hardWork 
+                                do! Async.Sleep 1000
                           
-                            WorkIsComplete >> dispatch <| (result, connectivityListener ())
+                                match token.IsCancellationRequested with
+                                | false ->
+                                        WorkIsComplete >> dispatch <| (result, connectivityListener ())    
+                                | true  ->
+                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
+                                        dispatch Home       
 
-                            (*
-                                match result.Contains("timeout") with
-                                | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
-                                | false -> WorkIsComplete >> dispatch <| (result, true)
-                            *)
-                        }     
+                                (*
+                                    match result.Contains("timeout") with
+                                    | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
+                                    | false -> WorkIsComplete >> dispatch <| (result, true)
+                                *)
+                            }     
 
-                let executeSequentially dispatch =
+                    let executeSequentially dispatch =
                     
-                    async 
-                        {                
-                            do! delayedCmd1 m.Token dispatch                                        
-                            do! delayedCmd2 m.Token dispatch 
-                        }
-                    |> Async.StartImmediate
+                        async 
+                            {   
+                                do! delayedCmd1 token dispatch                                        
+                                match token.IsCancellationRequested with 
+                                | true  -> ()
+                                | false -> do! delayedCmd2 token dispatch
+                            }
+                        |> Async.StartImmediate
 
-                match connectivityListener () |> Option.ofBool with
-                | Some _
-                    ->             
-                    { 
-                        m with                               
-                            ProgressMsg = progressMsgKodis 
-                            //NetConnMsg = String.Empty
-                            ProgressIndicator = InProgress (0.0, 0.0)
-                            KodisVisible = false
-                            DpoVisible = false
-                            MdpoVisible = false
-                            Cts = new CancellationTokenSource()  // Update the cts
-                            Token = newCts.Token
-                    }, 
-                    Cmd.ofSub executeSequentially  
+                    match connectivityListener () |> Option.ofBool with
+                    | Some _
+                        ->             
+                        { 
+                            m with                               
+                                ProgressMsg = progressMsgKodis 
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false
+                        }, 
+                        Cmd.ofSub executeSequentially  
                    
-                | None  
-                    ->
-                    { 
-                        m with                               
-                            NetConnMsg = noNetConn1
-                            ProgressIndicator = InProgress (0.0, 0.0)
-                            KodisVisible = false
-                            DpoVisible = false
-                            MdpoVisible = false  
-                            Cts = new CancellationTokenSource()  // Update the cts
-                            Token = newCts.Token
-                    }, 
-                    Cmd.none 
+                    | None  
+                        ->
+                        { 
+                            m with                               
+                                NetConnMsg = noNetConn1
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false  
+                        }, 
+                        Cmd.none 
                                    
-            | None      
-                -> 
-                m, Cmd.none           
+                | None      
+                    -> 
+                    m, Cmd.none           
 
-        | Kodis4 
+        | Kodis4  
             ->
-            match new CancellationTokenSource() |> Option.ofNull with  //Cancellation tokens for educational purposes only 
-            | Some newCts
-                ->   
-                let path = kodisPathTemp4                  
-                            
-                //delayedCmd1 nebude, neb json se zde nestahuje
-
-                let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
-
-                    async 
-                        {   
-                            let! hardWork =                             
-                                async 
-                                    {   
-                                        let reportProgress (progressValue, totalProgress) = 
-                                            UpdateStatus >> dispatch <| (progressValue, totalProgress, true)        
-                                       
-                                        return
-                                            stateReducerCmd4
-                                            <| token
-                                            <| path
-                                            <| fun message -> WorkIsComplete >> dispatch <| (message, false)
-                                            <| fun message -> IterationMessage >> dispatch <| message 
-                                            <| reportProgress            
-                                    }
-                                |> Async.StartChild 
-                               
-                            let! result = hardWork 
-                            do! Async.Sleep 1000
-
-                            WorkIsComplete >> dispatch <| (result, connectivityListener ())
-                            
-                            (*
-                                match result.Contains("timeout") with
-                                | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
-                                | false -> WorkIsComplete >> dispatch <| (result, true)
-                            *)
-                        }     
-
-                let executeSequentially dispatch =                    
-
-                    async 
-                        {  
-                            do! delayedCmd2 m.Token dispatch 
-                        }
-                    |> Async.StartImmediate  
-
-                match connectivityListener () |> Option.ofBool with
-                | Some _
-                    ->             
-                    { 
-                        m with                               
-                            ProgressMsg = progressMsgKodis1 
-                            NetConnMsg = yesNetConn
-                            ProgressIndicator = InProgress (0.0, 0.0)
-                            KodisVisible = false
-                            DpoVisible = false
-                            MdpoVisible = false
-                            Cts = new CancellationTokenSource()  // Update the cts
-                            Token = newCts.Token
-                    }, 
-                    Cmd.ofSub executeSequentially  
-                   
-                | None  
+            cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState2 replyChannel)
+            |> Async.RunSynchronously
+            |> function
+                | Some token 
                     ->
-                    { 
-                        m with                               
-                            NetConnMsg = noNetConn1
-                            ProgressIndicator = InProgress (0.0, 0.0)
-                            KodisVisible = false
-                            DpoVisible = false
-                            MdpoVisible = false  
-                            Cts = new CancellationTokenSource()  // Update the cts
-                            Token = newCts.Token
-                    }, 
-                    Cmd.none 
+                    let path = kodisPathTemp4    
+                            
+                    //delayedCmd1 nebude, neb json se zde nestahuje
 
-            | None        
-                -> 
-                m, Cmd.none   
+                    let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =    
+
+                        async 
+                            {     
+                                let! hardWork =                             
+                                    async 
+                                        {                                                      
+                                            let reportProgress (progressValue, totalProgress) = 
+                                                UpdateStatus >> dispatch <| (progressValue, totalProgress, true)
+
+                                            return
+                                                stateReducerCmd4
+                                                <| token
+                                                <| path
+                                                <| fun message -> WorkIsComplete >> dispatch <| (message, false)
+                                                <| fun message -> IterationMessage >> dispatch <| message 
+                                                <| reportProgress            
+                                        }
+                                    |> Async.StartChild 
+
+                                let! result = hardWork 
+                                do! Async.Sleep 1000 
+
+                                match token.IsCancellationRequested with
+                                | false ->
+                                        WorkIsComplete >> dispatch <| (result, connectivityListener ())    
+                                | true  ->
+                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
+                                        dispatch Home         
+                            
+                                (*
+                                    match result.Contains("timeout") with
+                                    | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
+                                    | false -> WorkIsComplete >> dispatch <| (result, true)
+                                *)
+                            }  
+                   
+                    let executeSequentially dispatch =                    
+
+                        async 
+                            {  
+                               do! delayedCmd2 token dispatch                            
+                            }
+                        |> Async.StartImmediate  
+
+                    match connectivityListener () |> Option.ofBool with
+                    | Some _
+                        ->             
+                        { 
+                            m with                               
+                                ProgressMsg = progressMsgKodis1 
+                                NetConnMsg = yesNetConn
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false
+                        }, 
+                        Cmd.ofSub executeSequentially  
+                   
+                    | None  
+                        ->
+                        { 
+                            m with                               
+                                NetConnMsg = noNetConn1
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false  
+                        }, 
+                        Cmd.none 
+
+                | None        
+                    -> 
+                    m, Cmd.none   
           
         | Dpo 
             -> 
-            match new CancellationTokenSource() |> Option.ofNull with
-            | Some newCts
-                ->
-                let path = dpoPathTemp
+            cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState2 replyChannel)
+            |> Async.RunSynchronously
+            |> function
+                | Some token 
+                    ->
+                    let path = dpoPathTemp
                  
-                let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
+                    let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
-                    async
-                        {
-                            NetConnMessage >> dispatch <| String.Empty 
+                        async
+                            {
+                                NetConnMessage >> dispatch <| String.Empty 
                                                           
-                            let! hardWork =                            
-                                async 
-                                    {
-                                        let reportProgress (progressValue, totalProgress) = 
-                                            match token.IsCancellationRequested with
-                                            | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                            | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)    
+                                let! hardWork =                            
+                                    async 
+                                        {
+                                            let reportProgress (progressValue, totalProgress) = 
+                                                match token.IsCancellationRequested with
+                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)    
 
-                                        match webscraping_DPO reportProgress token path with  
-                                        | Ok _      -> return mauiDpoMsg
-                                        | Error err -> return err
-                                    }
-                                |> Async.StartChild 
+                                            match webscraping_DPO reportProgress token path with  
+                                            | Ok _      -> return mauiDpoMsg
+                                            | Error err -> return err
+                                        }
+                                    |> Async.StartChild 
                                
-                            let! result = hardWork 
-                            do! Async.Sleep 1000
-                           
-                            match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| (result, connectivityListener ())
-                            | true  -> WorkIsComplete >> dispatch <| (netConnError, connectivityListener ())
-                        }  
+                                let! result = hardWork 
+                                do! Async.Sleep 1000
+                              
+                                match token.IsCancellationRequested with
+                                | false ->
+                                        WorkIsComplete >> dispatch <| (result, connectivityListener ())    
+                                | true  ->
+                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
+                                        dispatch Home         
+                            }  
                      
-                let execute dispatch = 
+                    let execute dispatch = 
 
-                    async 
-                        { 
-                            let token =    
-                                try
-                                    Some <| newCts.Token 
-                                with
-                                | _ -> None  
-                                
-                            match token with
-                            | Some token 
-                                -> 
+                        async 
+                            {                                      
                                 match token.IsCancellationRequested with
                                 | true  ->
                                         UpdateStatus >> dispatch <| (0.0, 1.0, false)
@@ -751,93 +720,83 @@ module App =
                                         match token.IsCancellationRequested with
                                         | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                         | false -> do! delayedCmd token dispatch  
-                            | None      
-                                -> 
-                                ()  
-                        } 
+                            } 
+                        |> Async.StartImmediate
 
-                    |> Async.StartImmediate
-
-                match connectivityListener () |> Option.ofBool with
-                | Some _
-                    ->             
-                    { 
-                        m with                               
-                            ProgressMsg = progressMsgDpo //progressMsgMdpo
-                            NetConnMsg = String.Empty
-                            ProgressIndicator = InProgress (0.0, 0.0)
-                            KodisVisible = false
-                            DpoVisible = false
-                            MdpoVisible = false
-                            Cts = newCts  // Update the cts
-                    }, 
-                    Cmd.ofSub execute 
+                    match connectivityListener () |> Option.ofBool with
+                    | Some _
+                        ->             
+                        { 
+                            m with                               
+                                ProgressMsg = progressMsgDpo //progressMsgMdpo
+                                NetConnMsg = String.Empty
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false
+                        }, 
+                        Cmd.ofSub execute 
                    
+                    | None  
+                        ->
+                        { 
+                            m with                               
+                                NetConnMsg = noNetConn1
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false  
+                        }, 
+                        Cmd.none  
+
                 | None  
-                    ->
-                    { 
-                        m with                               
-                            NetConnMsg = noNetConn1
-                            ProgressIndicator = InProgress (0.0, 0.0)
-                            KodisVisible = false
-                            DpoVisible = false
-                            MdpoVisible = false  
-                            Cts = newCts  // Update the cts
-                    }, 
-                    Cmd.none  
+                    -> 
+                    m, Cmd.none
 
-            | None  
-                -> 
-                m, Cmd.none
-
-        | Mdpo 
+        | Mdpo //pridano network_security_config.xml
             ->   
-            match new CancellationTokenSource() |> Option.ofNull with
-            | Some newCts
-                ->             
-                let path = mdpoPathTemp
+            cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState2 replyChannel)
+            |> Async.RunSynchronously
+            |> function
+                | Some token 
+                    ->             
+                    let path = mdpoPathTemp
 
-                let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
+                    let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
-                    async
-                        {
-                            NetConnMessage >> dispatch <| String.Empty 
+                        async
+                            {
+                                NetConnMessage >> dispatch <| String.Empty 
                                                           
-                            let! hardWork =                            
-                                async 
-                                    {
-                                        let reportProgress (progressValue, totalProgress) = 
-                                            match token.IsCancellationRequested with
-                                            | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                            | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)    
+                                let! hardWork =                            
+                                    async 
+                                        {
+                                            let reportProgress (progressValue, totalProgress) = 
+                                                match token.IsCancellationRequested with
+                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)    
 
-                                        match webscraping_MDPO reportProgress token path with
-                                        | Ok _      -> return mauiMdpoMsg
-                                        | Error err -> return err
-                                    }
-                                |> Async.StartChild 
+                                            match webscraping_MDPO reportProgress token path with
+                                            | Ok _      -> return mauiMdpoMsg
+                                            | Error err -> return err
+                                        }
+                                    |> Async.StartChild 
                                
-                            let! result = hardWork 
-                            do! Async.Sleep 1000
+                                let! result = hardWork 
+                                do! Async.Sleep 1000
                            
-                            match token.IsCancellationRequested with
-                            | false -> WorkIsComplete >> dispatch <| (result, connectivityListener ())
-                            | true  -> WorkIsComplete >> dispatch <| (netConnError, connectivityListener ())
-                        }  
+                                match token.IsCancellationRequested with
+                                | false ->
+                                        WorkIsComplete >> dispatch <| (result, connectivityListener ())    
+                                | true  ->
+                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
+                                        dispatch Home  
+                            }  
                      
-                let execute dispatch = 
+                    let execute dispatch = 
 
-                    async 
-                        { 
-                            let token =    
-                                try
-                                    Some <| newCts.Token 
-                                with
-                                | _ -> None  
-                                
-                            match token with
-                            | Some token 
-                                -> 
+                        async 
+                            {                                      
                                 match token.IsCancellationRequested with
                                 | true  ->
                                         UpdateStatus >> dispatch <| (0.0, 1.0, false)
@@ -845,44 +804,38 @@ module App =
                                         match token.IsCancellationRequested with
                                         | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                         | false -> do! delayedCmd token dispatch  
-                            | None      
-                                -> 
-                                () 
-                        } 
+                            } 
+                        |> Async.StartImmediate
 
-                    |> Async.StartImmediate
-
-                match connectivityListener () |> Option.ofBool with
-                | Some _
-                    ->             
-                    { 
-                        m with                               
-                            ProgressMsg = progressMsgMdpo
-                            NetConnMsg = String.Empty
-                            ProgressIndicator = InProgress (0.0, 0.0)
-                            KodisVisible = false
-                            DpoVisible = false
-                            MdpoVisible = false
-                            Cts = newCts  // Update the cts
-                    }, 
-                    Cmd.ofSub execute 
+                    match connectivityListener () |> Option.ofBool with
+                    | Some _
+                        ->             
+                        { 
+                            m with                               
+                                ProgressMsg = progressMsgMdpo
+                                NetConnMsg = String.Empty
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false
+                        }, 
+                        Cmd.ofSub execute 
                    
-                | None  
-                    ->
-                    { 
-                        m with                               
-                            NetConnMsg = noNetConn1
-                            ProgressIndicator = InProgress (0.0, 0.0)
-                            KodisVisible = false
-                            DpoVisible = false
-                            MdpoVisible = false  
-                            Cts = newCts  // Update the cts
-                    }, 
-                    Cmd.none  
+                    | None  
+                        ->
+                        { 
+                            m with                               
+                                NetConnMsg = noNetConn1
+                                ProgressIndicator = InProgress (0.0, 0.0)
+                                KodisVisible = false
+                                DpoVisible = false
+                                MdpoVisible = false  
+                        }, 
+                        Cmd.none  
 
-            | None  
-                -> 
-                m, Cmd.none
+                | None  
+                    -> 
+                    m, Cmd.none
 
     let view (m : Model) =
     
@@ -928,7 +881,7 @@ module App =
                                                                 .width(200.)
                                                                 .horizontalOptions(LayoutOptions.Start)
 
-                                                            Button("x", Restart)
+                                                            Button("x", Home)
                                                                 .font(size = 20., attributes = FontAttributes.Bold)
                                                                 .padding(2.5,-5.5,2.5,2.5)
                                                                 .width(25.)
@@ -972,12 +925,17 @@ module App =
                                 .centerHorizontal()
                                 .isVisible(m.DpoVisible && m.PermissionGranted)
     
-                            Button(buttonMdpo, Mdpo )
+                            Button(buttonMdpo, Mdpo)
                                 .semantics(hint = hintMdpo)
                                 .centerHorizontal()
                                 .isVisible(m.MdpoVisible && m.PermissionGranted)
 
-                            Button(buttonRestart, Restart)
+                            Button(buttonCancel, Cancel)
+                                .semantics(hint = String.Empty)
+                                .isVisible(not m.RestartVisible && not m.KodisVisible && m.PermissionGranted)
+                                .centerHorizontal() 
+
+                            Button(buttonHome, Home)
                                 .semantics(hint = String.Empty)
                                 .isVisible(m.RestartVisible && m.PermissionGranted)
                                 .centerHorizontal()
