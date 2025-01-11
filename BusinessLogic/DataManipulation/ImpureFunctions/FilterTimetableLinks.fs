@@ -214,23 +214,11 @@ module FilterTimetableLinks =
                     let index = conditions |> List.findIndex (fun item -> item () = true) //neni treba tryFind, bo v [ _ ] je vzdy neco
                      
                     match index with
-                    | 0 
+                    | 0 | 1 | 3  
                         -> 
                         sprintf "_%s" oldPrefix
 
-                    | 1 
-                        ->
-                        sprintf "_%s" oldPrefix
-
-                    | 2 
-                        ->
-                        sprintf "%s" oldPrefix
-
-                    | 3 
-                        ->
-                        sprintf "_%s" oldPrefix
-
-                    | 4 
+                    | 2 | 4 
                         ->
                         sprintf "%s" oldPrefix
 
