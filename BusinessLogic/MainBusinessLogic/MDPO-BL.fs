@@ -109,6 +109,7 @@ module MDPO_BL = //FsHttp
                                         | true  -> 
                                                 http
                                                     {
+                                                        //zkouska, jestli to nahodou nepomoze s problemem s www.mdpo.cz - zatim to vypada, ze ne
                                                         GET uri        
                                                         #if WINDOWS
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout

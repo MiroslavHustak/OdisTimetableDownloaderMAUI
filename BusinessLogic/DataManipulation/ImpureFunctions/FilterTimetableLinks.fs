@@ -216,11 +216,7 @@ module FilterTimetableLinks =
                     match index with
                     | 0 | 1 | 3  
                         -> 
-                        sprintf "_%s" oldPrefix
-
-                    | 2 | 4 
-                        ->
-                        sprintf "%s" oldPrefix
+                        sprintf "_%s" oldPrefix                    
 
                     | 5 
                         -> 
@@ -240,7 +236,7 @@ module FilterTimetableLinks =
                             | _                                 -> oldPrefix                                 
                         oldPrefix.Replace(oldPrefix, newPrefix)
 
-                    | _ 
+                    | 2 | 4 | _
                         ->
                         sprintf "%s" oldPrefix
 

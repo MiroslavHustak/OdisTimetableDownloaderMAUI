@@ -60,6 +60,7 @@ open ApplicationDesign4.WebScraping_KODISFMRecord4
 	  <DefineConstants>WINDOWS</DefineConstants>
    </PropertyGroup> 
 
+   //zkouska, jestli to nahodou nepomoze s problemem s www.mdpo.cz - zatim to vypada, ze ne
    <AndroidResource Include="Platforms\Android\Resources\xml\network_security_config.xml" />
 *)
 
@@ -81,6 +82,8 @@ module App =
             DpoVisible : bool
             MdpoVisible : bool
             RestartVisible : bool
+            ProgressCircleVisible : bool
+            CancelVisible : bool
             CloudVisible : bool
             LabelVisible : bool
             Label2Visible : bool      
@@ -247,7 +250,7 @@ module App =
                                     |> Async.StartImmediate //nelze Async.Start                                   
                                 )                                  
                                 
-                            do! Async.Sleep 1000   
+                            do! Async.Sleep 10000   
                         }
                 )
             |> Async.StartImmediate  
@@ -258,7 +261,7 @@ module App =
         let permissionGranted = true
         #endif        
              
-        let initialModel = //Cancellation tokens for educational purposes only 
+        let initialModel = 
             {         
                 PermissionGranted = permissionGranted
                 ProgressMsg = permissionGranted |> function true -> String.Empty | false -> appInfoInvoker
@@ -269,7 +272,9 @@ module App =
                 KodisVisible = permissionGranted
                 DpoVisible = permissionGranted
                 MdpoVisible = permissionGranted
+                ProgressCircleVisible = false
                 RestartVisible = false
+                CancelVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
@@ -286,7 +291,9 @@ module App =
                 KodisVisible = false
                 DpoVisible = false
                 MdpoVisible = false
+                ProgressCircleVisible = false
                 RestartVisible = false
+                CancelVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
@@ -331,7 +338,9 @@ module App =
                 KodisVisible = permissionGranted
                 DpoVisible = permissionGranted
                 MdpoVisible = permissionGranted
+                ProgressCircleVisible = false
                 RestartVisible = false
+                CancelVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
@@ -348,7 +357,9 @@ module App =
                 KodisVisible = false
                 DpoVisible = false
                 MdpoVisible = false
+                ProgressCircleVisible = false
                 RestartVisible = false
+                CancelVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
@@ -410,6 +421,8 @@ module App =
                     ProgressIndicator = InProgress (progressValue, totalProgress)
                     Progress = progress 
                     KodisVisible = false
+                    ProgressCircleVisible = isVisible
+                    CancelVisible = isVisible
                     DpoVisible = false
                     MdpoVisible = false
                     RestartVisible = false
@@ -427,6 +440,8 @@ module App =
                     KodisVisible = false
                     DpoVisible = false
                     MdpoVisible = false
+                    ProgressCircleVisible = false
+                    CancelVisible = false
                     RestartVisible = isVisible
             }, 
             Cmd.none
@@ -440,6 +455,8 @@ module App =
                     DpoVisible = false
                     MdpoVisible = false
                     CloudVisible = false  //nechej to false, zatim nebudu pouzivat
+                    ProgressCircleVisible = false
+                    CancelVisible = false
                     LabelVisible = true
                     Label2Visible = true
             }, 
@@ -461,13 +478,13 @@ module App =
         | Cancel 
             ->
             let ctsNew = new CancellationTokenSource() 
-            cancellationActor.Post(UpdateState2 (true, ctsNew))  
-
-            { m with ProgressMsg = cancelMsg3 }, Cmd.none 
+            cancellationActor.Post(UpdateState2 (true, ctsNew))    
+           
+            { m with ProgressMsg = cancelMsg3; ProgressCircleVisible = false; CancelVisible = false }, Cmd.none
 
         | RestartVisible isVisible 
             -> 
-            { m with RestartVisible = isVisible }, Cmd.none         
+            { m with RestartVisible = isVisible; CancelVisible = false }, Cmd.none                   
              
         | NetConnMessage message
             ->
@@ -490,9 +507,12 @@ module App =
 
                                 let! hardWork =                                                              
                                     async 
-                                        {
-                                            let reportProgress (progressValue, totalProgress) = 
-                                                UpdateStatus >> dispatch <| (progressValue, totalProgress, true)                                         
+                                        {                                            
+                                            let reportProgress (progressValue, totalProgress) =     
+
+                                                match token.IsCancellationRequested with
+                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
                                             return 
                                                 stateReducerCmd1
@@ -522,8 +542,11 @@ module App =
                                 let! hardWork =                             
                                     async 
                                         {   
-                                            let reportProgress (progressValue, totalProgress) = 
-                                                UpdateStatus >> dispatch <| (progressValue, totalProgress, true)  
+                                            let reportProgress (progressValue, totalProgress) =     
+
+                                                match token.IsCancellationRequested with
+                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                        
                                             return
                                                 stateReducerCmd2 
@@ -540,6 +563,7 @@ module App =
                           
                                 match token.IsCancellationRequested with
                                 | false ->
+                                        RestartVisible >> dispatch <| true
                                         WorkIsComplete >> dispatch <| (result, connectivityListener ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
@@ -573,6 +597,7 @@ module App =
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
+                                ProgressCircleVisible = false
                         }, 
                         Cmd.ofSub executeSequentially  
                    
@@ -585,6 +610,7 @@ module App =
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
+                                ProgressCircleVisible = false
                         }, 
                         Cmd.none 
                                    
@@ -610,8 +636,11 @@ module App =
                                 let! hardWork =                             
                                     async 
                                         {                                                      
-                                            let reportProgress (progressValue, totalProgress) = 
-                                                UpdateStatus >> dispatch <| (progressValue, totalProgress, true)
+                                            let reportProgress (progressValue, totalProgress) =     
+
+                                                match token.IsCancellationRequested with
+                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
                                             return
                                                 stateReducerCmd4
@@ -628,6 +657,7 @@ module App =
 
                                 match token.IsCancellationRequested with
                                 | false ->
+                                        RestartVisible >> dispatch <| true 
                                         WorkIsComplete >> dispatch <| (result, connectivityListener ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
@@ -659,6 +689,7 @@ module App =
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
+                                ProgressCircleVisible = false
                         }, 
                         Cmd.ofSub executeSequentially  
                    
@@ -671,6 +702,7 @@ module App =
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
+                                ProgressCircleVisible = false
                         }, 
                         Cmd.none 
 
@@ -696,14 +728,18 @@ module App =
                                 let! hardWork =                            
                                     async 
                                         {
-                                            let reportProgress (progressValue, totalProgress) = 
+                                            let reportProgress (progressValue, totalProgress) =     
+
                                                 match token.IsCancellationRequested with
-                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)    
+                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)    
 
                                             match webscraping_DPO reportProgress token path with  
-                                            | Ok _      -> return mauiDpoMsg
-                                            | Error err -> return err
+                                            | Ok _      -> 
+                                                        return mauiDpoMsg
+                                            | Error err ->
+                                                        RestartVisible >> dispatch <| true
+                                                        return err
                                         }
                                     |> Async.StartChild 
                                
@@ -743,6 +779,7 @@ module App =
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
+                                ProgressCircleVisible = false
                         }, 
                         Cmd.ofSub execute 
                    
@@ -754,7 +791,8 @@ module App =
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 KodisVisible = false
                                 DpoVisible = false
-                                MdpoVisible = false  
+                                MdpoVisible = false 
+                                ProgressCircleVisible = false
                         }, 
                         Cmd.none  
 
@@ -780,14 +818,18 @@ module App =
                                 let! hardWork =                            
                                     async 
                                         {
-                                            let reportProgress (progressValue, totalProgress) = 
+                                            let reportProgress (progressValue, totalProgress) =     
+
                                                 match token.IsCancellationRequested with
-                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true)    
+                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false) 
 
                                             match webscraping_MDPO reportProgress token path with
-                                            | Ok _      -> return mauiMdpoMsg
-                                            | Error err -> return err
+                                            | Ok _      -> 
+                                                        return mauiMdpoMsg
+                                            | Error err ->
+                                                        RestartVisible >> dispatch <| true
+                                                        return err
                                         }
                                     |> Async.StartChild 
                                
@@ -827,6 +869,7 @@ module App =
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
+                                ProgressCircleVisible = false
                         }, 
                         Cmd.ofSub execute 
                    
@@ -839,6 +882,7 @@ module App =
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
+                                ProgressCircleVisible = false
                         }, 
                         Cmd.none  
 
@@ -857,7 +901,7 @@ module App =
                             GraphicsView(progressCircle m.Progress)
                                 .height(130.)
                                 .width(130.)  
-                                .isVisible(not m.KodisVisible)
+                                .isVisible(not m.KodisVisible || m.ProgressCircleVisible)
 
                             Label(labelOdis)
                                 .semantics(SemanticHeadingLevel.Level1)
@@ -941,7 +985,7 @@ module App =
 
                             Button(buttonCancel, Cancel)
                                 .semantics(hint = String.Empty)
-                                .isVisible(not m.RestartVisible && not m.KodisVisible && m.PermissionGranted)
+                                .isVisible(m.CancelVisible && m.PermissionGranted)
                                 .centerHorizontal() 
 
                             Button(buttonHome, Home)

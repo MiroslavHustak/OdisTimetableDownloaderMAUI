@@ -52,7 +52,7 @@ module WebScraping_KODISFMRecord4 =
         {
             DeleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
             OperationOnDataFromJson : CancellationToken -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
-            DownloadAndSave : CancellationToken -> Context<string, string, unit> -> Result<string, PdfDownloadErrors>
+            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, PdfDownloadErrors>
         }
 
     let private environment : Environment =
@@ -80,7 +80,7 @@ module WebScraping_KODISFMRecord4 =
             | ApiResponseError err -> err
             | ApiDecodingError     -> canopyError
             | NetConnPdfError err  -> err
-            | StopDownloading      -> environment.DeleteAllODISDirectories path |> ignore; String.Empty  
+            | StopDownloading      -> environment.DeleteAllODISDirectories path |> ignore; String.Empty //text dojde pozdeji, nez od Home
 
         let result (context2 : Context2) =   
 
@@ -183,10 +183,7 @@ module WebScraping_KODISFMRecord4 =
                 #endif
                 ()                     
         with
-        | ex 
-            ->
-            string ex.Message |> ignore  //TODO logfile 
-            dispatchMsg4            
+        | _ ->  dispatchMsg4  //TODO logfile   
     
     let stateReducerCmd4 token path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
         stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 

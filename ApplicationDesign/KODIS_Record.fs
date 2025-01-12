@@ -50,7 +50,7 @@ module WebScraping_KODISFMRecord =
             DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> Result<unit, JsonDownloadErrors>
             DeleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
             OperationOnDataFromJson : CancellationToken -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
-            DownloadAndSave : CancellationToken -> Context<string, string, unit> -> Result<string, PdfDownloadErrors>
+            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, PdfDownloadErrors>
         }
 
     let private environment : Environment =
@@ -87,9 +87,7 @@ module WebScraping_KODISFMRecord =
                     #endif
                     ()              
             with
-            | ex ->
-                 string ex.Message |> ignore  //TODO logfile
-                 Error JsonDownloadError
+            | _ -> Error JsonDownloadError  //TODO logfile
                  
             |> function
                 | Ok _      -> Ok dispatchMsg1 
