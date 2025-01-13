@@ -174,15 +174,15 @@ module DPO_BL =
 
                                     return errorType       
                            
-                        | Error err 
+                        | Error _ 
                             -> 
-                            err |> ignore  //TODO logfile
+                            //TODO logfile
                             return Error ConnectionError   
                            
                     with                                                         
-                    | ex
+                    | _
                         ->
-                        string ex.Message |> ignore  //TODO logfile
+                        //TODO logfile
                         return Error FileDownloadErrorMHD 
                 } 
     
@@ -201,19 +201,31 @@ module DPO_BL =
                                 reportProgress (float i + 1.0, float l)  
                                 return! downloadFileTaskAsync link pathToFile 
                             } 
-                        |> Async.RunSynchronously
+                        |> Async.Catch
+                        |> Async.RunSynchronously  
+                        |> Result.ofChoice  
                     ) 
-                |> ignore
-                |> Ok
+                |> List.tryPick
+                    (function
+                        | Ok _ 
+                            -> 
+                            None
+
+                        | Error err
+                            ->
+                            match (string err.Message).Contains("The operation was canceled.") with
+                            | true  -> Some <| Error StopDownloadingMHD
+                            | false -> Some <| Error FileDownloadErrorMHD
+                    )
+                |> Option.defaultValue (Ok ()) 
                
             with
-            | ex    
+            | _      //TODO logfile
                 ->
                 let dirName = ODISDefault.OdisDir5                       
                     in
-                    match deleteOneODISDirectoryMHD dirName dpoPathTemp with Ok _ -> () | Error _ -> ()      
-
-                string ex.Message |> ignore //TODO logfile         
-                Error StopDownloadingMHD 
+                    match deleteOneODISDirectoryMHD dirName dpoPathTemp with
+                    | Ok _    -> Error FileDownloadErrorMHD
+                    | Error _ -> Error FileDeleteErrorMHD                 
 
         downloadTimetables reportProgress token    

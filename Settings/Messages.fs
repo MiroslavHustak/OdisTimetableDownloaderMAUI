@@ -17,6 +17,7 @@ module Messages =
     let internal msg3WithoutReplacementService = "Dlouhodobě platné JŘ ODIS nebyly k dispozici pro stažení."
 
     let internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 
+    let internal jsonCancel = "Stahování JSON souborů předčasně ukončeno." 
     let internal rcError = "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
     let internal jsonFilteringError = "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
     let internal dataFilteringError = "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
@@ -36,16 +37,22 @@ module Messages =
     let internal dispatchMsg1 = "Dokončeno stahování JSON souborů." 
     let internal dispatchMsg2 = "Chvíli strpení, prosím, CPU se snaží, co může ..."
     let internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
+    
+    let internal dispatchMsg0 = "Došlo k chybě, JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil."  
     let internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy."  
 
-    let internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy."  
+    let internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil."  
+    let internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy."
     let internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy." 
     let internal mdpoCancelMsg = "Stahování JŘ MDPO předčasně ukončeno."
+    let internal mdpoCancelMsg1 = "Stahování JŘ MDPO předčasně ukončeno, úklid se nepodařil."
 
+    let internal dpoMsg0 = "Došlo k chybě, JŘ DPO nebyly staženy, navíc ani úklid se nepodařil."  
     let internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy."  
     let internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy." 
     let internal dpoCancelMsg = "Stahování JŘ DPO předčasně ukončeno."
-
+    let internal dpoCancelMsg1 = "Stahování JŘ DPO předčasně ukončeno, úklid se nepodařil."
+  
     let internal progressMsgKodis = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
     let internal progressMsgKodis1 = "Varianta bez stahování JSON souborů a s použitím web API. Vyčkej na zahájení ..." 
     let internal progressMsgDpo = "Stahují se JŘ DPO ..." 
@@ -86,6 +93,9 @@ module Messages =
     let internal cancelMsg1NoConn = "Po obnovení připojení k internetu se činnost aplikace ukončí, může to chvíli trvat ..."
     let internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
     let internal cancelMsg3 = "Chvíli strpení, stahování se ukončuje ..."
+
+    let internal cancelMsg4 = "Stahování JŘ KODIS předčasně ukončeno."
+    let internal cancelMsg5 = "Stahování JŘ KODIS předčasně ukončeno, úklid se nepodařil."
 
     let internal netConnError = "Přerušené internetové připojení způsobilo přerušení stahování souborů. Stahuj vše znova."
     let internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."

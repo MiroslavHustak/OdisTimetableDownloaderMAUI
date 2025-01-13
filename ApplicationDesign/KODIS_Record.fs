@@ -71,7 +71,7 @@ module WebScraping_KODISFMRecord =
                 | JsonConnectionError  -> cancelMsg2
                 | NetConnJsonError err -> err
                 | JsonTimeoutError     -> jsonDownloadError  
-                | StopJsonDownloading  -> String.Empty
+                | StopJsonDownloading  -> jsonCancel
                     
             try
                 try
@@ -105,15 +105,15 @@ module WebScraping_KODISFMRecord =
                 | JsonFilteringError   -> jsonFilteringError
                 | DataFilteringError   -> dataFilteringError
                 | FileDeleteError      -> fileDeleteError 
-                | CreateFolderError    -> createFolderError
-                | FileDownloadError    -> environment.DeleteAllODISDirectories path |> ignore; fileDownloadError
+                | CreateFolderError    -> createFolderError                
+                | FileDownloadError    -> match environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
                 | CanopyError          -> canopyError
                 | TimeoutError         -> "timeout"
                 | PdfConnectionError   -> cancelMsg2 
                 | ApiResponseError err -> err
                 | ApiDecodingError     -> canopyError
                 | NetConnPdfError err  -> err
-                | StopDownloading      -> environment.DeleteAllODISDirectories path |> ignore; String.Empty  
+                | StopDownloading      -> match environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
     
             let result (context2 : Context2) =  
                

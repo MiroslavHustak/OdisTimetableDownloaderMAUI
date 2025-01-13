@@ -73,14 +73,14 @@ module WebScraping_KODISFMRecord4 =
             | DataFilteringError   -> dataFilteringError
             | FileDeleteError      -> fileDeleteError 
             | CreateFolderError    -> createFolderError
-            | FileDownloadError    -> environment.DeleteAllODISDirectories path |> ignore; fileDownloadError
+            | FileDownloadError    -> match environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
             | CanopyError          -> canopyError
             | TimeoutError         -> "timeout"
             | PdfConnectionError   -> cancelMsg2 
             | ApiResponseError err -> err
             | ApiDecodingError     -> canopyError
             | NetConnPdfError err  -> err
-            | StopDownloading      -> environment.DeleteAllODISDirectories path |> ignore; String.Empty //text dojde pozdeji, nez od Home
+            | StopDownloading      -> match environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
 
         let result (context2 : Context2) =   
 

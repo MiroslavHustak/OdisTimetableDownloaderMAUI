@@ -117,10 +117,10 @@ module WebScraping_DPO =
                     | ServiceUnavailable    -> "503 Service Unavailable"        
                     | NotFound              -> "404 Page Not Found"
                     | CofeeMakerUnavailable -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-                    | FileDownloadErrorMHD  -> dpoMsg1
+                    | FileDownloadErrorMHD  -> match deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoMsg1 | Error _ -> dpoMsg0 
                     | ConnectionError       -> noNetConn
                     | FileDeleteErrorMHD    -> fileDeleteError
-                    | StopDownloadingMHD    -> String.Empty
+                    | StopDownloadingMHD    -> match deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
 
                 let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
                 let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
