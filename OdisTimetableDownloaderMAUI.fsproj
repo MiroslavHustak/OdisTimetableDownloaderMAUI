@@ -18,7 +18,7 @@
     <ApplicationTitle>OdisTimetableDownloaderMAUI</ApplicationTitle>
 
     <!-- The warning XA4211 appears because the .NET MAUI build tools default to the latest available API level for compiling Android applications, which in this case is API 34 (Android 14). This discrepancy doesn't prevent your app from targeting Android 12; however, the tooling will still use API 34 for some aspects of the compilation. -->
-    <NoWarn>XA4211</NoWarn>
+	<!-- <NoWarn>XA4211</NoWarn> -->
 
     <!-- App Identifier -->
     <ApplicationId>com.companyname.OdisTimetableDownloaderMAUI</ApplicationId>
@@ -33,6 +33,7 @@
     <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'ios'">14.2</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'android'">25.0</SupportedOSPlatformVersion>
+    <AndroidTargetSdkVersion>34</AndroidTargetSdkVersion>
     <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$(TargetPlatformIdentifier) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'tizen'">6.5</SupportedOSPlatformVersion>
@@ -43,7 +44,8 @@
   <PropertyGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
 	<DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+	
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidKeyStore>False</AndroidKeyStore>
     <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>

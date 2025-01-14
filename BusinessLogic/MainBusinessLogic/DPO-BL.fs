@@ -129,7 +129,9 @@ module DPO_BL =
                         
                         match client with  
                         | Ok client
-                            ->      
+                            ->    
+                            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+
                             let existingFileLength =                               
                                 checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                 |> function

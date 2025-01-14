@@ -73,7 +73,7 @@ module KODIS_BL_Record =
                             token.ThrowIfCancellationRequested ()
                            
                             ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
-                                                                     
+                                                                    
                             let existingFileLength =                               
                                 checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                 |> function

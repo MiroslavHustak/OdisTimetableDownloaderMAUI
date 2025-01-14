@@ -109,22 +109,17 @@ module MDPO_BL = //FsHttp
                                         | true  -> 
                                                 http
                                                     {
-                                                        //zkouska, jestli to nahodou nepomoze s problemem s www.mdpo.cz - zatim to vypada, ze ne
-                                                        GET uri        
-                                                        #if WINDOWS
+                                                        GET uri  
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken CancellationToken.None //token
+                                                        // config_cancellationToken CancellationToken.None 
                                                         header headerContent1 headerContent2
-                                                        #endif
                                                     }
                                         | false ->
                                                 http
                                                     {
                                                         GET uri
-                                                        #if WINDOWS
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken CancellationToken.None //token
-                                                        #endif
+                                                        // config_cancellationToken CancellationToken.None //token
                                                     }
                                                     
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty

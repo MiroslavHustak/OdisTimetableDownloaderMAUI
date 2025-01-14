@@ -552,7 +552,7 @@ module App =
                                                 stateReducerCmd2 
                                                 <| token
                                                 <| path
-                                                <| fun message -> WorkIsComplete >> dispatch <| (message, false)
+                                                <| fun message -> WorkIsComplete >> dispatch <| (message, true)
                                                 <| fun message -> IterationMessage >> dispatch <| message 
                                                 <| reportProgress            
                                         }
@@ -563,7 +563,6 @@ module App =
                           
                                 match token.IsCancellationRequested with
                                 | false ->
-                                        RestartVisible >> dispatch <| true
                                         WorkIsComplete >> dispatch <| (result, connectivityListener ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
@@ -646,7 +645,7 @@ module App =
                                                 stateReducerCmd4
                                                 <| token
                                                 <| path
-                                                <| fun message -> WorkIsComplete >> dispatch <| (message, false)
+                                                <| fun message -> WorkIsComplete >> dispatch <| (message, true)
                                                 <| fun message -> IterationMessage >> dispatch <| message 
                                                 <| reportProgress            
                                         }
@@ -657,7 +656,6 @@ module App =
 
                                 match token.IsCancellationRequested with
                                 | false ->
-                                        RestartVisible >> dispatch <| true 
                                         WorkIsComplete >> dispatch <| (result, connectivityListener ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
@@ -750,7 +748,7 @@ module App =
                                 | false ->
                                         WorkIsComplete >> dispatch <| (result, connectivityListener ())    
                                 | true  ->
-                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
+                                        WorkIsComplete >> dispatch <| (result, connectivityListener ()) 
                                         dispatch Home         
                             }  
                      
@@ -840,7 +838,7 @@ module App =
                                 | false ->
                                         WorkIsComplete >> dispatch <| (result, connectivityListener ())    
                                 | true  ->
-                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
+                                        WorkIsComplete >> dispatch <| (result, connectivityListener ()) 
                                         dispatch Home  
                             }  
                      

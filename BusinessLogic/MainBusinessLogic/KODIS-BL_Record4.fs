@@ -253,7 +253,7 @@ module KODIS_BL_Record4 =
                                                                     {
                                                                         GET uri
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken CancellationToken.None //token2  //funguje
+                                                                        //config_cancellationToken CancellationToken.None //token2  //funguje
                                                                         header headerContent1 headerContent2
                                                                     }
                                                         | false ->
@@ -261,7 +261,7 @@ module KODIS_BL_Record4 =
                                                                     {
                                                                         GET uri
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken CancellationToken.None //token2  //funguje
+                                                                        //config_cancellationToken CancellationToken.None //token2  //funguje
                                                                     }
 
                                                     use! response = get >> Request.sendAsync <| uri  
