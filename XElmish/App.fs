@@ -210,7 +210,7 @@ module App =
         Async.StartImmediate (loop waitingForNetConn) 
                       
     let init () =  
-
+            
         let ctsInitial = new CancellationTokenSource()
 
         cancellationActor.Post(UpdateState2 (false, ctsInitial)) //inicializace

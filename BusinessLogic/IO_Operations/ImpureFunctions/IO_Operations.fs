@@ -35,8 +35,8 @@ module IO_Operations =
                                 |> Ok
                                 //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
                         with 
-                        | ex ->
-                             string ex.Message |> ignore // TODO logfile 
+                        | _ ->
+                             // TODO logfile 
                              Error FileDeleteError
                 }
 
@@ -63,9 +63,9 @@ module IO_Operations =
                                 |> Ok               
                                 
                         with 
-                        | ex
+                        | _
                             ->
-                            string ex.Message |> ignore // TODO logfile 
+                            // TODO logfile 
                             Error FileDeleteError                       
                 }
 
@@ -105,9 +105,9 @@ module IO_Operations =
             |> Ok
 
         with 
-        | ex
+        | _
             ->
-            string ex.Message |> ignore // TODO logfile 
+            // TODO logfile 
             Error CreateFolderError     
         
     let internal ensureMainDirectoriesExist () =
@@ -129,7 +129,7 @@ module IO_Operations =
                 )
             |> Ok  
         with 
-        | ex
+        | _
             ->
-            string ex.Message |> ignore // TODO logfile 
+            // TODO logfile 
             Error CreateFolderError     

@@ -90,8 +90,8 @@ module MDPO_BL = //FsHttp
                             
                             pyramidOfDoom
                                 {
-                                    // enforcing TLS 1.2 and 1.3.
-                                    ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
+                                    // enforcing TLS 1.3.
+                                    ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls13
 
                                     let existingFileLength =                               
                                         checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
