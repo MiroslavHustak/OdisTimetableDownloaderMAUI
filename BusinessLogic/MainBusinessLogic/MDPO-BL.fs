@@ -25,14 +25,48 @@ open Settings.SettingsMDPO
 open Settings.SettingsGeneral    
 
 open IO_Operations.IO_Operations
-open System.Net.Security
 
 module MDPO_BL = //FsHttp
 
     //************************Submain functions************************************************************************
 
     let internal filterTimetables () pathToDir = 
-         
+
+        let fetchHtmlWithFsHttp (url: string) =           
+              
+            async
+                {
+                    try
+                        let! response =
+                            http
+                                {
+                                    GET url
+                                    config_transformHttpClient
+                                        (fun unsafeClient
+                                                ->
+                                                #if ANDROID
+                                                let unsafeHandler = new UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                                #else
+                                                let unsafeHandler = new HttpClientHandler() //nelze use
+                                                unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)                                                
+                                                #endif
+                                                let unsafeClient = new HttpClient(unsafeHandler) 
+                                                unsafeClient
+                                        )
+                                }
+                                |> Request.sendAsync 
+        
+                        let! htmlContent = Response.toStringAsync (Some 100000) response
+        
+                        // Parse the HTML content using FSharp.Data
+                        let document = HtmlDocument.Parse(htmlContent)
+        
+                        return Some document
+                    with
+                    | _ ->
+                        return None
+                }           
+                
         let urlList = //aby to bylo jednotne s DPO
             [
                 pathMdpoWebTimetables
@@ -42,7 +76,20 @@ module MDPO_BL = //FsHttp
         |> Seq.collect 
             (fun url 
                 -> 
-                let document = FSharp.Data.HtmlDocument.Load url //neni nullable, nesu exn
+                let document = 
+                    async
+                        {                           
+                            let! documentOption = fetchHtmlWithFsHttp url
+                
+                            match documentOption with
+                            | Some document
+                                -> return document
+                            | None
+                                -> return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz
+                        }
+                    |> Async.RunSynchronously
+                
+                //let document = FSharp.Data.HtmlDocument.Load url //exn to be caught in MDPO.fs
                 //HtmlDocument -> web scraping -> extracting data from HTML pages
                                                                                     
                 document.Descendants "a"                  
@@ -87,23 +134,10 @@ module MDPO_BL = //FsHttp
             async
                 {                      
                     try    
-                        let response = 
-                        
-                            let createUnsafeHttpClient () =
-
-                                pyramidOfDoom
-                                    {
-                                        use! handler = new HttpClientHandler() |> Option.ofNull, Error String.Empty
-                                        handler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
-                                        use! unsafeClient = new HttpClient(handler) |> Option.ofNull, Error String.Empty
-
-                                        return Ok unsafeClient
-                                    }
-                            
+                        let response =           
+                                                      
                             pyramidOfDoom
-                                {
-                                    //let! unsafeClient = createUnsafeHttpClient () |> Result.toOption, Error String.Empty
-                                    
+                                {                                   
                                     ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
 
                                     let existingFileLength =                               
@@ -124,13 +158,15 @@ module MDPO_BL = //FsHttp
                                                     {
                                                         GET uri                                                        
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        // config_cancellationToken CancellationToken.None                                                         
-                                                        config_transformHttpClient (fun unsafeClient ->
-                                                            let handler = new HttpClientHandler()
-                                                            handler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
-                                                            let unsafeClient = new HttpClient(handler)
-                                                            unsafeClient)
-                                                           
+                                                        config_cancellationToken CancellationToken.None   
+                                                        config_transformHttpClient
+                                                            (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                                                ->
+                                                                let unsafeHandler = new HttpClientHandler()
+                                                                unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
+                                                                let unsafeClient = new HttpClient(unsafeHandler)
+                                                                unsafeClient
+                                                            )
                                                         header headerContent1 headerContent2
                                                     }
                                         | false ->
@@ -138,12 +174,15 @@ module MDPO_BL = //FsHttp
                                                     {
                                                         GET uri
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        // config_cancellationToken CancellationToken.None //token
-                                                        config_transformHttpClient (fun unsafeClient ->
-                                                            let handler = new HttpClientHandler()
-                                                            handler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
-                                                            let unsafeClient = new HttpClient(handler)
-                                                            unsafeClient)
+                                                        config_cancellationToken CancellationToken.None //token
+                                                        config_transformHttpClient
+                                                            (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                                                ->
+                                                                let unsafeHandler = new HttpClientHandler()
+                                                                unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
+                                                                let unsafeClient = new HttpClient(unsafeHandler)
+                                                                unsafeClient
+                                                            )
                                                     }                                        
 
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
@@ -216,17 +255,17 @@ module MDPO_BL = //FsHttp
                             ->
                             match (string err.Message).Contains("The operation was canceled.") with
                             | true  -> Some <| Error StopDownloadingMHD
-                            | false -> Some <| Error FileDownloadErrorMHD
+                            | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) ////FileDownloadErrorMHD
                     )
                 |> Option.defaultValue (Ok ()) 
 
             with
-            | _    //TODO logfile 
+            | ex    //TODO logfile 
                 ->
                 let dirName = ODISDefault.OdisDir6                       
                     in
                     match deleteOneODISDirectoryMHD dirName mdpoPathTemp with
-                    | Ok _    -> Error FileDownloadErrorMHD
+                    | Ok _    -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X02")) ////FileDownloadErrorMHD
                     | Error _ -> Error FileDeleteErrorMHD      
                                          
         downloadTimetables reportProgress token

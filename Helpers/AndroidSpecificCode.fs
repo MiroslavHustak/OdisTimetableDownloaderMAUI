@@ -1,6 +1,7 @@
 ﻿namespace Helpers
 
 open System
+open System.Net.Http
 
 open Helpers
 open Helpers.Builders
@@ -11,10 +12,44 @@ open Android.App
 open Android.Net
 open Android.Views
 open Android.Content
+open Android.Runtime
 open Android.Provider 
 
 open Xamarin
 open Xamarin.Essentials
+
+open Java.Interop
+open Javax.Net.Ssl
+
+type TrustAllHostnameVerifier() =
+
+    inherit Java.Lang.Object() 
+
+    interface IHostnameVerifier with
+        member _.Verify(hostname: string, session: Javax.Net.Ssl.ISSLSession) = true
+
+type TrustAllCertsManager() =
+
+    inherit Java.Lang.Object() 
+
+    interface IX509TrustManager with
+        member _.GetAcceptedIssuers() = null
+        member _.CheckClientTrusted(chain, authType) = ()
+        member _.CheckServerTrusted(chain, authType) = ()
+
+// Custom HttpClientHandler for bypassing SSL on Android
+type UnsafeAndroidClientHandler() =
+
+    inherit HttpClientHandler()
+
+    do
+        let trustAllCerts = [| new TrustAllCertsManager() :> ITrustManager |]
+
+        let sslContext = SSLContext.GetInstance("TLS")
+        sslContext.Init(null, trustAllCerts, new Java.Security.SecureRandom())
+
+        HttpsURLConnection.DefaultSSLSocketFactory <- sslContext.SocketFactory
+        HttpsURLConnection.DefaultHostnameVerifier <- new TrustAllHostnameVerifier()
 
 module WakeLockHelper = //pouze pro Android API 33 a Android API 34
 

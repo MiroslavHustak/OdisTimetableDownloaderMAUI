@@ -121,6 +121,7 @@ module WebScraping_DPO =
                     | ConnectionError       -> noNetConn
                     | FileDeleteErrorMHD    -> fileDeleteError
                     | StopDownloadingMHD    -> match deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
+                    | TestDuCase ex         -> ex
 
                 let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
                 let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err

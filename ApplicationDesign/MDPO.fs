@@ -97,7 +97,7 @@ module WebScraping_MDPO =
                         #endif
                         ()                         
                 with
-                | _ -> Error FileDownloadErrorMHD //mdpoMsg2               
+                | ex -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X03")) ////FileDownloadErrorMHD //FileDownloadErrorMHD //mdpoMsg2               
                                                            
         pyramidOfInferno
             {  
@@ -114,6 +114,7 @@ module WebScraping_MDPO =
                     | ConnectionError       -> noNetConn
                     | FileDeleteErrorMHD    -> fileDeleteError
                     | StopDownloadingMHD    -> match deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
+                    | TestDuCase ex         -> ex 
 
                 let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
                 let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err

@@ -14,6 +14,7 @@ module ErrorTypes =
         | ConnectionError
         | FileDeleteErrorMHD
         | StopDownloadingMHD
+        | TestDuCase of string
    
     type internal JsonDownloadErrors = 
         | JsonTimeoutError
