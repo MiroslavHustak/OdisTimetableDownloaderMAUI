@@ -112,8 +112,7 @@ module DPO_BL =
             async
                 {                      
                     try   
-                        // enforcing TLS 1.3.
-                        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls13
+                        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13  ////quli Android 7.1
 
                         let client = 
                             

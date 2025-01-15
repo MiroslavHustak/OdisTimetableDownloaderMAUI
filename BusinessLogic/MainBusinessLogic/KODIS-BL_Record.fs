@@ -72,7 +72,7 @@ module KODIS_BL_Record =
                            
                             token.ThrowIfCancellationRequested ()
                            
-                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
+                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
                                                                     
                             let existingFileLength =                               
                                 checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
@@ -187,7 +187,7 @@ module KODIS_BL_Record =
                                                                                        
                                             token.ThrowIfCancellationRequested ()
 
-                                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13
+                                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
 
                                             let pathToFileExistFirstCheck = 
                                                 checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
