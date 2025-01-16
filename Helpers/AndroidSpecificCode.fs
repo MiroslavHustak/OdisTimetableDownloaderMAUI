@@ -18,8 +18,12 @@ open Android.Provider
 open Xamarin
 open Xamarin.Essentials
 
+//**********************************************************************************
+
 open Java.Interop
 open Javax.Net.Ssl
+
+// Java Interoperability Code for Custom SSL/TLS Handling on Android
 
 type TrustAllHostnameVerifier() =
 
@@ -50,6 +54,9 @@ type UnsafeAndroidClientHandler() =
 
         HttpsURLConnection.DefaultSSLSocketFactory <- sslContext.SocketFactory
         HttpsURLConnection.DefaultHostnameVerifier <- new TrustAllHostnameVerifier()
+
+
+//**************************************************************************************
 
 module WakeLockHelper = //pouze pro Android API 33 a Android API 34
 
