@@ -186,7 +186,7 @@ module MDPO_BL = //FsHttp
                                                     }                                        
 
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
-                                    let! response = get >> Request.sendAsync <| uri |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
+                                    let! response = (get >> Request.sendAsync <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
                                     return Ok response         
                                 }
