@@ -43,15 +43,15 @@ module MDPO_BL = //FsHttp
                                     GET url
                                     config_transformHttpClient
                                         (fun unsafeClient
-                                                ->
-                                                #if ANDROID
-                                                let unsafeHandler = new UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
-                                                #else
-                                                let unsafeHandler = new HttpClientHandler() //nelze use
-                                                unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)                                                
-                                                #endif
-                                                let unsafeClient = new HttpClient(unsafeHandler) 
-                                                unsafeClient
+                                            ->
+                                            #if ANDROID
+                                            let unsafeHandler = new UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                            #else
+                                            let unsafeHandler = new HttpClientHandler() //nelze use
+                                            unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)                                                
+                                            #endif
+                                            let unsafeClient = new HttpClient(unsafeHandler) 
+                                            unsafeClient
                                         )
                                 }
                                 |> Request.sendAsync 
