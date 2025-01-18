@@ -54,7 +54,7 @@ module KODIS_BL_Record =
         let l = jsonLinkList |> List.length
 
         let counterAndProgressBar =
-            MailboxProcessor.StartImmediate <|
+            MailboxProcessor<MsgIncrement>.StartImmediate <|
                 fun inbox 
                     ->
                     let rec loop n = 
@@ -167,7 +167,7 @@ module KODIS_BL_Record =
                     let l = context.list |> List.length
             
                     let counterAndProgressBar =
-                        MailboxProcessor.StartImmediate <|
+                        MailboxProcessor<MsgIncrement>.StartImmediate <|
                             fun inbox 
                                 ->
                                 let rec loop n = 

@@ -30,7 +30,7 @@ type TrustAllHostnameVerifier() =
     inherit Java.Lang.Object() 
 
     interface IHostnameVerifier with
-        member _.Verify(hostname: string, session: Javax.Net.Ssl.ISSLSession) = true
+        member _.Verify(hostname : string, session : Javax.Net.Ssl.ISSLSession) = true
 
 type TrustAllCertsManager() =
 

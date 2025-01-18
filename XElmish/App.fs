@@ -108,7 +108,7 @@ module App =
 
     let private cancellationActor = 
 
-        MailboxProcessor.StartImmediate
+        MailboxProcessor<CancellationMessage>.StartImmediate
             (fun inbox 
                 ->
                 let rec loop (cancelIsRequested : bool) (cts: CancellationTokenSource) =

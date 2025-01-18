@@ -47,7 +47,7 @@ module KODIS_BL_Record4 =
     
     let private cancellationActor = //Template 004a for cancellation tokens (actor)
 
-        MailboxProcessor.StartImmediate(fun inbox ->
+        MailboxProcessor<ConnectivityMessage>.StartImmediate(fun inbox ->
 
             let rec loop (isConnected : bool) = 
                 async
@@ -185,7 +185,7 @@ module KODIS_BL_Record4 =
                     let l = context.list |> List.length
             
                     let counterAndProgressBar =
-                        MailboxProcessor.StartImmediate <|
+                        MailboxProcessor<MsgIncrement>.StartImmediate <|
                             fun inbox 
                                 ->
                                 let rec loop n = 
