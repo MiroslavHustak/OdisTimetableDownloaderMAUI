@@ -54,12 +54,14 @@ module KODIS_BL_Record =
         let l = jsonLinkList |> List.length
 
         let counterAndProgressBar =
-            MailboxProcessor<MsgIncrement>.StartImmediate <|
-                fun inbox 
-                    ->
-                    let rec loop n = 
-                        async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
-                    loop 0
+            MailboxProcessor<MsgIncrement>
+                .StartImmediate
+                    <|
+                    fun inbox 
+                        ->
+                        let rec loop n = 
+                            async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
+                        loop 0
       
         try 
             (jsonLinkList, pathToJsonList)
@@ -167,12 +169,14 @@ module KODIS_BL_Record =
                     let l = context.list |> List.length
             
                     let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>.StartImmediate <|
-                            fun inbox 
-                                ->
-                                let rec loop n = 
-                                    async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
-                                loop 0
+                        MailboxProcessor<MsgIncrement>
+                            .StartImmediate
+                                <|
+                                fun inbox 
+                                    ->
+                                    let rec loop n = 
+                                        async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
+                                    loop 0
                                                                 
                     return    
                         try 

@@ -160,11 +160,15 @@ module DPO_BL =
 
                                     let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
                                     do! stream.CopyToAsync fileStream |> Async.AwaitTask
+
+                                    client.Dispose ()
                                     
                                     return Ok ()
 
-                            | false ->
-                                    let errorType =
+                            | false ->                                    
+                                    client.Dispose ()
+
+                                    return 
                                         match response.StatusCode with
                                         | HttpStatusCode.BadRequest          -> Error BadRequest
                                         | HttpStatusCode.InternalServerError -> Error InternalServerError
@@ -172,8 +176,6 @@ module DPO_BL =
                                         | HttpStatusCode.ServiceUnavailable  -> Error ServiceUnavailable
                                         | HttpStatusCode.NotFound            -> Error NotFound
                                         | _                                  -> Error CofeeMakerUnavailable 
-
-                                    return errorType       
                            
                         | Error _ 
                             -> 

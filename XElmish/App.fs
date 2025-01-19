@@ -108,40 +108,41 @@ module App =
 
     let private cancellationActor = 
 
-        MailboxProcessor<CancellationMessage>.StartImmediate
-            (fun inbox 
-                ->
-                let rec loop (cancelIsRequested : bool) (cts: CancellationTokenSource) =
+        MailboxProcessor<CancellationMessage>
+            .StartImmediate
+                (fun inbox 
+                    ->
+                    let rec loop (cancelIsRequested : bool) (cts: CancellationTokenSource) =
 
-                    async
-                        {
-                            match! inbox.Receive() with
-                            | UpdateState2 (newState, newCts)
-                                ->
-                                match newState with
-                                | true  ->
-                                        cts.Cancel()
-                                        cts.Dispose()
-                                | false -> 
-                                        () 
+                        async
+                            {
+                                match! inbox.Receive() with
+                                | UpdateState2 (newState, newCts)
+                                    ->
+                                    match newState with
+                                    | true  ->
+                                            cts.Cancel()
+                                            cts.Dispose()
+                                    | false -> 
+                                            () 
     
-                                return! loop newState newCts
+                                    return! loop newState newCts
     
-                            | CheckState2 replyChannel 
-                                ->
-                                let ctsTokenOpt =                        
-                                    try
-                                        cts.Token |> Option.ofNull
-                                    with
-                                    | _ -> None                           
+                                | CheckState2 replyChannel 
+                                    ->
+                                    let ctsTokenOpt =                        
+                                        try
+                                            cts.Token |> Option.ofNull
+                                        with
+                                        | _ -> None                           
                      
-                                replyChannel.Reply(ctsTokenOpt) 
+                                    replyChannel.Reply(ctsTokenOpt) 
 
-                                return! loop cancelIsRequested cts
-                        }
+                                    return! loop cancelIsRequested cts
+                            }
     
-                loop true (new CancellationTokenSource()) //whatever to initialise
-            )
+                    loop true (new CancellationTokenSource()) //whatever to initialise
+                )
 
     let private countDown dispatch = //Not used yet
 
@@ -250,7 +251,7 @@ module App =
                                     |> Async.StartImmediate //nelze Async.Start                                   
                                 )                                  
                                 
-                            do! Async.Sleep 10000   
+                            do! Async.Sleep 5000   
                         }
                 )
             |> Async.StartImmediate  

@@ -10,26 +10,28 @@ module Connectivity =
         
     open Types.Types    
 
-    let private actor = //actor model
+    let private actor = 
 
-        MailboxProcessor.StartImmediate(fun inbox ->
+        MailboxProcessor<ConnectivityMessage>
+            .StartImmediate
+                (fun inbox
+                    ->
+                    let rec loop (isConnected : bool) = 
+                        async
+                            {
+                                match! inbox.Receive() with
+                                | UpdateState newState
+                                    ->
+                                    return! loop newState
 
-            let rec loop (isConnected : bool) = 
-                async
-                    {
-                        match! inbox.Receive() with
-                        | UpdateState newState
-                            ->
-                            return! loop newState
-
-                        | CheckState replyChannel
-                            ->                            
-                            replyChannel.Reply(isConnected) 
-                            return! loop isConnected
-                    }
+                                | CheckState replyChannel
+                                    ->                            
+                                    replyChannel.Reply(isConnected) 
+                                    return! loop isConnected
+                            }
             
-            loop false // Start the loop with whatever initial value
-        )
+                    loop false // Start the loop with whatever initial value
+                )
 
     let internal connectivityListener () = //vysledek je bool
     

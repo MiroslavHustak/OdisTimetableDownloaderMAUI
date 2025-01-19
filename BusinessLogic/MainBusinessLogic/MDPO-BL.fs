@@ -37,7 +37,7 @@ module MDPO_BL = //FsHttp
             async
                 {
                     try
-                        let! response =
+                        use! response =
                             http
                                 {
                                     GET url
@@ -59,7 +59,7 @@ module MDPO_BL = //FsHttp
                         let! htmlContent = Response.toStringAsync (Some 100000) response
         
                         // Parse the HTML content using FSharp.Data
-                        let document = HtmlDocument.Parse(htmlContent)
+                        let document = HtmlDocument.Parse htmlContent
         
                         return Some document
                     with

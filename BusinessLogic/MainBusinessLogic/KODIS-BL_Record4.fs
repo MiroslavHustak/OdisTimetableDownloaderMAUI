@@ -47,24 +47,26 @@ module KODIS_BL_Record4 =
     
     let private cancellationActor = //Template 004a for cancellation tokens (actor)
 
-        MailboxProcessor<ConnectivityMessage>.StartImmediate(fun inbox ->
+        MailboxProcessor<ConnectivityMessage>
+            .StartImmediate
+                (fun inbox
+                    ->
+                    let rec loop (isConnected : bool) = 
+                        async
+                            {
+                                match! inbox.Receive() with
+                                | UpdateState newState
+                                    ->
+                                    return! loop newState
 
-            let rec loop (isConnected : bool) = 
-                async
-                    {
-                        match! inbox.Receive() with
-                        | UpdateState newState
-                            ->
-                            return! loop newState
-
-                        | CheckState replyChannel
-                            ->                            
-                            replyChannel.Reply(isConnected) 
-                            return! loop isConnected
-                    }
+                                | CheckState replyChannel
+                                    ->                            
+                                    replyChannel.Reply(isConnected) 
+                                    return! loop isConnected
+                            }
             
-            loop true // Start the loop with whatever initial value
-        )
+                    loop true // Start the loop with whatever initial value
+                )
 
     let private monitorConnectivity (token : CancellationToken) =  //zatim nepouzivano
 
@@ -185,12 +187,14 @@ module KODIS_BL_Record4 =
                     let l = context.list |> List.length
             
                     let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>.StartImmediate <|
-                            fun inbox 
-                                ->
-                                let rec loop n = 
-                                    async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
-                                loop 0
+                        MailboxProcessor<MsgIncrement>
+                            .StartImmediate
+                                <|
+                                fun inbox 
+                                    ->
+                                    let rec loop n = 
+                                        async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
+                                    loop 0
                                                                 
                     return    
                         try 
