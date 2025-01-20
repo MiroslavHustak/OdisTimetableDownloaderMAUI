@@ -203,12 +203,13 @@ module SortJsonData =
         try 
             let task = kodisTimetables3 pathToJsonList3 
                 in
-                (Seq.append <| task <| addOn())
+                addOn()
+                |> Seq.append task
                 |> Seq.distinct
                 |> List.ofSeq
                 |> Ok            
         with
-        | ex
+        | _
             ->  
-            string ex.Message |> ignore  //TODO logfile
+            //TODO logfile
             Error JsonFilteringError        
