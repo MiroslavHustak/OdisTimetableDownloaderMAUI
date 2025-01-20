@@ -87,7 +87,7 @@ module KODIS_BL_Record4 =
                                     {
                                         match isConnected with
                                         | true  -> ()
-                                        | false -> () //cancellationActor.Post(UpdateState false)
+                                        | false -> () //cancellationActor.Post <| UpdateState false
                                     }    
                                 |> Async.StartImmediate  
                             ) 
@@ -211,7 +211,7 @@ module KODIS_BL_Record4 =
                                         {    
                                             //invoking config_timeoutInSeconds config_cancellationToken se projevi az po RunSynchronously, bohuzel...
 
-                                            counterAndProgressBar.Post(Inc 1)
+                                            counterAndProgressBar.Post <| Inc 1
 
                                             token.ThrowIfCancellationRequested ()
                                                                                       

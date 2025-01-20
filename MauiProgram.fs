@@ -14,3 +14,5 @@ type MauiProgram =
                     .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
                 |> ignore)
             .Build()   
+
+// Approx. 5200 LoC as of Jan 20, 2025
