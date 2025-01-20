@@ -213,11 +213,9 @@ module App =
     let init () =  
             
         let ctsInitial = new CancellationTokenSource()
-
-        cancellationActor.Post(UpdateState2 (false, ctsInitial)) //inicializace
-
-        let ensureMainDirectoriesExist = ensureMainDirectoriesExist ()
-        
+            in
+            cancellationActor.Post <| UpdateState2 (false, ctsInitial) //inicializace
+                
         let monitorConnectivity (dispatch : Msg -> unit) =              
                    
             AsyncSeq.initInfinite (fun _ -> true)
@@ -300,7 +298,7 @@ module App =
                 Label2Visible = true
             } 
             
-        match ensureMainDirectoriesExist with
+        match ensureMainDirectoriesExist () with
         | Ok _ 
             -> 
             try          
@@ -320,7 +318,8 @@ module App =
     let init2 () = 
 
         let ctsNew = new CancellationTokenSource()
-        cancellationActor.Post(UpdateState2 (false, ctsNew))
+            in
+            cancellationActor.Post <| UpdateState2 (false, ctsNew)
         
         #if ANDROID
         let permissionGranted = permissionCheck () |> Async.RunSynchronously
@@ -389,9 +388,8 @@ module App =
                         async
                             {
                                 let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                                let permissionGranted = (status = PermissionStatus.Granted)
                         
-                                match permissionGranted with
+                                match (status = PermissionStatus.Granted) with
                                 | true  ->                                         
                                         return PermissionResult true
                                 | false -> 
@@ -479,7 +477,8 @@ module App =
         | Cancel 
             ->
             let ctsNew = new CancellationTokenSource() 
-            cancellationActor.Post(UpdateState2 (true, ctsNew))    
+                in
+                cancellationActor.Post <| UpdateState2 (true, ctsNew)    
            
             { m with ProgressMsg = cancelMsg3; ProgressCircleVisible = false; CancelVisible = false }, Cmd.none
 
@@ -497,9 +496,7 @@ module App =
             |> Async.RunSynchronously
             |> function
                 | Some token 
-                    ->
-                    let path = kodisPathTemp 
-                                                
+                    ->                     
                     let delayedCmd1 (token : CancellationToken) (dispatch : Msg -> unit) =                                
 
                         async
@@ -518,7 +515,7 @@ module App =
                                             return 
                                                 stateReducerCmd1
                                                 <| token
-                                                <| path
+                                                <| kodisPathTemp
                                                 <| reportProgress
                                         }
                                     |> Async.StartChild
@@ -552,7 +549,7 @@ module App =
                                             return
                                                 stateReducerCmd2 
                                                 <| token
-                                                <| path
+                                                <| kodisPathTemp
                                                 <| fun message -> WorkIsComplete >> dispatch <| (message, true)
                                                 <| fun message -> IterationMessage >> dispatch <| message 
                                                 <| reportProgress            
@@ -625,8 +622,6 @@ module App =
             |> function
                 | Some token 
                     ->
-                    let path = kodisPathTemp4    
-                            
                     //delayedCmd1 nebude, neb json se zde nestahuje
 
                     let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =    
@@ -645,7 +640,7 @@ module App =
                                             return
                                                 stateReducerCmd4
                                                 <| token
-                                                <| path
+                                                <| kodisPathTemp4
                                                 <| fun message -> WorkIsComplete >> dispatch <| (message, true)
                                                 <| fun message -> IterationMessage >> dispatch <| message 
                                                 <| reportProgress            
@@ -716,8 +711,6 @@ module App =
             |> function
                 | Some token 
                     ->
-                    let path = dpoPathTemp
-                 
                     let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
                         async
@@ -733,7 +726,7 @@ module App =
                                                 | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)    
 
-                                            match webscraping_DPO reportProgress token path with  
+                                            match webscraping_DPO reportProgress token dpoPathTemp with  
                                             | Ok _      -> 
                                                         return mauiDpoMsg
                                             | Error err ->
@@ -806,8 +799,6 @@ module App =
             |> function
                 | Some token 
                     ->             
-                    let path = mdpoPathTemp
-
                     let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
                         async
@@ -823,7 +814,7 @@ module App =
                                                 | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false) 
 
-                                            match webscraping_MDPO reportProgress token path with
+                                            match webscraping_MDPO reportProgress token mdpoPathTemp with
                                             | Ok _      -> 
                                                         return mauiMdpoMsg
                                             | Error err ->

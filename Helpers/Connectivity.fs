@@ -36,12 +36,14 @@ module Connectivity =
     let internal connectivityListener () = //vysledek je bool
     
         let initialConnected = Connectivity.NetworkAccess = NetworkAccess.Internet
-        actor.Post(UpdateState initialConnected) // prvotni inicializace mailboxu
+            in
+            actor.Post <| UpdateState initialConnected // prvotni inicializace mailboxu
     
         let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
 
             let isConnected = args.NetworkAccess = NetworkAccess.Internet  
-            actor.Post(UpdateState isConnected)
+                in
+                actor.Post <| UpdateState isConnected
     
         Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
             
@@ -53,7 +55,8 @@ module Connectivity =
         let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
         
             let isConnected = args.NetworkAccess = NetworkAccess.Internet
-            onConnectivityChange isConnected
+                in
+                onConnectivityChange isConnected
             
         Connectivity.ConnectivityChanged.Add connectivityChangedHandler
 

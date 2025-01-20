@@ -9,7 +9,7 @@ open FSharp.Control
 open Microsoft.FSharp.Quotations
 open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 
-let private expr (param : 'a) = Expr.Value(param)  
+let private expr (param : 'a) = Expr.Value param  
   
 let private splitListIntoEqualParts (numParts : int) (originalList : 'a list) =   //well, almost equal parts :-)           
 
@@ -31,7 +31,7 @@ let private splitListIntoEqualParts (numParts : int) (originalList : 'a list) = 
                          | true  -> (+) partLength 1
                          | false -> partLength 
     
-                 match acc.Equals(numParts) with
+                 match acc.Equals numParts with
                  | true  -> partLength originalList numParts    
                  | false -> partLength remainingList acc                                 
         
@@ -67,17 +67,17 @@ let iter' action list =
          let listToParallel list = list |> List.iter action        
          
          let l = list |> List.length
-
-         let numberOfThreads = numberOfThreads l   
-                           
-         let myList = splitListIntoEqualParts numberOfThreads list                             
-                  
-         fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
-         |> List.init (List.length myList)
-         |> List.map _.Compile()      
-         |> Async.Parallel  
-         |> Async.RunSynchronously 
-         |> ignore
+             in
+             let numberOfThreads = numberOfThreads l   
+                 in                           
+                 let myList = splitListIntoEqualParts numberOfThreads list                             
+                     in 
+                     fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
+                     |> List.init (List.length myList)
+                     |> List.map _.Compile()      
+                     |> Async.Parallel  
+                     |> Async.RunSynchronously 
+                     |> ignore
 
 let iter action list =
 
@@ -100,17 +100,17 @@ let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) =
             let listToParallel (xs1, xs2) = (xs1, xs2) ||> List.iter2 mapping    
                            
             let numberOfThreads = numberOfThreads l    
-        
-            let myList =       
-                (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
-                ||> List.zip                 
-                                               
-            fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
-            |> List.init (List.length myList)
-            |> List.map _.Compile()       
-            |> Async.Parallel  
-            |> Async.RunSynchronously
-            |> ignore
+                in
+                let myList =       
+                    (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
+                    ||> List.zip   
+                    in                                               
+                    fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
+                    |> List.init (List.length myList)
+                    |> List.map _.Compile()       
+                    |> Async.Parallel  
+                    |> Async.RunSynchronously
+                    |> ignore
 
     | true  ->
             ()
@@ -124,17 +124,18 @@ let map' (action : 'a -> 'b) (list : 'a list) =
          let listToParallel (list : 'a list) = list |> List.map action 
             
          let l = list |> List.length
-         let numberOfThreads = numberOfThreads l   
-                                   
-         let myList : 'a list list = splitListIntoEqualParts numberOfThreads list 
-    
-         fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
-         |> List.init (List.length myList)
-         |> List.map _.Compile()       
-         |> Async.Parallel      
-         |> Async.RunSynchronously
-         |> List.ofArray
-         |> List.concat
+             in
+             let numberOfThreads = numberOfThreads l   
+                 in                          
+                 let myList : 'a list list = splitListIntoEqualParts numberOfThreads list 
+                     in
+                     fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
+                     |> List.init (List.length myList)
+                     |> List.map _.Compile()       
+                     |> Async.Parallel      
+                     |> Async.RunSynchronously
+                     |> List.ofArray
+                     |> List.concat
 
 let map (action : 'a -> 'b) (list : 'a list) =
 
@@ -157,18 +158,18 @@ let map2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) 
             let listToParallel (xs1, xs2) = (xs1, xs2) ||> List.map2 mapping    
                                 
             let numberOfThreads = numberOfThreads l  
-
-            let myList =       
-                (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
-                ||> List.zip                 
-                                               
-            fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
-            |> List.init (List.length myList)
-            |> List.map _.Compile()       
-            |> Async.Parallel  
-            |> Async.RunSynchronously
-            |> List.ofArray
-            |> List.concat
+                in
+                let myList =       
+                    (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
+                    ||> List.zip                 
+                    in                               
+                    fun i -> <@ async { return listToParallel (%%expr myList |> List.item %%(expr i)) } @>
+                    |> List.init (List.length myList)
+                    |> List.map _.Compile()       
+                    |> Async.Parallel  
+                    |> Async.RunSynchronously
+                    |> List.ofArray
+                    |> List.concat
 
     | true  ->
             []

@@ -229,35 +229,35 @@ module MDPO_BL = //FsHttp
         
             try
                 let l = filterTimetables |> Map.count
-        
-                filterTimetables
-                |> Map.toList 
-                |> List.mapi  //bohuzel s Map nelze Map.mapi nebo Map.iteri
-                    (fun i (link, pathToFile) 
-                        ->  
-                        async                                                
-                            {   
-                                token.ThrowIfCancellationRequested ()
-                                reportProgress (float i + 1.0, float l)  
-                                return! downloadFileTaskAsync token link pathToFile
-                            } 
-                        |> Async.Catch
-                        |> Async.RunSynchronously  
-                        |> Result.ofChoice    
-                    )  
-                |> List.tryPick
-                    (function
-                        | Ok _ 
-                            -> 
-                            None
+                    in
+                    filterTimetables
+                    |> Map.toList 
+                    |> List.mapi  //bohuzel s Map nelze Map.mapi nebo Map.iteri
+                        (fun i (link, pathToFile) 
+                            ->  
+                            async                                                
+                                {   
+                                    token.ThrowIfCancellationRequested ()
+                                    reportProgress (float i + 1.0, float l)  
+                                    return! downloadFileTaskAsync token link pathToFile
+                                } 
+                            |> Async.Catch
+                            |> Async.RunSynchronously  
+                            |> Result.ofChoice    
+                        )  
+                    |> List.tryPick
+                        (function
+                            | Ok _ 
+                                -> 
+                                None
 
-                        | Error err
-                            ->
-                            match (string err.Message).Contains("The operation was canceled.") with
-                            | true  -> Some <| Error StopDownloadingMHD
-                            | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) ////FileDownloadErrorMHD
-                    )
-                |> Option.defaultValue (Ok ()) 
+                            | Error err
+                                ->
+                                match (string err.Message).Contains("The operation was canceled.") with
+                                | true  -> Some <| Error StopDownloadingMHD
+                                | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) ////FileDownloadErrorMHD
+                        )
+                    |> Option.defaultValue (Ok ()) 
 
             with
             | ex    //TODO logfile 

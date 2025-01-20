@@ -11,9 +11,9 @@ module FileInfoHelper =
 
     open Helpers.Builders
     
-    open Settings.Messages
-    
-    let private jsonEmpty = """[ {} ]"""
+    open Settings.Messages    
+
+    let [<Literal>] internal jsonEmpty = """[ {} ]"""
 
     let internal readAllText path = 
 

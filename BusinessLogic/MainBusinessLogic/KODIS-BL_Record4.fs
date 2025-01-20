@@ -70,7 +70,7 @@ module KODIS_BL_Record4 =
 
     let private monitorConnectivity (token : CancellationToken) =  //zatim nepouzivano
 
-        cancellationActor.Post(UpdateState true) //inicializace
+        cancellationActor.Post <| UpdateState true //inicializace
 
         AsyncSeq.initInfinite (fun _ -> true)
         |> AsyncSeq.mapi (fun index _ -> index) 
@@ -102,36 +102,36 @@ module KODIS_BL_Record4 =
         let token2 () = //Template //zatim nepouzivano
            
             let defaultToken = CancellationToken.None
+                in
+                try
+                    match new CancellationTokenSource() |> Option.ofNull with
+                    | Some newCts 
+                        ->
+                        try
+                            let newToken =
+                                try
+                                    Some newCts.Token
+                                with
+                                | _ -> None
         
-            try
-                match new CancellationTokenSource() |> Option.ofNull with
-                | Some newCts 
-                    ->
-                    try
-                        let newToken =
-                            try
-                                Some newCts.Token
-                            with
-                            | _ -> None
-        
-                        match newToken with
-                        | Some newToken 
-                            ->
-                            newCts.Cancel() // This signal is irreversible once sent.
-                            newToken
+                            match newToken with
+                            | Some newToken 
+                                ->
+                                newCts.Cancel() // This signal is irreversible once sent.
+                                newToken
 
-                        | None 
-                            ->
+                            | None 
+                                ->
+                                newCts.Dispose()
+                                defaultToken
+                        finally
                             newCts.Dispose()
-                            defaultToken
-                    finally
-                        newCts.Dispose()
-                | None
-                    ->
-                    defaultToken
-            with
-            | _ ->
-                defaultToken               
+                    | None
+                        ->
+                        defaultToken
+                with
+                | _ ->
+                    defaultToken               
         
         //Template //zatim nepouzivano
         cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState replyChannel)
@@ -185,16 +185,16 @@ module KODIS_BL_Record4 =
                     let! context = fun env -> env 
             
                     let l = context.list |> List.length
-            
-                    let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>
-                            .StartImmediate
-                                <|
-                                fun inbox 
-                                    ->
-                                    let rec loop n = 
-                                        async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
-                                    loop 0
+                        in
+                        let counterAndProgressBar =
+                            MailboxProcessor<MsgIncrement>
+                                .StartImmediate
+                                    <|
+                                    fun inbox 
+                                        ->
+                                        let rec loop n = 
+                                            async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
+                                        loop 0
                                                                 
                     return    
                         try 
@@ -329,17 +329,17 @@ module KODIS_BL_Record4 =
                                      | Error err 
                                          ->
                                          let pathToDir = kodisPathTemp                   
-                                                                                 
-                                         match deleteAllODISDirectories pathToDir with
-                                         | Ok _    -> Error err              //TODO logfile  
-                                         | Error _ -> Error FileDeleteError  //TODO logfile                                               
+                                             in                                        
+                                             match deleteAllODISDirectories pathToDir with
+                                             | Ok _    -> Error err              //TODO logfile  
+                                             | Error _ -> Error FileDeleteError  //TODO logfile                                               
                             with
                             | _ 
                                 ->
                                 //TODO logfile 
                                 let pathToDir = kodisPathTemp                   
-                    
-                                match deleteAllODISDirectories pathToDir with
-                                | Ok _    -> Error FileDownloadError 
-                                | Error _ -> Error FileDeleteError  
+                                    in  
+                                    match deleteAllODISDirectories pathToDir with
+                                    | Ok _    -> Error FileDownloadError 
+                                    | Error _ -> Error FileDeleteError  
             }

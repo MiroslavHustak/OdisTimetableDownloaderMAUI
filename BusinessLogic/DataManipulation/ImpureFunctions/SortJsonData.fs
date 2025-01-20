@@ -27,8 +27,6 @@ module SortJsonData =
       
     let private tempJson1, tempJson2 = 
 
-        let jsonEmpty = """[ {} ]"""
-
         [
             readAllTextAsync pathkodisMHDTotal 
             readAllTextAsync pathkodisMHDTotal2_0 
@@ -204,10 +202,11 @@ module SortJsonData =
       
         try 
             let task = kodisTimetables3 pathToJsonList3 
-            (Seq.append <| task <| addOn())
-            |> Seq.distinct
-            |> List.ofSeq
-            |> Ok            
+                in
+                (Seq.append <| task <| addOn())
+                |> Seq.distinct
+                |> List.ofSeq
+                |> Ok            
         with
         | ex
             ->  

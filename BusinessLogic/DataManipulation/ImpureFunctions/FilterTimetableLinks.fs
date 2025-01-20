@@ -26,12 +26,12 @@ module FilterTimetableLinks =
             
             try
                 let pattern = @"202[3-9]_[0-1][0-9]_[0-3][0-9]_202[4-9]_[0-1][0-9]_[0-3][0-9]"
-                let regex = Regex pattern 
-                let matchResult = regex.Match input
-        
-                match matchResult.Success with
-                | true  -> Ok input 
-                | false -> Ok String.Empty 
+                    in
+                    let regex = Regex pattern 
+                        in       
+                        match (regex.Match input).Success with
+                        | true  -> Ok input 
+                        | false -> Ok String.Empty 
             with 
             | ex -> Error <| string ex.Message                  
                   
@@ -49,12 +49,12 @@ module FilterTimetableLinks =
 
             try
                 let pattern = @"202[3-9]_[0-1][0-9]_[0-3][0-9]_202[4-9]_[0-1][0-9]_[0-3][0-9]"
-                let regex = Regex pattern 
-                let matchResult = regex.Match input
-        
-                match matchResult.Success with
-                | true  -> Ok matchResult.Value
-                | false -> Ok String.Empty
+                    in
+                    let regex = Regex pattern 
+                        in
+                        match (regex.Match input).Success with
+                        | true  -> Ok (regex.Match input).Value
+                        | false -> Ok String.Empty
             with 
             | ex -> Error <| string ex.Message                    
 
@@ -79,19 +79,20 @@ module FilterTimetableLinks =
             | true
                 ->
                 let startIdx = prefix.Length
-                let restOfString = input.Substring startIdx
+                    in
+                    let restOfString = input.Substring startIdx
+                        in
+                        match restOfString.IndexOf('_') with
+                        | -1 -> (None, 0)
 
-                match restOfString.IndexOf('_') with
-                | -1 -> (None, 0)
+                        | idx 
+                            when
+                                idx > 0 
+                                    ->
+                                    let result = restOfString.Substring(0, idx)
+                                    (Some(result), result.Length)
 
-                | idx 
-                    when
-                        idx > 0 
-                            ->
-                            let result = restOfString.Substring(0, idx)
-                            (Some(result), result.Length)
-
-                | _ -> (None, 0)
+                        | _ -> (None, 0)
 
         //zamerne nepouzivam jednotny kod pro NAD (extractSubstring2) a X - pro pripad, ze KODIS zase neco zmeni
         let extractSubstring3 (input: string) : (string option * int) =
@@ -107,7 +108,8 @@ module FilterTimetableLinks =
                                 index > 1
                                     -> 
                                     let result = input.Substring(1, index - 1)
-                                    (Some(result), result.Length)
+                                        in
+                                        (Some(result), result.Length)
 
                         | _ -> (None, 0)
 

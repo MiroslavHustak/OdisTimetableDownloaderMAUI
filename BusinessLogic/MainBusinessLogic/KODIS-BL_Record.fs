@@ -52,16 +52,16 @@ module KODIS_BL_Record =
     let internal downloadAndSaveJson jsonLinkList pathToJsonList (token : CancellationToken) reportProgress = //FsHttp
                
         let l = jsonLinkList |> List.length
-
-        let counterAndProgressBar =
-            MailboxProcessor<MsgIncrement>
-                .StartImmediate
-                    <|
-                    fun inbox 
-                        ->
-                        let rec loop n = 
-                            async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
-                        loop 0
+            in
+            let counterAndProgressBar =
+                MailboxProcessor<MsgIncrement>
+                    .StartImmediate
+                        <|
+                        fun inbox 
+                            ->
+                            let rec loop n = 
+                                async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
+                            loop 0
       
         try 
             (jsonLinkList, pathToJsonList)
@@ -70,7 +70,7 @@ module KODIS_BL_Record =
                     ->    
                     async
                         {    
-                            counterAndProgressBar.Post(Inc 1)
+                            counterAndProgressBar.Post <| Inc 1
                            
                             token.ThrowIfCancellationRequested ()
                            
@@ -140,9 +140,9 @@ module KODIS_BL_Record =
         try               
             digThroughJsonStructure >> filterTimetableLinks variant dir <| token 
         with
-        | ex
+        | _
             ->
-            string ex.Message |> ignore //TODO logfile                 
+            //TODO logfile                 
             Error DataFilteringError 
                     
     let internal downloadAndSave token = 
@@ -167,16 +167,16 @@ module KODIS_BL_Record =
                     let! context = fun env -> env 
             
                     let l = context.list |> List.length
-            
-                    let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>
-                            .StartImmediate
-                                <|
-                                fun inbox 
-                                    ->
-                                    let rec loop n = 
-                                        async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
-                                    loop 0
+                        in
+                        let counterAndProgressBar =
+                            MailboxProcessor<MsgIncrement>
+                                .StartImmediate
+                                    <|
+                                    fun inbox 
+                                        ->
+                                        let rec loop n = 
+                                            async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
+                                        loop 0
                                                                 
                     return    
                         try 
@@ -187,7 +187,7 @@ module KODIS_BL_Record =
                                     -> 
                                     async
                                         {    
-                                            counterAndProgressBar.Post(Inc 1)
+                                            counterAndProgressBar.Post <| Inc 1
                                                                                        
                                             token.ThrowIfCancellationRequested ()
 
@@ -324,17 +324,17 @@ module KODIS_BL_Record =
                                      | Error err 
                                          ->
                                          let pathToDir = kodisPathTemp                   
-                                                                                     
-                                         match deleteAllODISDirectories pathToDir with
-                                         | Ok _    -> Error err              //TODO logfile  
-                                         | Error _ -> Error FileDeleteError  //TODO logfile 
+                                             in                                            
+                                             match deleteAllODISDirectories pathToDir with
+                                             | Ok _    -> Error err              //TODO logfile  
+                                             | Error _ -> Error FileDeleteError  //TODO logfile 
                             with
                             | _ 
                                 ->
                                 //TODO logfile 
                                 let pathToDir = kodisPathTemp                   
-                        
-                                match deleteAllODISDirectories pathToDir with
-                                | Ok _    -> Error FileDownloadError 
-                                | Error _ -> Error FileDeleteError  
+                                    in 
+                                    match deleteAllODISDirectories pathToDir with
+                                    | Ok _    -> Error FileDownloadError 
+                                    | Error _ -> Error FileDeleteError  
             }               
