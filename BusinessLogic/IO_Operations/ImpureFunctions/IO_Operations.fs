@@ -36,8 +36,8 @@ module IO_Operations =
                                 //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
                         with 
                         | _ ->
-                             // TODO logfile 
-                             Error FileDeleteError
+                            // TODO logfile 
+                            Error FileDeleteError
                 }
 
         deleteIt listODISDefault4  
