@@ -41,7 +41,7 @@ open Filtering.FilterTimetableLinks
 module KODIS_BL_Record4 =    
         
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
-    // 16-12-2024 nic neni trvalejsiho, nez neco docasneho ...
+    // 16-12-2024 Nic neni trvalejsiho, nez neco docasneho ...
 
     //*************************** Cancellation token templates ********************************
     
