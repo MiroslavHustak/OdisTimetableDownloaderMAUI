@@ -211,6 +211,8 @@ module App =
         Async.StartImmediate (loop waitingForNetConn) 
                       
     let init () =  
+
+        let ensureMainDirectoriesExist = ensureMainDirectoriesExist ()
             
         let ctsInitial = new CancellationTokenSource()
             in
@@ -298,7 +300,7 @@ module App =
                 Label2Visible = true
             } 
             
-        match ensureMainDirectoriesExist () with
+        match ensureMainDirectoriesExist with
         | Ok _ 
             -> 
             try          

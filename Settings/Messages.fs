@@ -86,7 +86,7 @@ module Messages =
     let internal yesNetConn = "Přípojení k internetu funguje." 
     let internal yesNetConnPlus = "Vyčkej na objevení se tlačítka \"Restart\"."
    
-    let internal ctsMsg = "Pokud se objevilo tlačítko Spustit \¨Nastavení/AppInfo\", klepni na něj a povol manipulaci se soubory (pokud se nespustí systémové nastavení, je třeba povolení nastavit ručně). Vypni a zapni aplikaci. V případě opakování problému kontaktuj programátora." 
+    let internal ctsMsg = "Pokud se objevilo tlačítko \"Spustit Nastavení/AppInfo\", klepni na něj a povol manipulaci se soubory (pokud se nespustí systémové nastavení, je třeba povolení nastavit ručně). Vypni a zapni aplikaci. V případě opakování problému kontaktuj programátora." 
     let internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
     
     let internal cancelMsg1 = "Kvůli přerušení připojení k internetu se činnost aplikace ukončuje, může to chvíli trvat ..."
