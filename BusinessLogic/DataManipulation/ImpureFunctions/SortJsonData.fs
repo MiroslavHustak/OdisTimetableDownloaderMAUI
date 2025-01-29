@@ -113,8 +113,8 @@ module SortJsonData =
                                     kodisJsonSamples
                                     |> Option.ofNull
                                     |> function 
-                                    | Some value -> value.Data |> Seq.collect _.Vyluky  //nejde Some, nejde Ok
-                                    | None       -> Seq.empty  //TODO logfile
+                                        | Some value -> value.Data |> Seq.collect _.Vyluky  //nejde Some, nejde Ok
+                                        | None       -> Seq.empty  //TODO logfile
                                  
                                 let attachments = 
                                     vyluky
