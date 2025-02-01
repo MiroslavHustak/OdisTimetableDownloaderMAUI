@@ -36,9 +36,10 @@ module SortJsonData =
         |> Async.RunSynchronously
         |> Result.ofChoice                      
         |> function
-            | Ok [|a; b|] -> a, b
-            | Ok _        -> jsonEmpty, jsonEmpty 
-            | Error _     -> jsonEmpty, jsonEmpty
+            | Ok [|a; b|]    
+                -> a, b
+            | Ok _ | Error _ 
+                -> jsonEmpty, jsonEmpty 
 
     let internal digThroughJsonStructure (token : CancellationToken) = //prohrabeme se strukturou json souboru 
         
