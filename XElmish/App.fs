@@ -136,7 +136,7 @@ module App =
                                         with
                                         | _ -> None                           
                      
-                                    replyChannel.Reply(ctsTokenOpt) 
+                                    replyChannel.Reply ctsTokenOpt 
 
                                     return! loop cancelIsRequested cts
                             }
@@ -391,7 +391,7 @@ module App =
                             {
                                 let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
                         
-                                match (status = PermissionStatus.Granted) with
+                                match status = PermissionStatus.Granted with
                                 | true  ->                                         
                                         return PermissionResult true
                                 | false -> 
@@ -494,7 +494,7 @@ module App =
              
         | Kodis 
             ->  
-            cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState2 replyChannel)
+            cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
             |> Async.RunSynchronously
             |> function
                 | Some token 
@@ -619,7 +619,7 @@ module App =
 
         | Kodis4  
             ->
-            cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState2 replyChannel)
+            cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
             |> Async.RunSynchronously
             |> function
                 | Some token 
@@ -708,7 +708,7 @@ module App =
           
         | Dpo 
             -> 
-            cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState2 replyChannel)
+            cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
             |> Async.RunSynchronously
             |> function
                 | Some token 
@@ -796,7 +796,7 @@ module App =
 
         | Mdpo //pridano network_security_config.xml
             ->   
-            cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState2 replyChannel)
+            cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
             |> Async.RunSynchronously
             |> function
                 | Some token 
