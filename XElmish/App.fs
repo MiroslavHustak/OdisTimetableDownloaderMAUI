@@ -112,7 +112,7 @@ module App =
             .StartImmediate
                 (fun inbox 
                     ->
-                    let rec loop (cancelIsRequested : bool) (cts: CancellationTokenSource) =
+                    let rec loop (cancelIsRequested : bool) (cts : CancellationTokenSource) =
 
                         async
                             {
