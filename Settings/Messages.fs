@@ -5,15 +5,15 @@ open System
 module Messages = 
 
     let internal msg1CurrentValidity = "Stahují se aktuálně platné JŘ ODIS ..."
-    let internal msg2CurrentValidity = "Momentálně nejsou dostupné odkazy na aktuálně platné JŘ ODIS."
+    let internal msg2CurrentValidity = "Momentálně nejsou dostupné odkazy na aktuálně platné JŘ ODIS. Chvíli strpení, prosím."
     let internal msg3CurrentValidity = "Aktuálně platné JŘ ODIS nebyly k dispozici pro stažení."
 
     let internal msg1FutureValidity = "Stahují se JŘ ODIS platné v budoucnosti ..."
-    let internal msg2FutureValidity = "Momentálně nejsou dostupné odkazy na JŘ ODIS platné v budoucnosti."
+    let internal msg2FutureValidity = "Momentálně nejsou dostupné odkazy na JŘ ODIS platné v budoucnosti. Chvíli strpení, prosím."
     let internal msg3FutureValidity = "JŘ ODIS platné v budoucnosti nebyly k dispozici pro stažení."
 
     let internal msg1WithoutReplacementService = "Stahují se teoreticky dlouhodobě platné JŘ ODIS ..."
-    let internal msg2WithoutReplacementService = "Momentálně nejsou dostupné odkazy na dlouhodobě platné JŘ ODIS."
+    let internal msg2WithoutReplacementService = "Momentálně nejsou dostupné odkazy na dlouhodobě platné JŘ ODIS. Chvíli strpení, prosím."
     let internal msg3WithoutReplacementService = "Dlouhodobě platné JŘ ODIS nebyly k dispozici pro stažení."
 
     let internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 

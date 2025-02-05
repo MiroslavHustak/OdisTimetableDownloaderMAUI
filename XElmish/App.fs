@@ -486,7 +486,7 @@ module App =
 
         | RestartVisible isVisible 
             -> 
-            { m with RestartVisible = isVisible; CancelVisible = false }, Cmd.none                   
+            { m with RestartVisible = isVisible; CancelVisible = not isVisible }, Cmd.none                   
              
         | NetConnMessage message
             ->
@@ -552,7 +552,7 @@ module App =
                                                 stateReducerCmd2 
                                                 <| token
                                                 <| kodisPathTemp
-                                                <| fun message -> WorkIsComplete >> dispatch <| (message, true)
+                                                <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                 <| fun message -> IterationMessage >> dispatch <| message 
                                                 <| reportProgress            
                                         }
@@ -579,7 +579,10 @@ module App =
                     
                         async 
                             {   
-                                do! delayedCmd1 token dispatch                                        
+                                RestartVisible >> dispatch <| false
+
+                                do! delayedCmd1 token dispatch 
+                                
                                 match token.IsCancellationRequested with 
                                 | true  -> ()
                                 | false -> do! delayedCmd2 token dispatch
@@ -643,7 +646,7 @@ module App =
                                                 stateReducerCmd4
                                                 <| token
                                                 <| kodisPathTemp4
-                                                <| fun message -> WorkIsComplete >> dispatch <| (message, true)
+                                                <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                 <| fun message -> IterationMessage >> dispatch <| message 
                                                 <| reportProgress            
                                         }
@@ -666,10 +669,12 @@ module App =
                                 *)
                             }  
                    
-                    let executeSequentially dispatch =                    
+                    let executeSequentially dispatch =   
 
                         async 
                             {  
+                               RestartVisible >> dispatch <| false
+
                                do! delayedCmd2 token dispatch                            
                             }
                         |> Async.StartImmediate  
@@ -751,7 +756,9 @@ module App =
                     let execute dispatch = 
 
                         async 
-                            {                                      
+                            {     
+                                RestartVisible >> dispatch <| false
+
                                 match token.IsCancellationRequested with
                                 | true  ->
                                         UpdateStatus >> dispatch <| (0.0, 1.0, false)
@@ -839,7 +846,9 @@ module App =
                     let execute dispatch = 
 
                         async 
-                            {                                      
+                            {         
+                                RestartVisible >> dispatch <| false
+
                                 match token.IsCancellationRequested with
                                 | true  ->
                                         UpdateStatus >> dispatch <| (0.0, 1.0, false)
