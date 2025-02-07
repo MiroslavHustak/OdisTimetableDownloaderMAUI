@@ -67,7 +67,7 @@ module MyString =
     open System    
       
     [<CompiledName "CreateStringSeqFold">] 
-    let internal createStringSeqFold (numberOfStrings : int, stringToAdd : string): string =
+    let internal createStringSeqFold (numberOfStrings : int, stringToAdd : string) : string =
 
         [1 .. numberOfStrings]
         |> List.fold (fun acc i -> (+) acc stringToAdd) String.Empty
