@@ -78,13 +78,7 @@ module WebScraping_DPO =
             | FilterDownloadSave   
                 ->                                      
                 try  
-                    try                        
-                        //DeviceDisplay.KeepScreenOn <- true //throws an exception
-
-                        #if ANDROID
-                        KeepScreenOnManager.keepScreenOn true
-                        #endif
-
+                    try  
                         let pathToSubdir =
                             dirList pathToDir 
                             |> List.tryHead 
@@ -96,12 +90,7 @@ module WebScraping_DPO =
                             | true  -> 
                                     environment.FilterTimetables () pathToSubdir 
                                     |> environment.DownloadAndSaveTimetables reportProgress token
-                    finally
-                        //DeviceDisplay.KeepScreenOn <- false //throws an exception
-
-                        #if ANDROID
-                        KeepScreenOnManager.keepScreenOn false
-                        #endif
+                    finally                        
                         ()                         
                 with
                 | _ -> Error FileDownloadErrorMHD //dpoMsg2                                               

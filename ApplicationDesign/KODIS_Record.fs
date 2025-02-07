@@ -75,16 +75,9 @@ module WebScraping_KODISFMRecord =
                     
             try
                 try
-                    #if ANDROID
-                    KeepScreenOnManager.keepScreenOn true
-                    #endif
-
                     //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
                     environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
                 finally
-                    #if ANDROID
-                    KeepScreenOnManager.keepScreenOn false
-                    #endif
                     ()              
             with
             | _ -> Error JsonDownloadError  //TODO logfile
@@ -154,11 +147,7 @@ module WebScraping_KODISFMRecord =
                     Error err  
                                  
             try 
-                try
-                    #if ANDROID
-                    KeepScreenOnManager.keepScreenOn true
-                    #endif
-
+                try                 
                     let dirList = createNewDirectoryPaths path listODISDefault4
     
                     let contextCurrentValidity = 
@@ -211,9 +200,6 @@ module WebScraping_KODISFMRecord =
                             return sprintf "%s%s" dispatchMsg3 combinedMessage
                         }
                 finally
-                    #if ANDROID
-                    KeepScreenOnManager.keepScreenOn false
-                    #endif
                     ()
             with
             | ex

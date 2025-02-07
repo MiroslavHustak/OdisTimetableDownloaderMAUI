@@ -494,6 +494,12 @@ module App =
              
         | Kodis 
             ->  
+            //DeviceDisplay.KeepScreenOn <- true //throws an exception
+
+            #if ANDROID
+            KeepScreenOnManager.keepScreenOn true
+            #endif
+
             cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
             |> Async.RunSynchronously
             |> function
@@ -618,10 +624,14 @@ module App =
                                    
                 | None      
                     -> 
-                    m, Cmd.none           
+                    m, Cmd.none  
 
         | Kodis4  
             ->
+            #if ANDROID
+            KeepScreenOnManager.keepScreenOn true
+            #endif
+
             cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
             |> Async.RunSynchronously
             |> function
@@ -713,6 +723,10 @@ module App =
           
         | Dpo 
             -> 
+            #if ANDROID
+            KeepScreenOnManager.keepScreenOn true
+            #endif
+
             cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
             |> Async.RunSynchronously
             |> function
@@ -801,8 +815,12 @@ module App =
                     -> 
                     m, Cmd.none
 
-        | Mdpo //pridano network_security_config.xml
+        | Mdpo //pridano network_security_config.xml, ale zda se, ze to nepomohlo
             ->   
+            #if ANDROID
+            KeepScreenOnManager.keepScreenOn true
+            #endif
+
             cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
             |> Async.RunSynchronously
             |> function

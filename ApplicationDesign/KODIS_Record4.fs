@@ -121,11 +121,7 @@ module WebScraping_KODISFMRecord4 =
                     Error err  
                              
         try 
-            try
-                #if ANDROID
-                KeepScreenOnManager.keepScreenOn true
-                #endif
-
+            try               
                 let dirList = IO_Operations.CreatingPathsAndNames.createNewDirectoryPaths path listODISDefault4
 
                 let contextCurrentValidity = 
@@ -178,9 +174,6 @@ module WebScraping_KODISFMRecord4 =
                         return sprintf "%s%s" dispatchMsg3 combinedMessage
                     }
             finally
-                #if ANDROID
-                KeepScreenOnManager.keepScreenOn false
-                #endif
                 ()                     
         with
         | _ ->  dispatchMsg4  //TODO logfile   
