@@ -64,7 +64,7 @@ module SortRecordData =
             | FutureValidity
                 ->  
                 dataToBeFiltered                                                                           
-                |> Seq.groupBy _.PartialLinkRc
+                |> Seq.groupBy (fun row -> row.PartialLinkRc)  //nepredelavej to na |> Seq.groupBy _.PartialLinkRc, bo se v tom zase nevyznas...
                 |> Seq.map (fun (partialLink, group) -> group |> Seq.tryHead)
                 |> Seq.choose id //tise to nechame projit 
                 |> Seq.filter
@@ -96,7 +96,7 @@ module SortRecordData =
             | _             
                 -> 
                 dataToBeFiltered  
-                |> Seq.groupBy _.PartialLinkRc
+                |> Seq.groupBy (fun row -> row.PartialLinkRc)
                 |> Seq.map (fun (partialLink, group) -> group |> Seq.tryHead)
                 |> Seq.choose id //tise to nechame projit 
                 |> Seq.filter
@@ -116,8 +116,8 @@ module SortRecordData =
                                      
                         condition context2 startDate endDate fileToBeSaved
                     )           
-                |> Seq.sortByDescending _.StartDateRc
-                |> Seq.groupBy _.NewPrefixRc
+                |> Seq.sortByDescending (fun row -> row.StartDateRc)
+                |> Seq.groupBy (fun row -> row.NewPrefixRc)
                 |> Seq.map
                     (fun (newPrefix, group)
                         ->
