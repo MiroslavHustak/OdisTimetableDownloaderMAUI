@@ -70,7 +70,7 @@ module SortJsonData =
                                 |> Async.RunSynchronously
                                 |> Option.ofNull
                                 |> function
-                                    | Some value -> value |> Seq.map (_.Timetable)
+                                    | Some value -> value |> Seq.map _.Timetable
                                     | None       -> Seq.empty
                             )
                 }
@@ -124,7 +124,7 @@ module SortJsonData =
                                         | Some value
                                             ->
                                             value
-                                            |> Seq.collect (fun item -> item.Attachments)
+                                            |> Seq.collect _.Attachments
                                             |> List.ofSeq
                                             |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
                                             |> List.choose id //co neprojde, to beze slova ignoruju
