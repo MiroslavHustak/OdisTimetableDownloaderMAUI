@@ -14,7 +14,8 @@ module Connectivity =
 
         MailboxProcessor<ConnectivityMessage>
             .StartImmediate
-                (fun inbox
+                <|
+                fun inbox
                     ->
                     let rec loop (isConnected : bool) = 
                         async
@@ -31,7 +32,6 @@ module Connectivity =
                             }
             
                     loop false // Start the loop with whatever initial value
-                )
 
     let internal connectivityListener () = //vysledek je bool
     
