@@ -77,5 +77,7 @@ module Xor =
     open Helpers.Builders
 
     //pro xor CE musi byt explicitne typ, type inference bere u yield typ unit, coz tady jaksi nejde, bo bool
+
+    //jen priklad pouziti, v realnem pripade pouzij primo xor { a; b } nebo xor { a; b; c }    
     let internal xor2 (a : bool) (b : bool) = xor { a; b }
     let internal xor3 (a : bool) (b : bool) (c : bool) = xor { a; b; c }    
