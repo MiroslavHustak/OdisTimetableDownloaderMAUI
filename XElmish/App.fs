@@ -748,11 +748,14 @@ module App =
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)    
 
                                             match webscraping_DPO reportProgress token dpoPathTemp with  
-                                            | Ok _      -> 
-                                                        return mauiDpoMsg
-                                            | Error err ->
-                                                        RestartVisible >> dispatch <| true
-                                                        return err
+                                            | Ok _     
+                                                -> 
+                                                return mauiDpoMsg
+
+                                            | Error err 
+                                                ->
+                                                RestartVisible >> dispatch <| true
+                                                return err
                                         }
                                     |> Async.StartChild 
                                
@@ -842,11 +845,14 @@ module App =
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false) 
 
                                             match webscraping_MDPO reportProgress token mdpoPathTemp with
-                                            | Ok _      -> 
-                                                        return mauiMdpoMsg
-                                            | Error err ->
-                                                        RestartVisible >> dispatch <| true
-                                                        return err
+                                            | Ok _     
+                                                -> 
+                                                return mauiMdpoMsg
+
+                                            | Error err 
+                                                ->
+                                                RestartVisible >> dispatch <| true
+                                                return err
                                         }
                                     |> Async.StartChild 
                                
