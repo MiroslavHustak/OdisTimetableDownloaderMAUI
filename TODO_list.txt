@@ -17,3 +17,5 @@ Vypracovat logging pro Android verzi
 Pro vsechny pripady chybneho certifikatu, jako je u MDPO, dat veskery unsafe kod do "with" case plus varovne hlaseni 
 
 Sjednotit objevovani se message "Internet funguje/nefunguje" (jen pro Android)
+
+Struct zrobit vsade, kaj je to mozne a ucelne

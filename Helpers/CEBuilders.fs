@@ -6,8 +6,8 @@ module Builders =
     type internal MyBuilder3 = MyBuilder3 with       
          member _.Bind(resultExpr, nextFunc) = 
              match fst resultExpr with
-             | Ok value   -> nextFunc value 
-             | Error err  -> (snd resultExpr) err
+             | Ok value  -> nextFunc value 
+             | Error err -> (snd resultExpr) err
          member _.Return x = x  
          member _.ReturnFrom x : 'a = x 
      
