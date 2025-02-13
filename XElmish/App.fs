@@ -314,8 +314,9 @@ module App =
             with
             | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
 
-        | Error _ ->  
-                  { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
+        | Error _ 
+            ->  
+            { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
     let init2 () = 
 
