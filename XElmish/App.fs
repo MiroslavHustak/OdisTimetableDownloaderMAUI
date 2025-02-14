@@ -160,8 +160,7 @@ module App =
                 | false 
                     when remaining = 0  
                         ->
-                        async { return dispatch Quit } |> Async.executeOnMainThread                        
-               
+                        async { return dispatch Quit } |> Async.executeOnMainThread    
                 | false
                     when remaining <> 0
                         -> 
@@ -233,7 +232,7 @@ module App =
                                     ->
                                     async
                                         {    
-                                            #if WINDOWS  // F# compiler directives
+                                            #if WINDOWS  
                                             match isConnected with
                                             | true  ->
                                                     () 
