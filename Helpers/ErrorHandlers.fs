@@ -52,6 +52,30 @@ module Option =
                 return Some value
             }
 
+    (*
+        monadic function composition (>>=) in Haskell
+
+        import Control.Monad (guard)
+
+        validate :: Maybe String -> Maybe String
+        validate value = 
+        value >>= \v ->                      -- Check if value is Just
+        guard (not (null v)) >> Just v        -- Check if value is not empty, return Just v
+        
+        //*****************************************
+        
+        do notation
+
+        import Control.Monad (guard)
+    
+        validate :: Maybe String -> Maybe String
+        validate value = do
+            v <- value                    -- Check if value is Just
+            guard (not (null v))          -- Equivalent to `let! _ = not <| String.IsNullOrEmpty(value), None`
+            return v 
+    
+    *)
+
     let internal ofNullEmptySpace (value : 'nullableValue) = //NullOrEmpty, NullOrWhiteSpace
     
         pyramidOfHell

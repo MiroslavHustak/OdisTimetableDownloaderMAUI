@@ -35,13 +35,13 @@ module Connectivity =
 
     let internal connectivityListener () = //vysledek je bool
     
-        let initialConnected = Connectivity.NetworkAccess = NetworkAccess.Internet
+        let initialConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
             in
             actor.Post <| UpdateState initialConnected // prvotni inicializace mailboxu
     
         let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
 
-            let isConnected = args.NetworkAccess = NetworkAccess.Internet  
+            let isConnected = (=) args.NetworkAccess NetworkAccess.Internet  
                 in
                 actor.Post <| UpdateState isConnected
     
@@ -54,7 +54,7 @@ module Connectivity =
         
         let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
         
-            let isConnected = args.NetworkAccess = NetworkAccess.Internet
+            let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
                 in
                 onConnectivityChange isConnected
             
@@ -93,7 +93,7 @@ module CheckNetConnection =
                             let! result = 
                                 Permissions.RequestAsync<Permissions.LocationWhenInUse>() |> Async.AwaitTask
 
-                            return result = PermissionStatus.Granted
+                            return (=) result PermissionStatus.Granted
                     | false ->
                             return true
                 }
