@@ -114,7 +114,7 @@ module CheckNetConnection =
                             let! hasPermission = requestLocationPermission ()
 
                             let cond1 = profiles |> Seq.contains ConnectionProfile.WiFi
-                            let cond2 = Connectivity.NetworkAccess = NetworkAccess.Internet
+                            let cond2 = (=) Connectivity.NetworkAccess NetworkAccess.Internet
 
                             match cond1 && cond2 && hasPermission with
                             | true  -> return Some ()
