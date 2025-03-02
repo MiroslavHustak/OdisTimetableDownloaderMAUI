@@ -88,7 +88,7 @@ module IO_Operations =
         try
             dirList
             |> List.iter
-                (fun (dir: string) 
+                (fun (dir : string) 
                     ->                
                     match dir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || dir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
                     | true  ->    
