@@ -73,11 +73,11 @@ module SortRecordData =
                         let startDate = 
                             row.StartDateRc
                             |> function StartDateRcOpt value -> value
-                            |> function Some value -> value | None -> context2.dateTimeMinValue
+                            |> Option.defaultValue context2.dateTimeMinValue
                         let endDate = 
                             row.EndDateRc                                                         
                             |> function EndDateRcOpt value -> value
-                            |> function Some value -> value | None -> context2.dateTimeMinValue
+                            |> Option.defaultValue context2.dateTimeMinValue
                         let fileToBeSaved =
                             row.FileToBeSavedRc
                             |> function FileToBeSaved value -> value                         
@@ -105,11 +105,11 @@ module SortRecordData =
                         let startDate = 
                             row.StartDateRc
                             |> function StartDateRcOpt value -> value
-                            |> function Some value -> value | None -> context2.dateTimeMinValue
+                            |> Option.defaultValue context2.dateTimeMinValue
                         let endDate = 
                             row.EndDateRc                                                         
                             |> function EndDateRcOpt value -> value
-                            |> function Some value -> value | None -> context2.dateTimeMinValue
+                            |> Option.defaultValue context2.dateTimeMinValue
                         let fileToBeSaved = 
                             row.FileToBeSavedRc 
                             |> function FileToBeSaved value -> value                      

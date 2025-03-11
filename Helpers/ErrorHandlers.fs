@@ -18,6 +18,33 @@ module Result =
 
         let initialValue = Ok [] 
         List.foldBack prepend aListOfResults initialValue  
+
+    (*
+    let defaultWith defaultFn res =
+        match res with
+        | Ok value  -> value
+        | Error err -> defaultFn err 
+        
+    let defaultValue default res =
+        match res with
+        | Ok value -> value
+        | Error _  -> default
+        
+    let map f res =
+        match res with
+        | Ok value  -> Ok (f value)
+        | Error err -> Error err
+
+    let mapError f res =
+        match res with
+        | Ok value  -> Ok value
+        | Error err -> Error (f err)
+
+    let bind f res =
+        match res with
+        | Ok value -> f value
+        | Error err -> Error err
+    *)
   
 module Option =
 
@@ -51,6 +78,24 @@ module Option =
 
                 return Some value
             }
+
+    (*
+    let defaultValue default opt =
+        match opt with
+        | Some value -> value
+        | None       -> default
+        
+    let map f opt =
+        match opt with
+        | Some value -> Some (f value)
+        | None       -> None
+
+    let bind f opt =
+        match opt with
+        | Some value -> f value
+        | None       -> None
+
+    *) 
 
     (*
         monadic function composition (>>=) in Haskell

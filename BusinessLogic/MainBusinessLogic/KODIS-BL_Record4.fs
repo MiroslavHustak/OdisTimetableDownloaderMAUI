@@ -231,7 +231,7 @@ module KODIS_BL_Record4 =
 
                                                     let downloadId =
                                                         result
-                                                        |> function Some downloadId -> downloadId | None -> failwith "FileDownloadError"                                                            
+                                                       |> Option.defaultValue failwith "FileDownloadError"                                                            
                                                         
                                                     downloadId |> ignore 
 

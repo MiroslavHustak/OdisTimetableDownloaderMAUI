@@ -35,15 +35,7 @@ module FilterTimetableLinks =
             with 
             | ex -> Error <| string ex.Message                  
                   
-            |> function
-                | Ok value 
-                    -> 
-                    value  
-
-                | Error err
-                    ->
-                    err |> ignore  //TODO logfile 
-                    String.Empty   
+            |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
         
         let extractSubstring1 (input : string) =
 
@@ -58,15 +50,7 @@ module FilterTimetableLinks =
             with 
             | ex -> Error <| string ex.Message                    
 
-            |> function
-                | Ok value
-                    -> 
-                    value  
-
-                | Error err 
-                    ->
-                    err |> ignore  //TODO logfile 
-                    String.Empty      
+            |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
 
         let extractSubstring2 (input : string) : (string option * int) =
 
@@ -151,15 +135,7 @@ module FilterTimetableLinks =
                 with 
                 | ex -> Error <| string ex.Message
                      
-                |> function
-                    | Ok value
-                        -> 
-                        value  
-
-                    | Error err
-                        ->
-                        err |> ignore  //TODO logfile 
-                        String.Empty       
+                |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
 
             let totalDateInterval = extractSubstring1 input
 
@@ -172,15 +148,7 @@ module FilterTimetableLinks =
                 with 
                 | ex -> Error <| string ex.Message     
                          
-                |> function
-                    | Ok value 
-                        -> 
-                        value  
-
-                    | Error err
-                        ->
-                        err |> ignore  //TODO logfile 
-                        String.Empty    
+                |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
         
             let vIndex = partAfter.IndexOf "_v"
             let tIndex = partAfter.IndexOf "_t"

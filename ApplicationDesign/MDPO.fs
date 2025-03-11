@@ -79,7 +79,7 @@ module WebScraping_MDPO =
                         let pathToSubdir =
                             dirList pathToDir 
                             |> List.tryHead 
-                            |> function Some value -> value | None -> String.Empty
+                            |> Option.defaultValue String.Empty
                             in
                             match pathToSubdir |> Directory.Exists with 
                             | false ->

@@ -82,9 +82,8 @@ module WebScraping_KODISFMRecord =
             with
             | _ -> Error JsonDownloadError  //TODO logfile
                  
-            |> function
-                | Ok _      -> Ok dispatchMsg1 
-                | Error err -> Error <| errFn err
+            |> Result.map (fun _ -> dispatchMsg1) 
+            |> Result.mapError errFn
 
         downloadAndSaveJson reportProgress token          
 

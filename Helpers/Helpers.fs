@@ -28,9 +28,7 @@ module FileInfoHelper =
                 return Ok <| File.ReadAllText filepath                                           
             }  
             
-        |> function
-            | Ok value -> value                      
-            | Error _  -> jsonEmpty //TODO logfile, nestoji to za to vytahovat Result nahoru                                 
+        |> Result.defaultValue jsonEmpty //TODO logfile, nestoji to za to vytahovat Result nahoru                                 
                     
     let internal readAllTextAsync path = 
 
@@ -45,9 +43,7 @@ module FileInfoHelper =
                 return Ok (File.ReadAllTextAsync filepath |> Async.AwaitTask)                                          
             }  
             
-        |> function
-            | Ok value -> value                      
-            | Error _  -> async { return jsonEmpty } //TODO logfile, nestoji to za to vytahovat Result nahoru
+        |> Result.defaultWith (fun _ -> async { return jsonEmpty }) //TODO logfile, nestoji to za to vytahovat Result nahoru
 
     let internal checkFileCondition pathToFile condition =
         

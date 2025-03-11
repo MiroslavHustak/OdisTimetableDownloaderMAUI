@@ -197,13 +197,7 @@ module AndroidUIHelpers =
                             return Some ()
                         }
 
-                    |> function
-                        | Some value 
-                            ->
-                            value
-                        | None
-                            -> 
-                            () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
+                    |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                     
                 with
                 | ex

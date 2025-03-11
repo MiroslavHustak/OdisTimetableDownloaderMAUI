@@ -1,1 +1,1 @@
-{"data":[],"meta":{"pagination":{"total":0}}}
+{"data":[{"id":1711,"label":"ND1","company":"DPO","type":"bus","category":"MHD Ostrava","route":"Don Bosco - Hrabůvka, kostel","timetable":"https://kodis-files.s3.eu-central-1.amazonaws.com/ND_1_2025_03_17_2025_03_28_cb107e9951.pdf","timetable_valid_from":"2025-03-17","timetable_valid_until":"2025-03-28","numeric_label":1,"group":"NAD MHD","createdAt":"2025-03-11T08:44:47.604Z","updatedAt":"2025-03-11T08:48:58.198Z","vyluky":[]}],"meta":{"pagination":{"total":1}}}
