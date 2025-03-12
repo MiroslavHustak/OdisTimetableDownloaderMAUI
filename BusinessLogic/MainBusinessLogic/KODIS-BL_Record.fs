@@ -41,8 +41,7 @@ module KODIS_BL_Record =
                 
         async
             {    
-                let! response = get >> Request.sendAsync <| jsonLink9 
-                use response = response
+                use! response = get >> Request.sendAsync <| jsonLink9 
 
                 do! response.SaveFileAsync >> Async.AwaitTask <| @"e:\FabulousMAUI\test.json"    
 
@@ -107,8 +106,7 @@ module KODIS_BL_Record =
                                                 config_cancellationToken token //token2 //funguje
                                             }
 
-                            let! response = get >> Request.sendAsync <| uri  
-                            use response = response
+                            use! response = get >> Request.sendAsync <| uri  
 
                             match response.statusCode with
                             | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
@@ -231,8 +229,7 @@ module KODIS_BL_Record =
                                                                         config_cancellationToken token //token2 //funguje
                                                                     }
 
-                                                    let! response = get >> Request.sendAsync <| uri  
-                                                    use response = response
+                                                    use! response = get >> Request.sendAsync <| uri  
 
                                                     (*
 

@@ -267,8 +267,7 @@ module KODIS_BL_Record4 =
                                                                         config_cancellationToken token //CancellationToken.None //token2  //funguje
                                                                     }
 
-                                                    let! response = get >> Request.sendAsync <| uri  
-                                                    use response = response //duvod viz DPO-BL.fs
+                                                    use! response = get >> Request.sendAsync <| uri  
 
                                                     match response.statusCode with
                                                     | HttpStatusCode.PartialContent | HttpStatusCode.OK  // 206 // 200

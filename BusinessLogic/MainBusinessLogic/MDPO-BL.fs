@@ -203,8 +203,7 @@ module MDPO_BL = //FsHttp
                         match response with
                         | Ok response
                             ->      
-                            let! response = response  // duvod viz DPO-BL.fs
-                            use response = response   
+                            use! response = response  
                         
                             match response.statusCode with        //TODO logfile
                             | HttpStatusCode.OK                  ->                                                                   

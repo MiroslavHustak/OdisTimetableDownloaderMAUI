@@ -146,8 +146,7 @@ module DPO_BL =
                             | true  -> client.DefaultRequestHeaders.Add(headerContent1, headerContent2)
                             | false -> ()
                              
-                            let! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask
-                            use response = response //udajne takto u async, udajne it needs to be awaited first using let!
+                            use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask
                           
                             match response.IsSuccessStatusCode with
                             | true  ->
@@ -223,7 +222,7 @@ module DPO_BL =
                         ->  
                         async                                                
                             {   
-                                token.ThrowIfCancellationRequested () //CancellationToken should also be passed to any async operations that might be cancelled
+                                token.ThrowIfCancellationRequested () //CancellationToken should also be passed to any async operation that might be cancelled
                                 reportProgress (float i + 1.0, float l)  
                                 return! downloadFileTaskAsync link pathToFile 
                             } 
