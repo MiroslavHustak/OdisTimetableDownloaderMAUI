@@ -37,7 +37,7 @@ module MDPO_BL = //FsHttp
             async
                 {
                     try
-                        use! response =
+                        let! response =
                             http
                                 {
                                     GET url
@@ -55,6 +55,8 @@ module MDPO_BL = //FsHttp
                                         )
                                 }
                                 |> Request.sendAsync 
+
+                        use response = response //duvod viz DPO-BL.fs
         
                         let! htmlContent = Response.toStringAsync (Some 100000) response
         
@@ -156,29 +158,36 @@ module MDPO_BL = //FsHttp
                                         | true  -> 
                                                 http
                                                     {
-                                                        GET uri                                                        
+                                                        GET uri        
+                                                        
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken CancellationToken.None   
+                                                        config_cancellationToken token  //CancellationToken.None
+
                                                         config_transformHttpClient
                                                             (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
                                                                 ->
+                                                                //temporary code, use block not possible here
                                                                 let unsafeHandler = new HttpClientHandler()
                                                                 unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
                                                                 let unsafeClient = new HttpClient(unsafeHandler)
                                                                 unsafeClient
                                                             )
+
                                                         header headerContent1 headerContent2
                                                     }
                                         | false ->
                                                 http
                                                     {
                                                         GET uri
+
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken CancellationToken.None //token
+                                                        config_cancellationToken token
+
                                                         config_transformHttpClient
                                                             (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
                                                                 ->
-                                                                let unsafeHandler = new HttpClientHandler()
+                                                                //temporary code, use block not possible here
+                                                                let unsafeHandler = new HttpClientHandler() 
                                                                 unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
                                                                 let unsafeClient = new HttpClient(unsafeHandler)
                                                                 unsafeClient
@@ -194,7 +203,8 @@ module MDPO_BL = //FsHttp
                         match response with
                         | Ok response
                             ->      
-                            use! response = response
+                            let! response = response  // duvod viz DPO-BL.fs
+                            use response = response   
                         
                             match response.statusCode with        //TODO logfile
                             | HttpStatusCode.OK                  ->                                                                   

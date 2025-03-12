@@ -100,8 +100,7 @@ module CheckNetConnection =
 
         async
             {
-                try   
-                        
+                try                          
                     match Connectivity.Current.ConnectionProfiles |> Option.ofNull with            
                     | Some profiles
                         ->

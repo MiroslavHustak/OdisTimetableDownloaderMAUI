@@ -109,7 +109,7 @@ module AndroidUIHelpers =
         async
             {
                 let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-    
+
                 match status with
                 | PermissionStatus.Granted
                     -> 

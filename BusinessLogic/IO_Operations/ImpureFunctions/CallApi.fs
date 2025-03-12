@@ -42,6 +42,8 @@ module CallApi =
                             header "X-API-KEY" apiKeyTest 
                         }
                     |> Request.sendAsync
+
+                use response = response
                 
                 match response.statusCode with
                 | HttpStatusCode.OK 

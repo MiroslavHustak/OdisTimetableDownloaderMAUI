@@ -256,7 +256,7 @@ module KODIS_BL_Record4 =
                                                                     {
                                                                         GET uri
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        //config_cancellationToken CancellationToken.None //token2  //funguje
+                                                                        config_cancellationToken token //CancellationToken.None //token2  //funguje
                                                                         header headerContent1 headerContent2
                                                                     }
                                                         | false ->
@@ -264,10 +264,11 @@ module KODIS_BL_Record4 =
                                                                     {
                                                                         GET uri
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        //config_cancellationToken CancellationToken.None //token2  //funguje
+                                                                        config_cancellationToken token //CancellationToken.None //token2  //funguje
                                                                     }
 
-                                                    use! response = get >> Request.sendAsync <| uri  
+                                                    let! response = get >> Request.sendAsync <| uri  
+                                                    use response = response //duvod viz DPO-BL.fs
 
                                                     match response.statusCode with
                                                     | HttpStatusCode.PartialContent | HttpStatusCode.OK  // 206 // 200

@@ -41,7 +41,9 @@ module KODIS_BL_Record =
                 
         async
             {    
-                use! response = get >> Request.sendAsync <| jsonLink9 
+                let! response = get >> Request.sendAsync <| jsonLink9 
+                use response = response
+
                 do! response.SaveFileAsync >> Async.AwaitTask <| @"e:\FabulousMAUI\test.json"    
 
                 return "Test"
@@ -94,7 +96,7 @@ module KODIS_BL_Record =
                                             {
                                                 GET uri
                                                 config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                //config_cancellationToken token2  //funguje
+                                                config_cancellationToken token //token2  //funguje
                                                 header headerContent1 headerContent2
                                             }
                                 | false ->
@@ -102,10 +104,11 @@ module KODIS_BL_Record =
                                             {
                                                 GET uri
                                                 config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                //config_cancellationToken token2 //funguje
+                                                config_cancellationToken token //token2 //funguje
                                             }
 
-                            use! response = get >> Request.sendAsync <| uri  
+                            let! response = get >> Request.sendAsync <| uri  
+                            use response = response
 
                             match response.statusCode with
                             | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
@@ -217,7 +220,7 @@ module KODIS_BL_Record =
                                                                     {
                                                                         GET uri
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        //config_cancellationToken token2  //funguje
+                                                                        config_cancellationToken token //token2  //funguje
                                                                         header headerContent1 headerContent2
                                                                     }
                                                         | false ->
@@ -225,10 +228,11 @@ module KODIS_BL_Record =
                                                                     {
                                                                         GET uri
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        //config_cancellationToken token2 //funguje
+                                                                        config_cancellationToken token //token2 //funguje
                                                                     }
 
-                                                    use! response = get >> Request.sendAsync <| uri  
+                                                    let! response = get >> Request.sendAsync <| uri  
+                                                    use response = response
 
                                                     (*
 

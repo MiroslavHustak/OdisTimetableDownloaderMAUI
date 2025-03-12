@@ -128,7 +128,9 @@ module DPO_BL =
                         
                         match client with  
                         | Ok client
-                            ->    
+                            ->  
+                            use client = client
+
                             client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
 
                             let existingFileLength =                               
@@ -143,10 +145,10 @@ module DPO_BL =
                             match existingFileLength > 0L with
                             | true  -> client.DefaultRequestHeaders.Add(headerContent1, headerContent2)
                             | false -> ()
-                                                        
-                            use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead) |> Async.AwaitTask
-                            //use! response = client.GetAsync uri |> Async.AwaitTask
-
+                             
+                            let! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask
+                            use response = response //udajne takto u async, udajne it needs to be awaited first using let!
+                          
                             match response.IsSuccessStatusCode with
                             | true  ->
                                     let pathToFile = pathToFile.Replace("?", String.Empty)
@@ -161,12 +163,33 @@ module DPO_BL =
                                     let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
                                     do! stream.CopyToAsync fileStream |> Async.AwaitTask
 
-                                    client.Dispose ()
+                                    (*
+                                    //There is no need for Async.OnCancel handlers to dispose of resources as the use block will automatically clean up resources
+
+                                    let! clientCancellationHandler = Async.OnCancel <| fun () -> client.Dispose()        
+                                    clientCancellationHandler.Dispose()        
+
+                                    let! fileStreamCancellationHandler = Async.OnCancel <| fun () -> fileStream.Dispose()        
+                                    fileStreamCancellationHandler.Dispose()
+
+                                    let! responseCancellationHandler = Async.OnCancel <| fun () -> response.Dispose()        
+                                    responseCancellationHandler.Dispose()
+                                    *)
                                     
                                     return Ok ()
 
-                            | false ->                                    
-                                    client.Dispose ()
+                            | false ->     
+                                    use client = client
+                                    
+                                    (*
+                                    //There is no need for Async.OnCancel handlers to dispose of resources as the use block will automatically clean up resources
+                                                                       
+                                    let! clientCancellationHandler = Async.OnCancel <| fun () -> client.Dispose()        
+                                    clientCancellationHandler.Dispose()                                    
+
+                                    let! responseCancellationHandler = Async.OnCancel <| fun () -> response.Dispose()        
+                                    responseCancellationHandler.Dispose()
+                                    *)
 
                                     return 
                                         match response.StatusCode with
@@ -200,7 +223,7 @@ module DPO_BL =
                         ->  
                         async                                                
                             {   
-                                token.ThrowIfCancellationRequested ()
+                                token.ThrowIfCancellationRequested () //CancellationToken should also be passed to any async operations that might be cancelled
                                 reportProgress (float i + 1.0, float l)  
                                 return! downloadFileTaskAsync link pathToFile 
                             } 
