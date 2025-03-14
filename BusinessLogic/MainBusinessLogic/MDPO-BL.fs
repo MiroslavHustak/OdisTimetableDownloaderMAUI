@@ -37,7 +37,7 @@ module MDPO_BL = //FsHttp
             async
                 {
                     try
-                        let! response =
+                        use! response =
                             http
                                 {
                                     GET url
@@ -55,8 +55,6 @@ module MDPO_BL = //FsHttp
                                         )
                                 }
                                 |> Request.sendAsync 
-
-                        use response = response //duvod viz DPO-BL.fs
         
                         let! htmlContent = Response.toStringAsync (Some 100000) response
         

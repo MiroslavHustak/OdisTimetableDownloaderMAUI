@@ -203,13 +203,16 @@ module KODIS_BL_Record4 =
                             context.list
                             |> List.unzip             
                             ||> context.listMappingFunction
-                                (fun uri (pathToFile: string) 
+                                (fun uri (pathToFile : string) 
                                     -> 
                                     //let token2 = tokenTrigger ()  //zatim nepotrebne
                                    
                                     async
                                         {    
                                             //invoking config_timeoutInSeconds config_cancellationToken se projevi az po RunSynchronously, bohuzel...
+
+                                            //let! cancellationHandler = Async.OnCancel <| fun () -> response.Dispose()                                
+                                            //cancellationHandler.Dispose()
 
                                             counterAndProgressBar.Post <| Inc 1
 

@@ -67,7 +67,7 @@ module KODIS_BL_Record =
         try 
             (jsonLinkList, pathToJsonList)
             ||> List.Parallel.map2
-                (fun uri (pathToFile: string) 
+                (fun uri (pathToFile : string) 
                     ->    
                     async
                         {    
