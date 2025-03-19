@@ -69,9 +69,8 @@ module SortJsonData =
                                     }
                                 |> Async.RunSynchronously
                                 |> Option.ofNull
-                                |> function
-                                    | Some value -> value |> Seq.map _.Timetable
-                                    | None       -> Seq.empty
+                                |> Option.map (Seq.map _.Timetable)
+                                |> Option.defaultValue Seq.empty  //TODO logfile
                             )
                 }
             
@@ -106,33 +105,28 @@ module SortJsonData =
                                 let timetables = 
                                     kodisJsonSamples
                                     |> Option.ofNull
-                                    |> function 
-                                        | Some value -> value.Data |> Seq.map _.Timetable  //nejde Some, nejde Ok
-                                        | None       -> Seq.empty  //TODO logfile
+                                    |> Option.map (fun value -> value.Data |> Seq.map _.Timetable)
+                                    |> Option.defaultValue Seq.empty  //TODO logfile                                 
                                  
                                 let vyluky = 
                                     kodisJsonSamples
                                     |> Option.ofNull
-                                    |> function 
-                                        | Some value -> value.Data |> Seq.collect _.Vyluky  //nejde Some, nejde Ok
-                                        | None       -> Seq.empty  //TODO logfile
+                                    |> Option.map (fun value -> value.Data |> Seq.collect _.Vyluky)
+                                    |> Option.defaultValue Seq.empty //TODO logfile
                                  
                                 let attachments = 
                                     vyluky
-                                    |> Option.ofNull 
-                                    |> function
-                                        | Some value
-                                            ->
+                                    |> Option.ofNull
+                                    |> Option.map
+                                        (fun value
+                                            -> 
                                             value
                                             |> Seq.collect _.Attachments
                                             |> List.ofSeq
-                                            |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
-                                            |> List.choose id //co neprojde, to beze slova ignoruju
-                                            |> List.toSeq
-
-                                        | None   
-                                            ->
-                                            Seq.empty  //TODO logfile
+                                            |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)
+                                            |> List.choose id  // Remove `None` values
+                                            |> List.toSeq)
+                                    |> Option.defaultValue Seq.empty  //TODO logfile
 
                                 Seq.append timetables attachments   
                             )  
@@ -160,16 +154,14 @@ module SortJsonData =
                                 let fn2 (item : JsonProvider1.Vyluky) =    
                                     item.Attachments 
                                     |> Option.ofNull        
-                                    |> function 
-                                        | Some value -> value |> fn1
-                                        | None       -> Seq.empty  //TODO logfile              
+                                    |> Option.map fn1
+                                    |> Option.defaultValue Seq.empty  //TODO logfile       
 
                                 let fn3 (item : JsonProvider1.Root) =  
                                     item.Vyluky
                                     |> Option.ofNull  
-                                    |> function 
-                                        | Some value -> value |> Seq.collect fn2 
-                                        | None       -> Seq.empty  //TODO logfile     
+                                    |> Option.map (Seq.collect fn2)
+                                    |> Option.defaultValue Seq.empty //TODO logfile  
 
                                 let kodisJsonSamples = 
                                     async
@@ -186,11 +178,10 @@ module SortJsonData =
                                         }
                                     |> Async.RunSynchronously      
                                                           
-                                kodisJsonSamples 
+                                kodisJsonSamples
                                 |> Option.ofNull
-                                |> function 
-                                    | Some value -> value |> Seq.collect fn3 
-                                    | None       -> Seq.empty   //TODO logfile                                 
+                                |> Option.map (Seq.collect fn3)
+                                |> Option.defaultValue Seq.empty //TODO logfile                        
                             ) 
                 }
            
