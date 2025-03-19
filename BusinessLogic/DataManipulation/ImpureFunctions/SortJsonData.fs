@@ -125,7 +125,8 @@ module SortJsonData =
                                             |> List.ofSeq
                                             |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)
                                             |> List.choose id  // Remove `None` values
-                                            |> List.toSeq)
+                                            |> List.toSeq
+                                        )
                                     |> Option.defaultValue Seq.empty  //TODO logfile
 
                                 Seq.append timetables attachments   
