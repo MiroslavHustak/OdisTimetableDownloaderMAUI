@@ -13,6 +13,8 @@ module FileInfoHelper =
     
     open Settings.Messages    
 
+    open FsToolkit.ErrorHandling
+
     let [<Literal>] internal jsonEmpty = """[ {} ]"""
 
     let internal readAllText path = 
@@ -47,15 +49,14 @@ module FileInfoHelper =
 
     let internal checkFileCondition pathToFile condition =
         
-        pyramidOfDoom
+        option
             {
-                let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
-                let! filepath = filepath, None
+                let! filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
                     
                 let fInfodat : FileInfo = FileInfo filepath
-                let! _ = condition fInfodat |> Option.ofBool, None  
+                let! _ = condition fInfodat |> Option.ofBool  
                                                  
-                return Some ()
+                return ()
             }              
        
 module MyString = 

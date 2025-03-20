@@ -6,6 +6,8 @@ open System.Net.Http
 open Helpers
 open Helpers.Builders
 
+open FsToolkit.ErrorHandling
+
 #if ANDROID
 open Android.OS
 open Android.App
@@ -122,11 +124,11 @@ module AndroidUIHelpers =
     let internal bringAppToForeground () =
 
         try
-            pyramidOfDoom
+            option
                 {
-                    use! context = Application.Context |> Option.ofNull, None
-                    use! packageManager = context.PackageManager |> Option.ofNull, None
-                    use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None  
+                    use! context = Application.Context |> Option.ofNull
+                    use! packageManager = context.PackageManager |> Option.ofNull
+                    use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull  
                     let! _ = 
                         intent.AddFlags
                             (
@@ -136,10 +138,10 @@ module AndroidUIHelpers =
                                 ActivityFlags.BroughtToFront ||| 
                                 ActivityFlags.SingleTop
                             )
-                            |> Option.ofNull, None
-                    let! _ = context.StartActivity(intent) |> Option.ofNull, None
+                            |> Option.ofNull
+                    let! _ = context.StartActivity(intent) |> Option.ofNull
                 
-                    return Some ()        
+                    return ()        
                 }
         with
         | ex
@@ -150,19 +152,19 @@ module AndroidUIHelpers =
     //Not used yet
     let internal sendAppToBackground () =
         try
-            pyramidOfDoom
+            option
                 {
-                    use! context = Application.Context |> Option.ofNull, None
-                    use! packageManager = context.PackageManager |> Option.ofNull, None
+                    use! context = Application.Context |> Option.ofNull
+                    use! packageManager = context.PackageManager |> Option.ofNull
                 
                     use homeIntent = new Intent(Intent.ActionMain)
                     let! _ = 
                         homeIntent.AddCategory(Intent.CategoryHome)
                                   .SetFlags(ActivityFlags.NewTask)
-                                  |> Option.ofNull, None
-                    let! _ = context.StartActivity(homeIntent) |> Option.ofNull, None
+                                  |> Option.ofNull 
+                    let! _ = context.StartActivity(homeIntent) |> Option.ofNull
                 
-                    return Some ()
+                    return ()
                 }
         with
         | ex 
@@ -177,9 +179,9 @@ module AndroidUIHelpers =
                 try
                     do! Async.Sleep 500 
                     
-                    pyramidOfDoom
+                    option
                         {
-                            use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
+                            use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull
                             let! _ = 
                                 intent.AddFlags
                                     (
@@ -189,12 +191,12 @@ module AndroidUIHelpers =
                                         ActivityFlags.BroughtToFront ||| 
                                         ActivityFlags.SingleTop
                                     )
-                                    |> Option.ofNull, None
-                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
-                            let!_ = intent.SetData(uri) |> Option.ofNull, None 
-                            let!_ = Application.Context.StartActivity(intent)|> Option.ofNull, None
+                                    |> Option.ofNull
+                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull
+                            let!_ = intent.SetData(uri) |> Option.ofNull 
+                            let!_ = Application.Context.StartActivity(intent)|> Option.ofNull
 
-                            return Some ()
+                            return ()
                         }
 
                     |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
@@ -211,17 +213,17 @@ module AndroidDownloadService =
     //Not used yet
     let internal downloadManager (url: string) (fileName: string) =
 
-        pyramidOfDoom
+        option
             {
-                use! context = Application.Context |> Option.ofNull, None
-                use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, None                
-                use! uri = Uri.Parse(url) |> Option.ofNull, None                
-                use! request = new DownloadManager.Request(uri) |> Option.ofNull, None                
-                let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, None
-                let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNullEmpty, None
-                let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, None                                
+                use! context = Application.Context |> Option.ofNull
+                use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull                
+                use! uri = Uri.Parse(url) |> Option.ofNull                
+                use! request = new DownloadManager.Request(uri) |> Option.ofNull                
+                let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull
+                let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNullEmpty
+                let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull                                
 
-                return Some <| downloadManager.Enqueue(request)        
+                return downloadManager.Enqueue(request)        
             }
 
     //Not used yet 

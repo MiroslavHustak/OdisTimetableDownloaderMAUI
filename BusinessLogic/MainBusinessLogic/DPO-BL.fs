@@ -63,12 +63,12 @@ module DPO_BL =
                         |> Option.bind
                             (fun attr
                                 -> 
-                                pyramidOfDoom
+                                option
                                     {
-                                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty, None
-                                        let! attr = attr.Value () |> Option.ofNullEmpty, None
+                                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                                        let! attr = attr.Value () |> Option.ofNullEmpty
                                                                
-                                        return Some (nodes, attr)
+                                        return (nodes, attr)
                                     }                                                          
                             )            
                     )  

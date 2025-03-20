@@ -373,7 +373,7 @@ module App =
                     //Po zruseni kodu zbylo jednoradkove CE, zatim ponechavam 
                     let! _ = connectivityListener () |> Option.ofBool, (initialModelNoConn, Cmd.none)
 
-                    return initialModel, Cmd.none
+                    return (initialModel, Cmd.none)
                 }  
         with
         | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none

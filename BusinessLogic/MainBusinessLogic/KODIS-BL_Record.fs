@@ -151,20 +151,7 @@ module KODIS_BL_Record =
         let downloadAndSaveTimetables (token : CancellationToken) =  
             
             reader
-                {             
-                    let checkFileCondition pathToFile condition =
-                        
-                        pyramidOfDoom
-                            {
-                                let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
-                                let! filepath = filepath, None
-                                    
-                                let fInfodat: FileInfo = FileInfo filepath
-                                let! _ = condition fInfodat |> Option.ofBool, None  
-                                                                 
-                                return Some ()
-                            }                    
-                        
+                {                           
                     let! context = fun env -> env 
             
                     let l = context.list |> List.length
