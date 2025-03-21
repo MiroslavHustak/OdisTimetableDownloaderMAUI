@@ -20,6 +20,8 @@ open BusinessLogic.DPO_BL
 open Settings.Messages 
 open Settings.SettingsGeneral  
 
+open FsToolkit.ErrorHandling
+
 open IO_Operations.IO_Operations
 
 module WebScraping_DPO =
@@ -68,32 +70,31 @@ module WebScraping_DPO =
                                     
             | CreateFolders         
                 -> 
-                try                                          
-                    dirList pathToDir
-                    |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
-                    |> Ok
-                with
-                | _ -> Error FileDownloadErrorMHD //dpoMsg1
+                result
+                    {                                          
+                        dirList pathToDir
+                        |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+                    }   
+                |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg1
 
             | FilterDownloadSave   
                 ->                                      
-                try  
-                    try  
+                result
+                    {  
                         let pathToSubdir =
                             dirList pathToDir 
                             |> List.tryHead 
-                            |> Option.defaultValue String.Empty
-                            in
+                            |> Option.defaultValue String.Empty                        
+                           
+                        do! 
                             match pathToSubdir |> Directory.Exists with 
                             | false ->
-                                    Error FileDeleteErrorMHD                             
+                                    Error FileDeleteErrorMHD 
                             | true  -> 
                                     environment.FilterTimetables () pathToSubdir 
-                                    |> environment.DownloadAndSaveTimetables reportProgress token
-                    finally                        
-                        ()                         
-                with
-                | _ -> Error FileDownloadErrorMHD //dpoMsg2                                               
+                                    |> environment.DownloadAndSaveTimetables reportProgress token                                       
+                    } 
+                |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg2    
                        
         pyramidOfInferno
             {  

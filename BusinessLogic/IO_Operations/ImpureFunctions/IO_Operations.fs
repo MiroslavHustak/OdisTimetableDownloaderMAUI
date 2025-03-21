@@ -13,6 +13,8 @@ open CreatingPathsAndNames
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
+open FsToolkit.ErrorHandling
+
 module IO_Operations =    
     
     let internal deleteAllODISDirectories pathToDir = 
@@ -23,21 +25,19 @@ module IO_Operations =
                 {
                     let! getDefaultRecordValues = fun env -> env 
                     
-                    return 
-                        try
-                            //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-                            let dirInfo = DirectoryInfo pathToDir                                                       
-                                in
-                                dirInfo.EnumerateDirectories() 
-                                |> Seq.filter (fun item -> getDefaultRecordValues |> List.contains item.Name) //prunik dvou kolekci (plus jeste Seq.distinct pro unique items)
-                                |> Seq.distinct 
-                                |> Seq.iter _.Delete(true)  
-                                |> Ok
-                                //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
-                        with 
-                        | _ ->
-                            // TODO logfile 
-                            Error FileDeleteError
+                    return
+                        result
+                            {
+                                //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                                let dirInfo = DirectoryInfo pathToDir
+                                    in
+                                    return 
+                                        dirInfo.EnumerateDirectories()
+                                        |> Seq.filter (fun item -> getDefaultRecordValues |> List.contains item.Name) //prunik dvou kolekci (plus jeste Seq.distinct pro unique items)
+                                        |> Seq.distinct
+                                        |> Seq.iter _.Delete(true)  //smazeme pouze adresare obsahujici stare JR, ostatni ponechame  
+                            } 
+                        |> Result.mapError (fun _ -> FileDeleteError) // TODO logfile 
                 }
 
         deleteIt listODISDefault4  
@@ -53,83 +53,77 @@ module IO_Operations =
                     let! getDefaultRecordValues = fun env -> env
                                                           
                     return 
-                        try
-                            //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-                            let dirInfo = DirectoryInfo pathToDir        
-                                in
-                                dirInfo.EnumerateDirectories()
-                                |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
-                                |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
-                                |> Ok               
+                        result
+                            {
+                                //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                                let dirInfo = DirectoryInfo pathToDir        
+                                    in
+                                    return 
+                                        dirInfo.EnumerateDirectories()
+                                        |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
+                                        |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
                                 
-                        with 
-                        | _
-                            ->
-                            // TODO logfile 
-                            Error FileDeleteError                       
+                            } 
+                        |> Result.mapError (fun _ -> FileDeleteError) // TODO logfile                     
                 }
 
         deleteIt listODISDefault4    
         
     let internal deleteOneODISDirectoryMHD dirName pathToDir = 
         
-            try      
+        result
+            {      
                 //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
                 let dirInfo = DirectoryInfo pathToDir   
                     in 
-                    dirInfo.EnumerateDirectories()
-                    |> Seq.filter (fun item -> item.Name = dirName) 
-                    |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
-                    |> Ok
-            with
-            | _ -> Error FileDeleteErrorMHD     
+                    return 
+                        dirInfo.EnumerateDirectories()
+                        |> Seq.filter (fun item -> item.Name = dirName) 
+                        |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
+            } 
+        |> Result.mapError (fun _ -> FileDeleteErrorMHD) // TODO logfile        
       
     let internal createFolders dirList =  
-        try
-            dirList
-            |> List.iter
-                (fun (dir : string) 
-                    ->                
-                    match dir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || dir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
-                    | true  ->    
-                            sortedLines 
-                            |> List.iter
-                                (fun item
-                                    -> 
-                                    let dir = dir.Replace("_vyluk", sprintf "%s/%s" "_vyluk" item)
-                                    Directory.CreateDirectory dir |> ignore
-                                )           
-                    | false -> 
-                            Directory.CreateDirectory dir |> ignore           
-                ) 
-            |> Ok
 
-        with 
-        | _
-            ->
-            // TODO logfile 
-            Error CreateFolderError     
+        result
+            {
+                return
+                    dirList
+                    |> List.iter
+                        (fun (dir : string) 
+                            ->                
+                            match dir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || dir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
+                            | true  ->    
+                                    sortedLines 
+                                    |> List.iter
+                                        (fun item
+                                            -> 
+                                            let dir = dir.Replace("_vyluk", sprintf "%s/%s" "_vyluk" item)
+                                            Directory.CreateDirectory dir |> ignore
+                                        )           
+                            | false -> 
+                                    Directory.CreateDirectory dir |> ignore           
+                        ) 
+            }
+        |> Result.mapError (fun _ -> CreateFolderError) // TODO logfile 
         
     let internal ensureMainDirectoriesExist () =
        
-        try
-            [
-                partialPathJsonTemp 
-                kodisPathTemp 
-                kodisPathTemp4 
-                dpoPathTemp 
-                mdpoPathTemp
-            ]        
-            |> List.iter
-                (fun pathDir 
-                    ->
-                    match Directory.Exists pathDir with
-                    | true  -> () 
-                    | false -> Directory.CreateDirectory pathDir |> ignore 
-                )
-            |> Ok  
-        with 
-        | _
-            ->
-            // TODO logfile 
-            Error CreateFolderError     
+        result
+            {
+                [
+                    partialPathJsonTemp 
+                    kodisPathTemp 
+                    kodisPathTemp4 
+                    dpoPathTemp 
+                    mdpoPathTemp
+                ]        
+                |> List.iter
+                    (fun pathDir 
+                        ->
+                        match Directory.Exists pathDir with
+                        | true  -> () 
+                        | false -> Directory.CreateDirectory pathDir |> ignore 
+                    )
+             }
+         |> Result.mapError (fun _ -> CreateFolderError) // TODO logfile 
