@@ -54,9 +54,8 @@ module FileInfoHelper =
                 let! filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
                     
                 let fInfodat : FileInfo = FileInfo filepath
-                let! _ = condition fInfodat |> Option.ofBool  
-                                                 
-                return ()
+
+                return! condition fInfodat |> Option.ofBool  
             }              
        
 module MyString = 
