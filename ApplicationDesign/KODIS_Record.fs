@@ -77,8 +77,8 @@ module WebScraping_KODISFMRecord =
                     
             result
                 {
-                    //do! environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
-                    do! environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
+                    //return! environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
+                    return! environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
                 }            
             |> Result.mapError (fun _ -> JsonDownloadError) //TODO logfile                 
             |> Result.map (fun _ -> dispatchMsg1) 
