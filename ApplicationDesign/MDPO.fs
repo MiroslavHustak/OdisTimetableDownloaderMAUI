@@ -17,6 +17,8 @@ open BusinessLogic.MDPO_BL
 open Settings.Messages
 open Settings.SettingsGeneral  
 
+open FsToolkit.ErrorHandling
+
 open IO_Operations.IO_Operations
 
 module WebScraping_MDPO =
@@ -64,33 +66,30 @@ module WebScraping_MDPO =
                 deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir
 
             | CreateFolders        
-                -> 
-                try
-                    dirList pathToDir
-                    |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
-                    |> Ok
-                with
-                | _ -> Error FileDownloadErrorMHD //mdpoMsg1
+                ->               
+                result
+                    {                                          
+                        dirList pathToDir
+                        |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
+                    }   
+                |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg1
            
             | FilterDownloadSave   
                 ->                                      
-                try  
-                    try     
-                        let pathToSubdir =
-                            dirList pathToDir 
-                            |> List.tryHead 
-                            |> Option.defaultValue String.Empty
-                            in
-                            match pathToSubdir |> Directory.Exists with 
-                            | false ->
-                                    Error FileDeleteErrorMHD                             
-                            | true  -> 
-                                    environment.FilterTimetables () pathToSubdir 
-                                    |> environment.DownloadAndSaveTimetables reportProgress token pathToSubdir
-                    finally                       
-                        ()                         
+                try                     
+                    let pathToSubdir =
+                        dirList pathToDir 
+                        |> List.tryHead 
+                        |> Option.defaultValue String.Empty
+                        in
+                        match pathToSubdir |> Directory.Exists with 
+                        | false ->
+                                Error FileDeleteErrorMHD                             
+                        | true  -> 
+                                environment.FilterTimetables () pathToSubdir 
+                                |> environment.DownloadAndSaveTimetables reportProgress token pathToSubdir                                        
                 with
-                | ex -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X03")) ////FileDownloadErrorMHD //FileDownloadErrorMHD //mdpoMsg2               
+                | ex -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X03")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany
                                                            
         pyramidOfInferno
             {  

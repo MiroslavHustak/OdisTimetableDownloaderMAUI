@@ -9,6 +9,8 @@ open Types
 open Types.Types
 open Types.ErrorTypes
 
+open FsToolkit.ErrorHandling
+
 open BusinessLogic.KODIS_BL_Record
 
 open Helpers
@@ -73,15 +75,12 @@ module WebScraping_KODISFMRecord =
                 | JsonTimeoutError     -> jsonDownloadError  
                 | StopJsonDownloading  -> jsonCancel
                     
-            try
-                try
-                    //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
-                    environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
-                finally
-                    ()              
-            with
-            | _ -> Error JsonDownloadError  //TODO logfile
-                 
+            result
+                {
+                    //do! environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
+                    do! environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
+                }            
+            |> Result.mapError (fun _ -> JsonDownloadError) //TODO logfile                 
             |> Result.map (fun _ -> dispatchMsg1) 
             |> Result.mapError errFn
 

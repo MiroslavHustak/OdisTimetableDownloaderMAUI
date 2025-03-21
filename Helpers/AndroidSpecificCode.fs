@@ -139,9 +139,8 @@ module AndroidUIHelpers =
                                 ActivityFlags.SingleTop
                             )
                             |> Option.ofNull
-                    let! _ = context.StartActivity(intent) |> Option.ofNull
-                
-                    return ()        
+
+                    return! context.StartActivity(intent) |> Option.ofNull
                 }
         with
         | ex
@@ -162,9 +161,8 @@ module AndroidUIHelpers =
                         homeIntent.AddCategory(Intent.CategoryHome)
                                   .SetFlags(ActivityFlags.NewTask)
                                   |> Option.ofNull 
-                    let! _ = context.StartActivity(homeIntent) |> Option.ofNull
-                
-                    return ()
+
+                    return! context.StartActivity(homeIntent) |> Option.ofNull
                 }
         with
         | ex 
@@ -194,9 +192,8 @@ module AndroidUIHelpers =
                                     |> Option.ofNull
                             use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull
                             let!_ = intent.SetData(uri) |> Option.ofNull 
-                            let!_ = Application.Context.StartActivity(intent)|> Option.ofNull
 
-                            return ()
+                            return! Application.Context.StartActivity(intent)|> Option.ofNull
                         }
 
                     |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci

@@ -243,11 +243,11 @@ module FilterTimetableLinks =
         let dataToBeFiltered : Result<RcData list, PdfDownloadErrors> = 
 
             diggingResult   
-            |> function
-                | Ok value 
+            |> Result.map
+                (fun value 
                     -> 
                     value
-                    |> List.ofSeq
+                    |> List.ofSeq                 
                     |> List.Parallel.map 
                         (fun item
                             -> 
@@ -265,14 +265,8 @@ module FilterTimetableLinks =
                             let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
                             cond1 && cond2 
                         )         
-                    |> List.Parallel.map 
-                        (fun item -> splitKodisLink item) 
-                    |> Ok
-
-                | Error err
-                    -> 
-                    Error err 
-          
+                    |> List.Parallel.map (fun item -> splitKodisLink item) 
+                )          
                            
         //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
         let createPathsForDownloadedFiles filteredList : (string * string) list = 

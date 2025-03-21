@@ -73,7 +73,7 @@ module WebScraping_DPO =
                 result
                     {                                          
                         dirList pathToDir
-                        |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+                        |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
                     }   
                 |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg1
 
