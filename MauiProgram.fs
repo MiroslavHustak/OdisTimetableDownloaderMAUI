@@ -15,4 +15,4 @@ type MauiProgram =
                 |> ignore)
             .Build()   
 
-// Approx. 5200 LoC as of Jan 20, 2025
+// Approx. 4200 LoC as of Mar 22, 2025
