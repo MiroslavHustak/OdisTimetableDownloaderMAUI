@@ -69,8 +69,9 @@ module WebScraping_MDPO =
                 ->               
                 result
                     {                                          
-                        dirList pathToDir
-                        |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
+                        return
+                            dirList pathToDir
+                            |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
                     }   
                 |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg1
            

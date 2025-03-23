@@ -71,9 +71,10 @@ module WebScraping_DPO =
             | CreateFolders         
                 -> 
                 result
-                    {                                          
-                        dirList pathToDir
-                        |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
+                    {      
+                        return
+                            dirList pathToDir
+                            |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
                     }   
                 |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg1
 
@@ -86,7 +87,7 @@ module WebScraping_DPO =
                             |> List.tryHead 
                             |> Option.defaultValue String.Empty                        
                            
-                        do! 
+                        return! 
                             match pathToSubdir |> Directory.Exists with 
                             | false ->
                                     Error FileDeleteErrorMHD 
