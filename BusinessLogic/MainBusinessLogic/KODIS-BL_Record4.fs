@@ -304,8 +304,7 @@ module KODIS_BL_Record4 =
                             |> Option.defaultValue (Ok ())
 
                         with
-                        | _ 
-                            -> Error FileDownloadError  //TODO logfile   
+                        | _ -> Error FileDownloadError  //TODO logfile   
                 } 
         
         reader
