@@ -100,7 +100,7 @@ module MDPO_BL = //FsHttp
                         |> Option.bind
                             (fun attr 
                                 -> 
-                                option
+                                option  //pyramidOfDoom with None
                                     {
                                         let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
                                         let! attr = attr.Value () |> Option.ofNullEmpty

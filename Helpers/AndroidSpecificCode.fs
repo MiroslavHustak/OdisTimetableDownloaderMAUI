@@ -26,6 +26,7 @@ open Java.Interop
 open Javax.Net.Ssl
 
 // Java Interoperability Code for Custom SSL/TLS Handling on Android
+// For testing unsafe code only ! Not to be used in production !
 
 type TrustAllHostnameVerifier() =
 
