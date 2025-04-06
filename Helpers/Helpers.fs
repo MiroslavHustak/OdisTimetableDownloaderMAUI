@@ -22,8 +22,7 @@ module FileInfoHelper =
         pyramidOfDoom
             {
                 //path je sice casto pod kontrolou a filepath nebude null, nicmene pro jistotu...  
-                let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
-                                                
+                let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError                                                
                 let fInfoDat = FileInfo filepath
                 let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
 
@@ -38,7 +37,6 @@ module FileInfoHelper =
             {   
                 //path je sice casto pod kontrolou a filepath nebude null, nicmene pro jistotu...  
                 let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
-
                 let fInfoDat = FileInfo filepath
                 let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
 
@@ -51,8 +49,7 @@ module FileInfoHelper =
         
         option
             {
-                let! filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
-                    
+                let! filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty                     
                 let fInfodat : FileInfo = FileInfo filepath
 
                 return! condition fInfodat |> Option.ofBool  

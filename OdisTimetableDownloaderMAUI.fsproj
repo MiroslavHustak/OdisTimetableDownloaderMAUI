@@ -51,6 +51,7 @@
     <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
     <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+    <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
@@ -58,11 +59,14 @@
     <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
     <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+    <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'" />
 
   <ItemGroup>
     <!-- App Icon -->
-    <Content Include="TODO_list.txt" />
+    <None Include="TODO_list.txt" />
     <Resource Include="Platforms\Android\Resources\xml\network_security_config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
