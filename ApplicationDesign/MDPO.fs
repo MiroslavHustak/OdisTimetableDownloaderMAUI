@@ -107,8 +107,12 @@ module WebScraping_MDPO =
                             | false ->
                                     Error FileDeleteErrorMHD                             
                             | true  -> 
-                                    environment.UnsafeFilterTimetables () pathToSubdir  //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
-                                    |> environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir  
+                                    environment.UnsafeFilterTimetables () pathToSubdir  
+                                    |> environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir 
+                                    |> function
+                                        | Ok _      -> Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
+                                        | Error err -> Error err       
+                                    //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
                     with
                     | ex -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
                                                                   

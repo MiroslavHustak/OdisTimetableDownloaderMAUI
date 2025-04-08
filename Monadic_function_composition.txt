@@ -1,0 +1,1055 @@
+﻿Result
+(*
+let defaultWith defaultFn res =
+    match res with
+    | Ok value  -> value
+    | Error err -> defaultFn err 
+        
+let defaultValue default res =
+    match res with
+    | Ok value -> value
+    | Error _  -> default
+        
+let map f res =
+    match res with
+    | Ok value  -> Ok (f value)
+    | Error err -> Error err
+
+let mapError f res =
+    match res with
+    | Ok value  -> Ok value
+    | Error err -> Error (f err)
+
+let bind f res =
+    match res with
+    | Ok value -> f value
+    | Error err -> Error err
+*)
+
+Option
+(*
+let defaultValue default opt =
+    match opt with
+    | Some value -> value
+    | None       -> default
+        
+let map f opt =
+    match opt with
+    | Some value -> Some (f value)
+    | None       -> None
+
+let bind f opt =
+    match opt with
+    | Some value -> f value
+    | None       -> None
+*) 
+
+result
+    {      
+            return ....
+    }   
+|> Result.mapError (fun _ -> ....) 
+
+is the equivalent of: 
+
+try    
+    Ok ....
+with
+| _ -> Error .....
+
+option
+    {
+        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+        let! attr = attr.Value () |> Option.ofNullEmpty
+                                                               
+        return (nodes, attr)
+    }       
+
+is the equivalent of: 
+    
+ pyramidOfDoom with Some and None
+    {
+        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty, None
+        let! attr = attr.Value () |> Option.ofNullEmpty, None
+                                                               
+        return Some (nodes, attr)
+    }         
+
+| CreateFolders         
+    -> 
+    try                                          
+        dirList pathToDir
+        |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+        |> Ok
+    with
+    | _ -> Error FileDownloadErrorMHD //dpoMsg1
+
+| CreateFolders         
+    -> 
+    result
+        {      
+            return
+                dirList pathToDir
+                |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
+        }   
+    |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg1
+
+| FilterDownloadSave   
+    ->                                      
+    try  
+        try  
+            let pathToSubdir =
+                dirList pathToDir 
+                |> List.tryHead 
+                |> Option.defaultValue String.Empty
+                in
+                match pathToSubdir |> Directory.Exists with 
+                | false ->
+                        Error FileDeleteErrorMHD                             
+                | true  -> 
+                        environment.FilterTimetables () pathToSubdir 
+                        |> environment.DownloadAndSaveTimetables reportProgress token
+        finally                        
+            ()                         
+    with
+    | _ -> Error FileDownloadErrorMHD //dpoMsg2       
+
+| FilterDownloadSave   
+    ->                                      
+    result
+        {  
+            let pathToSubdir =
+                dirList pathToDir 
+                |> List.tryHead 
+                |> Option.defaultValue String.Empty                        
+                           
+            return! 
+                match pathToSubdir |> Directory.Exists with 
+                | false ->
+                        Error FileDeleteErrorMHD 
+                | true  -> 
+                        environment.FilterTimetables () pathToSubdir 
+                        |> environment.DownloadAndSaveTimetables reportProgress token                                       
+        } 
+    |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg2  
+
+
+*****************************************
+
+let downloadAndSaveJson reportProgress (token : CancellationToken) = 
+
+    let errFn err =  
+        match err with
+        | JsonDownloadError    -> jsonDownloadError
+        | JsonConnectionError  -> cancelMsg2
+        | NetConnJsonError err -> err
+        | JsonTimeoutError     -> jsonDownloadError  
+        | StopJsonDownloading  -> String.Empty
+                    
+    try
+        try
+            #if ANDROID
+            KeepScreenOnManager.keepScreenOn true
+            #endif
+
+            //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
+            environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
+        finally
+            #if ANDROID
+            KeepScreenOnManager.keepScreenOn false
+            #endif
+            ()              
+    with
+    | _ -> Error JsonDownloadError  //TODO logfile
+                 
+    |> function
+        | Ok _      -> Ok dispatchMsg1 
+        | Error err -> Error <| errFn err
+
+let downloadAndSaveJson reportProgress (token : CancellationToken) = 
+
+    let errFn err =  
+        match err with
+        | JsonDownloadError    -> jsonDownloadError
+        | JsonConnectionError  -> cancelMsg2
+        | NetConnJsonError err -> err
+        | JsonTimeoutError     -> jsonDownloadError  
+        | StopJsonDownloading  -> jsonCancel
+                    
+    result
+        {
+            //return! environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
+            return! environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
+        }            
+    |> Result.mapError (fun _ -> JsonDownloadError) //TODO logfile                 
+    |> Result.map (fun _ -> dispatchMsg1) 
+    |> Result.mapError errFn
+
+**************************************************************************************************
+document.Descendants "a"
+|> Seq.choose 
+    (fun htmlNode ->
+        match htmlNode.TryGetAttribute "href" with
+        | Some attr 
+            ->
+            pyramidOfDoom
+                {
+                    let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty, None
+                    let! attr = attr.Value () |> Option.ofNullEmpty, None
+                                                               
+                    return Some (nodes, attr)
+                }         
+        | None
+            ->
+            None
+    )
+
+document.Descendants "a"
+|> Seq.choose 
+    (fun htmlNode
+        ->
+        htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
+        |> Option.bind
+            (fun attr
+                -> 
+                pyramidOfDoom
+                    {
+                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty, None
+                        let! attr = attr.Value () |> Option.ofNullEmpty, None
+                                                               
+                        return Some (nodes, attr)
+                    }                                                          
+            )            
+    )  
+
+document.Descendants "a"
+|> Seq.choose 
+    (fun htmlNode
+        ->
+        htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
+        |> Option.bind
+            (fun attr
+                -> 
+                option
+                    {
+                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                        let! attr = attr.Value () |> Option.ofNullEmpty
+                                                               
+                        return (nodes, attr)
+                    }                                                          
+            )            
+    )  
+
+************************************************************************
+filterTimetables 
+|> List.mapi
+    (fun i (link, pathToFile)
+        ->  
+        async                                                
+            {   
+                token.ThrowIfCancellationRequested ()
+                reportProgress (float i + 1.0, float l)  
+                return! downloadFileTaskAsync link pathToFile 
+            } 
+        |> Async.RunSynchronously
+    ) 
+|> ignore
+|> Ok
+
+filterTimetables 
+|> List.mapi
+    (fun i (link, pathToFile) ->  
+        async                                                
+            {   
+                token.ThrowIfCancellationRequested ()
+                reportProgress (float i + 1.0, float l)  
+                return! downloadFileTaskAsync link pathToFile 
+            } 
+        |> Async.Catch
+        |> Async.RunSynchronously  
+        |> Result.ofChoice  
+    ) 
+|> List.tryPick
+    (function
+        | Ok _ -> None
+        | Error err ->
+            match (string err.Message).Contains("The operation was canceled.") with
+            | true  -> Some <| Error StopDownloadingMHD
+            | false -> Some <| Error FileDownloadErrorMHD
+    )
+|> function
+    | Some value -> value
+    | None -> Ok ()
+
+filterTimetables 
+|> List.mapi
+    (fun i (link, pathToFile)
+        ->  
+        async                                                
+            {   
+                token.ThrowIfCancellationRequested () //CancellationToken should also be passed to any async operation that might be cancelled
+                reportProgress (float i + 1.0, float l)  
+                return! downloadFileTaskAsync link pathToFile 
+            } 
+        |> Async.Catch
+        |> Async.RunSynchronously  
+        |> Result.ofChoice  
+    ) 
+|> List.tryPick
+    (function
+        | Ok _ 
+            -> 
+            None
+
+        | Error err
+            ->
+            match (string err.Message).Contains("The operation was canceled.") with
+            | true  -> Some <| Error StopDownloadingMHD
+            | false -> Some <| Error FileDownloadErrorMHD
+    )
+|> Option.defaultValue (Ok ()) 
+
+*****************************************************************************************
+
+let internal operationOnDataFromJson (token : CancellationToken) variant dir =   
+
+    try               
+        digThroughJsonStructure >> filterTimetableLinks variant dir <| token 
+    with
+    | ex
+        ->
+        string ex.Message |> ignore //TODO logfile                 
+        Error DataFilteringError 
+
+let internal operationOnDataFromJson (token : CancellationToken) variant dir =   
+
+    result
+        {               
+            return! digThroughJsonStructure >> filterTimetableLinks variant dir <| token 
+        } 
+    |> Result.mapError (fun _ -> DataFilteringError) //TODO logfile    
+    
+***************************************************************************************
+***************************************************************************************
+
+let internal deleteAllODISDirectories pathToDir = 
+
+    let deleteIt : Reader<string list, Result<unit, PdfDownloadErrors>> = 
+    
+        reader //Reader monad for educational purposes only, no real benefit here  
+            {
+                let! getDefaultRecordValues = fun env -> env 
+                    
+                return 
+                    try
+                        //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                        let dirInfo = DirectoryInfo pathToDir                                                       
+                            in
+                            dirInfo.EnumerateDirectories() 
+                            |> Seq.filter (fun item -> getDefaultRecordValues |> List.contains item.Name) //prunik dvou kolekci (plus jeste Seq.distinct pro unique items)
+                            |> Seq.distinct 
+                            |> Seq.iter _.Delete(true)  
+                            |> Ok
+                            //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
+                    with 
+                    | ex ->
+                            string ex.Message |> ignore // TODO logfile 
+                            Error FileDeleteError
+            }
+
+    deleteIt listODISDefault4  
+
+let internal deleteAllODISDirectories pathToDir = 
+
+    let deleteIt : Reader<string list, Result<unit, PdfDownloadErrors>> = 
+    
+        reader //Reader monad for educational purposes only, no real benefit here  
+            {
+                let! getDefaultRecordValues = fun env -> env 
+                    
+                return
+                    result
+                        {
+                            //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                            let dirInfo = DirectoryInfo pathToDir
+                                in
+                                return 
+                                    dirInfo.EnumerateDirectories()
+                                    |> Seq.filter (fun item -> getDefaultRecordValues |> List.contains item.Name) //prunik dvou kolekci (plus jeste Seq.distinct pro unique items)
+                                    |> Seq.distinct
+                                    |> Seq.iter _.Delete(true)  //smazeme pouze adresare obsahujici stare JR, ostatni ponechame  
+                        } 
+                    |> Result.mapError (fun _ -> FileDeleteError) // TODO logfile 
+            }
+
+    deleteIt listODISDefault4  
+
+let internal deleteOneODISDirectory variant pathToDir =
+
+    //smazeme pouze jeden adresar obsahujici stare JR, ostatni ponechame
+
+    let deleteIt : Reader<string list, Result<unit, PdfDownloadErrors>> =  
+
+        reader //Reader monad for educational purposes only, no real benefit here  
+            {   
+                let! getDefaultRecordValues = fun env -> env
+                                                          
+                return 
+                    try
+                        //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                        let dirInfo = DirectoryInfo pathToDir        
+                            in
+                            dirInfo.EnumerateDirectories()
+                            |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
+                            |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
+                            |> Ok               
+                                
+                    with 
+                    | ex
+                        ->
+                        string ex.Message |> ignore // TODO logfile 
+                        Error FileDeleteError                       
+            }
+
+    deleteIt listODISDefault4   
+    
+let internal deleteOneODISDirectory variant pathToDir =
+
+    //smazeme pouze jeden adresar obsahujici stare JR, ostatni ponechame
+
+    let deleteIt : Reader<string list, Result<unit, PdfDownloadErrors>> =  
+
+        reader //Reader monad for educational purposes only, no real benefit here  
+            {   
+                let! getDefaultRecordValues = fun env -> env
+                                                          
+                return 
+                    result
+                        {
+                            //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                            let dirInfo = DirectoryInfo pathToDir        
+                                in
+                                return 
+                                    dirInfo.EnumerateDirectories()
+                                    |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
+                                    |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
+                                
+                        } 
+                    |> Result.mapError (fun _ -> FileDeleteError) // TODO logfile                     
+            }
+
+    deleteIt listODISDefault4    
+        
+let internal deleteOneODISDirectoryMHD dirName pathToDir = 
+        
+        try      
+            //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+            let dirInfo = DirectoryInfo pathToDir   
+                in 
+                dirInfo.EnumerateDirectories()
+                |> Seq.filter (fun item -> item.Name = dirName) 
+                |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
+                |> Ok
+        with
+        | _ -> Error FileDownloadErrorMHD //dpoMsg1    
+
+let internal deleteOneODISDirectoryMHD dirName pathToDir = 
+        
+    result
+        {      
+            //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+            let dirInfo = DirectoryInfo pathToDir   
+                in 
+                return 
+                    dirInfo.EnumerateDirectories()
+                    |> Seq.filter (fun item -> item.Name = dirName) 
+                    |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
+        } 
+    |> Result.mapError (fun _ -> FileDeleteErrorMHD) // TODO logfile        
+
+      
+let internal createFolders dirList =  
+    try
+        dirList
+        |> List.iter
+            (fun (dir: string) 
+                ->                
+                match dir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || dir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
+                | true  ->    
+                        sortedLines 
+                        |> List.iter
+                            (fun item
+                                -> 
+                                let dir = dir.Replace("_vyluk", sprintf "%s/%s" "_vyluk" item)
+                                Directory.CreateDirectory dir |> ignore
+                            )           
+                | false -> 
+                        Directory.CreateDirectory dir |> ignore           
+            ) 
+        |> Ok
+
+    with 
+    | ex
+        ->
+        string ex.Message |> ignore // TODO logfile 
+        Error CreateFolderError     
+
+let internal createFolders dirList =  
+
+    result
+        {
+            return
+                dirList
+                |> List.iter
+                    (fun (dir : string) 
+                        ->                
+                        match dir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || dir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
+                        | true  ->    
+                                sortedLines 
+                                |> List.iter
+                                    (fun item
+                                        -> 
+                                        let dir = dir.Replace("_vyluk", sprintf "%s/%s" "_vyluk" item)
+                                        Directory.CreateDirectory dir |> ignore
+                                    )           
+                        | false -> 
+                                Directory.CreateDirectory dir |> ignore           
+                    ) 
+        }
+    |> Result.mapError (fun _ -> CreateFolderError) // TODO logfile 
+        
+let internal ensureMainDirectoriesExist () =
+       
+    try
+        [
+            partialPathJsonTemp 
+            kodisPathTemp 
+            kodisPathTemp4 
+            dpoPathTemp 
+            mdpoPathTemp
+        ]        
+        |> List.iter
+            (fun pathDir 
+                ->
+                match Directory.Exists pathDir with
+                | true  -> () 
+                | false -> Directory.CreateDirectory pathDir |> ignore 
+            )
+        |> Ok  
+    with 
+    | ex
+        ->
+        string ex.Message |> ignore // TODO logfile 
+        Error CreateFolderError   
+        
+let internal ensureMainDirectoriesExist () =
+       
+    result
+        {
+            [
+                partialPathJsonTemp 
+                kodisPathTemp 
+                kodisPathTemp4 
+                dpoPathTemp 
+                mdpoPathTemp
+            ]        
+            |> List.iter
+                (fun pathDir 
+                    ->
+                    match Directory.Exists pathDir with
+                    | true  -> () 
+                    | false -> Directory.CreateDirectory pathDir |> ignore 
+                )
+        }
+    |> Result.mapError (fun _ -> CreateFolderError) // TODO logfile 
+
+****************************************************************************************
+****************************************************************************************
+
+let internal digThroughJsonStructure (token : CancellationToken) = //prohrabeme se strukturou json souboru 
+        
+    let kodisTimetables (token : CancellationToken) : Reader<string list, string seq> =
+        
+        reader  //Reader monad for educational purposes only, no real benefit here  
+            {
+                let! pathToJsonList = fun env -> env
+        
+                return 
+                    pathToJsonList
+                    |> Seq.ofList
+                    |> Seq.collect
+                        (fun pathToJson 
+                            ->    
+                            async
+                                {
+                                    try
+                                        match token.IsCancellationRequested with
+                                        | false ->
+                                                let! json = readAllTextAsync pathToJson
+                                                return JsonProvider1.Parse json
+                                        | true  -> 
+                                                return JsonProvider1.Parse tempJson1
+                                    with 
+                                    | _ -> return JsonProvider1.Parse tempJson1
+                                }
+                            |> Async.RunSynchronously
+                            |> Option.ofNull
+                            |> function
+                                | Some value -> value |> Seq.map (_.Timetable)
+                                | None       -> Seq.empty
+                        )
+            }
+
+let internal digThroughJsonStructure (token : CancellationToken) = //prohrabeme se strukturou json souboru 
+        
+    let kodisTimetables (token : CancellationToken) : Reader<string list, string seq> =
+        
+        reader  //Reader monad for educational purposes only, no real benefit here  
+            {
+                let! pathToJsonList = fun env -> env
+        
+                return 
+                    pathToJsonList
+                    |> Seq.ofList
+                    |> Seq.collect
+                        (fun pathToJson 
+                            ->    
+                            async
+                                {
+                                    try
+                                        match token.IsCancellationRequested with
+                                        | false ->
+                                                let! json = readAllTextAsync pathToJson
+                                                return JsonProvider1.Parse json
+                                        | true  -> 
+                                                return JsonProvider1.Parse tempJson1
+                                    with 
+                                    | _ -> return JsonProvider1.Parse tempJson1
+                                }
+                            |> Async.RunSynchronously
+                            |> Option.ofNull
+                            |> Option.map (Seq.map _.Timetable)
+                            |> Option.defaultValue Seq.empty  //TODO logfile
+                        )
+            }
+            
+let kodisTimetables3 : Reader<string list, string seq> = 
+
+    reader //Reader monad for educational purposes only, no real benefit here  
+        {
+            let! pathToJsonList3 = fun env -> env 
+
+            return 
+                pathToJsonList3 
+                |> Seq.ofList 
+                |> Seq.collect 
+                    (fun pathToJson 
+                        ->    
+                        let kodisJsonSamples =    
+                            async
+                                {
+                                    try
+                                        match token.IsCancellationRequested with
+                                        | false ->
+                                                let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                return JsonProvider2.Parse json
+
+                                        | true  -> 
+                                                return JsonProvider2.Parse tempJson2
+                                    with 
+                                    | _ -> return JsonProvider2.Parse tempJson2
+                                }
+                            |> Async.RunSynchronously                                       
+                                 
+                        let timetables = 
+                            kodisJsonSamples
+                            |> Option.ofNull
+                            |> function 
+                                | Some value -> value.Data |> Seq.map _.Timetable  //nejde Some, nejde Ok
+                                | None       -> Seq.empty  //TODO logfile
+                                 
+                        let vyluky = 
+                            kodisJsonSamples
+                            |> Option.ofNull
+                            |> function 
+                                | Some value -> value.Data |> Seq.collect _.Vyluky  //nejde Some, nejde Ok
+                                | None       -> Seq.empty  //TODO logfile
+                                 
+                        let attachments = 
+                            vyluky
+                            |> Option.ofNull 
+                            |> function
+                                | Some value
+                                    ->
+                                    value
+                                    |> Seq.collect (fun item -> item.Attachments)
+                                    |> List.ofSeq
+                                    |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
+                                    |> List.choose id //co neprojde, to beze slova ignoruju
+                                    |> List.toSeq
+
+                                | None   
+                                    ->
+                                    Seq.empty  //TODO logfile
+
+                        Seq.append timetables attachments   
+                    )  
+        }  
+        
+let kodisTimetables3 : Reader<string list, string seq> = 
+
+    reader //Reader monad for educational purposes only, no real benefit here  
+        {
+            let! pathToJsonList3 = fun env -> env 
+
+            return 
+                pathToJsonList3 
+                |> Seq.ofList 
+                |> Seq.collect 
+                    (fun pathToJson 
+                        ->    
+                        let kodisJsonSamples =    
+                            async
+                                {
+                                    try
+                                        match token.IsCancellationRequested with
+                                        | false ->
+                                                let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                return JsonProvider2.Parse json
+
+                                        | true  -> 
+                                                return JsonProvider2.Parse tempJson2
+                                    with 
+                                    | _ -> return JsonProvider2.Parse tempJson2
+                                }
+                            |> Async.RunSynchronously                                       
+                                 
+                        let timetables = 
+                            kodisJsonSamples
+                            |> Option.ofNull
+                            |> Option.map (fun value -> value.Data |> Seq.map _.Timetable)
+                            |> Option.defaultValue Seq.empty  //TODO logfile                                 
+                                 
+                        let vyluky = 
+                            kodisJsonSamples
+                            |> Option.ofNull
+                            |> Option.map (fun value -> value.Data |> Seq.collect _.Vyluky)
+                            |> Option.defaultValue Seq.empty //TODO logfile
+                                 
+                        let attachments = 
+                            vyluky
+                            |> Option.ofNull
+                            |> Option.map
+                                (fun value
+                                    -> 
+                                    value
+                                    |> Seq.collect _.Attachments
+                                    |> List.ofSeq
+                                    |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)
+                                    |> List.choose id  // Remove `None` values
+                                    |> List.toSeq
+                                )
+                            |> Option.defaultValue Seq.empty  //TODO logfile
+
+                        Seq.append timetables attachments   
+                    )  
+        }    
+         
+let kodisAttachments : Reader<string list, string seq> = //Reader monad for educational purposes only, no real benefit here
+            
+    reader 
+        {
+            let! pathToJsonList = fun env -> env 
+                        
+            return                          
+                pathToJsonList
+                |> Seq.ofList 
+                |> Seq.collect  //vzhledem ke komplikovanosti nepouzivam Result.sequence pro Array.collect (po zmene na seq ocekavam to same), nejde Some, nejde Ok jako vyse
+                    (fun pathToJson 
+                        -> 
+                        let fn1 (value : JsonProvider1.Attachment seq) = 
+                            value
+                            |> List.ofSeq
+                            |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
+                            |> List.choose id //co neprojde, to beze slova ignoruju
+                            |> List.toSeq
+
+                        let fn2 (item : JsonProvider1.Vyluky) =    
+                            item.Attachments 
+                            |> Option.ofNull        
+                            |> function 
+                                | Some value -> value |> fn1
+                                | None       -> Seq.empty  //TODO logfile              
+
+                        let fn3 (item : JsonProvider1.Root) =  
+                            item.Vyluky
+                            |> Option.ofNull  
+                            |> function 
+                                | Some value -> value |> Seq.collect fn2 
+                                | None       -> Seq.empty  //TODO logfile     
+
+                        let kodisJsonSamples = 
+                            async
+                                {
+                                    try
+                                        match token.IsCancellationRequested with
+                                        | false ->
+                                                let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                return JsonProvider1.Parse json
+                                        | true  -> 
+                                                return JsonProvider1.Parse tempJson1
+                                    with 
+                                    | _ -> return JsonProvider1.Parse tempJson1
+                                }
+                            |> Async.RunSynchronously      
+                                                          
+                        kodisJsonSamples 
+                        |> Option.ofNull
+                        |> function 
+                            | Some value -> value |> Seq.collect fn3 
+                            | None       -> Seq.empty   //TODO logfile                                 
+                    ) 
+        }
+
+let kodisAttachments : Reader<string list, string seq> = //Reader monad for educational purposes only, no real benefit here
+            
+    reader 
+        {
+            let! pathToJsonList = fun env -> env 
+                        
+            return                          
+                pathToJsonList
+                |> Seq.ofList 
+                |> Seq.collect  //vzhledem ke komplikovanosti nepouzivam Result.sequence pro Array.collect (po zmene na seq ocekavam to same), nejde Some, nejde Ok jako vyse
+                    (fun pathToJson 
+                        -> 
+                        let fn1 (value : JsonProvider1.Attachment seq) = 
+                            value
+                            |> List.ofSeq
+                            |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
+                            |> List.choose id //co neprojde, to beze slova ignoruju
+                            |> List.toSeq
+
+                        let fn2 (item : JsonProvider1.Vyluky) =    
+                            item.Attachments 
+                            |> Option.ofNull        
+                            |> Option.map fn1
+                            |> Option.defaultValue Seq.empty  //TODO logfile       
+
+                        let fn3 (item : JsonProvider1.Root) =  
+                            item.Vyluky
+                            |> Option.ofNull  
+                            |> Option.map (Seq.collect fn2)
+                            |> Option.defaultValue Seq.empty //TODO logfile  
+
+                        let kodisJsonSamples = 
+                            async
+                                {
+                                    try
+                                        match token.IsCancellationRequested with
+                                        | false ->
+                                                let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                return JsonProvider1.Parse json
+                                        | true  -> 
+                                                return JsonProvider1.Parse tempJson1
+                                    with 
+                                    | _ -> return JsonProvider1.Parse tempJson1
+                                }
+                            |> Async.RunSynchronously      
+                                                          
+                        kodisJsonSamples
+                        |> Option.ofNull
+                        |> Option.map (Seq.collect fn3)
+                        |> Option.defaultValue Seq.empty //TODO logfile                        
+                    ) 
+        }
+
+************************************************************************
+
+try 
+    let task = kodisTimetables3 pathToJsonList3 
+    (Seq.append <| task <| addOn())
+    |> Seq.distinct
+    |> List.ofSeq
+    |> Ok            
+with
+| ex
+    ->  
+    string ex.Message |> ignore  //TODO logfile
+    Error JsonFilteringError   
+    
+result
+    {
+        return  
+            addOn()
+            |> Seq.append (kodisTimetables3 pathToJsonList3)
+            |> Seq.distinct
+            |> List.ofSeq
+    } 
+|> Result.mapError (fun _ -> JsonFilteringError)
+
+************************************************************************
+************************************************************************
+let oldPrefix = 
+    try
+        Regex.Split(input, extractSubstring1 input) 
+        |> Array.toList
+        |> List.item 0
+        |> splitString
+        |> List.item 1
+        |> Ok
+    with 
+    | ex -> Error <| string ex.Message
+                     
+    |> function
+        | Ok value
+            -> 
+            value  
+
+        | Error err
+            ->
+            err |> ignore  //TODO logfile 
+            String.Empty     
+
+let oldPrefix = 
+    try
+        Regex.Split(input, extractSubstring1 input) 
+        |> Array.toList
+        |> List.item 0
+        |> splitString
+        |> List.item 1
+        |> Ok
+    with 
+    | ex -> Error <| string ex.Message
+                     
+    |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
+
+let oldPrefix = 
+    result
+        {
+            return
+                Regex.Split(input, extractSubstring1 input) 
+                |> Array.toList
+                |> List.item 0
+                |> splitString
+                |> List.item 1
+        } 
+    |> Result.mapError (fun ex -> Error <| string ex.Message)
+    |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
+
+
+**************************************************************************************
+
+let dataToBeFiltered : Result<RcData list, PdfDownloadErrors> = 
+
+    diggingResult   
+    |> function
+        | Ok value 
+            -> 
+            value
+            |> List.ofSeq
+            |> List.Parallel.map 
+                (fun item
+                    -> 
+                    let item = extractSubstring item                  
+                           
+                    match item.Contains @"timetables/" with
+                    | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
+                    | false -> item                                       
+                )  
+            |> List.sort //jen quli testovani
+            |> List.filter
+                (fun item
+                    -> 
+                    let cond1 = (item |> Option.ofNullEmptySpace).IsSome
+                    let cond2 = item |> Option.ofNullEmpty |> Option.toBool 
+                    cond1 && cond2 
+                )         
+            |> List.Parallel.map 
+                (fun item -> splitKodisLink item) 
+            |> Ok
+
+        | Error err
+            -> 
+            Error err 
+
+let dataToBeFiltered : Result<RcData list, PdfDownloadErrors> = 
+
+    diggingResult   
+    |> Result.map
+        (fun value 
+            -> 
+            value
+            |> List.ofSeq                 
+            |> List.Parallel.map 
+                (fun item
+                    -> 
+                    let item = extractSubstring item                  
+                           
+                    match item.Contains @"timetables/" with
+                    | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
+                    | false -> item                                       
+                )  
+            |> List.sort //jen quli testovani
+            |> List.filter
+                (fun item
+                    -> 
+                    let cond1 = (item |> Option.ofNullEmptySpace).IsSome
+                    let cond2 = item |> Option.ofNullEmpty |> Option.toBool 
+                    cond1 && cond2 
+                )         
+            |> List.Parallel.map (fun item -> splitKodisLink item) 
+        )    
+        
+**************************************************************************
+let internal checkFileCondition pathToFile condition =
+        
+    pyramidOfDoom
+        {
+            let filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty 
+            let! filepath = filepath, None
+                    
+            let fInfodat : FileInfo = FileInfo filepath
+            let! _ = condition fInfodat |> Option.ofBool, None  
+                                                 
+            return Some ()
+        }        
+
+let internal checkFileCondition pathToFile condition =
+        
+    option
+        {
+            let! filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty                     
+            let fInfodat : FileInfo = FileInfo filepath
+
+            return! condition fInfodat |> Option.ofBool  
+        }     
+        
+
+let internal readAllTextAsync path = 
+
+    pyramidOfDoom
+        {   
+            let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
+            let fInfoDat = FileInfo filepath
+            let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+
+            return Ok (File.ReadAllTextAsync filepath |> Async.AwaitTask)                                          
+        }  
+            
+    |> function
+        | Ok value -> value                      
+        | Error _  -> async { return jsonEmpty } //TODO logfile, nestoji to za to vytahovat Result nahoru
+
+ let internal readAllTextAsync path = 
+
+    pyramidOfDoom
+        {   
+            let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
+            let fInfoDat = FileInfo filepath
+            let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+
+            return Ok (File.ReadAllTextAsync filepath |> Async.AwaitTask)                                          
+        }  
+            
+    |> Result.defaultWith (fun _ -> async { return jsonEmpty }) //TODO logfile, nestoji to za to vytahovat Result nahoru
