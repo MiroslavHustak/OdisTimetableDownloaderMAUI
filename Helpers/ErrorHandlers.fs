@@ -42,7 +42,7 @@ module Result =
 
     let bind f res =
         match res with
-        | Ok value -> f value
+        | Ok value  -> f value
         | Error err -> Error err
     *)
   
@@ -105,7 +105,7 @@ module Option =
         validate :: Maybe String -> Maybe String
         validate value = 
         value >>= \v ->                      -- Check if value is Just
-        guard (not (null v)) >> Just v        -- Check if value is not empty, return Just v
+        guard (not (null v)) >> Just v       -- Check if value is not empty, return Just v
         
         //*****************************************
         

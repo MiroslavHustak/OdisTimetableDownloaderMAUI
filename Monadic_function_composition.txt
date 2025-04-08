@@ -22,7 +22,7 @@ let mapError f res =
 
 let bind f res =
     match res with
-    | Ok value -> f value
+    | Ok value  -> f value
     | Error err -> Error err
 *)
 
@@ -1039,7 +1039,7 @@ let internal readAllTextAsync path =
             
     |> function
         | Ok value -> value                      
-        | Error _  -> async { return jsonEmpty } //TODO logfile, nestoji to za to vytahovat Result nahoru
+        | Error _  -> async { return jsonEmpty } 
 
  let internal readAllTextAsync path = 
 
@@ -1052,4 +1052,71 @@ let internal readAllTextAsync path =
             return Ok (File.ReadAllTextAsync filepath |> Async.AwaitTask)                                          
         }  
             
-    |> Result.defaultWith (fun _ -> async { return jsonEmpty }) //TODO logfile, nestoji to za to vytahovat Result nahoru
+    |> Result.defaultWith (fun _ -> async { return jsonEmpty }) 
+
+
+*******************************************************************************************
+From REST API solution
+*******************************************************************************************
+
+let getJsonStringAsync path =
+
+    try
+        pyramidOfDoom 
+            {
+                //some code                
+                return Ok (reader, fs)
+            }
+
+        |> function
+            | Ok (reader, fs) 
+                ->
+                async
+                    { 
+                        //some async code
+                        return json 
+                    }
+                |> Ok
+                       
+            | Error err -> Error err
+            
+    with
+    | ex -> Error (string ex.Message)
+
+
+let getJsonStringAsync path =
+
+    try
+        pyramidOfDoom 
+            {
+               //some code
+                return Ok (reader, fs)
+            }
+
+        |> Result.map 
+            (fun (reader, fs) 
+                -> 
+                async
+                    { 
+                        //some async code
+                        return json 
+                    }
+            ) 
+                
+    with
+    | ex -> Error (string ex.Message)
+
+********************************************************
+ let jsonString = 
+    jsonString 
+    |> Option.ofNull 
+    |> function
+        | Some value -> value
+        | None       -> jsonEmpty 
+
+ let jsonString = 
+    jsonString 
+    |> Option.ofNull 
+    |> Option.defaultValue jsonEmpty 
+
+********************************************************
