@@ -2,6 +2,7 @@
 
 open System
 open System.IO
+open System.Net.Http
 open System.Threading
 
 //**********************************
@@ -44,19 +45,23 @@ module WebScraping_MDPO =
 
     type private Environment = 
         {
-            FilterTimetables : unit -> string -> Map<string, string>
-            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> Map<string, string> -> Result<unit, MHDErrors>
+            SafeFilterTimetables : unit -> string -> Map<string, string>
+            SafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> Map<string, string> -> Result<unit, MHDErrors>
+            UnsafeFilterTimetables : unit -> string -> Map<string, string>
+            UnsafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> Map<string, string> -> Result<unit, MHDErrors>
         }
 
     let private environment : Environment =
         { 
-            FilterTimetables = filterTimetables 
-            DownloadAndSaveTimetables = downloadAndSaveTimetables       
+            SafeFilterTimetables = safeFilterTimetables 
+            SafeDownloadAndSaveTimetables = safeDownloadAndSaveTimetables      
+            UnsafeFilterTimetables = unsafeFilterTimetables 
+            UnsafeDownloadAndSaveTimetables = unsafeDownloadAndSaveTimetables       
         }    
 
     let internal webscraping_MDPO reportProgress token pathToDir =  
            
-        let stateReducer token (state : State) (action: Actions) (environment : Environment) =
+        let stateReducer token (state : State) (action : Actions) (environment : Environment) =
 
             let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir6 ]
             
@@ -87,11 +92,26 @@ module WebScraping_MDPO =
                         | false ->
                                 Error FileDeleteErrorMHD                             
                         | true  -> 
-                                environment.FilterTimetables () pathToSubdir 
-                                |> environment.DownloadAndSaveTimetables reportProgress token pathToSubdir                                        
+                                environment.SafeFilterTimetables () pathToSubdir 
+                                |> environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir                                        
                 with
-                | ex -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X03")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany
-                                                           
+                | ex  //net_http_ssl_connection_failed
+                    ->    
+                    try
+                        let pathToSubdir =
+                            dirList pathToDir 
+                            |> List.tryHead 
+                            |> Option.defaultValue String.Empty
+                            in
+                            match pathToSubdir |> Directory.Exists with 
+                            | false ->
+                                    Error FileDeleteErrorMHD                             
+                            | true  -> 
+                                    environment.UnsafeFilterTimetables () pathToSubdir  //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
+                                    |> environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir  
+                    with
+                    | ex -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
+                                                                  
         pyramidOfInferno
             {  
                 let errFn err =  
