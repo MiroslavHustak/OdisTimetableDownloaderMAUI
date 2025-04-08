@@ -44,7 +44,10 @@ module Builders =
         member _.Using(resource, binder) =
             use r = resource
             binder r
-    
+        member _.TryWith(body, catch) =
+            try body()
+            with ex -> catch ex   
+      
     let internal pyramidOfDoom = Builder2
     
     //**************************************************************************************

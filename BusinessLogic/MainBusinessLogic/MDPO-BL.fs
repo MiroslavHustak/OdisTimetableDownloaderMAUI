@@ -37,33 +37,50 @@ module MDPO_BL = //FsHttp
             async
                 {
                     try
-                        use! response =
+                        use! response =  
                             http
                                 {
-                                    GET url
-                                    config_transformHttpClient
-                                        (fun unsafeClient
-                                            ->
-                                            #if ANDROID
-                                            let unsafeHandler = new UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
-                                            #else
-                                            let unsafeHandler = new HttpClientHandler() //nelze use
-                                            unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)                                                
-                                            #endif
-                                            let unsafeClient = new HttpClient(unsafeHandler) 
-                                            unsafeClient
-                                        )
+                                    GET url                                
                                 }
+                            |> Request.sendAsync 
+        
+                        let! htmlContent = Response.toStringAsync (Some 100000) response        
+                        let document = HtmlDocument.Parse htmlContent // Parse the HTML content using FSharp.Data
+        
+                        return Some document                   
+                    with
+                    | :? HttpRequestException as ex  //net_http_ssl_connection_failed
+                        ->
+                        try
+                            use! response =
+                                http
+                                    {
+                                        GET url
+                                        config_transformHttpClient
+                                            (fun unsafeClient
+                                                ->
+                                                #if ANDROID
+                                                let unsafeHandler = new UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                                #else
+                                                let unsafeHandler = new HttpClientHandler() //nelze use
+                                                unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)                                                
+                                                #endif
+                                                let unsafeClient = new HttpClient(unsafeHandler) 
+                                                unsafeClient
+                                            )
+                                    }
                                 |> Request.sendAsync 
         
-                        let! htmlContent = Response.toStringAsync (Some 100000) response
+                            let! htmlContent = Response.toStringAsync (Some 100000) response
         
-                        // Parse the HTML content using FSharp.Data
-                        let document = HtmlDocument.Parse htmlContent
+                            let document = HtmlDocument.Parse htmlContent
         
-                        return Some document
-                    with
-                    | _ ->
+                            return Some document                   
+                   
+                        with
+                        | _ -> 
+                            return None
+                    | _ -> 
                         return None
                 }           
                 
@@ -146,7 +163,7 @@ module MDPO_BL = //FsHttp
                                             | Some _ -> (FileInfo pathToFile).Length
                                             | None   -> 0L
                                                 
-                                    let get uri = 
+                                    let getUnsafe uri = 
 
                                         let headerContent1 = "Range" 
                                         let headerContent2 = sprintf "bytes=%d-" existingFileLength 
@@ -190,10 +207,49 @@ module MDPO_BL = //FsHttp
                                                                 let unsafeClient = new HttpClient(unsafeHandler)
                                                                 unsafeClient
                                                             )
-                                                    }                                        
+                                                    }  
+                                                    
+                                    let getSafe uri = 
+
+                                        let headerContent1 = "Range" 
+                                        let headerContent2 = sprintf "bytes=%d-" existingFileLength 
+                          
+                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
+                                        match existingFileLength > 0L with
+                                        | true  -> 
+                                                http
+                                                    {
+                                                        GET uri        
+                                                        
+                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                        config_cancellationToken token  //CancellationToken.None
+
+                                                        header headerContent1 headerContent2
+                                                    }
+                                        | false ->
+                                                http
+                                                    {
+                                                        GET uri
+
+                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                        config_cancellationToken token
+                                                    }     
+                                                    
+                                    let get2 uri = 
+
+                                        try
+                                            //raise (HttpRequestException("net_http_ssl_connection_failed"))
+                                            getSafe uri                       
+                                        with
+                                        | :? HttpRequestException as ex  //net_http_ssl_connection_failed
+                                            ->
+                                            getUnsafe uri
+                                        | ex 
+                                            ->
+                                            failwith ex.Message //a temporary solution with failwith until the maintainers of mdpo.cz start doing something with the certifications :-)
 
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
-                                    let! response = (get >> Request.sendAsync <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
+                                    let! response = (get2 >> Request.sendAsync <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
                                     return Ok response         
                                 }
