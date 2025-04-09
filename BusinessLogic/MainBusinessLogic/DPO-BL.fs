@@ -75,7 +75,7 @@ module DPO_BL =
                 |> Seq.filter
                     (fun (_ , item2)
                         ->
-                        item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en.pdf") 
+                        item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en") && not (item2.Contains "eng")
                     )
                 |> Seq.map 
                     (fun (_ , item2) 
