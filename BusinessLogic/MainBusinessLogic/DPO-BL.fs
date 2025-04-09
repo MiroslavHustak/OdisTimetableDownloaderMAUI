@@ -238,7 +238,7 @@ module DPO_BL =
 
                         | Error err
                             ->
-                            match (string err.Message).Contains("The operation was canceled.") with
+                            match (string err.Message).Contains "The operation was canceled." with
                             | true  -> Some <| Error StopDownloadingMHD
                             | false -> Some <| Error FileDownloadErrorMHD
                     )

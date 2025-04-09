@@ -75,7 +75,7 @@ module FilterTimetableLinks =
                                 idx > 0 
                                     ->
                                     let result = restOfString.Substring(0, idx)
-                                    (Some(result), result.Length)
+                                    (Some result, result.Length)
 
                         | _ -> (None, 0)
 
@@ -94,7 +94,7 @@ module FilterTimetableLinks =
                                     -> 
                                     let result = input.Substring(1, index - 1)
                                         in
-                                        (Some(result), result.Length)
+                                        (Some result, result.Length)
 
                         | _ -> (None, 0)
 
@@ -111,7 +111,7 @@ module FilterTimetableLinks =
         let extractEndDate (input : string) =
 
             let result = 
-                match input.Equals(String.Empty) with
+                match input.Equals String.Empty with
                 | true  -> String.Empty
                 | _     -> input.[max 0 (input.Length - 10)..]
             result.Replace("_", "-")
@@ -219,7 +219,7 @@ module FilterTimetableLinks =
                     | _  -> oldPrefix
                           
             let input = 
-                match input.Contains("_t") with 
+                match input.Contains "_t" with 
                 | true  -> input.Replace(pathKodisAmazonLink, sprintf"%s%s" pathKodisAmazonLink @"timetables/").Replace("_t.pdf", ".pdf") 
                 | false -> input   
                 
@@ -288,7 +288,7 @@ module FilterTimetableLinks =
                         //let pathToDir = sprintf "%s\\%s" pathToDir file //pro ostatni
                         let pathToDir = sprintf "%s/%s" pathToDir file //pro ostatni
 
-                        match pathToDir.Contains("JR_ODIS_aktualni_vcetne_vyluk") || pathToDir.Contains("JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk") with 
+                        match pathToDir.Contains "JR_ODIS_aktualni_vcetne_vyluk" || pathToDir.Contains "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk" with 
                         | true  ->   
                                 true //pro aktualni a dlouhodobe platne
                                 |> function

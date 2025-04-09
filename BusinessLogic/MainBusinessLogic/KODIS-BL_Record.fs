@@ -127,7 +127,7 @@ module KODIS_BL_Record =
 
                     | Error err
                         ->
-                        match (string err.Message).Contains("The operation was canceled.") with
+                        match (string err.Message).Contains "The operation was canceled." with
                         | true  -> Some <| Error StopJsonDownloading
                         | false -> Some <| Error JsonDownloadError
                 )
@@ -276,7 +276,7 @@ module KODIS_BL_Record =
 
                                     | Error err
                                         ->
-                                        match (string err.Message).Contains("The operation was canceled.") with
+                                        match (string err.Message).Contains "The operation was canceled." with
                                         | true  -> Some <| Error StopDownloading
                                         | false -> Some <| Error FileDownloadError
                                 )
