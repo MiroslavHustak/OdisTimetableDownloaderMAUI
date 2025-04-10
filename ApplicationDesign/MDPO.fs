@@ -70,15 +70,14 @@ module WebScraping_MDPO =
                 ->  
                 deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir
 
-            | CreateFolders        
-                ->               
-                result
-                    {                                          
-                        return
-                            dirList pathToDir
-                            |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
-                    }   
-                |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg1
+            | CreateFolders         
+                -> 
+                try                                          
+                    dirList pathToDir
+                    |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+                    |> Ok
+                with
+                | _ -> Error FileDownloadErrorMHD //dpoMsg1
            
             | FilterDownloadSave   
                 ->                                      

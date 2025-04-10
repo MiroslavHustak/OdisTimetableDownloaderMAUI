@@ -193,12 +193,16 @@ module SortJsonData =
             ]
             |> List.toSeq   
       
-        result
-            {
-                return  
-                    addOn()
-                    |> Seq.append (kodisTimetables3 pathToJsonList3)
-                    |> Seq.distinct
-                    |> List.ofSeq
-            } 
-        |> Result.mapError (fun _ -> JsonFilteringError)
+        try 
+            let task = kodisTimetables3 pathToJsonList3 
+                in
+                addOn()
+                |> Seq.append task
+                |> Seq.distinct
+                |> List.ofSeq
+                |> Ok            
+        with
+        | _
+            ->  
+            //TODO logfile
+            Error JsonFilteringError        

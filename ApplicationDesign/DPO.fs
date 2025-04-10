@@ -70,32 +70,32 @@ module WebScraping_DPO =
                                     
             | CreateFolders         
                 -> 
-                result
-                    {      
-                        return
-                            dirList pathToDir
-                            |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
-                    }   
-                |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg1
+                try                                          
+                    dirList pathToDir
+                    |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+                    |> Ok
+                with
+                | _ -> Error FileDownloadErrorMHD //dpoMsg1
 
             | FilterDownloadSave   
                 ->                                      
-                result
-                    {  
+                try  
+                    try  
                         let pathToSubdir =
                             dirList pathToDir 
                             |> List.tryHead 
-                            |> Option.defaultValue String.Empty                        
-                           
-                        return! 
+                            |> Option.defaultValue String.Empty
+                            in
                             match pathToSubdir |> Directory.Exists with 
                             | false ->
-                                    Error FileDeleteErrorMHD 
+                                    Error FileDeleteErrorMHD                             
                             | true  -> 
                                     environment.FilterTimetables () pathToSubdir 
-                                    |> environment.DownloadAndSaveTimetables reportProgress token                                       
-                    } 
-                |> Result.mapError (fun _ -> FileDownloadErrorMHD) //dpoMsg2    
+                                    |> environment.DownloadAndSaveTimetables reportProgress token
+                    finally                        
+                        ()                         
+                with
+                | _ -> Error FileDownloadErrorMHD //dpoMsg2    
                        
         pyramidOfInferno
             {  

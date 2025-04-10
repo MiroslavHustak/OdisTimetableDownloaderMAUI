@@ -15,7 +15,6 @@ open Helpers.MyString
 open Settings.SettingsKODIS
 
 open DataModelling.DataModel
-open FsToolkit.ErrorHandling
 
 module FilterTimetableLinks =  
     
@@ -67,7 +66,7 @@ module FilterTimetableLinks =
                     in
                     let restOfString = input.Substring startIdx
                         in
-                        match restOfString.IndexOf('_') with
+                        match restOfString.IndexOf '_' with
                         | -1 -> (None, 0)
 
                         | idx 
@@ -87,7 +86,7 @@ module FilterTimetableLinks =
                 when 
                     input.[0] = 'X'
                         ->
-                        match input.IndexOf('_') with
+                        match input.IndexOf '_' with
                         | index 
                             when 
                                 index > 1
@@ -125,32 +124,32 @@ module FilterTimetableLinks =
         //*************************************Splitting Kodis links into DataTable columns********************************************
         let splitKodisLink input =
 
+            let oldPrefix = 
+                try
+                    Regex.Split(input, extractSubstring1 input) 
+                    |> Array.toList
+                    |> List.item 0
+                    |> splitString
+                    |> List.item 1
+                    |> Ok
+                with 
+                | ex -> Error <| string ex.Message
+                     
+                |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
+
             let totalDateInterval = extractSubstring1 input
 
-            let oldPrefix = 
-                result
-                    {
-                        return
-                            Regex.Split(input, extractSubstring1 input) 
-                            |> Array.toList
-                            |> List.item 0
-                            |> splitString
-                            |> List.item 1
-                    } 
-                |> Result.mapError (fun ex -> Error <| string ex.Message)
-                |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
-
             let partAfter =
-                result
-                    {
-                        return
-                            Regex.Split(input, totalDateInterval)
-                            |> Array.toList
-                            |> List.item 1 
-                    } 
-                |> Result.mapError (fun ex -> Error <| string ex.Message)
+                try
+                    Regex.Split(input, totalDateInterval)
+                    |> Array.toList
+                    |> List.item 1 
+                    |> Ok
+                with 
+                | ex -> Error <| string ex.Message     
+                         
                 |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
-                      
+        
             let vIndex = partAfter.IndexOf "_v"
             let tIndex = partAfter.IndexOf "_t"
 

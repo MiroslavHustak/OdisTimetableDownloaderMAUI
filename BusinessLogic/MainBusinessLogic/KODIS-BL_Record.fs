@@ -138,11 +138,13 @@ module KODIS_BL_Record =
     
     let internal operationOnDataFromJson (token : CancellationToken) variant dir =   
 
-        result
-            {               
-                return! digThroughJsonStructure >> filterTimetableLinks variant dir <| token 
-            } 
-        |> Result.mapError (fun _ -> DataFilteringError) //TODO logfile        
+        try               
+            digThroughJsonStructure >> filterTimetableLinks variant dir <| token 
+        with
+        | ex
+            ->
+            string ex.Message |> ignore //TODO logfile                 
+            Error DataFilteringError 
                     
     let internal downloadAndSave token = 
         

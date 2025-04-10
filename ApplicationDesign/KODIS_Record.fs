@@ -75,12 +75,21 @@ module WebScraping_KODISFMRecord =
                 | JsonTimeoutError     -> jsonDownloadError  
                 | StopJsonDownloading  -> jsonCancel
                     
-            result
-                {
-                    //return! environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
-                    return! environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
-                }            
-            |> Result.mapError (fun _ -> JsonDownloadError) //TODO logfile                 
+            try
+                try
+                    #if ANDROID
+                    KeepScreenOnManager.keepScreenOn true
+                    #endif
+                    //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
+                    environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
+                finally
+                    #if ANDROID
+                    KeepScreenOnManager.keepScreenOn false
+                    #endif
+                    ()              
+            with
+            | _ -> Error JsonDownloadError  //TODO logfile
+            
             |> Result.map (fun _ -> dispatchMsg1) 
             |> Result.mapError errFn
 

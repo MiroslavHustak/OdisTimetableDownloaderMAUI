@@ -1,15 +1,15 @@
 ﻿namespace Helpers
 
 module Builders =
-           
+                     
     [<Struct>]
     type internal MyBuilder3 = MyBuilder3 with       
-         member _.Bind(resultExpr, nextFunc) = 
-             match fst resultExpr with
-             | Ok value  -> nextFunc value 
-             | Error err -> (snd resultExpr) err
-         member _.Return x = x  
-         member _.ReturnFrom x : 'a = x 
+        member _.Bind(resultExpr, nextFunc) = 
+            match fst resultExpr with
+            | Ok value  -> nextFunc value 
+            | Error err -> (snd resultExpr) err
+        member _.Return x = x  
+        member _.ReturnFrom x : 'a = x 
      
     let internal pyramidOfInferno = MyBuilder3    
     
@@ -17,13 +17,13 @@ module Builders =
 
     [<Struct>]
     type internal MyBuilder = MyBuilder with    
-         member _.Bind(condition, nextFunc) =
-             match fst condition with
-             | false -> snd condition
-             | true  -> nextFunc()  
-         member _.Return x = x
-         member _.ReturnFrom x : 'a = x 
-         member _.Using x = x
+        member _.Bind(condition, nextFunc) =
+            match fst condition with
+            | false -> snd condition
+            | true  -> nextFunc()  
+        member _.Return x = x
+        member _.ReturnFrom x : 'a = x 
+        member _.Using x = x
 
     let internal pyramidOfHell = MyBuilder
 
