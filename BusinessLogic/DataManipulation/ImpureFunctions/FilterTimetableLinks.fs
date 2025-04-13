@@ -313,14 +313,14 @@ module FilterTimetableLinks =
                     link, path 
                 ) 
         
-        match dataToBeFiltered with
-        | Ok dataToBeFiltered 
-            -> 
-            match param with 
-            | CurrentValidity           -> Records.SortRecordData.sortLinksOut dataToBeFiltered CurrentValidity |> createPathsForDownloadedFiles |> Ok
-            | FutureValidity            -> Records.SortRecordData.sortLinksOut dataToBeFiltered FutureValidity |> createPathsForDownloadedFiles |> Ok
-            | WithoutReplacementService -> Records.SortRecordData.sortLinksOut dataToBeFiltered WithoutReplacementService |> createPathsForDownloadedFiles |> Ok    
-
-        | Error err 
-            ->
-            Error err   //prenos Result type "nahoru"  
+        dataToBeFiltered
+        |> Result.map
+            (fun data
+                ->
+                match param with
+                | CurrentValidity           -> Records.SortRecordData.sortLinksOut data CurrentValidity
+                | FutureValidity            -> Records.SortRecordData.sortLinksOut data FutureValidity
+                | WithoutReplacementService -> Records.SortRecordData.sortLinksOut data WithoutReplacementService
+                
+                |> createPathsForDownloadedFiles
+            )  
