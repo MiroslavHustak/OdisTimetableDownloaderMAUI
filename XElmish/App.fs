@@ -141,7 +141,7 @@ module App =
                                     return! loop cancelIsRequested cts
                             }
     
-                    loop true (new CancellationTokenSource()) //whatever to initialise
+                    loop false (new CancellationTokenSource()) //whatever to initialise
                 )
 
     let private countDown dispatch = //Not used yet

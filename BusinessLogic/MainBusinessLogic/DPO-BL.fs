@@ -146,7 +146,7 @@ module DPO_BL =
                             | true  -> client.DefaultRequestHeaders.Add(headerContent1, headerContent2)
                             | false -> ()
                              
-                            use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask
+                            use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask 
                           
                             match response.IsSuccessStatusCode with
                             | true  ->
@@ -253,4 +253,4 @@ module DPO_BL =
                     | Ok _    -> Error FileDownloadErrorMHD
                     | Error _ -> Error FileDeleteErrorMHD                 
 
-        downloadTimetables reportProgress token    
+        downloadTimetables reportProgress token   
