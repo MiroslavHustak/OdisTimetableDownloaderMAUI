@@ -74,12 +74,12 @@ module WebScraping_MDPO =
                 -> 
                 try                                          
                     dirList pathToDir
-                    |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+                    |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
                     |> Ok
                 with
                 | _ -> Error FileDownloadErrorMHD //dpoMsg1
            
-            | FilterDownloadSave   
+            | FilterDownloadSave   //Quli problemum s certifikatem www.mdpo.cz zatim try with bloky vsade, kaj se da
                 ->                                      
                 try                     
                     let pathToSubdir =

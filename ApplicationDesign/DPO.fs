@@ -72,28 +72,26 @@ module WebScraping_DPO =
                 -> 
                 try                                          
                     dirList pathToDir
-                    |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)   
+                    |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
                     |> Ok
                 with
                 | _ -> Error FileDownloadErrorMHD //dpoMsg1
 
             | FilterDownloadSave   
-                ->                                      
-                try  
-                    try  
-                        let pathToSubdir =
-                            dirList pathToDir 
-                            |> List.tryHead 
-                            |> Option.defaultValue String.Empty
-                            in
-                            match pathToSubdir |> Directory.Exists with 
-                            | false ->
-                                    Error FileDeleteErrorMHD                             
-                            | true  -> 
-                                    environment.FilterTimetables () pathToSubdir 
-                                    |> environment.DownloadAndSaveTimetables reportProgress token
-                    finally                        
-                        ()                         
+                ->     
+                //try-with nutny pro FSharp.Data.HtmlDocument.Load url v DPO-BL.fs
+                try                     
+                    let pathToSubdir =
+                        dirList pathToDir 
+                        |> List.tryHead 
+                        |> Option.defaultValue String.Empty
+                        in
+                        match pathToSubdir |> Directory.Exists with 
+                        | false ->
+                                Error FileDeleteErrorMHD                             
+                        | true  -> 
+                                environment.FilterTimetables () pathToSubdir 
+                                |> environment.DownloadAndSaveTimetables reportProgress token                                        
                 with
                 | _ -> Error FileDownloadErrorMHD //dpoMsg2    
                        

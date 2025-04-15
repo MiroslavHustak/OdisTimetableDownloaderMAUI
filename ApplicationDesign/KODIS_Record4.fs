@@ -119,64 +119,60 @@ module WebScraping_KODISFMRecord4 =
             | Error err 
                 ->
                 Error err  
-                             
-        try 
-            try               
-                let dirList = IO_Operations.CreatingPathsAndNames.createNewDirectoryPaths path listODISDefault4
+            
+        //try with blok zrusen
+                 
+        let dirList = IO_Operations.CreatingPathsAndNames.createNewDirectoryPaths path listODISDefault4
+            in
+            let contextCurrentValidity = 
+                {
+                    DirList = dirList
+                    Variant = CurrentValidity
+                    Msg1 = msg1CurrentValidity
+                    Msg2 = msg2CurrentValidity
+                    Msg3 = msg3CurrentValidity
+                    VariantInt = 0
+                }
 
-                let contextCurrentValidity = 
-                    {
-                        DirList = dirList
-                        Variant = CurrentValidity
-                        Msg1 = msg1CurrentValidity
-                        Msg2 = msg2CurrentValidity
-                        Msg3 = msg3CurrentValidity
-                        VariantInt = 0
-                    }
+            let contextFutureValidity = 
+                {
+                    DirList = dirList
+                    Variant = FutureValidity
+                    Msg1 = msg1FutureValidity
+                    Msg2 = msg2FutureValidity
+                    Msg3 = msg3FutureValidity
+                    VariantInt = 1
+                }
 
-                let contextFutureValidity = 
-                    {
-                        DirList = dirList
-                        Variant = FutureValidity
-                        Msg1 = msg1FutureValidity
-                        Msg2 = msg2FutureValidity
-                        Msg3 = msg3FutureValidity
-                        VariantInt = 1
-                    }
-
-                let contextWithoutReplacementService = 
-                    {
-                        DirList = dirList
-                        Variant = WithoutReplacementService
-                        Msg1 = msg1WithoutReplacementService
-                        Msg2 = msg2WithoutReplacementService
-                        Msg3 = msg3WithoutReplacementService
-                        VariantInt = 2
-                    }
+            let contextWithoutReplacementService = 
+                {
+                    DirList = dirList
+                    Variant = WithoutReplacementService
+                    Msg1 = msg1WithoutReplacementService
+                    Msg2 = msg2WithoutReplacementService
+                    Msg3 = msg3WithoutReplacementService
+                    VariantInt = 2
+                }
                                                    
-                pyramidOfInferno
-                    {                                
-                        let!_ = environment.DeleteAllODISDirectories path, errFn  
-                        let!_ = IO_Operations.IO_Operations.createFolders dirList, errFn 
+        pyramidOfInferno
+            {                                
+                let!_ = environment.DeleteAllODISDirectories path, errFn  
+                let!_ = IO_Operations.IO_Operations.createFolders dirList, errFn 
 
-                        let! msg1 = result contextCurrentValidity, errFn
-                        let! msg2 = result contextFutureValidity, errFn
-                        let! msg3 = result contextWithoutReplacementService, errFn   
+                let! msg1 = result contextCurrentValidity, errFn
+                let! msg2 = result contextFutureValidity, errFn
+                let! msg3 = result contextWithoutReplacementService, errFn   
 
-                        let separator = String.Empty
+                let separator = String.Empty
 
-                        let combinedMessage = 
-                            [ msg1; msg2; msg3 ] 
-                            |> List.filter (fun msg -> not (String.IsNullOrWhiteSpace msg)) //IsNullOrWhiteSpace si vsima aji empty string
-                            |> List.map (fun msg -> sprintf "\n%s" msg)
-                            |> String.concat separator                         
+                let combinedMessage = 
+                    [ msg1; msg2; msg3 ] 
+                    |> List.filter (fun msg -> not (String.IsNullOrWhiteSpace msg)) //IsNullOrWhiteSpace si vsima aji empty string
+                    |> List.map (fun msg -> sprintf "\n%s" msg)
+                    |> String.concat separator                         
 
-                        return sprintf "%s%s" dispatchMsg3 combinedMessage
-                    }
-            finally
-                ()                     
-        with
-        | _ ->  dispatchMsg4  //TODO logfile   
+                return sprintf "%s%s" dispatchMsg3 combinedMessage
+            }          
     
     let stateReducerCmd4 token path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
         stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 

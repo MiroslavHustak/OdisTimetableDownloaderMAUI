@@ -143,47 +143,47 @@ module KODIS_BL_Record4 =
         
     let internal operationOnDataFromJson token variant dir =  
 
-        try   
-            let url1 = "http://kodis.somee.com/api/"             // nezapomen na trailing slash po api 
-            let url2 = "http://kodis.somee.com/api/jsonLinks"   
-           
-            let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
-                async
-                    {
-                         let! getFromRestApi = getFromRestApi url1
-                         return filterTimetableLinks variant dir getFromRestApi
-                    }
+        let url1 = "http://kodis.somee.com/api/"  // Trailing slash preserved
+        let url2 = "http://kodis.somee.com/api/jsonLinks"
+    
+        let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
+            async
+                {
+                    let! getFromRestApi = getFromRestApi url1
+                    return filterTimetableLinks variant dir getFromRestApi
+                }
+    
+        let result2 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
+            async
+                {
+                    let! getFromRestApi = getFromRestApi url2
+                    match variant with
+                    | FutureValidity -> return filterTimetableLinks variant dir getFromRestApi
+                    | _              -> return Ok []
+                }
+    
+        async 
+            {
+                let! results = 
+                    [ result1; result2 ]
+                    |> Async.Parallel
+                    |> Async.Catch
+    
+                match results with
+                | Choice1Of2 resultsArray 
+                    ->
+                    return
+                        match List.ofArray resultsArray with
+                        | [ Ok list1; Ok list2 ] -> Ok (List.distinct (list1 @ list2))
+                        | [ Error err; _ ]       -> Error err
+                        | [ _; Error err ]       -> Error err
+                        | _                      -> Error DataFilteringError
 
-            let result2 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
-                async
-                    {
-                        let! getFromRestApi = getFromRestApi url2
-                        match variant with
-                        | FutureValidity -> return filterTimetableLinks variant dir getFromRestApi // links filtered from json files, only future validity
-                        | _              -> return Ok []
-                    }
-
-            [ result1; result2 ]   //Async.Catch je tady slozite, nechavam to na try with bloku 
-            |> Async.Parallel
-            |> Async.RunSynchronously  //TODO zvaz tady cancellation token
-            |> function 
-                | [| Ok list1; Ok list2 |] 
-                    ->
-                    Ok (List.distinct (list1 @ list2))
-                | [| Error err; _ |] 
-                    ->
-                    Error err
-                | [| _; Error err |] 
-                    ->
-                    Error err
-                | _ ->
-                    Error DataFilteringError   
-            
-        with
-        | _ 
-            ->
-            //TODO logfile                 
-            Error DataFilteringError 
+                | Choice2Of2 _
+                    -> 
+                    return Error DataFilteringError  //TODO logfile 
+            }
+        |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                     
     let internal downloadAndSave token = 
         
@@ -205,110 +205,89 @@ module KODIS_BL_Record4 =
                                             async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
                                         loop 0
                                                                 
-                    return    
-                        try 
-                            //monitorConnectivity (token : CancellationToken)
-                                
-                            context.list
-                            |> List.unzip             
-                            ||> context.listMappingFunction
-                                (fun uri (pathToFile : string) 
-                                    -> 
-                                    //let token2 = tokenTrigger ()  //zatim nepotrebne
+                    return   
+                        //zrusen try-with block
+                        //monitorConnectivity (token : CancellationToken)
+                        context.list
+                        |> List.unzip             
+                        ||> context.listMappingFunction
+                            (fun uri (pathToFile : string) 
+                                -> 
+                                //let token2 = tokenTrigger ()  //zatim nepotrebne
                                    
-                                    async
-                                        {    
-                                            counterAndProgressBar.Post <| Inc 1
+                                async
+                                    {    
+                                        counterAndProgressBar.Post <| Inc 1
 
-                                            token.ThrowIfCancellationRequested ()
+                                        token.ThrowIfCancellationRequested ()
                                                                                       
-                                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
+                                        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
 
-                                            let pathToFileExistFirstCheck = 
-                                                checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
-                                                in
-                                                match pathToFileExistFirstCheck with  //tady nelze |> function - smesuje to async a pyramidOfDoom computation expressions
-                                                | Some _
-                                                    -> 
-                                                    (*
-                                                    //!!! vytvorit adresar pod downloads (bez /storage/emulated/0), napr. /FabulousTimetables4/
-                                                    #if ANDROID 
-                                                        
-                                                    let result = downloadManager uri pathToFile 
-
-                                                    let downloadId =
-                                                        result
-                                                       |> Option.defaultValue failwith "FileDownloadError"                                                            
-                                                        
-                                                    downloadId |> ignore 
-
-                                                    #else 
-                                                    *)
-
-                                                    let existingFileLength =                               
-                                                        checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                        |> function
-                                                            | Some _ -> (FileInfo pathToFile).Length
-                                                            | None   -> 0L
+                                        let pathToFileExistFirstCheck = 
+                                            checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
+                                            in
+                                            match pathToFileExistFirstCheck with  //tady nelze |> function - smesuje to async a pyramidOfDoom computation expressions
+                                            | Some _
+                                                -> 
+                                                let existingFileLength =                               
+                                                    checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                                    |> function
+                                                        | Some _ -> (FileInfo pathToFile).Length
+                                                        | None   -> 0L
                                                     
-                                                    let get uri = 
+                                                let get uri = 
                                                         
-                                                        let headerContent1 = "Range" 
-                                                        let headerContent2 = sprintf "bytes=%d-" existingFileLength 
+                                                    let headerContent1 = "Range" 
+                                                    let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                           
-                                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
-                                                        match existingFileLength > 0L with
-                                                        | true  -> 
-                                                                http
-                                                                    {
-                                                                        GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token //CancellationToken.None //token2  //funguje
-                                                                        header headerContent1 headerContent2
-                                                                    }
-                                                        | false ->
-                                                                http
-                                                                    {
-                                                                        GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token //CancellationToken.None //token2  //funguje
-                                                                    }
+                                                    //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
+                                                    match existingFileLength > 0L with
+                                                    | true  -> 
+                                                            http
+                                                                {
+                                                                    GET uri
+                                                                    config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                    config_cancellationToken token //CancellationToken.None //token2  //funguje
+                                                                    header headerContent1 headerContent2
+                                                                }
+                                                    | false ->
+                                                            http
+                                                                {
+                                                                    GET uri
+                                                                    config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                    config_cancellationToken token //CancellationToken.None //token2  //funguje
+                                                                }
 
-                                                    use! response = get >> Request.sendAsync <| uri  
+                                                use! response = get >> Request.sendAsync <| uri  
 
-                                                    match response.statusCode with
-                                                    | HttpStatusCode.PartialContent | HttpStatusCode.OK  // 206 // 200
-                                                        ->         
-                                                        do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
-                                                    | _ ->
-                                                        failwith String.Empty  
+                                                match response.statusCode with
+                                                | HttpStatusCode.PartialContent | HttpStatusCode.OK  // 206 // 200
+                                                    ->         
+                                                    do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+                                                | _ ->
+                                                    failwith String.Empty  
 
-                                                    // #endif  
+                                            | None 
+                                                ->
+                                                failwith String.Empty                                               
+                                    } 
+                                |> Async.Catch
+                                |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                                |> Result.ofChoice     
+                            )  
+                        |> List.tryPick
+                            (function
+                                | Ok _ 
+                                    -> 
+                                    None
 
-                                                | None 
-                                                    ->
-                                                    failwith String.Empty                                               
-                                        } 
-                                    |> Async.Catch
-                                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
-                                    |> Result.ofChoice     
-                                )  
-                            |> List.tryPick
-                                (function
-                                    | Ok _ 
-                                        -> 
-                                        None
-
-                                    | Error err
-                                        ->
-                                        match (string err.Message).Contains "The operation was canceled." with
-                                        | true  -> Some <| Error StopDownloading
-                                        | false -> Some <| Error FileDownloadError
-                                )
-                            |> Option.defaultValue (Ok ())
-
-                        with
-                        | _ -> Error FileDownloadError  //TODO logfile   
+                                | Error err
+                                    ->
+                                    match (string err.Message).Contains "The operation was canceled." with
+                                    | true  -> Some <| Error StopDownloading
+                                    | false -> Some <| Error FileDownloadError
+                            )
+                        |> Option.defaultValue (Ok ())
                 } 
         
         reader

@@ -34,23 +34,26 @@ module CallApi =
     let internal getFromRestApi url = 
     
         async
-            {                
-                use! response = 
-                    http
-                        {
-                            GET url
-                            header "X-API-KEY" apiKeyTest 
-                        }
-                    |> Request.sendAsync
+            {       
+                try
+                    use! response = 
+                        http
+                            {
+                                GET url
+                                header "X-API-KEY" apiKeyTest 
+                            }
+                        |> Request.sendAsync
                 
-                match response.statusCode with
-                | HttpStatusCode.OK 
-                    ->
-                    let! jsonString = Response.toTextAsync response
-                    let response = Decode.fromString decoderGet jsonString
+                    match response.statusCode with
+                    | HttpStatusCode.OK 
+                        ->
+                        let! jsonString = Response.toTextAsync response
+                        let response = Decode.fromString decoderGet jsonString
 
-                    return transformApiResponse response
+                        return transformApiResponse response
                        
-                | _ -> 
-                    return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
+                    | _ -> 
+                        return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
+                with
+                | ex -> return Error <| ApiResponseError (string ex.Message)
             }

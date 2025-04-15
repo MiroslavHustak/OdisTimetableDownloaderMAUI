@@ -53,56 +53,57 @@ module DPO_BL =
         |> List.collect 
             (fun url 
                 -> 
-                let document = FSharp.Data.HtmlDocument.Load url //neni nullable, nesu exn
-                  
-                document.Descendants "a"
-                |> Seq.choose 
-                    (fun htmlNode
-                        ->
-                        htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
-                        |> Option.bind
-                            (fun attr
-                                -> 
-                                option
-                                    {
-                                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
-                                        let! attr = attr.Value () |> Option.ofNullEmpty
+                //failwith "testing FSharp.Data.HtmlDocument.Load url"  //chytat tady exn je extremne pracne, zachyti to try-with blok v DPO.fs 
+                let document = FSharp.Data.HtmlDocument.Load url                 
+                    in                
+                    document.Descendants "a"
+                    |> Seq.choose 
+                        (fun htmlNode
+                            ->
+                            htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
+                            |> Option.bind
+                                (fun attr
+                                    -> 
+                                    option
+                                        {
+                                            let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                                            let! attr = attr.Value () |> Option.ofNullEmpty
                                                                
-                                        return (nodes, attr)
-                                    }                                                          
-                            )            
-                    )  
-                |> Seq.filter
-                    (fun (_ , item2)
-                        ->
-                        item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en") && not (item2.Contains "eng")
-                    )
-                |> Seq.map 
-                    (fun (_ , item2) 
-                        ->  
-                        let linkToPdf = sprintf"%s%s" pathDpoWeb item2  //https://www.dpo.cz // /jr/2023-04-01/024.pdf 
+                                            return (nodes, attr)
+                                        }                                                          
+                                )            
+                        )  
+                    |> Seq.filter
+                        (fun (_ , item2)
+                            ->
+                            item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en") && not (item2.Contains "eng")
+                        )
+                    |> Seq.map 
+                        (fun (_ , item2) 
+                            ->  
+                            let linkToPdf = sprintf"%s%s" pathDpoWeb item2  //https://www.dpo.cz // /jr/2023-04-01/024.pdf 
 
-                        let adaptedLineName =
-                            let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
-                            let rec x s =                                                                            
-                                match (getLastThreeCharacters s).Contains("?") with
-                                | true  -> x (sprintf "%s%s" s "_")                                                                             
-                                | false -> s
-                            (x << s) item2
-                            in   
-                            let lineName = 
-                                let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
-                                let s1 s = removeLastFourCharacters s 
-                                sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
-                                in                
-                                let pathToFile = 
-                                    let item2 = item2.Replace("?", String.Empty)                                            
-                                    sprintf "%s/%s" pathToDir lineName
+                            let adaptedLineName =
+                                let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
+                                let rec x s =                                                                            
+                                    match (getLastThreeCharacters s).Contains("?") with
+                                    | true  -> x (sprintf "%s%s" s "_")                                                                             
+                                    | false -> s
+                                (x << s) item2
+                                in   
+                                let lineName = 
+                                    let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
+                                    let s1 s = removeLastFourCharacters s 
+                                    sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
+                                    in                
+                                    let pathToFile = 
+                                        let item2 = item2.Replace("?", String.Empty)                                            
+                                        sprintf "%s/%s" pathToDir lineName
 
-                        linkToPdf, pathToFile
-                    )
-                |> Seq.toList
-                |> List.distinct
+                            linkToPdf, pathToFile
+                        )
+                    |> Seq.toList
+                    |> List.distinct
             ) 
 
     let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) (filterTimetables : (string * string) list) =  
