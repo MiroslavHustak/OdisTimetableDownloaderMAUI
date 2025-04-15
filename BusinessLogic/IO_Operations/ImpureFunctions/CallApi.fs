@@ -54,4 +54,4 @@ module CallApi =
                 | _ -> 
                     return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
             }
-        |> Async.RunSynchronously
+        |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator

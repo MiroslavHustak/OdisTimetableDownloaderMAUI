@@ -69,10 +69,10 @@ module KODIS_BL_Record =
             ||> List.Parallel.map2
                 (fun uri (pathToFile : string) 
                     ->    
-                    async
+                    async  //Async musi byt quli cancellation token
                         {    
-                            counterAndProgressBar.Post <| Inc 1
-                           
+                            counterAndProgressBar.Post <| Inc 1                           
+                            
                             token.ThrowIfCancellationRequested ()
                            
                             ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
@@ -105,7 +105,8 @@ module KODIS_BL_Record =
                                                 config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                 config_cancellationToken token //token2 //funguje
                                             }
-
+                            
+                            //Async varianta musi byt quli cancellation token
                             use! response = get >> Request.sendAsync <| uri  
 
                             match response.statusCode with
@@ -173,7 +174,7 @@ module KODIS_BL_Record =
                             ||> context.listMappingFunction
                                 (fun uri (pathToFile: string) 
                                     -> 
-                                    async
+                                    async  //Async musi byt quli cancellation token
                                         {    
                                             counterAndProgressBar.Post <| Inc 1
                                                                                        
@@ -215,7 +216,8 @@ module KODIS_BL_Record =
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token //token2 //funguje
                                                                     }
-
+                                                    
+                                                    //Async varianta musi byt quli cancellation token 
                                                     use! response = get >> Request.sendAsync <| uri  
 
                                                     (*

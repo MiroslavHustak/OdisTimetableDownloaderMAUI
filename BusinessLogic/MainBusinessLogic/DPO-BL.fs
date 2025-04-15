@@ -146,6 +146,7 @@ module DPO_BL =
                             | true  -> client.DefaultRequestHeaders.Add(headerContent1, headerContent2)
                             | false -> ()
                              
+                            //Async varianta musi byt quli cancellation token
                             use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask 
                           
                             match response.IsSuccessStatusCode with
@@ -159,6 +160,7 @@ module DPO_BL =
                                         | true  -> new FileStream(pathToFile, FileMode.Append) 
                                         | false -> new FileStream(pathToFile, FileMode.CreateNew)
 
+                                    //Async varianta musi byt quli cancellation token, navic se hodi jako priprava pro budouci progress indicator s Async.StartImmediate
                                     let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
                                     do! stream.CopyToAsync fileStream |> Async.AwaitTask
 
@@ -220,9 +222,9 @@ module DPO_BL =
                 |> List.mapi
                     (fun i (link, pathToFile)
                         ->  
-                        async                                                
+                        async //Async musi byt quli cancellation token                                          
                             {   
-                                token.ThrowIfCancellationRequested () //CancellationToken should also be passed to any async operation that might be cancelled
+                                token.ThrowIfCancellationRequested () 
                                 reportProgress (float i + 1.0, float l)  
                                 return! downloadFileTaskAsync link pathToFile 
                             } 

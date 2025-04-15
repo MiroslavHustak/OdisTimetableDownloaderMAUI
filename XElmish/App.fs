@@ -500,8 +500,7 @@ module App =
             KeepScreenOnManager.keepScreenOn true
             #endif
 
-            cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
-            |> Async.RunSynchronously
+            cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
                     ->                     
@@ -632,8 +631,7 @@ module App =
             KeepScreenOnManager.keepScreenOn true
             #endif
 
-            cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
-            |> Async.RunSynchronously
+            cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
                     ->
@@ -727,8 +725,7 @@ module App =
             KeepScreenOnManager.keepScreenOn true
             #endif
 
-            cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
-            |> Async.RunSynchronously
+            cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
                     ->
@@ -824,8 +821,7 @@ module App =
             KeepScreenOnManager.keepScreenOn true
             #endif
 
-            cancellationActor.PostAndAsyncReply <| fun replyChannel -> CheckState2 replyChannel
-            |> Async.RunSynchronously
+            cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
                     ->             

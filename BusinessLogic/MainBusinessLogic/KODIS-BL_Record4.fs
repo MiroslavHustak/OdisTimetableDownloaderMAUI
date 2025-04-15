@@ -134,8 +134,7 @@ module KODIS_BL_Record4 =
                     defaultToken               
         
         //Template //zatim nepouzivano
-        cancellationActor.PostAndAsyncReply (fun replyChannel -> CheckState replyChannel)
-        |> Async.RunSynchronously
+        cancellationActor.PostAndReply (fun replyChannel -> CheckState replyChannel)
         |> function    
             | true  -> CancellationToken.None   
             | false -> token2 () 

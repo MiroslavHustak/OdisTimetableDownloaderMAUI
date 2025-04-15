@@ -45,9 +45,9 @@ module WebScraping_MDPO =
 
     type private Environment = 
         {
-            SafeFilterTimetables : unit -> string -> Map<string, string>
+            SafeFilterTimetables : unit -> string -> CancellationToken -> Map<string, string>
             SafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> Map<string, string> -> Result<unit, MHDErrors>
-            UnsafeFilterTimetables : unit -> string -> Map<string, string>
+            UnsafeFilterTimetables : unit -> string -> CancellationToken -> Map<string, string>
             UnsafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> Map<string, string> -> Result<unit, MHDErrors>
         }
 
@@ -91,7 +91,7 @@ module WebScraping_MDPO =
                         | false ->
                                 Error FileDeleteErrorMHD                             
                         | true  -> 
-                                environment.SafeFilterTimetables () pathToSubdir 
+                                environment.SafeFilterTimetables () pathToSubdir token 
                                 |> environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir                                        
                 with
                 | ex  //net_http_ssl_connection_failed
@@ -106,7 +106,7 @@ module WebScraping_MDPO =
                             | false ->
                                     Error FileDeleteErrorMHD                             
                             | true  -> 
-                                    environment.UnsafeFilterTimetables () pathToSubdir  
+                                    environment.UnsafeFilterTimetables () pathToSubdir token  
                                     |> environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir 
                                     |> function
                                         | Ok _      -> Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"

@@ -30,7 +30,7 @@ module MDPO_BL = //FsHttp
 
     //************************Submain functions************************************************************************
 
-    let internal safeFilterTimetables () pathToDir = 
+    let internal safeFilterTimetables () pathToDir token = 
 
         let fetchHtmlWithFsHttp (url : string) =           
               
@@ -40,9 +40,10 @@ module MDPO_BL = //FsHttp
                         use! response =  
                             http
                                 {
-                                    GET url                                
+                                    GET url    
+                                    config_cancellationToken token
                                 }
-                            |> Request.sendAsync 
+                            |> Request.sendAsync //Async varianta musi byt quli cancellation token
         
                         let! htmlContent = Response.toStringAsync (Some 100000) response        
                         let document = HtmlDocument.Parse htmlContent // Parse the HTML content using FSharp.Data
@@ -114,7 +115,7 @@ module MDPO_BL = //FsHttp
         |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
 
     //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)  
-    let internal unsafeFilterTimetables () pathToDir = 
+    let internal unsafeFilterTimetables () pathToDir token = 
 
         let fetchHtmlWithFsHttp (url : string) =           
               
@@ -125,6 +126,8 @@ module MDPO_BL = //FsHttp
                             http
                                 {
                                     GET url
+                                    config_cancellationToken token
+
                                     config_transformHttpClient
                                         (fun unsafeClient
                                             ->
@@ -138,7 +141,7 @@ module MDPO_BL = //FsHttp
                                             unsafeClient
                                         )
                                 }
-                            |> Request.sendAsync 
+                            |> Request.sendAsync //Async varianta musi byt quli cancellation token
         
                         let! htmlContent = Response.toStringAsync (Some 100000) response
         
@@ -259,6 +262,8 @@ module MDPO_BL = //FsHttp
                                                     }     
 
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
+
+                                    //Async varianta musi byt quli cancellation token
                                     let! response = (getSafe >> Request.sendAsync <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
                                     return Ok response         
@@ -308,7 +313,7 @@ module MDPO_BL = //FsHttp
                     |> List.mapi  //bohuzel s Map nelze Map.mapi nebo Map.iteri
                         (fun i (link, pathToFile) 
                             ->  
-                            async                                                
+                            async   //Async musi byt quli cancellation token                                         
                                 {   
                                     token.ThrowIfCancellationRequested ()
                                     reportProgress (float i + 1.0, float l)  
@@ -460,7 +465,7 @@ module MDPO_BL = //FsHttp
                     |> List.mapi  //bohuzel s Map nelze Map.mapi nebo Map.iteri
                         (fun i (link, pathToFile) 
                             ->  
-                            async                                                
+                            async  //Async musi byt quli cancellation token                                              
                                 {   
                                     token.ThrowIfCancellationRequested ()
                                     reportProgress (float i + 1.0, float l)  

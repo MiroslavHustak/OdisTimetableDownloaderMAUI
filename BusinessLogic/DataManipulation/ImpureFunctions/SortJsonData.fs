@@ -67,7 +67,7 @@ module SortJsonData =
                                         with 
                                         | _ -> return JsonProvider1.Parse tempJson1
                                     }
-                                |> Async.RunSynchronously
+                                |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
                                 |> Option.ofNull
                                 |> Option.map (Seq.map _.Timetable)
                                 |> Option.defaultValue Seq.empty  //TODO logfile
@@ -100,7 +100,7 @@ module SortJsonData =
                                             with 
                                             | _ -> return JsonProvider2.Parse tempJson2
                                         }
-                                    |> Async.RunSynchronously                                       
+                                    |> Async.RunSynchronously  //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator                                     
                                  
                                 let timetables = 
                                     kodisJsonSamples
@@ -177,7 +177,7 @@ module SortJsonData =
                                             with 
                                             | _ -> return JsonProvider1.Parse tempJson1
                                         }
-                                    |> Async.RunSynchronously      
+                                    |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator     
                                                           
                                 kodisJsonSamples
                                 |> Option.ofNull
