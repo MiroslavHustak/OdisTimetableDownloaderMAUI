@@ -160,37 +160,14 @@ module DPO_BL =
                                         | true  -> new FileStream(pathToFile, FileMode.Append) 
                                         | false -> new FileStream(pathToFile, FileMode.CreateNew)
 
-                                    //Async varianta musi byt quli cancellation token, navic se hodi jako priprava pro budouci progress indicator s Async.StartImmediate
+                                    //Async varianta musi byt quli cancellation token
                                     let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
-                                    do! stream.CopyToAsync fileStream |> Async.AwaitTask
-
-                                    (*
-                                    //There is no need for Async.OnCancel handlers to dispose of resources as the use block will automatically clean up resources
-
-                                    let! clientCancellationHandler = Async.OnCancel <| fun () -> client.Dispose()        
-                                    clientCancellationHandler.Dispose()        
-
-                                    let! fileStreamCancellationHandler = Async.OnCancel <| fun () -> fileStream.Dispose()        
-                                    fileStreamCancellationHandler.Dispose()
-
-                                    let! responseCancellationHandler = Async.OnCancel <| fun () -> response.Dispose()        
-                                    responseCancellationHandler.Dispose()
-                                    *)
+                                    do! stream.CopyToAsync fileStream |> Async.AwaitTask                                    
                                     
                                     return Ok ()
 
                             | false ->     
                                     use client = client
-                                    
-                                    (*
-                                    //There is no need for Async.OnCancel handlers to dispose of resources as the use block will automatically clean up resources
-                                                                       
-                                    let! clientCancellationHandler = Async.OnCancel <| fun () -> client.Dispose()        
-                                    clientCancellationHandler.Dispose()                                    
-
-                                    let! responseCancellationHandler = Async.OnCancel <| fun () -> response.Dispose()        
-                                    responseCancellationHandler.Dispose()
-                                    *)
 
                                     return 
                                         match response.StatusCode with
@@ -221,16 +198,16 @@ module DPO_BL =
                 filterTimetables 
                 |> List.mapi
                     (fun i (link, pathToFile)
-                        ->  
-                        async //Async musi byt quli cancellation token                                          
-                            {   
-                                token.ThrowIfCancellationRequested () 
+                        -> 
+                        async
+                            {
+                                token.ThrowIfCancellationRequested ()
                                 reportProgress (float i + 1.0, float l)  
                                 return! downloadFileTaskAsync link pathToFile 
-                            } 
+                            }
                         |> Async.Catch
-                        |> Async.RunSynchronously  
-                        |> Result.ofChoice  
+                        |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                        |> Result.ofChoice
                     ) 
                 |> List.tryPick
                     (function

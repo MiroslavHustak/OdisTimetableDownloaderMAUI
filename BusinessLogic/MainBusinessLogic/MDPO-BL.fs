@@ -75,7 +75,7 @@ module MDPO_BL = //FsHttp
                             | None
                                 -> return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz
                         }
-                    |> Async.RunSynchronously
+                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                 
                 //let document = FSharp.Data.HtmlDocument.Load url //exn to be caught in MDPO.fs
                 //HtmlDocument -> web scraping -> extracting data from HTML pages
@@ -175,7 +175,7 @@ module MDPO_BL = //FsHttp
                             | None
                                 -> return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz
                         }
-                    |> Async.RunSynchronously
+                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                 
                 //let document = FSharp.Data.HtmlDocument.Load url //exn to be caught in MDPO.fs
                 //HtmlDocument -> web scraping -> extracting data from HTML pages
@@ -248,7 +248,7 @@ module MDPO_BL = //FsHttp
                                                         GET uri        
                                                         
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken token  //CancellationToken.None
+                                                        config_cancellationToken token  
 
                                                         header headerContent1 headerContent2
                                                     }
@@ -320,7 +320,7 @@ module MDPO_BL = //FsHttp
                                     return! downloadFileTaskAsync token link pathToFile
                                 } 
                             |> Async.Catch
-                            |> Async.RunSynchronously  
+                            |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                             |> Result.ofChoice    
                         )  
                     |> List.tryPick
@@ -382,7 +382,7 @@ module MDPO_BL = //FsHttp
                                                         GET uri        
                                                         
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken token  //CancellationToken.None
+                                                        config_cancellationToken token  
 
                                                         config_transformHttpClient
                                                             (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
@@ -472,7 +472,7 @@ module MDPO_BL = //FsHttp
                                     return! downloadFileTaskAsync token link pathToFile
                                 } 
                             |> Async.Catch
-                            |> Async.RunSynchronously  
+                            |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) 
                             |> Result.ofChoice    
                         )  
                     |> List.tryPick
@@ -485,7 +485,7 @@ module MDPO_BL = //FsHttp
                                 ->
                                 match (string err.Message).Contains "The operation was canceled." with
                                 | true  -> Some <| Error StopDownloadingMHD
-                                | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) ////FileDownloadErrorMHD
+                                | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) //FileDownloadErrorMHD
                         )
                     |> Option.defaultValue (Ok ()) 
 
@@ -495,7 +495,7 @@ module MDPO_BL = //FsHttp
                 let dirName = ODISDefault.OdisDir6                       
                     in
                     match deleteOneODISDirectoryMHD dirName mdpoPathTemp with
-                    | Ok _    -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X02")) ////FileDownloadErrorMHD
+                    | Ok _    -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X02")) //FileDownloadErrorMHD
                     | Error _ -> Error FileDeleteErrorMHD      
                                          
         downloadTimetables reportProgress token

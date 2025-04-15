@@ -37,9 +37,11 @@ module SortJsonData =
         |> Result.ofChoice                      
         |> function
             | Ok [|a; b|]    
-                -> a, b
+                -> 
+                a, b
             | Ok _ | Error _ 
-                -> jsonEmpty, jsonEmpty 
+                -> 
+                jsonEmpty, jsonEmpty 
 
     let internal digThroughJsonStructure (token : CancellationToken) = //prohrabeme se strukturou json souboru 
         
@@ -67,7 +69,7 @@ module SortJsonData =
                                         with 
                                         | _ -> return JsonProvider1.Parse tempJson1
                                     }
-                                |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
+                                |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
                                 |> Option.ofNull
                                 |> Option.map (Seq.map _.Timetable)
                                 |> Option.defaultValue Seq.empty  //TODO logfile
@@ -100,7 +102,7 @@ module SortJsonData =
                                             with 
                                             | _ -> return JsonProvider2.Parse tempJson2
                                         }
-                                    |> Async.RunSynchronously  //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator                                     
+                                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)  //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator                                     
                                  
                                 let timetables = 
                                     kodisJsonSamples
@@ -177,7 +179,7 @@ module SortJsonData =
                                             with 
                                             | _ -> return JsonProvider1.Parse tempJson1
                                         }
-                                    |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator     
+                                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator     
                                                           
                                 kodisJsonSamples
                                 |> Option.ofNull

@@ -256,7 +256,8 @@ module App =
             |> Async.StartImmediate  
 
         #if ANDROID        
-        let permissionGranted = permissionCheck () |> Async.RunSynchronously
+        let permissionGranted = permissionCheck () |> Async.RunSynchronously //available API employed by permissionCheck is async-only
+
         #else
         let permissionGranted = true
         #endif        
@@ -280,7 +281,7 @@ module App =
                 Label2Visible = true
             } 
 
-        let initialModelNoConn = //Cancellation tokens for learning purposes only 
+        let initialModelNoConn = 
             {       
                 PermissionGranted = permissionGranted
                 ProgressMsg = String.Empty
@@ -324,7 +325,7 @@ module App =
             cancellationActor.Post <| UpdateState2 (false, ctsNew)
         
         #if ANDROID
-        let permissionGranted = permissionCheck () |> Async.RunSynchronously
+        let permissionGranted = permissionCheck () |> Async.RunSynchronously  //available API employed by permissionCheck is async-only
         #else
         let permissionGranted = true
         #endif       
@@ -398,7 +399,7 @@ module App =
                                         do! openAppSettings ()
                                         return PermissionResult true
                             }
-                        |> Async.RunSynchronously
+                        |> Async.RunSynchronously //available API employed by status is async-only
                 )
             m, cmd
             #else
@@ -508,8 +509,6 @@ module App =
 
                         async
                             {
-                                //async tady ignoruje async code obsahujici Request.sendAsync request/result (FsHttp)   
-
                                 let! hardWork =                                                              
                                     async 
                                         {                                            
@@ -572,12 +571,6 @@ module App =
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
                                         dispatch Home       
-
-                                (*
-                                    match result.Contains("timeout") with
-                                    | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
-                                    | false -> WorkIsComplete >> dispatch <| (result, true)
-                                *)
                             }     
 
                     let executeSequentially dispatch =
@@ -668,13 +661,7 @@ module App =
                                         WorkIsComplete >> dispatch <| (result, connectivityListener ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener ()) 
-                                        dispatch Home         
-                            
-                                (*
-                                    match result.Contains("timeout") with
-                                    | true  -> dispatch Quit //countDown dispatch  //nelze pouzit pro async parallel, funguje az po zapnuti internetu (FsHttp blokuje)
-                                    | false -> WorkIsComplete >> dispatch <| (result, true)
-                                *)
+                                        dispatch Home  
                             }  
                    
                     let executeSequentially dispatch =   

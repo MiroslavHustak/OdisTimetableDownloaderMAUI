@@ -47,8 +47,7 @@ module Connectivity =
     
         Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
             
-        actor.PostAndAsyncReply (fun replyChannel -> CheckState replyChannel)
-        |> Async.RunSynchronously
+        actor.PostAndReply (fun replyChannel -> CheckState replyChannel)
 
     let internal connectivityListener2 onConnectivityChange = //vysledek je unit
         
@@ -126,5 +125,5 @@ module CheckNetConnection =
                 | _ -> return None
                 
             }  
-        |> Async.RunSynchronously  
+        |> Async.RunSynchronously  //API is async-only
     #endif

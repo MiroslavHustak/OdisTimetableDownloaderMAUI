@@ -92,7 +92,7 @@ module KODIS_BL_Record4 =
                                 |> Async.StartImmediate  
                             ) 
                                 
-                        do! Async.Sleep 600000 //zatim nepotrebujeme, token sice funguje, RunSynchronously ale umozni cancel az po pripojeni k netu     
+                        do! Async.Sleep 600000 //zatim nepotrebujeme
                     }
             )
         |> Async.StartImmediate 
@@ -145,29 +145,39 @@ module KODIS_BL_Record4 =
 
         try   
             let url1 = "http://kodis.somee.com/api/"             // nezapomen na trailing slash po api 
-            let url2 = "http://kodis.somee.com/api/jsonLinks"     
+            let url2 = "http://kodis.somee.com/api/jsonLinks"   
+           
+            let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
+                async
+                    {
+                         let! getFromRestApi = getFromRestApi url1
+                         return filterTimetableLinks variant dir getFromRestApi
+                    }
 
-            let result1 : Result<(string * string) list, PdfDownloadErrors> = 
-                getFromRestApi >> filterTimetableLinks variant dir <| url1
+            let result2 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
+                async
+                    {
+                        let! getFromRestApi = getFromRestApi url2
+                        match variant with
+                        | FutureValidity -> return filterTimetableLinks variant dir getFromRestApi // links filtered from json files, only future validity
+                        | _              -> return Ok []
+                    }
 
-            let result2 : Result<(string * string) list, PdfDownloadErrors> =
-                match variant with
-                | FutureValidity -> getFromRestApi >> filterTimetableLinks variant dir <| url2 // links filtered from json files, only future validity
-                | _              -> Ok []
-            
-            (*
-            match result1, result2 with
-            | Ok list1, Ok list2 -> Ok (list1 @ list2) |> List.distinct
-            | Error err, _       -> Error err               
-            | _, Error err       -> Error err 
-            *)
-                      
-            Result.bind 
-                (fun list1 ->
-                           result2 
-                           |> Result.map 
-                               (fun list2 -> (list1 @ list2) |> List.distinct) 
-                ) result1 
+            [ result1; result2 ]   //Async.Catch je tady slozite, nechavam to na try with bloku 
+            |> Async.Parallel
+            |> Async.RunSynchronously  //TODO zvaz tady cancellation token
+            |> function 
+                | [| Ok list1; Ok list2 |] 
+                    ->
+                    Ok (List.distinct (list1 @ list2))
+                | [| Error err; _ |] 
+                    ->
+                    Error err
+                | [| _; Error err |] 
+                    ->
+                    Error err
+                | _ ->
+                    Error DataFilteringError   
             
         with
         | _ 
@@ -208,11 +218,6 @@ module KODIS_BL_Record4 =
                                    
                                     async
                                         {    
-                                            //invoking config_timeoutInSeconds config_cancellationToken se projevi az po RunSynchronously, bohuzel...
-
-                                            //let! cancellationHandler = Async.OnCancel <| fun () -> response.Dispose()                                
-                                            //cancellationHandler.Dispose()
-
                                             counterAndProgressBar.Post <| Inc 1
 
                                             token.ThrowIfCancellationRequested ()
@@ -285,7 +290,7 @@ module KODIS_BL_Record4 =
                                                     failwith String.Empty                                               
                                         } 
                                     |> Async.Catch
-                                    |> Async.RunSynchronously  
+                                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                                     |> Result.ofChoice     
                                 )  
                             |> List.tryPick

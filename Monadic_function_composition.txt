@@ -161,13 +161,7 @@ filterTimetables
 |> List.mapi
     (fun i (link, pathToFile)
         ->  
-        async                                                
-            {   
-                token.ThrowIfCancellationRequested ()
-                reportProgress (float i + 1.0, float l)  
-                return! downloadFileTaskAsync link pathToFile 
-            } 
-        |> Async.RunSynchronously
+        //Some code
     ) 
 |> ignore
 |> Ok
@@ -175,15 +169,7 @@ filterTimetables
 filterTimetables 
 |> List.mapi
     (fun i (link, pathToFile) ->  
-        async                                                
-            {   
-                token.ThrowIfCancellationRequested ()
-                reportProgress (float i + 1.0, float l)  
-                return! downloadFileTaskAsync link pathToFile 
-            } 
-        |> Async.Catch
-        |> Async.RunSynchronously  
-        |> Result.ofChoice  
+        //Some code
     ) 
 |> List.tryPick
     (function
@@ -201,15 +187,7 @@ filterTimetables
 |> List.mapi
     (fun i (link, pathToFile)
         ->  
-        async                                                
-            {   
-                token.ThrowIfCancellationRequested () //CancellationToken should also be passed to any async operation that might be cancelled
-                reportProgress (float i + 1.0, float l)  
-                return! downloadFileTaskAsync link pathToFile 
-            } 
-        |> Async.Catch
-        |> Async.RunSynchronously  
-        |> Result.ofChoice  
+        //Some code
     ) 
 |> List.tryPick
     (function
@@ -273,20 +251,7 @@ let kodisTimetables3 : Reader<string list, string seq> =
                     (fun pathToJson 
                         ->    
                         let kodisJsonSamples =    
-                            async
-                                {
-                                    try
-                                        match token.IsCancellationRequested with
-                                        | false ->
-                                                let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
-                                                return JsonProvider2.Parse json
-
-                                        | true  -> 
-                                                return JsonProvider2.Parse tempJson2
-                                    with 
-                                    | _ -> return JsonProvider2.Parse tempJson2
-                                }
-                            |> Async.RunSynchronously                                       
+                            //Some code                     
                                  
                         let timetables = 
                             kodisJsonSamples
@@ -308,12 +273,7 @@ let kodisTimetables3 : Reader<string list, string seq> =
                             |> function
                                 | Some value
                                     ->
-                                    value
-                                    |> Seq.collect (fun item -> item.Attachments)
-                                    |> List.ofSeq
-                                    |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)                                
-                                    |> List.choose id //co neprojde, to beze slova ignoruju
-                                    |> List.toSeq
+                                   //Some code
 
                                 | None   
                                     ->
@@ -336,20 +296,7 @@ let kodisTimetables3 : Reader<string list, string seq> =
                     (fun pathToJson 
                         ->    
                         let kodisJsonSamples =    
-                            async
-                                {
-                                    try
-                                        match token.IsCancellationRequested with
-                                        | false ->
-                                                let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
-                                                return JsonProvider2.Parse json
-
-                                        | true  -> 
-                                                return JsonProvider2.Parse tempJson2
-                                    with 
-                                    | _ -> return JsonProvider2.Parse tempJson2
-                                }
-                            |> Async.RunSynchronously                                       
+                            //Some code                        
                                  
                         let timetables = 
                             kodisJsonSamples
@@ -395,11 +342,7 @@ let kodisAttachments : Reader<string list, string seq> = //Reader monad for educ
                     (fun pathToJson 
                         -> 
                         let fn1 (value : JsonProvider1.Attachment seq) = 
-                            value
-                            |> List.ofSeq
-                            |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
-                            |> List.choose id //co neprojde, to beze slova ignoruju
-                            |> List.toSeq
+                            //Some code
 
                         let fn2 (item : JsonProvider1.Vyluky) =    
                             item.Attachments 
@@ -416,19 +359,7 @@ let kodisAttachments : Reader<string list, string seq> = //Reader monad for educ
                                 | None       -> Seq.empty  //TODO logfile     
 
                         let kodisJsonSamples = 
-                            async
-                                {
-                                    try
-                                        match token.IsCancellationRequested with
-                                        | false ->
-                                                let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
-                                                return JsonProvider1.Parse json
-                                        | true  -> 
-                                                return JsonProvider1.Parse tempJson1
-                                    with 
-                                    | _ -> return JsonProvider1.Parse tempJson1
-                                }
-                            |> Async.RunSynchronously      
+                            //Some code
                                                           
                         kodisJsonSamples 
                         |> Option.ofNull
@@ -451,11 +382,7 @@ let kodisAttachments : Reader<string list, string seq> = //Reader monad for educ
                     (fun pathToJson 
                         -> 
                         let fn1 (value : JsonProvider1.Attachment seq) = 
-                            value
-                            |> List.ofSeq
-                            |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
-                            |> List.choose id //co neprojde, to beze slova ignoruju
-                            |> List.toSeq
+                           //Some code
 
                         let fn2 (item : JsonProvider1.Vyluky) =    
                             item.Attachments 
@@ -470,19 +397,7 @@ let kodisAttachments : Reader<string list, string seq> = //Reader monad for educ
                             |> Option.defaultValue Seq.empty //TODO logfile  
 
                         let kodisJsonSamples = 
-                            async
-                                {
-                                    try
-                                        match token.IsCancellationRequested with
-                                        | false ->
-                                                let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
-                                                return JsonProvider1.Parse json
-                                        | true  -> 
-                                                return JsonProvider1.Parse tempJson1
-                                    with 
-                                    | _ -> return JsonProvider1.Parse tempJson1
-                                }
-                            |> Async.RunSynchronously      
+                           //Some code
                                                           
                         kodisJsonSamples
                         |> Option.ofNull
@@ -610,3 +525,29 @@ let getJsonStringAsync path =
     |> Option.defaultValue jsonEmpty 
 
 ********************************************************
+
+Dalsi educational code: //TODO dej ho jinde
+
+(*
+//There is no need for Async.OnCancel handlers to dispose of resources as the use block will automatically clean up resources
+
+let! clientCancellationHandler = Async.OnCancel <| fun () -> client.Dispose()        
+clientCancellationHandler.Dispose()        
+
+let! fileStreamCancellationHandler = Async.OnCancel <| fun () -> fileStream.Dispose()        
+fileStreamCancellationHandler.Dispose()
+
+let! responseCancellationHandler = Async.OnCancel <| fun () -> response.Dispose()        
+responseCancellationHandler.Dispose()
+*)
+
+ 
+(*
+//There is no need for Async.OnCancel handlers to dispose of resources as the use block will automatically clean up resources
+                                                                       
+let! clientCancellationHandler = Async.OnCancel <| fun () -> client.Dispose()        
+clientCancellationHandler.Dispose()                                    
+
+let! responseCancellationHandler = Async.OnCancel <| fun () -> response.Dispose()        
+responseCancellationHandler.Dispose()
+*)
