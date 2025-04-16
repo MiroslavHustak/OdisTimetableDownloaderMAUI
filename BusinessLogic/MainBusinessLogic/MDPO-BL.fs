@@ -41,7 +41,7 @@ module MDPO_BL = //FsHttp
                             http
                                 {
                                     GET url    
-                                    config_cancellationToken token
+                                    config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
                                 }
                             |> Request.sendAsync //Async varianta musi byt quli cancellation token
         
@@ -77,107 +77,9 @@ module MDPO_BL = //FsHttp
                         }
                     |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                 
-                //let document = FSharp.Data.HtmlDocument.Load url //exn to be caught in MDPO.fs
-                //HtmlDocument -> web scraping -> extracting data from HTML pages
-                                                                                    
-                document.Descendants "a"                  
-                |> Seq.choose 
-                    (fun htmlNode   
-                        ->
-                        htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
-                        |> Option.bind
-                            (fun attr 
-                                -> 
-                                option  //pyramidOfDoom with None
-                                    {
-                                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
-                                        let! attr = attr.Value () |> Option.ofNullEmpty
-                                                               
-                                        return (nodes, attr)
-                                    }                                                          
-                            )                                             
-                    )      
-                |> Seq.filter 
-                    (fun (_ , item2)
-                        -> 
-                        item2.Contains @"/qr/" && item2.Contains ".pdf"
-                    )
-                |> Seq.map 
-                    (fun (_ , item2) 
-                        ->                                                                 
-                        let linkToPdf = sprintf "%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
-                        let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
-                        let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
-                        linkToPdf, (pathToFile << lineName) item2
-                    )                          
-                |> Seq.distinct                 
-            )  
-        |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
+                //Exceptions for FSharp.Data.HtmlDocument.Load url and fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                //to be caught in MDPO.fs
 
-    //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)  
-    let internal unsafeFilterTimetables () pathToDir token = 
-
-        let fetchHtmlWithFsHttp (url : string) =           
-              
-            async
-                {
-                    try
-                        use! response =
-                            http
-                                {
-                                    GET url
-                                    config_cancellationToken token
-
-                                    config_transformHttpClient
-                                        (fun unsafeClient
-                                            ->
-                                            #if ANDROID
-                                            let unsafeHandler = new UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
-                                            #else
-                                            let unsafeHandler = new HttpClientHandler() //nelze use
-                                            unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)                                                
-                                            #endif
-                                            let unsafeClient = new HttpClient(unsafeHandler) 
-                                            unsafeClient
-                                        )
-                                }
-                            |> Request.sendAsync //Async varianta musi byt quli cancellation token
-        
-                        let! htmlContent = Response.toStringAsync (Some 100000) response
-        
-                        let document = HtmlDocument.Parse htmlContent
-        
-                        return Some document                   
-                   
-                    with
-                    | _ -> 
-                        return None
-                  
-                }           
-                
-        let urlList = //aby to bylo jednotne s DPO
-            [
-                pathMdpoWebTimetables
-            ]
-
-        urlList    
-        |> Seq.collect 
-            (fun url 
-                -> 
-                let document = 
-                    async
-                        {                           
-                            let! documentOption = fetchHtmlWithFsHttp url
-                
-                            match documentOption with
-                            | Some document
-                                -> return document
-                            | None
-                                -> return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz
-                        }
-                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
-                
-                //let document = FSharp.Data.HtmlDocument.Load url //exn to be caught in MDPO.fs
                 //HtmlDocument -> web scraping -> extracting data from HTML pages
                                                                                     
                 document.Descendants "a"                  
@@ -221,7 +123,7 @@ module MDPO_BL = //FsHttp
        
             async
                 {                      
-                    try  
+                    try
 
                         let response =           
                                                       
@@ -248,7 +150,7 @@ module MDPO_BL = //FsHttp
                                                         GET uri        
                                                         
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken token  
+                                                        config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
 
                                                         header headerContent1 headerContent2
                                                     }
@@ -258,7 +160,7 @@ module MDPO_BL = //FsHttp
                                                         GET uri
 
                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken token
+                                                        config_cancellationToken token //uz zbytecne, ale ponechavam jako template
                                                     }     
 
                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
@@ -315,7 +217,7 @@ module MDPO_BL = //FsHttp
                             ->  
                             async   //Async musi byt quli cancellation token                                         
                                 {   
-                                    token.ThrowIfCancellationRequested ()
+                                    token.ThrowIfCancellationRequested () //tady rychlejsi, nez s config_cancellationToken
                                     reportProgress (float i + 1.0, float l)  
                                     return! downloadFileTaskAsync token link pathToFile
                                 } 
@@ -347,6 +249,108 @@ module MDPO_BL = //FsHttp
                     | Error _ -> Error FileDeleteErrorMHD      
                                          
         downloadTimetables reportProgress token
+    
+    //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)  
+    let internal unsafeFilterTimetables () pathToDir token = 
+
+        let fetchHtmlWithFsHttp (url : string) =           
+              
+            async
+                {
+                    try
+                        use! response =
+                            http
+                                {
+                                    GET url
+                                    config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
+
+                                    config_transformHttpClient
+                                        (fun unsafeClient
+                                            ->
+                                            #if ANDROID
+                                            let unsafeHandler = new UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                            #else
+                                            let unsafeHandler = new HttpClientHandler() //nelze use
+                                            unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)                                                
+                                            #endif
+                                            let unsafeClient = new HttpClient(unsafeHandler) 
+                                            unsafeClient
+                                        )
+                                }
+                            |> Request.sendAsync //Async varianta musi byt quli cancellation token
+        
+                        let! htmlContent = Response.toStringAsync (Some 100000) response
+        
+                        let document = HtmlDocument.Parse htmlContent
+        
+                        return Some document                   
+                   
+                    with
+                    | _ -> 
+                        return None
+                  
+                }           
+                
+        let urlList = //aby to bylo jednotne s DPO
+            [
+                pathMdpoWebTimetables
+            ]
+
+        urlList    
+        |> Seq.collect 
+            (fun url 
+                -> 
+                let document = 
+                    async
+                        {                           
+                            let! documentOption = fetchHtmlWithFsHttp url
+                
+                            match documentOption with
+                            | Some document
+                                -> return document
+                            | None
+                                -> return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz
+                        }
+                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                
+                //Exceptions for FSharp.Data.HtmlDocument.Load url and fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                //to be caught in MDPO.fs
+
+                //HtmlDocument -> web scraping -> extracting data from HTML pages
+                                                                                    
+                document.Descendants "a"                  
+                |> Seq.choose 
+                    (fun htmlNode   
+                        ->
+                        htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
+                        |> Option.bind
+                            (fun attr 
+                                -> 
+                                option  //pyramidOfDoom with None
+                                    {
+                                        let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                                        let! attr = attr.Value () |> Option.ofNullEmpty
+                                                               
+                                        return (nodes, attr)
+                                    }                                                          
+                            )                                             
+                    )      
+                |> Seq.filter 
+                    (fun (_ , item2)
+                        -> 
+                        item2.Contains @"/qr/" && item2.Contains ".pdf"
+                    )
+                |> Seq.map 
+                    (fun (_ , item2) 
+                        ->                                                                 
+                        let linkToPdf = sprintf "%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
+                        let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
+                        let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
+                        linkToPdf, (pathToFile << lineName) item2
+                    )                          
+                |> Seq.distinct                 
+            )  
+        |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
 
     //FsHttp
     //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
@@ -381,8 +385,8 @@ module MDPO_BL = //FsHttp
                                                     {
                                                         GET uri        
                                                         
-                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken token  
+                                                        config_timeoutInSeconds 300     //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                        config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
 
                                                         config_transformHttpClient
                                                             (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
@@ -401,8 +405,8 @@ module MDPO_BL = //FsHttp
                                                     {
                                                         GET uri
 
-                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                        config_cancellationToken token
+                                                        config_timeoutInSeconds 300     //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                        config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
 
                                                         config_transformHttpClient
                                                             (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
@@ -467,7 +471,7 @@ module MDPO_BL = //FsHttp
                             ->  
                             async  //Async musi byt quli cancellation token                                              
                                 {   
-                                    token.ThrowIfCancellationRequested ()
+                                    token.ThrowIfCancellationRequested () //tady rychlejsi, nez s config_cancellationToken
                                     reportProgress (float i + 1.0, float l)  
                                     return! downloadFileTaskAsync token link pathToFile
                                 } 

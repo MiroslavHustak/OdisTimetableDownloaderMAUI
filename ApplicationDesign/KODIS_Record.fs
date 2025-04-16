@@ -51,7 +51,7 @@ module WebScraping_KODISFMRecord =
         {
             DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> Result<unit, JsonDownloadErrors>
             DeleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
-            OperationOnDataFromJson : CancellationToken -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
+            OperationOnDataFromJson : Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
             DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, PdfDownloadErrors>
         }
 
@@ -120,7 +120,7 @@ module WebScraping_KODISFMRecord =
                 dispatchWorkIsComplete dispatchMsg2
                          
                 let dir = context2.DirList |> List.item context2.VariantInt  
-                let list = operationOnDataFromJson token context2.Variant dir 
+                let list = operationOnDataFromJson context2.Variant dir 
     
                 match list with
                 | Ok list

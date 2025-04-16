@@ -113,6 +113,7 @@ module DPO_BL =
             async
                 {                      
                     try   
+
                         ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13  ////quli Android 7.1
 
                         let client = 

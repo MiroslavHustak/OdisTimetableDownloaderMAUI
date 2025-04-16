@@ -119,12 +119,12 @@ module KODIS_BL_Record =
             |> Option.defaultValue (Ok ())
                              
         with
-        | _  ->  Error JsonDownloadError //TODO logfile              
+        | _  -> Error JsonDownloadError //TODO logfile              
     
-    let internal operationOnDataFromJson (token : CancellationToken) variant dir =   
+    let internal operationOnDataFromJson variant dir =   
 
         try               
-            digThroughJsonStructure >> filterTimetableLinks variant dir <| token 
+            digThroughJsonStructure >> filterTimetableLinks variant dir <| () 
         with
         | ex
             ->
@@ -234,7 +234,7 @@ module KODIS_BL_Record =
                             |> Option.defaultValue (Ok ())
                              
                         with
-                        | _ -> Error FileDownloadError  //TODO logfile                                                     
+                        | _ -> Error StopDownloading  //TODO logfile  //melo by byt pouze pro Async.RunSynchronously(workflow, cancellationToken = token)                                                    
                 } 
         
         reader

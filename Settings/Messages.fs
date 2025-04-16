@@ -101,6 +101,7 @@ module Messages =
     let internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
 
     let internal buttonQuit = "Vypnout aplikaci" 
+    let internal quitError = "Nepodařilo se vypnout aplikaci, zkus znovu" 
 
     let internal appInfoInvoker = 
         sprintf "%s %s %s"

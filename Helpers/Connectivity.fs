@@ -12,6 +12,9 @@ module Connectivity =
 
     let private actor = 
 
+        //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
+        //the mailbox will not raise an exception on its own. 
+
         MailboxProcessor<ConnectivityMessage>
             .StartImmediate
                 <|
@@ -40,10 +43,13 @@ module Connectivity =
             actor.Post <| UpdateState initialConnected // prvotni inicializace mailboxu
     
         let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
-
-            let isConnected = (=) args.NetworkAccess NetworkAccess.Internet  
-                in
-                actor.Post <| UpdateState isConnected
+             
+            try  
+                let isConnected = (=) args.NetworkAccess NetworkAccess.Internet  
+                    in
+                    actor.Post <| UpdateState isConnected
+            with
+            | _ -> ()  //TODO logfile
     
         Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
             
@@ -52,13 +58,15 @@ module Connectivity =
     let internal connectivityListener2 onConnectivityChange = //vysledek je unit
         
         let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
-        
-            let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
-                in
-                onConnectivityChange isConnected
+
+            try  
+                let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
+                    in
+                    onConnectivityChange isConnected
+            with
+            | _ -> ()  //TODO logfile          
             
         Connectivity.ConnectivityChanged.Add connectivityChangedHandler
-
 
 module CheckNetConnection =  
     

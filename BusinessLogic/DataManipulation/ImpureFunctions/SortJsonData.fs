@@ -43,9 +43,11 @@ module SortJsonData =
                 -> 
                 jsonEmpty, jsonEmpty 
 
-    let internal digThroughJsonStructure (token : CancellationToken) = //prohrabeme se strukturou json souboru 
+    //cancellation token jsem tady zrusil, aktivace nastava uz drive
+
+    let internal digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
         
-        let kodisTimetables (token : CancellationToken) : Reader<string list, string seq> =
+        let kodisTimetables () : Reader<string list, string seq> =
         
             reader  //Reader monad for educational purposes only, no real benefit here  
                 {
@@ -56,20 +58,17 @@ module SortJsonData =
                         |> Seq.ofList
                         |> Seq.collect
                             (fun pathToJson 
-                                ->    
+                                ->  
                                 async
                                     {
-                                        try
-                                            match token.IsCancellationRequested with
-                                            | false ->
-                                                    let! json = readAllTextAsync pathToJson
-                                                    return JsonProvider1.Parse json
-                                            | true  -> 
-                                                    return JsonProvider1.Parse tempJson1
+                                        try                                               
+                                            let! json = readAllTextAsync pathToJson
+                                            return JsonProvider1.Parse json                                                
                                         with 
                                         | _ -> return JsonProvider1.Parse tempJson1
                                     }
-                                |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
+                                |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
+                                
                                 |> Option.ofNull
                                 |> Option.map (Seq.map _.Timetable)
                                 |> Option.defaultValue Seq.empty  //TODO logfile
@@ -89,20 +88,18 @@ module SortJsonData =
                             (fun pathToJson 
                                 ->    
                                 let kodisJsonSamples =    
-                                    async
-                                        {
-                                            try
-                                                match token.IsCancellationRequested with
-                                                | false ->
-                                                        let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
-                                                        return JsonProvider2.Parse json
-
-                                                | true  -> 
-                                                        return JsonProvider2.Parse tempJson2
-                                            with 
-                                            | _ -> return JsonProvider2.Parse tempJson2
-                                        }
-                                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)  //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator                                     
+                                    try
+                                        async
+                                            {
+                                                try
+                                                    let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                    return JsonProvider2.Parse json
+                                                with 
+                                                | _ -> return JsonProvider2.Parse tempJson2
+                                            }
+                                        |> Async.RunSynchronously  //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
+                                    with
+                                    | _ -> JsonProvider2.Parse tempJson2   
                                  
                                 let timetables = 
                                     kodisJsonSamples
@@ -167,20 +164,19 @@ module SortJsonData =
                                     |> Option.defaultValue Seq.empty //TODO logfile  
 
                                 let kodisJsonSamples = 
-                                    async
-                                        {
-                                            try
-                                                match token.IsCancellationRequested with
-                                                | false ->
-                                                        let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
-                                                        return JsonProvider1.Parse json
-                                                | true  -> 
-                                                        return JsonProvider1.Parse tempJson1
-                                            with 
-                                            | _ -> return JsonProvider1.Parse tempJson1
-                                        }
-                                    |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator     
-                                                          
+                                    try
+                                        async
+                                            {
+                                                try
+                                                    let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                    return JsonProvider1.Parse json
+                                                with 
+                                                | _ -> return JsonProvider1.Parse tempJson1
+                                            }
+                                        |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator     
+                                    with
+                                    | _ -> JsonProvider1.Parse tempJson1
+                                    
                                 kodisJsonSamples
                                 |> Option.ofNull
                                 |> Option.map (Seq.collect fn3)
@@ -196,6 +192,7 @@ module SortJsonData =
             |> List.toSeq   
       
         try 
+            //zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
             let task = kodisTimetables3 pathToJsonList3 
                 in
                 addOn()

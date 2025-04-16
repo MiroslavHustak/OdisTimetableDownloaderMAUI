@@ -15,9 +15,6 @@ module SettingsKODIS =
      
     let internal partialPathJson = partialPathJsonTemp //viz SeetingsGeneral
 
-    let internal currentTime = DateTime.Now.Date
-    let internal dateTimeMinValue = DateTime.MinValue
-
     type internal Context2 = 
         {
             summerHolidayEnd1 : DateTime
@@ -30,7 +27,7 @@ module SettingsKODIS =
         {
             summerHolidayEnd1 = DateTime (2025, 8, 31)
             summerHolidayEnd2 = DateTime (2025, 8, 31) //(2025, 9, 1)
-            currentTime = DateTime.Now.Date
+            currentTime = DateTime.Now.Date  //try with is overkill, as the system clock is a trusted dependency, and failures are too rare to justify catching.     
             dateTimeMinValue = DateTime.MinValue  
         }
 
