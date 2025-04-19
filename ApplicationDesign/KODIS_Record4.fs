@@ -167,7 +167,8 @@ module WebScraping_KODISFMRecord4 =
 
                 let combinedMessage = 
                     [ msg1; msg2; msg3 ] 
-                    |> List.filter (fun msg -> not (String.IsNullOrWhiteSpace msg)) //IsNullOrWhiteSpace si vsima aji empty string
+                    |> List.map (fun msg -> msg |> Option.ofNullEmptySpace) 
+                    |> List.choose id
                     |> List.map (fun msg -> sprintf "\n%s" msg)
                     |> String.concat separator                         
 

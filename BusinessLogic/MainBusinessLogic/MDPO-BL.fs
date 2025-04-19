@@ -235,7 +235,7 @@ module MDPO_BL = //FsHttp
                                 ->
                                 match (string err.Message).Contains "The operation was canceled." with
                                 | true  -> Some <| Error StopDownloadingMHD
-                                | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) ////FileDownloadErrorMHD
+                                | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) //FileDownloadErrorMHD
                         )
                     |> Option.defaultValue (Ok ()) 
 
