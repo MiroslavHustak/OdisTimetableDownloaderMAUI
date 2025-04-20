@@ -167,8 +167,7 @@ module WebScraping_KODISFMRecord4 =
 
                 let combinedMessage = 
                     [ msg1; msg2; msg3 ] 
-                    |> List.map (fun msg -> msg |> Option.ofNullEmptySpace) 
-                    |> List.choose id
+                    |> List.choose Option.ofNullEmptySpace
                     |> List.map (fun msg -> sprintf "\n%s" msg)
                     |> String.concat separator                         
 
