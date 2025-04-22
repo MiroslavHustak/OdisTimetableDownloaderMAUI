@@ -15,7 +15,8 @@ open Types.ErrorTypes
 open Helpers
 open Helpers.Builders
 
-open Api.CallApi
+open Api.Logging
+open Api.ApiCalls
 
 open BusinessLogic.DPO_BL
    
@@ -79,7 +80,7 @@ module WebScraping_DPO =
                 with
                 | ex 
                     ->
-                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 10) |> Async.RunSynchronously |> ignore //logfile entry
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 10) |> Async.RunSynchronously |> ignore //logfile entry
                     Error FileDownloadErrorMHD //dpoMsg1
 
             | FilterDownloadSave   
@@ -100,7 +101,7 @@ module WebScraping_DPO =
                 with
                 | ex 
                     ->
-                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 11) |> Async.RunSynchronously |> ignore //logfile entry
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 11) |> Async.RunSynchronously |> ignore //logfile entry
                     Error FileDownloadErrorMHD //dpoMsg2    
                        
         pyramidOfInferno

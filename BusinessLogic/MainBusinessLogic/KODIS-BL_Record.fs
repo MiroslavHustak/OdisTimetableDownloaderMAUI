@@ -22,7 +22,8 @@ open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
-open Api.CallApi
+open Api.Logging
+open Api.ApiCalls
 
 open Helpers
 open Helpers.Builders
@@ -114,19 +115,26 @@ module KODIS_BL_Record =
 
                     | Error err
                         ->
-                        postToRestApi (sprintf "%s Error%i" <| string err.Message <| 20) |> Async.RunSynchronously |> ignore //logfile entry
+                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 20) |> Async.RunSynchronously |> ignore //logfile entry
 
-                        match (string err.Message).Contains "The operation was canceled." with
-                        | true  -> Some <| Error StopJsonDownloading
-                        | false -> Some <| Error JsonDownloadError
+                        pyramidOfHell
+                            {
+                                let! _ = not <| (string err.Message).Contains "The operation was canceled.", Some <| Error StopJsonDownloading
+                                let! _ = not <| (string err.Message).Contains "net_io_readfailure", (failwith "net_io_readfailure 20 21"; Some <| Error JsonDownloadError)
+                                            
+                                return Some <| Error JsonDownloadError
+                            }  
                 )
             |> Option.defaultValue (Ok ())
                              
         with
         | ex  
             ->
-            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 21) |> Async.RunSynchronously|> ignore //logfile entry 
-            Error JsonDownloadError //TODO logfile              
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 21) |> Async.RunSynchronously|> ignore //logfile entry 
+            
+            match (string ex.Message).Contains "OperationCanceled" with 
+            | true  -> Error StopJsonDownloading
+            | false -> Error JsonDownloadError            
     
     let internal operationOnDataFromJson variant dir =   
 
@@ -135,7 +143,7 @@ module KODIS_BL_Record =
         with
         | ex
             ->
-            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 22) |> Async.RunSynchronously|> ignore //logfile entry 
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 22) |> Async.RunSynchronously|> ignore //logfile entry 
             Error DataFilteringError 
                     
     let internal downloadAndSave token = 
@@ -234,19 +242,23 @@ module KODIS_BL_Record =
 
                                     | Error err
                                         ->
-                                        postToRestApi (sprintf "%s Error%i" <| string err.Message <| 23) |> Async.RunSynchronously|> ignore //logfile entry 
+                                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 23) |> Async.RunSynchronously|> ignore //logfile entry 
 
-                                        match (string err.Message).Contains "The operation was canceled." with
-                                        | true  -> Some <| Error StopDownloading
-                                        | false -> Some <| Error FileDownloadError
+                                        pyramidOfHell
+                                            {
+                                                let! _ = not <| (string err.Message).Contains "The operation was canceled.", Some <| Error StopDownloading
+                                                let! _ = not <| (string err.Message).Contains "net_io_readfailure", (failwith "net_io_readfailure 23 24"; Some <| Error FileDownloadError)
+                                            
+                                                return Some <| Error FileDownloadError
+                                            }                                       
                                 )
                             |> Option.defaultValue (Ok ())
                              
                         with
                         | ex                             
                             -> 
-                            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 24) |> Async.RunSynchronously |> ignore //logfile entry
-                            Error StopDownloading  //TODO logfile  //melo by byt pouze pro Async.RunSynchronously(workflow, cancellationToken = token)                                                    
+                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 24) |> Async.RunSynchronously |> ignore //logfile entry
+                            Error StopDownloading                                                      
                 } 
         
         reader
@@ -272,7 +284,7 @@ module KODIS_BL_Record =
 
                                      | Error err 
                                          ->
-                                         postToRestApi (sprintf "%s Error%i" <| string err <| 25) |> Async.RunSynchronously |> ignore //logfile entry
+                                         postToLogFile (sprintf "%s Error%i" <| string err <| 25) |> Async.RunSynchronously |> ignore //logfile entry
 
                                          let pathToDir = kodisPathTemp                   
                                              in                                            
@@ -282,7 +294,7 @@ module KODIS_BL_Record =
                             with
                             | ex 
                                 ->
-                                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 26) |> Async.RunSynchronously |> ignore //logfile entry
+                                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 26) |> Async.RunSynchronously |> ignore //logfile entry
                                 
                                 let pathToDir = kodisPathTemp                   
                                     in 

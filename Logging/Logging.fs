@@ -14,11 +14,7 @@ open Types
 open Types.ErrorTypes
 open Settings.SettingsGeneral
 
-open DataModelling.Dto
-
-open TransformationLayers.ApiTransformLayer
-
-module CallApi = 
+module Logging = 
 
     type ResponsePost = 
         {
@@ -26,7 +22,7 @@ module CallApi =
             Message2 : string
         }
 
-    let private decoderPost : Decoder<ResponsePost> =
+    let private decoderPost : Decoder<ResponsePost> =  //zatim zpetny message neni treba, ale ponechavam pro potencialni pouziti
 
         Decode.object
             (fun get ->
@@ -36,7 +32,7 @@ module CallApi =
                      }
             )
 
-    let internal postToRestApi errorMessage = 
+    let internal postToLogFile errorMessage = 
         
         let s1 = "{ \"list\": ["
         let s2 = [ errorMessage; string DateTimeOffset.UtcNow ] |> List.map (sprintf "\"%s\"") |> String.concat ","
@@ -69,50 +65,8 @@ module CallApi =
                                 | Error err -> { Message1 = String.Empty; Message2 = err }      
                     | _ -> 
                         return { Message1 = String.Empty; Message2 = sprintf "Request failed with status code %d" (int response.statusCode) }    
+                
+                //Result type nema smysl u log files pro errors
                 with
                 | ex -> return { Message1 = String.Empty; Message2 = sprintf "Request failed with error message %s" (string ex.Message) }     
             } 
-
-//*************************************************************************************************************
-
-    let private decoderGet : Decoder<ResponseGet> =
-
-        Decode.object
-            (fun get
-                ->
-                {
-                    GetLinks = get.Required.Field "GetLinks" Decode.string
-                    Message = get.Required.Field "Message" Decode.string
-                }
-            )
-
-    let internal getFromRestApi url = 
-    
-        async
-            {       
-                try
-                    use! response = 
-                        http
-                            {
-                                GET url
-                                header "X-API-KEY" apiKeyTest 
-                            }
-                        |> Request.sendAsync
-                
-                    match response.statusCode with
-                    | HttpStatusCode.OK 
-                        ->
-                        let! jsonString = Response.toTextAsync response
-                        let response = Decode.fromString decoderGet jsonString
-
-                        return transformApiResponse response
-                       
-                    | _ -> 
-                        postToRestApi (sprintf "Request failed with status code %d" (int response.statusCode)) |> ignore //logfile entry
-                        return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
-                with
-                | ex 
-                    ->
-                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 44) |> ignore //logfile entry
-                    return Error <| ApiResponseError (string ex.Message)
-            }

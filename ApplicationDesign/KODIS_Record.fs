@@ -16,7 +16,8 @@ open BusinessLogic.KODIS_BL_Record
 open Helpers
 open Helpers.Builders
 
-open Api.CallApi
+open Api.Logging
+open Api.ApiCalls
 
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
@@ -92,8 +93,8 @@ module WebScraping_KODISFMRecord =
             with
             | ex
                 -> 
-                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 5) |> Async.RunSynchronously |> ignore //logfile entry 
-                Error JsonDownloadError  //TODO logfile
+                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 5) |> Async.RunSynchronously |> ignore //logfile entry 
+                Error JsonDownloadError 
             
             |> Result.map (fun _ -> dispatchMsg1) 
             |> Result.mapError errFn
@@ -156,7 +157,7 @@ module WebScraping_KODISFMRecord =
     
                 | Error err                    
                     ->
-                    postToRestApi (sprintf "%s Error%i" <| string err <| 6) |> Async.RunSynchronously |> ignore //logfile entry 
+                    postToLogFile (sprintf "%s Error%i" <| string err <| 6) |> Async.RunSynchronously |> ignore //logfile entry 
                     Error err  
                                  
             //try with blok zrusen   

@@ -6,7 +6,8 @@ open System.IO
 open Types
 open Types.ErrorTypes
 
-open Api.CallApi
+open Api.Logging
+open Api.ApiCalls
 
 open Helpers.Builders
 
@@ -41,7 +42,7 @@ module IO_Operations =
                         with 
                         | ex 
                             ->
-                            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 38) |> Async.RunSynchronously |> ignore //logfile entry
+                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 38) |> Async.RunSynchronously |> ignore 
                             Error FileDeleteError
                 }
     
@@ -70,7 +71,7 @@ module IO_Operations =
                         with 
                         | ex
                             ->
-                            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 39) |> Async.RunSynchronously |> ignore //logfile entry
+                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 39) |> Async.RunSynchronously |> ignore
                             Error FileDeleteError                       
                 }
     
@@ -89,7 +90,7 @@ module IO_Operations =
         with
         | ex 
             ->
-            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 40) |> Async.RunSynchronously |> ignore //logfile entry
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 40) |> Async.RunSynchronously |> ignore 
             Error FileDownloadErrorMHD //dpoMsg1   
       
     let internal createFolders dirList =  
@@ -115,7 +116,7 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToRestApi (sprintf "%s Error%i" <|string ex.Message <| 41) |> Async.RunSynchronously |> ignore //logfile entry
+            postToLogFile (sprintf "%s Error%i" <|string ex.Message <| 41) |> Async.RunSynchronously |> ignore 
             Error CreateFolderError   
         
     let internal ensureMainDirectoriesExist () =
@@ -139,5 +140,5 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 42) |> Async.RunSynchronously |> ignore //logfile entry
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 42) |> Async.RunSynchronously |> ignore 
             Error CreateFolderError   

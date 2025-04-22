@@ -22,7 +22,8 @@ open Types.ErrorTypes
 
 //*******************
 
-open Api.CallApi
+open Api.Logging
+open Api.ApiCalls
 
 open Helpers
 open Helpers.Builders
@@ -36,7 +37,7 @@ open Helpers.AndroidDownloadService
 open Settings.Messages
 open Settings.SettingsGeneral
 
-open Api.CallApi
+open Api.ApiCalls
 open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
 
@@ -134,7 +135,7 @@ module KODIS_BL_Record4 =
                 with
                 | ex
                     ->
-                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 12) |> Async.RunSynchronously |> ignore //logfile entry 
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 12) |> Async.RunSynchronously |> ignore //logfile entry 
                     defaultToken               
         
         //Template //zatim nepouzivano
@@ -184,22 +185,22 @@ module KODIS_BL_Record4 =
 
                         | [ Error err; _ ]    
                             -> 
-                            postToRestApi (sprintf "%s Error%i" <| string err <| 13) |> ignore //logfile entry 
+                            postToLogFile (sprintf "%s Error%i" <| string err <| 13) |> ignore //logfile entry 
                             Error err
 
                         | [ _; Error err ] 
                             ->
-                            postToRestApi (sprintf "%s Error%i" <| string err <| 14) |> ignore //logfile entry 
+                            postToLogFile (sprintf "%s Error%i" <| string err <| 14) |> ignore //logfile entry 
                             Error err
 
                         | _                   
                             ->
-                            postToRestApi (sprintf "%s Error%i" <| string DataFilteringError <| 15) |> ignore //logfile entry 
+                            postToLogFile (sprintf "%s Error%i" <| string DataFilteringError <| 15) |> ignore //logfile entry 
                             Error DataFilteringError
 
                 | Choice2Of2 ex
                     -> 
-                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 16) |> ignore //logfile entry 
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 16) |> ignore //logfile entry 
                     return Error DataFilteringError  //TODO logfile 
             }
         |> Async.RunSynchronously
@@ -305,17 +306,21 @@ module KODIS_BL_Record4 =
 
                                     | Error err
                                         ->
-                                        postToRestApi (string err.Message) |> Async.RunSynchronously |> ignore //logfile entry 
+                                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 171)  |> Async.RunSynchronously |> ignore //logfile entry 
 
-                                        match (string err.Message).Contains "The operation was canceled." with
-                                        | true  -> Some <| Error StopDownloading
-                                        | false -> Some <| Error FileDownloadError
+                                        pyramidOfHell
+                                            {
+                                                let! _ = not <| (string err.Message).Contains "The operation was canceled.", Some <| Error StopDownloading
+                                                let! _ = not <| (string err.Message).Contains "net_io_readfailure", (failwith "net_io_readfailure 36 37"; Some <| Error FileDownloadError)
+                                            
+                                                return Some <| Error FileDownloadError
+                                            }                                       
                                 )
                             |> Option.defaultValue (Ok ())
                         with
                         | ex 
                             ->
-                            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 17) |> Async.RunSynchronously |> ignore //logfile entry 
+                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 17) |> Async.RunSynchronously |> ignore //logfile entry 
                             Error StopDownloading  //TODO logfile  //melo by byt pouze pro Async.RunSynchronously(workflow, cancellationToken = token)   
                 } 
         
@@ -342,7 +347,7 @@ module KODIS_BL_Record4 =
 
                                      | Error err 
                                          ->
-                                         postToRestApi (sprintf "%s Error%i" <| string err <| 18) |> Async.RunSynchronously |> ignore //logfile entry 
+                                         postToLogFile (sprintf "%s Error%i" <| string err <| 18) |> Async.RunSynchronously |> ignore //logfile entry 
 
                                          let pathToDir = kodisPathTemp                   
                                              in                                        
@@ -352,7 +357,7 @@ module KODIS_BL_Record4 =
                             with
                             | ex 
                                 ->
-                                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 19) |> Async.RunSynchronously |> ignore //logfile entry 
+                                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 19) |> Async.RunSynchronously |> ignore //logfile entry 
 
                                 let pathToDir = kodisPathTemp                   
                                     in  

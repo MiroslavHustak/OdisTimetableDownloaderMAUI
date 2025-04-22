@@ -7,8 +7,8 @@ open Thoth.Json.Net
 open Types
 open Types.ErrorTypes
 
+open Api.Logging
 open Helpers.Builders
-
 open DataModelling.Dto
 
 module ApiTransformLayer =
@@ -21,7 +21,15 @@ module ApiTransformLayer =
 
                 let decoder : Decoder<string list> = Decode.field "list" (Decode.list Decode.string)
 
-                let! links = response.GetLinks |> Decode.fromString decoder, fun _ -> Error ApiDecodingError  //TODO logfile  
+                let! links = 
+                    response.GetLinks |> Decode.fromString decoder, 
+                        fun _
+                            -> 
+                            postToLogFile (sprintf "%s Error%i" <| string ApiDecodingError <| 100)
+                            |> Async.RunSynchronously
+                            |> ignore
+                            
+                            Error ApiDecodingError  
 
                 return! Ok (links |> List.distinct)
             }

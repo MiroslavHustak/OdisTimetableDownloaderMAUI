@@ -12,8 +12,8 @@ open Types.ErrorTypes
 open Helpers
 open Helpers.MyString
 
+open Api.Logging
 open Settings.SettingsKODIS
-
 open DataModelling.DataModel
 
 module FilterTimetableLinks =  
@@ -35,7 +35,15 @@ module FilterTimetableLinks =
             with 
             | ex -> Error <| string ex.Message                  
                   
-            |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
+            |> Result.defaultWith
+                (fun err 
+                    -> 
+                    postToLogFile (sprintf "%s Error%i" <| err <| 108)
+                    |> Async.RunSynchronously
+                    |> ignore
+
+                    String.Empty
+                )
         
         let extractSubstring1 (input : string) =
 
@@ -50,7 +58,15 @@ module FilterTimetableLinks =
             with 
             | ex -> Error <| string ex.Message                    
 
-            |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
+            |> Result.defaultWith
+                (fun err 
+                    -> 
+                    postToLogFile (sprintf "%s Error%i" <| err <| 109)
+                    |> Async.RunSynchronously
+                    |> ignore
+
+                    String.Empty
+                )
 
         let extractSubstring2 (input : string) : (string option * int) =
 
@@ -135,7 +151,15 @@ module FilterTimetableLinks =
                 with 
                 | ex -> Error <| string ex.Message
                      
-                |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
+                |> Result.defaultWith
+                    (fun err 
+                        -> 
+                        postToLogFile (sprintf "%s Error%i" <| err <| 110)
+                        |> Async.RunSynchronously
+                        |> ignore
+
+                        String.Empty
+                    )
 
             let totalDateInterval = extractSubstring1 input
 
@@ -148,7 +172,15 @@ module FilterTimetableLinks =
                 with 
                 | ex -> Error <| string ex.Message     
                          
-                |> Result.defaultWith (fun err -> err |> ignore (* TODO logfile *); String.Empty)
+                |> Result.defaultWith
+                    (fun err 
+                        -> 
+                        postToLogFile (sprintf "%s Error%i" <| err <| 111)
+                        |> Async.RunSynchronously
+                        |> ignore
+
+                        String.Empty
+                    )
         
             let vIndex = partAfter.IndexOf "_v"
             let tIndex = partAfter.IndexOf "_t"

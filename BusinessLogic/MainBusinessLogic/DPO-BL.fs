@@ -17,7 +17,8 @@ open Helpers
 open Helpers.Builders
 open Helpers.FileInfoHelper
 
-open Api.CallApi
+open Api.Logging
+open Api.ApiCalls
 
 open Types.ErrorTypes  
 
@@ -184,13 +185,13 @@ module DPO_BL =
                            
                         | Error err 
                             -> 
-                            postToRestApi (sprintf "%s Error%i" <| err <| 34) |> ignore //logfile entry
+                            postToLogFile (sprintf "%s Error%i" <| err <| 34) |> ignore //logfile entry
                             return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
-                        postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 35) |> ignore //logfile entry
+                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 35) |> ignore //logfile entry
                         return Error FileDownloadErrorMHD 
                 } 
     
@@ -221,18 +222,22 @@ module DPO_BL =
 
                         | Error err
                             ->
-                            postToRestApi (sprintf "%s Error%i" <| string err.Message <| 36) |> Async.RunSynchronously |> ignore //logfile entry
+                            postToLogFile (sprintf "%s Error%i" <| string err.Message <| 36) |> Async.RunSynchronously |> ignore //logfile entry
 
-                            match (string err.Message).Contains "The operation was canceled." with
-                            | true  -> Some <| Error StopDownloadingMHD
-                            | false -> Some <| Error FileDownloadErrorMHD
+                            pyramidOfHell
+                                {
+                                    let! _ = not <| (string err.Message).Contains "The operation was canceled.", Some <| Error StopDownloadingMHD
+                                    let! _ = not <| (string err.Message).Contains "net_io_readfailure", (failwith "net_io_readfailure 36 37"; Some <| Error FileDownloadErrorMHD)
+                                            
+                                    return Some <| Error FileDownloadErrorMHD
+                                }
                     )
                 |> Option.defaultValue (Ok ()) 
                
             with
             | ex      
                 ->
-                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 37) |> Async.RunSynchronously |> ignore //logfile entry
+                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 37) |> Async.RunSynchronously |> ignore //logfile entry
 
                 let dirName = ODISDefault.OdisDir5                       
                     in

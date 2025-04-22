@@ -34,7 +34,8 @@ open Settings.SettingsGeneral
 
 open Types.Types
 
-open Api.CallApi
+open Api.Logging
+open Api.ApiCalls
 
 open IO_Operations.IO_Operations
 
@@ -319,12 +320,12 @@ module App =
             with
             | ex 
                 ->
-                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 1) |> Async.RunSynchronously |> ignore //logfile entry
+                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 1) |> Async.RunSynchronously |> ignore //logfile entry
                 { initialModel with ProgressMsg = ctsMsg }, Cmd.none
 
         | Error err 
             ->  
-            postToRestApi (sprintf "%s Error%i" <| string err <| 2) |> Async.RunSynchronously |> ignore //logfile entry
+            postToLogFile (sprintf "%s Error%i" <| string err <| 2) |> Async.RunSynchronously |> ignore //logfile entry
             { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
     let init2 () = 
@@ -388,7 +389,7 @@ module App =
         with
         | ex 
             ->
-            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 3) |> Async.RunSynchronously |> ignore //logfile entry
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 3) |> Async.RunSynchronously |> ignore //logfile entry
             { initialModel with ProgressMsg = ctsMsg }, Cmd.none
 
     let update msg m =

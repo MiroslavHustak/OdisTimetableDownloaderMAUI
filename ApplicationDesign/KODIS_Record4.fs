@@ -14,7 +14,8 @@ open BusinessLogic4.KODIS_BL_Record4
 open Helpers
 open Helpers.Builders
 
-open Api.CallApi
+open Api.Logging
+open Api.ApiCalls
 
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
@@ -120,7 +121,7 @@ module WebScraping_KODISFMRecord4 =
 
             | Error err 
                 ->
-                postToRestApi (sprintf "%s Error%i" <| string err <| 4) |> Async.RunSynchronously |> ignore //logfile entry
+                postToLogFile (sprintf "%s Error%i" <| string err <| 4) |> Async.RunSynchronously |> ignore //logfile entry
                 Error err  
             
         //try with blok zrusen

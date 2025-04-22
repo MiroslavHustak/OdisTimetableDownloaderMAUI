@@ -83,6 +83,7 @@
     <Compile Include="Settings\SettingsDPO.fs" />
     <Compile Include="Settings\SettingsKODIS.fs" />
     <Compile Include="Settings\SettingsMDPO.fs" />
+    <Compile Include="Logging\Logging.fs" />
     <Compile Include="Helpers\CEBuilders.fs" />
     <Compile Include="Helpers\ErrorHandlers.fs" />
     <Compile Include="Helpers\Helpers.fs" />
@@ -98,7 +99,7 @@
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\SortJsonData.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\FilterTimetableLinks.fs" />
 	<Compile Include="BusinessLogic\IO_Operations\PureFunctions\CreatePathsAndNames.fs" />
-    <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\CallApi.fs" />
+    <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\ApiCalls.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\IO_Operations.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic\DPO-BL.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic\MDPO-BL.fs" />
