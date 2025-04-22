@@ -6,6 +6,8 @@ open System.IO
 open Types
 open Types.ErrorTypes
 
+open Api.CallApi
+
 open Helpers.Builders
 
 open CreatingPathsAndNames
@@ -37,9 +39,10 @@ module IO_Operations =
                                 |> Ok
                                 //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
                         with 
-                        | ex ->
-                                string ex.Message |> ignore // TODO logfile 
-                                Error FileDeleteError
+                        | ex 
+                            ->
+                            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 38) |> Async.RunSynchronously |> ignore //logfile entry
+                            Error FileDeleteError
                 }
     
         deleteIt listODISDefault4  
@@ -67,7 +70,7 @@ module IO_Operations =
                         with 
                         | ex
                             ->
-                            string ex.Message |> ignore // TODO logfile 
+                            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 39) |> Async.RunSynchronously |> ignore //logfile entry
                             Error FileDeleteError                       
                 }
     
@@ -84,7 +87,10 @@ module IO_Operations =
                 |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                 |> Ok
         with
-        | _ -> Error FileDownloadErrorMHD //dpoMsg1   
+        | ex 
+            ->
+            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 40) |> Async.RunSynchronously |> ignore //logfile entry
+            Error FileDownloadErrorMHD //dpoMsg1   
       
     let internal createFolders dirList =  
         try
@@ -109,7 +115,7 @@ module IO_Operations =
         with 
         | ex
             ->
-            string ex.Message |> ignore // TODO logfile 
+            postToRestApi (sprintf "%s Error%i" <|string ex.Message <| 41) |> Async.RunSynchronously |> ignore //logfile entry
             Error CreateFolderError   
         
     let internal ensureMainDirectoriesExist () =
@@ -133,5 +139,5 @@ module IO_Operations =
         with 
         | ex
             ->
-            string ex.Message |> ignore // TODO logfile 
+            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 42) |> Async.RunSynchronously |> ignore //logfile entry
             Error CreateFolderError   

@@ -14,6 +14,8 @@ open BusinessLogic4.KODIS_BL_Record4
 open Helpers
 open Helpers.Builders
 
+open Api.CallApi
+
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
 
@@ -118,6 +120,7 @@ module WebScraping_KODISFMRecord4 =
 
             | Error err 
                 ->
+                postToRestApi (sprintf "%s Error%i" <| string err <| 4) |> Async.RunSynchronously |> ignore //logfile entry
                 Error err  
             
         //try with blok zrusen
@@ -167,7 +170,7 @@ module WebScraping_KODISFMRecord4 =
 
                 let combinedMessage = 
                     [ msg1; msg2; msg3 ] 
-                    |> List.filter (fun msg -> not (String.IsNullOrWhiteSpace msg)) //IsNullOrWhiteSpace si vsima aji empty string
+                    |> List.choose Option.ofNullEmptySpace
                     |> List.map (fun msg -> sprintf "\n%s" msg)
                     |> String.concat separator                         
 

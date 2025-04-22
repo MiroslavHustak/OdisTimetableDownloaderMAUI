@@ -34,6 +34,8 @@ open Settings.SettingsGeneral
 
 open Types.Types
 
+open Api.CallApi
+
 open IO_Operations.IO_Operations
 
 open Helpers
@@ -213,7 +215,7 @@ module App =
         Async.StartImmediate (loop waitingForNetConn) 
                       
     let init () =  
-
+    
         let ensureMainDirectoriesExist = ensureMainDirectoriesExist ()
             
         let ctsInitial = new CancellationTokenSource()
@@ -315,10 +317,14 @@ module App =
                         return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch)
                     }  
             with
-            | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
+            | ex 
+                ->
+                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 1) |> Async.RunSynchronously |> ignore //logfile entry
+                { initialModel with ProgressMsg = ctsMsg }, Cmd.none
 
-        | Error _ 
+        | Error err 
             ->  
+            postToRestApi (sprintf "%s Error%i" <| string err <| 2) |> Async.RunSynchronously |> ignore //logfile entry
             { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
     let init2 () = 
@@ -380,7 +386,10 @@ module App =
                     return (initialModel, Cmd.none)
                 }  
         with
-        | _ -> { initialModel with ProgressMsg = ctsMsg }, Cmd.none
+        | ex 
+            ->
+            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 3) |> Async.RunSynchronously |> ignore //logfile entry
+            { initialModel with ProgressMsg = ctsMsg }, Cmd.none
 
     let update msg m =
 

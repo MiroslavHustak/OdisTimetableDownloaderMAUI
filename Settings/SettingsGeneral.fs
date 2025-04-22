@@ -35,6 +35,7 @@ module SettingsGeneral =
     //let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"  //Android 7.1      
     
     let internal apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" 
+    let internal urlLogging = "http://kodis.somee.com/api/logging" 
 
     // F# compiler directives
     #if WINDOWS

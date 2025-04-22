@@ -22,6 +22,8 @@ open Types.ErrorTypes
 
 //*******************
 
+open Api.CallApi
+
 open Helpers
 open Helpers.Builders
 open Helpers.Connectivity
@@ -130,7 +132,9 @@ module KODIS_BL_Record4 =
                         ->
                         defaultToken
                 with
-                | _ ->
+                | ex
+                    ->
+                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 12) |> Async.RunSynchronously |> ignore //logfile entry 
                     defaultToken               
         
         //Template //zatim nepouzivano
@@ -174,16 +178,32 @@ module KODIS_BL_Record4 =
                     ->
                     return
                         match List.ofArray resultsArray with
-                        | [ Ok list1; Ok list2 ] -> Ok (List.distinct (list1 @ list2))
-                        | [ Error err; _ ]       -> Error err
-                        | [ _; Error err ]       -> Error err
-                        | _                      -> Error DataFilteringError
+                        | [ Ok list1; Ok list2 ]
+                            -> 
+                            Ok (List.distinct (list1 @ list2))
 
-                | Choice2Of2 _
+                        | [ Error err; _ ]    
+                            -> 
+                            postToRestApi (sprintf "%s Error%i" <| string err <| 13) |> ignore //logfile entry 
+                            Error err
+
+                        | [ _; Error err ] 
+                            ->
+                            postToRestApi (sprintf "%s Error%i" <| string err <| 14) |> ignore //logfile entry 
+                            Error err
+
+                        | _                   
+                            ->
+                            postToRestApi (sprintf "%s Error%i" <| string DataFilteringError <| 15) |> ignore //logfile entry 
+                            Error DataFilteringError
+
+                | Choice2Of2 ex
                     -> 
+                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 16) |> ignore //logfile entry 
                     return Error DataFilteringError  //TODO logfile 
             }
         |> Async.RunSynchronously
+
         //priprava na pripadne pouziti cancellation token, zabal to pak to try-with
         //|> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) 
                     
@@ -285,13 +305,18 @@ module KODIS_BL_Record4 =
 
                                     | Error err
                                         ->
+                                        postToRestApi (string err.Message) |> Async.RunSynchronously |> ignore //logfile entry 
+
                                         match (string err.Message).Contains "The operation was canceled." with
                                         | true  -> Some <| Error StopDownloading
                                         | false -> Some <| Error FileDownloadError
                                 )
                             |> Option.defaultValue (Ok ())
                         with
-                        | _ -> Error StopDownloading  //TODO logfile  //melo by byt pouze pro Async.RunSynchronously(workflow, cancellationToken = token)   
+                        | ex 
+                            ->
+                            postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 17) |> Async.RunSynchronously |> ignore //logfile entry 
+                            Error StopDownloading  //TODO logfile  //melo by byt pouze pro Async.RunSynchronously(workflow, cancellationToken = token)   
                 } 
         
         reader
@@ -317,15 +342,18 @@ module KODIS_BL_Record4 =
 
                                      | Error err 
                                          ->
+                                         postToRestApi (sprintf "%s Error%i" <| string err <| 18) |> Async.RunSynchronously |> ignore //logfile entry 
+
                                          let pathToDir = kodisPathTemp                   
                                              in                                        
                                              match deleteAllODISDirectories pathToDir with
                                              | Ok _    -> Error err              //TODO logfile  
                                              | Error _ -> Error FileDeleteError  //TODO logfile                                               
                             with
-                            | _ 
+                            | ex 
                                 ->
-                                //TODO logfile 
+                                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 19) |> Async.RunSynchronously |> ignore //logfile entry 
+
                                 let pathToDir = kodisPathTemp                   
                                     in  
                                     match deleteAllODISDirectories pathToDir with

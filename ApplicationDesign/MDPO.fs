@@ -13,6 +13,8 @@ open Types.ErrorTypes
 open Helpers
 open Helpers.Builders
 
+open Api.CallApi
+
 open BusinessLogic.MDPO_BL  
 
 open Settings.Messages
@@ -77,7 +79,10 @@ module WebScraping_MDPO =
                     |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
                     |> Ok
                 with
-                | _ -> Error FileDownloadErrorMHD //dpoMsg1
+                | ex 
+                    -> 
+                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 7) |> Async.RunSynchronously |> ignore //logfile entry 
+                    Error FileDownloadErrorMHD //dpoMsg1
            
             | FilterDownloadSave   //Quli problemum s certifikatem www.mdpo.cz zatim try with bloky vsade, kaj se da
                 ->                                      
@@ -95,7 +100,9 @@ module WebScraping_MDPO =
                                 |> environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir                                        
                 with
                 | ex  //net_http_ssl_connection_failed
-                    ->    
+                    ->   
+                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 8) |> Async.RunSynchronously |> ignore //logfile entry
+
                     try
                         let pathToSubdir =
                             dirList pathToDir 
@@ -113,7 +120,10 @@ module WebScraping_MDPO =
                                         | Error err -> Error err       
                                     //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
                     with
-                    | ex -> Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
+                    | ex 
+                        ->
+                        postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 9) |> Async.RunSynchronously |> ignore //logfile entry
+                        Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
                                                                   
         pyramidOfInferno
             {  

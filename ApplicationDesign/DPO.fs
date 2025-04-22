@@ -15,6 +15,8 @@ open Types.ErrorTypes
 open Helpers
 open Helpers.Builders
 
+open Api.CallApi
+
 open BusinessLogic.DPO_BL
    
 open Settings.Messages 
@@ -75,7 +77,10 @@ module WebScraping_DPO =
                     |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
                     |> Ok
                 with
-                | _ -> Error FileDownloadErrorMHD //dpoMsg1
+                | ex 
+                    ->
+                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 10) |> Async.RunSynchronously |> ignore //logfile entry
+                    Error FileDownloadErrorMHD //dpoMsg1
 
             | FilterDownloadSave   
                 ->     
@@ -93,7 +98,10 @@ module WebScraping_DPO =
                                 environment.FilterTimetables () pathToSubdir 
                                 |> environment.DownloadAndSaveTimetables reportProgress token                                        
                 with
-                | _ -> Error FileDownloadErrorMHD //dpoMsg2    
+                | ex 
+                    ->
+                    postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 11) |> Async.RunSynchronously |> ignore //logfile entry
+                    Error FileDownloadErrorMHD //dpoMsg2    
                        
         pyramidOfInferno
             {  

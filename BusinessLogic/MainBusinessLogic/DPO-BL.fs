@@ -17,6 +17,8 @@ open Helpers
 open Helpers.Builders
 open Helpers.FileInfoHelper
 
+open Api.CallApi
+
 open Types.ErrorTypes  
 
 open Settings.Messages
@@ -180,15 +182,15 @@ module DPO_BL =
                                         | HttpStatusCode.NotFound            -> Error NotFound
                                         | _                                  -> Error CofeeMakerUnavailable 
                            
-                        | Error _ 
+                        | Error err 
                             -> 
-                            //TODO logfile
+                            postToRestApi (sprintf "%s Error%i" <| err <| 34) |> ignore //logfile entry
                             return Error ConnectionError   
                            
                     with                                                         
-                    | _
+                    | ex
                         ->
-                        //TODO logfile
+                        postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 35) |> ignore //logfile entry
                         return Error FileDownloadErrorMHD 
                 } 
     
@@ -219,6 +221,8 @@ module DPO_BL =
 
                         | Error err
                             ->
+                            postToRestApi (sprintf "%s Error%i" <| string err.Message <| 36) |> Async.RunSynchronously |> ignore //logfile entry
+
                             match (string err.Message).Contains "The operation was canceled." with
                             | true  -> Some <| Error StopDownloadingMHD
                             | false -> Some <| Error FileDownloadErrorMHD
@@ -226,8 +230,10 @@ module DPO_BL =
                 |> Option.defaultValue (Ok ()) 
                
             with
-            | _      //TODO logfile
+            | ex      
                 ->
+                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 37) |> Async.RunSynchronously |> ignore //logfile entry
+
                 let dirName = ODISDefault.OdisDir5                       
                     in
                     match deleteOneODISDirectoryMHD dirName dpoPathTemp with

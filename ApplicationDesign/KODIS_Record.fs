@@ -16,6 +16,8 @@ open BusinessLogic.KODIS_BL_Record
 open Helpers
 open Helpers.Builders
 
+open Api.CallApi
+
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
 
@@ -88,7 +90,10 @@ module WebScraping_KODISFMRecord =
                     #endif
                     ()              
             with
-            | _ -> Error JsonDownloadError  //TODO logfile
+            | ex
+                -> 
+                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 5) |> Async.RunSynchronously |> ignore //logfile entry 
+                Error JsonDownloadError  //TODO logfile
             
             |> Result.map (fun _ -> dispatchMsg1) 
             |> Result.mapError errFn
@@ -151,6 +156,7 @@ module WebScraping_KODISFMRecord =
     
                 | Error err                    
                     ->
+                    postToRestApi (sprintf "%s Error%i" <| string err <| 6) |> Async.RunSynchronously |> ignore //logfile entry 
                     Error err  
                                  
             //try with blok zrusen   
@@ -200,7 +206,7 @@ module WebScraping_KODISFMRecord =
     
                     let combinedMessage = 
                         [ msg1; msg2; msg3 ] 
-                        |> List.filter (fun msg -> not (String.IsNullOrWhiteSpace msg)) //IsNullOrWhiteSpace si vsima aji empty string
+                        |> List.choose Option.ofNullEmptySpace
                         |> List.map (fun msg -> sprintf "\n%s" msg)
                         |> String.concat separator                         
     

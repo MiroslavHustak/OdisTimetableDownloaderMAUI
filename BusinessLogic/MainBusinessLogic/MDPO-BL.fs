@@ -18,6 +18,8 @@ open Helpers
 open Helpers.Builders
 open Helpers.FileInfoHelper
 
+open Api.CallApi
+
 open Types.ErrorTypes
 
 open Settings.Messages
@@ -51,7 +53,9 @@ module MDPO_BL = //FsHttp
                         return Some document        
                         
                     with
-                    | _ -> 
+                    | ex 
+                        -> 
+                        postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 25) |> ignore //logfile entry
                         return None
                 }           
                 
@@ -193,15 +197,15 @@ module MDPO_BL = //FsHttp
                             | _                                  ->
                                                                  return Error CofeeMakerUnavailable 
                                                                  
-                        | Error _ 
+                        | Error err 
                             -> 
-                            //TODO logfile
+                            postToRestApi (sprintf "%s Error%i" <| err <| 26) |> ignore //logfile entry
                             return Error ConnectionError   
                            
                     with                                                         
-                    | _
+                    | ex
                         ->
-                        //TODO logfile
+                        postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 27) |> ignore //logfile entry
                         return Error FileDownloadErrorMHD  
                 } 
     
@@ -233,15 +237,19 @@ module MDPO_BL = //FsHttp
 
                             | Error err
                                 ->
+                                postToRestApi (sprintf "%s Error%i" <| string err.Message <| 28) |> Async.RunSynchronously |> ignore //logfile entry
+
                                 match (string err.Message).Contains "The operation was canceled." with
                                 | true  -> Some <| Error StopDownloadingMHD
-                                | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) ////FileDownloadErrorMHD
+                                | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) //FileDownloadErrorMHD
                         )
                     |> Option.defaultValue (Ok ()) 
 
             with
             | ex    //TODO logfile 
                 ->
+                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 281) |> Async.RunSynchronously |> ignore //logfile entry
+                
                 let dirName = ODISDefault.OdisDir6                       
                     in
                     match deleteOneODISDirectoryMHD dirName mdpoPathTemp with
@@ -286,7 +294,9 @@ module MDPO_BL = //FsHttp
                         return Some document                   
                    
                     with
-                    | _ -> 
+                    | ex 
+                        -> 
+                        postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 29) |> ignore //logfile entry
                         return None
                   
                 }           
@@ -447,15 +457,15 @@ module MDPO_BL = //FsHttp
                             | _                                  ->
                                                                  return Error CofeeMakerUnavailable 
                                                                  
-                        | Error _ 
+                        | Error err 
                             -> 
-                            //TODO logfile
+                            postToRestApi (sprintf "%s Error%i" <| err <| 30) |> ignore //logfile entry
                             return Error ConnectionError   
                            
                     with                                                         
-                    | _
+                    | ex
                         ->
-                        //TODO logfile
+                        postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 31) |> ignore //logfile entry
                         return Error FileDownloadErrorMHD  
                 } 
     
@@ -487,6 +497,8 @@ module MDPO_BL = //FsHttp
 
                             | Error err
                                 ->
+                                postToRestApi (sprintf "%s Error%i" <| string err.Message <| 32) |> Async.RunSynchronously |> ignore //logfile entry
+
                                 match (string err.Message).Contains "The operation was canceled." with
                                 | true  -> Some <| Error StopDownloadingMHD
                                 | false -> Some <| Error (TestDuCase (sprintf "%s%s" (string err.Message) " X01")) //FileDownloadErrorMHD
@@ -494,8 +506,10 @@ module MDPO_BL = //FsHttp
                     |> Option.defaultValue (Ok ()) 
 
             with
-            | ex    //TODO logfile 
+            | ex   
                 ->
+                postToRestApi (sprintf "%s Error%i" <| string ex.Message <| 33) |> Async.RunSynchronously |> ignore //logfile entry
+
                 let dirName = ODISDefault.OdisDir6                       
                     in
                     match deleteOneODISDirectoryMHD dirName mdpoPathTemp with
