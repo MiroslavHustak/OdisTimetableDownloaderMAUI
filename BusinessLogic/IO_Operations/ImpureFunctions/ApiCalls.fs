@@ -53,11 +53,11 @@ module ApiCalls =
                         return transformApiResponse response
                        
                     | _ -> 
-                        postToLogFile (sprintf "Request failed with status code %d" (int response.statusCode)) |> ignore //logfile entry
+                        postToLogFile (sprintf "Request failed with status code %d" (int response.statusCode)) |> ignore  
                         return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
                 with
                 | ex 
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 44) |> ignore //logfile entry
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 44) |> ignore  
                     return Error <| ApiResponseError (string ex.Message)
             }

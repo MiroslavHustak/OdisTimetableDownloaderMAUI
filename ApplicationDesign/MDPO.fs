@@ -82,7 +82,7 @@ module WebScraping_MDPO =
                 with
                 | ex 
                     -> 
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 7) |> Async.RunSynchronously |> ignore //logfile entry 
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 7) |> Async.RunSynchronously |> ignore   
                     Error FileDownloadErrorMHD //dpoMsg1
            
             | FilterDownloadSave   //Quli problemum s certifikatem www.mdpo.cz zatim try with bloky vsade, kaj se da
@@ -102,7 +102,7 @@ module WebScraping_MDPO =
                 with
                 | ex  //net_http_ssl_connection_failed
                     ->   
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 8) |> Async.RunSynchronously |> ignore //logfile entry
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 8) |> Async.RunSynchronously |> ignore  
 
                     try
                         let pathToSubdir =
@@ -123,7 +123,7 @@ module WebScraping_MDPO =
                     with
                     | ex 
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 9) |> Async.RunSynchronously |> ignore //logfile entry
+                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 9) |> Async.RunSynchronously |> ignore  
                         Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
                                                                   
         pyramidOfInferno

@@ -16,7 +16,8 @@ open Settings.SettingsGeneral
 
 module Logging = 
 
-    type ResponsePost = 
+    [<Struct>]
+    type internal ResponsePost = 
         {
             Message1 : string
             Message2 : string

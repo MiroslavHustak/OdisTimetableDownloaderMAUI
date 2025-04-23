@@ -73,14 +73,7 @@ module SortJsonData =
                                 
                                 |> Option.ofNull
                                 |> Option.map (Seq.map _.Timetable)
-                                |> Option.defaultValue
-                                    (  
-                                        postToLogFile (sprintf "%s Error%i" <| "kodisTimetables" <| 100)
-                                        |> Async.RunSynchronously
-                                        |> ignore
-                                                                           
-                                        Seq.empty
-                                    )                
+                                |> Option.defaultValue  Seq.empty
                             )
                 }
             
@@ -114,27 +107,13 @@ module SortJsonData =
                                     kodisJsonSamples
                                     |> Option.ofNull
                                     |> Option.map (fun value -> value.Data |> Seq.map _.Timetable)
-                                    |> Option.defaultValue
-                                        (  
-                                            postToLogFile (sprintf "%s Error%i" <| "kodisTimetables3" <| 101)
-                                            |> Async.RunSynchronously
-                                            |> ignore
-                                            
-                                            Seq.empty
-                                        )                                 
+                                    |> Option.defaultValue  Seq.empty
                                  
                                 let vyluky = 
                                     kodisJsonSamples
                                     |> Option.ofNull
                                     |> Option.map (fun value -> value.Data |> Seq.collect _.Vyluky)
-                                    |> Option.defaultValue
-                                        (  
-                                            postToLogFile (sprintf "%s Error%i" <| "kodisTimetables3" <| 102)
-                                            |> Async.RunSynchronously
-                                            |> ignore
-                                                                               
-                                            Seq.empty
-                                        )                
+                                    |> Option.defaultValue Seq.empty
                                  
                                 let attachments = 
                                     vyluky
@@ -149,15 +128,8 @@ module SortJsonData =
                                             |> List.choose id  // Remove `None` values
                                             |> List.toSeq
                                         )
-                                    |> Option.defaultValue
-                                        (  
-                                            postToLogFile (sprintf "%s Error%i" <| "kodisTimetables3" <| 103)
-                                            |> Async.RunSynchronously
-                                            |> ignore
-                                                                               
-                                            Seq.empty
-                                        )                
-
+                                    |> Option.defaultValue Seq.empty
+                                     
                                 Seq.append timetables attachments   
                             )  
                 }       
@@ -185,28 +157,14 @@ module SortJsonData =
                                     item.Attachments 
                                     |> Option.ofNull        
                                     |> Option.map fn1
-                                    |> Option.defaultValue
-                                        (  
-                                            postToLogFile (sprintf "%s Error%i" <| "kodisAttachments" <| 104)
-                                            |> Async.RunSynchronously
-                                            |> ignore
-                                                                               
-                                            Seq.empty
-                                        )                      
-
+                                    |> Option.defaultValue Seq.empty
+                                       
                                 let fn3 (item : JsonProvider1.Root) =  
                                     item.Vyluky
                                     |> Option.ofNull  
                                     |> Option.map (Seq.collect fn2)
-                                    |> Option.defaultValue
-                                        (  
-                                            postToLogFile (sprintf "%s Error%i" <| "kodisAttachments" <| 105)
-                                            |> Async.RunSynchronously
-                                            |> ignore
-                                                                                                                  
-                                            Seq.empty
-                                        )                  
-
+                                    |> Option.defaultValue Seq.empty
+                                       
                                 let kodisJsonSamples = 
                                     try
                                         async
@@ -224,14 +182,7 @@ module SortJsonData =
                                 kodisJsonSamples
                                 |> Option.ofNull
                                 |> Option.map (Seq.collect fn3)
-                                |> Option.defaultValue
-                                    (  
-                                        postToLogFile (sprintf "%s Error%i" <| "kodisAttachments" <| 106)
-                                        |> Async.RunSynchronously
-                                        |> ignore
-                                                                                                              
-                                        Seq.empty
-                                    )                                          
+                                |> Option.defaultValue Seq.empty
                             ) 
                 }
            

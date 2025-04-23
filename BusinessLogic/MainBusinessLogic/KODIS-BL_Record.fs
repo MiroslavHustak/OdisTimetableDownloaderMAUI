@@ -115,26 +115,22 @@ module KODIS_BL_Record =
 
                     | Error err
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 20) |> Async.RunSynchronously |> ignore //logfile entry
+                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 20) |> Async.RunSynchronously |> ignore
 
-                        pyramidOfHell
-                            {
-                                let! _ = not <| (string err.Message).Contains "The operation was canceled.", Some <| Error StopJsonDownloading
-                                let! _ = not <| (string err.Message).Contains "net_io_readfailure", (failwith "net_io_readfailure 20 21"; Some <| Error JsonDownloadError)
-                                            
-                                return Some <| Error JsonDownloadError
-                            }  
+                        match (string err.Message).Contains "OperationCanceled" with 
+                        | true  -> Some <| Error StopJsonDownloading
+                        | false -> Some <| Error JsonDownloadError                      
                 )
             |> Option.defaultValue (Ok ())
                              
         with
         | ex  
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 21) |> Async.RunSynchronously|> ignore //logfile entry 
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 21) |> Async.RunSynchronously|> ignore   
             
             match (string ex.Message).Contains "OperationCanceled" with 
             | true  -> Error StopJsonDownloading
-            | false -> Error JsonDownloadError            
+            | false -> Error JsonDownloadError  
     
     let internal operationOnDataFromJson variant dir =   
 
@@ -143,7 +139,7 @@ module KODIS_BL_Record =
         with
         | ex
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 22) |> Async.RunSynchronously|> ignore //logfile entry 
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 22) |> Async.RunSynchronously|> ignore   
             Error DataFilteringError 
                     
     let internal downloadAndSave token = 
@@ -242,23 +238,22 @@ module KODIS_BL_Record =
 
                                     | Error err
                                         ->
-                                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 23) |> Async.RunSynchronously|> ignore //logfile entry 
-
-                                        pyramidOfHell
-                                            {
-                                                let! _ = not <| (string err.Message).Contains "The operation was canceled.", Some <| Error StopDownloading
-                                                let! _ = not <| (string err.Message).Contains "net_io_readfailure", (failwith "net_io_readfailure 23 24"; Some <| Error FileDownloadError)
-                                            
-                                                return Some <| Error FileDownloadError
-                                            }                                       
+                                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 23) |> Async.RunSynchronously |> ignore
+                                       
+                                        match (string err.Message).Contains "OperationCanceled" with 
+                                        | true  -> Some <| Error StopDownloading
+                                        | false -> Some <| Error FileDownloadError 
                                 )
                             |> Option.defaultValue (Ok ())
                              
                         with
                         | ex                             
                             -> 
-                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 24) |> Async.RunSynchronously |> ignore //logfile entry
-                            Error StopDownloading                                                      
+                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 24) |> Async.RunSynchronously |> ignore   
+                            
+                            match (string ex.Message).Contains "OperationCanceled" with 
+                            | true  -> Error StopDownloading
+                            | false -> Error FileDownloadError     //melo by byt pouze pro Async.RunSynchronously(workflow, cancellationToken = token)                                                        
                 } 
         
         reader
@@ -268,7 +263,7 @@ module KODIS_BL_Record =
                 return
                     match context.dir |> Directory.Exists with 
                     | false ->
-                            //TODO logfile  
+                            postToLogFile (sprintf "%s Error%i" <| string NoFolderError <| 251) |> Async.RunSynchronously |> ignore
                             Error NoFolderError                                             
                     | true  ->
                             try
@@ -284,21 +279,33 @@ module KODIS_BL_Record =
 
                                      | Error err 
                                          ->
-                                         postToLogFile (sprintf "%s Error%i" <| string err <| 25) |> Async.RunSynchronously |> ignore //logfile entry
+                                         postToLogFile (sprintf "%s Error%i" <| string err <| 25) |> Async.RunSynchronously |> ignore
 
                                          let pathToDir = kodisPathTemp                   
                                              in                                            
                                              match deleteAllODISDirectories pathToDir with
-                                             | Ok _    -> Error err                
-                                             | Error _ -> Error FileDeleteError  
+                                             | Ok _    
+                                                 -> 
+                                                 postToLogFile (sprintf "%s Error%i" <| string err <| 252) |> Async.RunSynchronously |> ignore 
+                                                 Error err              
+                                             | Error _ 
+                                                 ->
+                                                 postToLogFile (sprintf "%s Error%i" <| string err <| 253) |> Async.RunSynchronously |> ignore 
+                                                 Error FileDeleteError  
                             with
                             | ex 
                                 ->
-                                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 26) |> Async.RunSynchronously |> ignore //logfile entry
+                                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 26) |> Async.RunSynchronously |> ignore  
                                 
                                 let pathToDir = kodisPathTemp                   
                                     in 
                                     match deleteAllODISDirectories pathToDir with
-                                    | Ok _    -> Error FileDownloadError 
-                                    | Error _ -> Error FileDeleteError  
+                                    | Ok _    
+                                        -> 
+                                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadError <| 261) |> Async.RunSynchronously |> ignore 
+                                        Error FileDownloadError 
+                                    | Error _ 
+                                        -> 
+                                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteError <| 262) |> Async.RunSynchronously |> ignore 
+                                        Error FileDeleteError  
             }               

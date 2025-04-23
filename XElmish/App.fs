@@ -320,12 +320,12 @@ module App =
             with
             | ex 
                 ->
-                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 1) |> Async.RunSynchronously |> ignore //logfile entry
+                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 1) |> Async.RunSynchronously |> ignore  
                 { initialModel with ProgressMsg = ctsMsg }, Cmd.none
 
         | Error err 
             ->  
-            postToLogFile (sprintf "%s Error%i" <| string err <| 2) |> Async.RunSynchronously |> ignore //logfile entry
+            postToLogFile (sprintf "%s Error%i" <| string err <| 2) |> Async.RunSynchronously |> ignore  
             { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
 
     let init2 () = 
@@ -389,7 +389,7 @@ module App =
         with
         | ex 
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 3) |> Async.RunSynchronously |> ignore //logfile entry
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 3) |> Async.RunSynchronously |> ignore  
             { initialModel with ProgressMsg = ctsMsg }, Cmd.none
 
     let update msg m =
