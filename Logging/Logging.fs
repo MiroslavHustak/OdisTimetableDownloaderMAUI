@@ -34,7 +34,8 @@ module Logging =
             )
 
     let internal postToLogFile errorMessage = 
-        
+
+        //prima transformace na json string (bez pouziti records / serializace / Thoth encoders )
         let s1 = "{ \"list\": ["
         let s2 = [ errorMessage; string DateTimeOffset.UtcNow ] |> List.map (sprintf "\"%s\"") |> String.concat ","
         let s3 = "] }"
