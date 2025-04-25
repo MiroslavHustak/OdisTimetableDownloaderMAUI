@@ -19,7 +19,7 @@ open Helpers.Builders
 open Helpers.FileInfoHelper
 
 open Api.Logging
-open Api.ApiCalls
+open Api.FutureLinks
 
 open Types.ErrorTypes
 

@@ -23,7 +23,7 @@ open Types.ErrorTypes
 //*******************
 
 open Api.Logging
-open Api.ApiCalls
+open Api.FutureLinks
 
 open Helpers
 open Helpers.Builders
@@ -37,7 +37,7 @@ open Helpers.AndroidDownloadService
 open Settings.Messages
 open Settings.SettingsGeneral
 
-open Api.ApiCalls
+open Api.FutureLinks
 open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
 
@@ -154,14 +154,14 @@ module KODIS_BL_Record4 =
         let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
             async
                 {
-                    let! getFromRestApi = getFromRestApi url1
+                    let! getFromRestApi = getFutureLinksFromRestApi url1
                     return filterTimetableLinks variant dir getFromRestApi
                 }
     
         let result2 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
             async
                 {
-                    let! getFromRestApi = getFromRestApi url2
+                    let! getFromRestApi = getFutureLinksFromRestApi url2
                     match variant with
                     | FutureValidity -> return filterTimetableLinks variant dir getFromRestApi
                     | _              -> return Ok []

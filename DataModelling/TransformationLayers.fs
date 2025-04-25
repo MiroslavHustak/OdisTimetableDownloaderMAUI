@@ -1,5 +1,7 @@
 ﻿namespace TransformationLayers
 
+open System
+
 open Thoth.Json.Net
 
 //**************************
@@ -7,17 +9,24 @@ open Thoth.Json.Net
 open Types
 open Types.ErrorTypes
 
-open Api.Logging
 open Helpers.Builders
-open DataModelling.Dto
+open DataModelling.Dtm
 
 module ApiTransformLayer =
     
-    let internal transformApiResponse response = 
+    let internal transformLinksApiResponse postToLogFile response = 
 
         pyramidOfInferno
             {
-                let! response = response, fun err -> Error <| ApiResponseError err  
+                let! response = 
+                    response, 
+                        fun err 
+                            -> 
+                            postToLogFile (sprintf "%s Error%i" <| string ApiResponseError <| 1001)
+                            |> Async.RunSynchronously
+                            |> ignore
+                        
+                            Error <| ApiResponseError err  
 
                 let decoder : Decoder<string list> = Decode.field "list" (Decode.list Decode.string)
 
@@ -33,3 +42,11 @@ module ApiTransformLayer =
 
                 return! Ok (links |> List.distinct)
             }
+
+    let internal transformLogEntriesApiResponse  = 
+      
+        function
+        | Ok value -> value.GetLogEntries
+        | Error _  -> String.Empty
+
+      

@@ -7,7 +7,7 @@ open Types
 open Types.ErrorTypes
 
 open Api.Logging
-open Api.ApiCalls
+open Api.FutureLinks
 
 open Helpers.Builders
 

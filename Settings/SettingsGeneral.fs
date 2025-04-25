@@ -9,7 +9,7 @@ open Types.ErrorTypes
 
 module SettingsGeneral =  
 
-    let internal logFileName = "logs/app.log"
+    let internal logFileName = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\logEntries.json"
 
     let internal ODISDefault =  
         {          

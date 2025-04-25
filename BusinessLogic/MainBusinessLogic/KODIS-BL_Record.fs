@@ -23,7 +23,7 @@ open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
 open Api.Logging
-open Api.ApiCalls
+open Api.FutureLinks
 
 open Helpers
 open Helpers.Builders

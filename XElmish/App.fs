@@ -35,7 +35,7 @@ open Settings.SettingsGeneral
 open Types.Types
 
 open Api.Logging
-open Api.ApiCalls
+open Api.FutureLinks
 
 open IO_Operations.IO_Operations
 
@@ -483,6 +483,9 @@ module App =
 
         | Quit  
             -> 
+            #if WINDOWS
+            Api.Logging.saveJsonToFile () |> ignore
+            #endif
             let message = HardRestart.exitApp () 
             { m with ProgressMsg = message }, Cmd.none
 

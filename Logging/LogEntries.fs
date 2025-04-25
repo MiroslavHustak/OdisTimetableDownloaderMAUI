@@ -14,24 +14,24 @@ open Types
 open Types.ErrorTypes
 open Settings.SettingsGeneral
 
-open Api.Logging
-open DataModelling.Dto
+open DataModelling.Dtm
 open TransformationLayers.ApiTransformLayer
 
-module ApiCalls = 
 
-    let private decoderGet : Decoder<ResponseGet> =
+module LogEntries = 
+
+    let private decoderGet : Decoder<ResponseGetLogEntries> =
 
         Decode.object
             (fun get
                 ->
                 {
-                    GetLinks = get.Required.Field "GetLinks" Decode.string
+                    GetLogEntries = get.Required.Field "GetLogEntries" Decode.string
                     Message = get.Required.Field "Message" Decode.string
                 }
             )
 
-    let internal getFromRestApi url = 
+    let internal getLogEntriesFromRestApi url = 
     
         async
             {       
@@ -50,14 +50,12 @@ module ApiCalls =
                         let! jsonString = Response.toTextAsync response
                         let response = Decode.fromString decoderGet jsonString
 
-                        return transformApiResponse response
+                        return Ok <| transformLogEntriesApiResponse response
                        
                     | _ -> 
-                        postToLogFile (sprintf "Request failed with status code %d" (int response.statusCode)) |> ignore  
                         return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
                 with
                 | ex 
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 44) |> ignore  
                     return Error <| ApiResponseError (string ex.Message)
             }

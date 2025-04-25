@@ -18,10 +18,3 @@ module DataModel =
             FileToBeSavedRc : FileToBeSaved 
             PartialLinkRc : PartialLink
         }
-
-    [<Struct>]
-    type internal GetLinksResult = 
-        {
-            Links : string list
-            Message : string
-        }  
