@@ -90,7 +90,8 @@ module Logging =
 
     let internal saveJsonToFile () : Result<unit, string> =
 
-        let prepareJsonAsyncAppend path =
+        let prepareJsonAsyncAppend () =
+
             try                 
                 pyramidOfDoom
                     {  
@@ -100,22 +101,21 @@ module Logging =
                         let! filepath = (Path.GetFullPath logFileName) |> Option.ofNullEmpty, Error String.Empty
 
                         let logEntries = 
-                                async { return! getLogEntriesFromRestApi url } 
-                                |> Async.RunSynchronously
-
-                        let json = match logEntries with Ok json -> json | Error _ -> "Chyba při čtení logEntries z API"   
+                            async { return! getLogEntriesFromRestApi url } 
+                            |> Async.RunSynchronously
+                            |> function Ok logEntries -> logEntries | Error _ -> "Chyba při čtení logEntries z API"   
                    
                         let writer = new StreamWriter(filepath, true) // Append mode
                         let! _ = writer |> Option.ofNull, Error String.Empty
     
-                        return Ok (writer, json)  
+                        return Ok (writer, logEntries)  
                     }
                 |> Result.map
-                    (fun (writer, json) 
+                    (fun (writer, logEntries) 
                         ->
                         async
                             {
-                                do! writer.WriteLineAsync json |> Async.AwaitTask
+                                do! writer.WriteLineAsync logEntries |> Async.AwaitTask
                                 do! writer.FlushAsync() |> Async.AwaitTask
     
                                 return! writer.DisposeAsync().AsTask() |> Async.AwaitTask
@@ -124,34 +124,38 @@ module Logging =
             with
             | ex -> Error (string ex.Message)
     
-        let checkFileSize path =
+        let checkFileSize () =
             
             try
-                let fileInfo = FileInfo path
+                (Path.GetFullPath logFileName)
+                |> Option.ofNullEmpty 
+                |> Option.map
+                    (fun path
+                        ->                   
+                        let fileInfo = FileInfo path
             
-                let sizeKb = 
-                    match fileInfo.Exists with
-                    | true  -> fileInfo.Length / 1024L  //abychom dostali hodnotu v KB
-                    | false -> 0L
+                        let sizeKb = 
+                            match fileInfo.Exists with
+                            | true  -> fileInfo.Length / 1024L  //abychom dostali hodnotu v KB
+                            | false -> 0L
                         
-                match (<) sizeKb <| int64 maxFileSizeKb with
-                | true  -> ()
-                | false -> fileInfo.Delete()
+                        match (<) sizeKb <| int64 maxFileSizeKb with
+                        | true  -> ()
+                        | false -> fileInfo.Delete()
             
-                Ok sizeKb
+                        sizeKb
+                    )
             
             with
-            | _ -> Error String.Empty 
+            | _ -> None
     
         async
             {
                 try
-                    let path = Path.GetFullPath logFileName
-
-                    match checkFileSize path with
-                    | Ok _
+                    match checkFileSize () with
+                    | Some _
                         ->
-                        match prepareJsonAsyncAppend path with
+                        match prepareJsonAsyncAppend () with
                         | Ok asyncWriter
                             ->
                             do! asyncWriter
@@ -161,7 +165,7 @@ module Logging =
                             ->
                             return Error String.Empty
 
-                    | Error _
+                    | None
                         ->
                         return Error String.Empty
                 with
@@ -169,4 +173,4 @@ module Logging =
             }
         |> Async.RunSynchronously
 
-     #endif
+    #endif
