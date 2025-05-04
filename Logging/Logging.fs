@@ -38,11 +38,12 @@ module Logging =
     let private decoderPost : Decoder<ResponsePost> =  //zatim zpetny message neni treba, ale ponechavam pro potencialni pouziti
 
         Decode.object
-            (fun get ->
-                     {
-                         Message1 = get.Required.Field "Message1" Decode.string
-                         Message2 = get.Required.Field "Message2" Decode.string
-                     }
+            (fun get
+                ->
+                {
+                    Message1 = get.Required.Field "Message1" Decode.string
+                    Message2 = get.Required.Field "Message2" Decode.string
+                }
             )
 
     let internal postToLogFile errorMessage = 
