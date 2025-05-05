@@ -5,15 +5,15 @@ module FileInfoHelper =
     open System
     open System.IO
 
-    //*************************
+    //***************************
     open Types
     open Types.ErrorTypes
 
-    open Helpers.Builders
-    
-    open Settings.Messages    
-
+    open Helpers.Builders    
+    open Settings.Messages
     open FsToolkit.ErrorHandling
+
+    //***************************
 
     let [<Literal>] internal jsonEmpty = """[ {} ]"""
 
