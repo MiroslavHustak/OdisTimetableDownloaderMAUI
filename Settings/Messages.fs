@@ -24,6 +24,7 @@ module Messages =
     let internal fileDeleteError = "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
     let internal createFolderError = "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy." 
     let internal noFolderError = "Nejsou vytvořeny adresáře pro příslušné soubory, JŘ ODIS nebyly úspěšně staženy."
+
     #if ANDROID
     let internal fileDownloadError =
         sprintf "%s %s"
@@ -32,6 +33,7 @@ module Messages =
     #else
     let internal fileDownloadError = "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
     #endif
+
     let internal canopyError = "REST API error." 
 
     let internal dispatchMsg1 = "Dokončeno stahování JSON souborů." 
