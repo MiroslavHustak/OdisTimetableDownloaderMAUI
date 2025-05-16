@@ -146,7 +146,7 @@ module AndroidUIHelpers =
         with
         | ex
             -> 
-            string ex.Message |> ignore // TODO: logfile
+            string ex.Message |> ignore<string> // TODO: logfile
             None  
     
     //Not used yet
@@ -168,7 +168,7 @@ module AndroidUIHelpers =
         with
         | ex 
             ->
-            string ex.Message |> ignore  // TODO: logfile
+            string ex.Message |> ignore<string> // TODO: logfile
             None    
 
     let internal openAppSettings () =
@@ -202,7 +202,7 @@ module AndroidUIHelpers =
                 with
                 | ex
                     ->
-                    string ex.Message |> ignore // Log error
+                    string ex.Message |> ignore<string> // Log error
                     ()
             }
 

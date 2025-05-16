@@ -185,13 +185,17 @@ module DPO_BL =
                            
                         | Error err 
                             -> 
-                            postToLogFile (sprintf "%s Error%i" <| err <| 34) |> ignore  
+                            postToLogFile (sprintf "%s Error%i" <| err <| 34)
+                            |> Async.RunSynchronously 
+                            |> ignore<ResponsePost>   
                             return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 35) |> ignore  
+                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 35) 
+                        |> Async.RunSynchronously
+                        |> ignore<ResponsePost>   
                         return Error FileDownloadErrorMHD 
                 } 
     
@@ -222,7 +226,9 @@ module DPO_BL =
 
                         | Error err
                             ->
-                            postToLogFile (sprintf "%s Error%i" <| string err.Message <| 36) |> Async.RunSynchronously |> ignore  
+                            postToLogFile (sprintf "%s Error%i" <| string err.Message <| 36) 
+                            |> Async.RunSynchronously 
+                            |> ignore<ResponsePost>   
 
                             match (string err.Message).Contains "The operation was canceled." with 
                             | true  -> Some <| Error StopDownloadingMHD
@@ -233,18 +239,24 @@ module DPO_BL =
             with
             | ex      
                 ->
-                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 37) |> Async.RunSynchronously |> ignore  
+                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 37)
+                |> Async.RunSynchronously
+                |> ignore<ResponsePost>    
 
                 let dirName = ODISDefault.OdisDir5                       
                     in
                     match deleteOneODISDirectoryMHD dirName dpoPathTemp with
                     | Ok _    
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadErrorMHD<| 371) |> Async.RunSynchronously |> ignore 
+                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadErrorMHD<| 371)
+                        |> Async.RunSynchronously 
+                        |> ignore<ResponsePost>   
                         Error FileDownloadErrorMHD
                     | Error _ 
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteErrorMHD <| 372) |> Async.RunSynchronously |> ignore 
+                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteErrorMHD <| 372) 
+                        |> Async.RunSynchronously 
+                        |> ignore<ResponsePost>   
                         Error FileDeleteErrorMHD 
 
         downloadTimetables reportProgress token   

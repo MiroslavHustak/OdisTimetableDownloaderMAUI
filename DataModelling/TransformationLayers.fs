@@ -24,7 +24,7 @@ module ApiTransformLayer =
                             -> 
                             postToLogFile (sprintf "%s Error%i" <| string ApiResponseError <| 1001)
                             |> Async.RunSynchronously
-                            |> ignore
+                            |> ignore<'a>
                         
                             Error <| ApiResponseError err  
 
@@ -36,7 +36,7 @@ module ApiTransformLayer =
                             -> 
                             postToLogFile (sprintf "%s Error%i" <| string ApiDecodingError <| 100)
                             |> Async.RunSynchronously
-                            |> ignore
+                            |> ignore<'a>
                             
                             Error ApiDecodingError  
 

@@ -77,7 +77,7 @@ let iter' action list =
                      |> List.map _.Compile()      
                      |> Async.Parallel  
                      |> Async.RunSynchronously 
-                     |> ignore
+                     |> ignore<unit array>
 
 let iter action list =
 
@@ -89,7 +89,7 @@ let iter action list =
          |> List.map (fun item -> async { return action item })  // Create an async task for each item
          |> Async.Parallel  
          |> Async.RunSynchronously  
-         |> ignore 
+         |> ignore<unit array>
 
 let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
     
@@ -110,7 +110,7 @@ let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) =
                     |> List.map _.Compile()       
                     |> Async.Parallel  
                     |> Async.RunSynchronously
-                    |> ignore
+                    |> ignore<unit array>
 
     | true  ->
             ()

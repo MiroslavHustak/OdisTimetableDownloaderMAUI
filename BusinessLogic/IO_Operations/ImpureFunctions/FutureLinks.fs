@@ -53,11 +53,17 @@ module FutureLinks =
                         return transformLinksApiResponse postToLogFile response
                        
                     | _ -> 
-                        postToLogFile (sprintf "Request failed with status code %d" (int response.statusCode)) |> ignore  
+                        postToLogFile (sprintf "Request failed with status code %d" (int response.statusCode))
+                        |> Async.RunSynchronously 
+                        |> ignore<ResponsePost>   
+                       
                         return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
                 with
                 | ex 
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 44) |> ignore  
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 44)
+                    |> Async.RunSynchronously
+                    |> ignore<ResponsePost> 
+
                     return Error <| ApiResponseError (string ex.Message)
             }

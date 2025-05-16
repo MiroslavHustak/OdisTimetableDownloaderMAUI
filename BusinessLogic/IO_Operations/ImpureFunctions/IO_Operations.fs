@@ -42,7 +42,9 @@ module IO_Operations =
                         with 
                         | ex 
                             ->
-                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 38) |> Async.RunSynchronously |> ignore 
+                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 38)
+                            |> Async.RunSynchronously
+                            |> ignore<ResponsePost> 
                             Error FileDeleteError
                 }
     
@@ -71,7 +73,9 @@ module IO_Operations =
                         with 
                         | ex
                             ->
-                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 39) |> Async.RunSynchronously |> ignore
+                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 39)
+                            |> Async.RunSynchronously 
+                            |> ignore<ResponsePost>
                             Error FileDeleteError                       
                 }
     
@@ -90,7 +94,9 @@ module IO_Operations =
         with
         | ex 
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 40) |> Async.RunSynchronously |> ignore 
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 40)
+            |> Async.RunSynchronously 
+            |> ignore<ResponsePost> 
             Error FileDownloadErrorMHD //dpoMsg1   
       
     let internal createFolders dirList =  
@@ -106,17 +112,19 @@ module IO_Operations =
                                 (fun item
                                     -> 
                                     let dir = dir.Replace("_vyluk", sprintf "%s/%s" "_vyluk" item)
-                                    Directory.CreateDirectory dir |> ignore
+                                    Directory.CreateDirectory dir |> ignore<DirectoryInfo>
                                 )           
                     | false -> 
-                            Directory.CreateDirectory dir |> ignore           
+                            Directory.CreateDirectory dir |> ignore<DirectoryInfo>           
                 ) 
             |> Ok
     
         with 
         | ex
             ->
-            postToLogFile (sprintf "%s Error%i" <|string ex.Message <| 41) |> Async.RunSynchronously |> ignore 
+            postToLogFile (sprintf "%s Error%i" <|string ex.Message <| 41) 
+            |> Async.RunSynchronously 
+            |> ignore<ResponsePost> 
             Error CreateFolderError   
         
     let internal ensureMainDirectoriesExist () =
@@ -134,11 +142,13 @@ module IO_Operations =
                     ->
                     match Directory.Exists pathDir with
                     | true  -> () 
-                    | false -> Directory.CreateDirectory pathDir |> ignore 
+                    | false -> Directory.CreateDirectory pathDir |> ignore<DirectoryInfo> 
                 )
             |> Ok  
         with 
         | ex
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 42) |> Async.RunSynchronously |> ignore 
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 42) 
+            |> Async.RunSynchronously 
+            |> ignore<ResponsePost> 
             Error CreateFolderError   

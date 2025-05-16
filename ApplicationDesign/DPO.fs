@@ -73,14 +73,17 @@ module WebScraping_DPO =
                                     
             | CreateFolders         
                 -> 
+                let neco = Directory.CreateDirectory ""
                 try                                          
                     dirList pathToDir
-                    |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore)   
+                    |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore<DirectoryInfo>)   
                     |> Ok
                 with
                 | ex 
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 10) |> Async.RunSynchronously |> ignore  
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 10) 
+                    |> Async.RunSynchronously 
+                    |> ignore<ResponsePost>                      
                     Error FileDownloadErrorMHD //dpoMsg1
 
             | FilterDownloadSave   
@@ -101,7 +104,9 @@ module WebScraping_DPO =
                 with
                 | ex 
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 11) |> Async.RunSynchronously |> ignore  
+                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 11)
+                    |> Async.RunSynchronously
+                    |> ignore<ResponsePost>  
                     Error FileDownloadErrorMHD //dpoMsg2    
                        
         pyramidOfInferno

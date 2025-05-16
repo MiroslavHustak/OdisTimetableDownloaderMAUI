@@ -56,7 +56,10 @@ module MDPO_BL = //FsHttp
                     with
                     | ex 
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 25) |> ignore  
+                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 25)
+                        |> Async.RunSynchronously
+                        |> ignore<ResponsePost> 
+
                         return None
                 }           
                 
@@ -200,13 +203,19 @@ module MDPO_BL = //FsHttp
                                                                  
                         | Error err 
                             -> 
-                            postToLogFile (sprintf "%s Error%i" <| err <| 26) |> ignore  
+                            postToLogFile (sprintf "%s Error%i" <| err <| 26)
+                            |> Async.RunSynchronously 
+                            |> ignore<ResponsePost> 
+
                             return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 27) |> ignore  
+                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 27) 
+                        |> Async.RunSynchronously 
+                        |> ignore<ResponsePost> 
+
                         return Error FileDownloadErrorMHD  
                 } 
     
@@ -238,7 +247,9 @@ module MDPO_BL = //FsHttp
 
                             | Error err
                                 ->
-                                postToLogFile (sprintf "%s Error%i" <| string err.Message <| 28) |> Async.RunSynchronously |> ignore  
+                                postToLogFile (sprintf "%s Error%i" <| string err.Message <| 28) 
+                                |> Async.RunSynchronously
+                                |> ignore<ResponsePost>  
 
                                 match (string err.Message).Contains "The operation was canceled." with 
                                 | true  -> Some <| Error StopDownloadingMHD
@@ -249,16 +260,22 @@ module MDPO_BL = //FsHttp
             with
             | ex    
                 ->
-                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 281) |> Async.RunSynchronously |> ignore  
+                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 281) 
+                |> Async.RunSynchronously 
+                |> ignore<ResponsePost>  
                 
                 let dirName = ODISDefault.OdisDir6                       
                     in
                     match deleteOneODISDirectoryMHD dirName mdpoPathTemp with
                     | Ok _    -> 
-                              postToLogFile (sprintf "%s Error%i" <| string FileDownloadErrorMHD<| 281) |> Async.RunSynchronously |> ignore
+                              postToLogFile (sprintf "%s Error%i" <| string FileDownloadErrorMHD<| 281) 
+                              |> Async.RunSynchronously
+                              |> ignore<ResponsePost>
                               Error FileDownloadErrorMHD
                     | Error _ -> 
-                              postToLogFile (sprintf "%s Error%i" <| string FileDeleteErrorMHD <| 282) |> Async.RunSynchronously |> ignore
+                              postToLogFile (sprintf "%s Error%i" <| string FileDeleteErrorMHD <| 282) 
+                              |> Async.RunSynchronously 
+                              |> ignore<ResponsePost>
                               Error FileDeleteErrorMHD 
                                          
         downloadTimetables reportProgress token
@@ -301,7 +318,10 @@ module MDPO_BL = //FsHttp
                     with
                     | ex 
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 29) |> ignore  
+                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 29)
+                        |> Async.RunSynchronously 
+                        |> ignore<ResponsePost>  
+
                         return None
                   
                 }           
@@ -464,13 +484,19 @@ module MDPO_BL = //FsHttp
                                                                  
                         | Error err 
                             -> 
-                            postToLogFile (sprintf "%s Error%i" <| err <| 30) |> ignore 
+                            postToLogFile (sprintf "%s Error%i" <| err <| 30) 
+                            |> Async.RunSynchronously
+                            |> ignore<ResponsePost> 
+
                             return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 31) |> ignore  
+                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 31)
+                        |> Async.RunSynchronously 
+                        |> ignore<ResponsePost>  
+
                         return Error FileDownloadErrorMHD  
                 } 
     
@@ -502,7 +528,9 @@ module MDPO_BL = //FsHttp
 
                             | Error err
                                 ->
-                                postToLogFile (sprintf "%s Error%i" <| string err.Message <| 32) |> Async.RunSynchronously |> ignore 
+                                postToLogFile (sprintf "%s Error%i" <| string err.Message <| 32) 
+                                |> Async.RunSynchronously 
+                                |> ignore<ResponsePost> 
 
                                 match (string err.Message).Contains "The operation was canceled." with
                                 | true  -> Some <| Error StopDownloadingMHD
@@ -513,18 +541,24 @@ module MDPO_BL = //FsHttp
             with
             | ex   
                 ->
-                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 33) |> Async.RunSynchronously |> ignore 
+                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 33) 
+                |> Async.RunSynchronously
+                |> ignore<ResponsePost> 
 
                 let dirName = ODISDefault.OdisDir6                       
                     in
                     match deleteOneODISDirectoryMHD dirName mdpoPathTemp with
                     | Ok _   
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadErrorMHD <| 331) |> Async.RunSynchronously |> ignore
+                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadErrorMHD <| 331) 
+                        |> Async.RunSynchronously 
+                        |> ignore<ResponsePost>
                         Error FileDownloadErrorMHD
                     | Error _ 
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteErrorMHD <| 332) |> Async.RunSynchronously |> ignore
+                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteErrorMHD <| 332)
+                        |> Async.RunSynchronously
+                        |> ignore<ResponsePost>
                         Error FileDeleteErrorMHD 
                                          
         downloadTimetables reportProgress token

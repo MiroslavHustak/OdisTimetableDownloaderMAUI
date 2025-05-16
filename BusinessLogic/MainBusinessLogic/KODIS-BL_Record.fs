@@ -115,7 +115,9 @@ module KODIS_BL_Record =
 
                     | Error err
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 20) |> Async.RunSynchronously |> ignore
+                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 20)
+                        |> Async.RunSynchronously 
+                        |> ignore<ResponsePost>   
 
                         match (string err.Message).Contains "OperationCanceled" with 
                         | true  -> Some <| Error StopJsonDownloading
@@ -126,7 +128,9 @@ module KODIS_BL_Record =
         with
         | ex  
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 21) |> Async.RunSynchronously|> ignore   
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 21) 
+            |> Async.RunSynchronously
+            |> ignore<ResponsePost>      
             
             match (string ex.Message).Contains "OperationCanceled" with 
             | true  -> Error StopJsonDownloading
@@ -139,7 +143,9 @@ module KODIS_BL_Record =
         with
         | ex
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 22) |> Async.RunSynchronously|> ignore   
+            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 22)
+            |> Async.RunSynchronously
+            |> ignore<ResponsePost>      
             Error DataFilteringError 
                     
     let internal downloadAndSave token = 
@@ -238,7 +244,9 @@ module KODIS_BL_Record =
 
                                     | Error err
                                         ->
-                                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 23) |> Async.RunSynchronously |> ignore
+                                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 23) 
+                                        |> Async.RunSynchronously
+                                        |> ignore<ResponsePost>   
                                        
                                         match (string err.Message).Contains "OperationCanceled" with 
                                         | true  -> Some <| Error StopDownloading
@@ -249,7 +257,9 @@ module KODIS_BL_Record =
                         with
                         | ex                             
                             -> 
-                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 24) |> Async.RunSynchronously |> ignore   
+                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 24)
+                            |> Async.RunSynchronously
+                            |> ignore<ResponsePost>      
                             
                             match (string ex.Message).Contains "OperationCanceled" with 
                             | true  -> Error StopDownloading
@@ -263,7 +273,9 @@ module KODIS_BL_Record =
                 return
                     match context.dir |> Directory.Exists with 
                     | false ->
-                            postToLogFile (sprintf "%s Error%i" <| string NoFolderError <| 251) |> Async.RunSynchronously |> ignore
+                            postToLogFile (sprintf "%s Error%i" <| string NoFolderError <| 251)
+                            |> Async.RunSynchronously 
+                            |> ignore<ResponsePost>   
                             Error NoFolderError                                             
                     | true  ->
                             try
@@ -279,33 +291,46 @@ module KODIS_BL_Record =
 
                                      | Error err 
                                          ->
-                                         postToLogFile (sprintf "%s Error%i" <| string err <| 25) |> Async.RunSynchronously |> ignore
+                                         postToLogFile (sprintf "%s Error%i" <| string err <| 25)
+                                         |> Async.RunSynchronously
+                                         |> ignore<ResponsePost>
 
                                          let pathToDir = kodisPathTemp                   
                                              in                                            
                                              match deleteAllODISDirectories pathToDir with
                                              | Ok _    
                                                  -> 
-                                                 postToLogFile (sprintf "%s Error%i" <| string err <| 252) |> Async.RunSynchronously |> ignore 
+                                                 postToLogFile (sprintf "%s Error%i" <| string err <| 252)
+                                                 |> Async.RunSynchronously
+                                                 |> ignore<ResponsePost> 
                                                  Error err              
                                              | Error _ 
                                                  ->
-                                                 postToLogFile (sprintf "%s Error%i" <| string err <| 253) |> Async.RunSynchronously |> ignore 
+                                                 postToLogFile (sprintf "%s Error%i" <| string err <| 253) 
+                                                 |> Async.RunSynchronously
+                                                 |> ignore<ResponsePost> 
                                                  Error FileDeleteError  
+
                             with
                             | ex 
                                 ->
-                                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 26) |> Async.RunSynchronously |> ignore  
+                                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 26)
+                                |> Async.RunSynchronously 
+                                |> ignore<ResponsePost>  
                                 
                                 let pathToDir = kodisPathTemp                   
                                     in 
                                     match deleteAllODISDirectories pathToDir with
                                     | Ok _    
                                         -> 
-                                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadError <| 261) |> Async.RunSynchronously |> ignore 
+                                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadError <| 261)
+                                        |> Async.RunSynchronously
+                                        |> ignore<ResponsePost> 
                                         Error FileDownloadError 
                                     | Error _ 
                                         -> 
-                                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteError <| 262) |> Async.RunSynchronously |> ignore 
+                                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteError <| 262) 
+                                        |> Async.RunSynchronously 
+                                        |> ignore<ResponsePost> 
                                         Error FileDeleteError  
             }               

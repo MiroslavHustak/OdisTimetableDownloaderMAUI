@@ -8,11 +8,15 @@ type MauiProgram =
         MauiApp
             .CreateBuilder()
             .UseFabulousApp(App.program)
-            .ConfigureFonts(fun fonts ->
-                fonts
-                    .AddFont("OpenSans-Regular.ttf", "OpenSansRegular")
-                    .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
-                |> ignore)
+            .ConfigureFonts(
+                fun fonts
+                    ->
+                    fonts
+                        .AddFont("OpenSans-Regular.ttf", "OpenSansRegular")
+                        .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
+                   
+                    |> ignore<IFontCollection>
+                )
             .Build()   
 
 // Approx. 4300 LoC as of Apr 24, 2025
