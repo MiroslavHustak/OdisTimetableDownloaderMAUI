@@ -73,7 +73,6 @@ module WebScraping_DPO =
                                     
             | CreateFolders         
                 -> 
-                let neco = Directory.CreateDirectory ""
                 try                                          
                     dirList pathToDir
                     |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore<DirectoryInfo>)   
