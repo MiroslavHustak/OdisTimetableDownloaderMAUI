@@ -25,11 +25,7 @@ module SortRecordData =
                 ||
                 (dateValidityStart = context2.currentTime 
                 && 
-                dateValidityEnd = context2.currentTime))              
-                &&
-                (
-                not <| fileToBeSaved.Contains("020_2024_01_02_2024_12_14")
-                )
+                dateValidityEnd = context2.currentTime))   
 
             | FutureValidity          
                 ->
@@ -52,11 +48,7 @@ module SortRecordData =
                 (dateValidityEnd <> context2.summerHolidayEnd1
                 && 
                 dateValidityEnd <> context2.summerHolidayEnd2)
-                &&
-                (
-                not <| fileToBeSaved.Contains("020_2024_01_02_2024_12_14")
-                )
-             
+                           
         let dataToBeFiltered = dataToBeFiltered |> List.toSeq |> Seq.distinct   
              
         validity 

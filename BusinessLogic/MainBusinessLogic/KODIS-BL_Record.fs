@@ -38,6 +38,8 @@ module KODIS_BL_Record =
     //************************ Main code ***********************************************************
 
     let internal downloadAndSaveJson jsonLinkList pathToJsonList (token : CancellationToken) reportProgress = //FsHttp
+
+        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
                
         let l = jsonLinkList |> List.length
             in
@@ -60,9 +62,7 @@ module KODIS_BL_Record =
                         {    
                             counterAndProgressBar.Post <| Inc 1                           
                             
-                            token.ThrowIfCancellationRequested ()
-                           
-                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
+                            token.ThrowIfCancellationRequested ()                            
                                                                     
                             let existingFileLength =                               
                                 checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
