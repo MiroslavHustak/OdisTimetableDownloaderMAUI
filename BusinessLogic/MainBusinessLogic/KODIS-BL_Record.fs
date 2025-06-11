@@ -100,6 +100,9 @@ module KODIS_BL_Record =
                             | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
                                 ->         
                                 do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+                            | HttpStatusCode.Forbidden 
+                                ->
+                                ()
                             | _ ->
                                 failwith String.Empty                             
                         } 
@@ -225,6 +228,9 @@ module KODIS_BL_Record =
                                                     | HttpStatusCode.PartialContent | HttpStatusCode.OK  // 206    // 200
                                                         ->         
                                                         do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+                                                    | HttpStatusCode.Forbidden 
+                                                        ->
+                                                        () //nektery odkaz moze byt <Code>AccessDenied</Code> a s tim ja nic nenarobim, je to chyba KODISu
                                                     | _ ->
                                                         failwith String.Empty  
 

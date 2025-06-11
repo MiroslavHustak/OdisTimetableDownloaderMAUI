@@ -221,6 +221,8 @@ module KODIS_BL_Record4 =
         //|> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) 
                     
     let internal downloadAndSave token = 
+
+        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
         
         let downloadAndSaveTimetables (token : CancellationToken) =  
             
@@ -254,9 +256,7 @@ module KODIS_BL_Record4 =
                                         {    
                                             counterAndProgressBar.Post <| Inc 1
 
-                                            token.ThrowIfCancellationRequested ()
-                                                                                      
-                                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
+                                            token.ThrowIfCancellationRequested ()                                            
 
                                             let pathToFileExistFirstCheck = 
                                                 checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
@@ -297,8 +297,12 @@ module KODIS_BL_Record4 =
 
                                                     match response.statusCode with
                                                     | HttpStatusCode.PartialContent | HttpStatusCode.OK  // 206 // 200
-                                                        ->         
+                                                        ->  
                                                         do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+
+                                                    | HttpStatusCode.Forbidden 
+                                                        ->
+                                                        ()
                                                     | _ ->
                                                         failwith String.Empty  
 
