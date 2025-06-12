@@ -93,7 +93,7 @@ module WebScraping_KODISFMRecord =
             with
             | ex
                 -> 
-                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 5) 
+                postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#5") 
                 |> Async.RunSynchronously 
                 |> ignore<ResponsePost>   
                 Error JsonDownloadError 
@@ -159,7 +159,7 @@ module WebScraping_KODISFMRecord =
     
                 | Error err                    
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string err <| 6) 
+                    postToLogFile (sprintf "%s Error%s" <| string err <| "#6") 
                     |> Async.RunSynchronously
                     |> ignore<ResponsePost>   
                     Error err  

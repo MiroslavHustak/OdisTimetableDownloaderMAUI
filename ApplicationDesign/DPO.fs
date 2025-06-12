@@ -80,7 +80,7 @@ module WebScraping_DPO =
                 with
                 | ex 
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 10) 
+                    postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#10") 
                     |> Async.RunSynchronously 
                     |> ignore<ResponsePost>                      
                     Error FileDownloadErrorMHD //dpoMsg1
@@ -103,7 +103,7 @@ module WebScraping_DPO =
                 with
                 | ex 
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 11)
+                    postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#11")
                     |> Async.RunSynchronously
                     |> ignore<ResponsePost>  
                     Error FileDownloadErrorMHD //dpoMsg2    

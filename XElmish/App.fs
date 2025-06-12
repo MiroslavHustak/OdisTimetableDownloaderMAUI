@@ -320,7 +320,7 @@ module App =
             with
             | ex 
                 ->
-                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 1)
+                postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#1")
                 |> Async.RunSynchronously 
                 |> ignore<ResponsePost>  
 
@@ -328,7 +328,7 @@ module App =
 
         | Error err 
             ->  
-            postToLogFile (sprintf "%s Error%i" <| string err <| 2)
+            postToLogFile (sprintf "%s Error%s" <| string err <| "#2")
             |> Async.RunSynchronously 
             |> ignore<ResponsePost>    
 
@@ -395,7 +395,7 @@ module App =
         with
         | ex 
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 3) 
+            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#3") 
             |> Async.RunSynchronously 
             |> ignore<ResponsePost>    
 

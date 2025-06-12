@@ -185,7 +185,7 @@ module DPO_BL =
                            
                         | Error err 
                             -> 
-                            postToLogFile (sprintf "%s Error%i" <| err <| 34)
+                            postToLogFile (sprintf "%s Error%s" <| err <| "#34")
                             |> Async.RunSynchronously 
                             |> ignore<ResponsePost>   
                             return Error ConnectionError   
@@ -193,7 +193,7 @@ module DPO_BL =
                     with                                                         
                     | ex
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 35) 
+                        postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#35") 
                         |> Async.RunSynchronously
                         |> ignore<ResponsePost>   
                         return Error FileDownloadErrorMHD 
@@ -226,7 +226,7 @@ module DPO_BL =
 
                         | Error err
                             ->
-                            postToLogFile (sprintf "%s Error%i" <| string err.Message <| 36) 
+                            postToLogFile (sprintf "%s Error%s" <| string err.Message <| "#36") 
                             |> Async.RunSynchronously 
                             |> ignore<ResponsePost>   
 
@@ -239,7 +239,7 @@ module DPO_BL =
             with
             | ex      
                 ->
-                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 37)
+                postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#37")
                 |> Async.RunSynchronously
                 |> ignore<ResponsePost>    
 
@@ -248,13 +248,13 @@ module DPO_BL =
                     match deleteOneODISDirectoryMHD dirName dpoPathTemp with
                     | Ok _    
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadErrorMHD<| 371)
+                        postToLogFile (sprintf "%s Error%s" <| string FileDownloadErrorMHD<| "#371")
                         |> Async.RunSynchronously 
                         |> ignore<ResponsePost>   
                         Error FileDownloadErrorMHD
                     | Error _ 
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteErrorMHD <| 372) 
+                        postToLogFile (sprintf "%s Error%s" <| string FileDeleteErrorMHD <| "#372") 
                         |> Async.RunSynchronously 
                         |> ignore<ResponsePost>   
                         Error FileDeleteErrorMHD 

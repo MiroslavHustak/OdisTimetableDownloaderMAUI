@@ -42,7 +42,7 @@ module IO_Operations =
                         with 
                         | ex 
                             ->
-                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 38)
+                            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#38")
                             |> Async.RunSynchronously
                             |> ignore<ResponsePost> 
                             Error FileDeleteError
@@ -73,7 +73,7 @@ module IO_Operations =
                         with 
                         | ex
                             ->
-                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 39)
+                            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#39")
                             |> Async.RunSynchronously 
                             |> ignore<ResponsePost>
                             Error FileDeleteError                       
@@ -94,7 +94,7 @@ module IO_Operations =
         with
         | ex 
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 40)
+            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#40")
             |> Async.RunSynchronously 
             |> ignore<ResponsePost> 
             Error FileDownloadErrorMHD //dpoMsg1   
@@ -122,7 +122,7 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToLogFile (sprintf "%s Error%i" <|string ex.Message <| 41) 
+            postToLogFile (sprintf "%s Error%s" <|string ex.Message <| "#41") 
             |> Async.RunSynchronously 
             |> ignore<ResponsePost> 
             Error CreateFolderError   
@@ -148,7 +148,7 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 42) 
+            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#42") 
             |> Async.RunSynchronously 
             |> ignore<ResponsePost> 
             Error CreateFolderError   
