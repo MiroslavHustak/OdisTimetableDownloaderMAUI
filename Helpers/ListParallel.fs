@@ -91,7 +91,7 @@ let iter action list =
          |> Async.RunSynchronously  
          |> ignore<unit array>
 
-let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
+let iter2'<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
     
     let l = xs1 |> List.length   
 
@@ -111,6 +111,26 @@ let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) =
                     |> Async.Parallel  
                     |> Async.RunSynchronously
                     |> ignore<unit array>
+
+    | true  ->
+            ()
+
+let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
+    
+    let l = xs1 |> List.length   
+
+    match (l = 0 || xs2.IsEmpty) || l <> (xs2 |> List.length) with
+    | false -> 
+            let listToParallel (xs1, xs2) = (xs1, xs2) ||> List.iter2 mapping    
+                           
+            let numberOfThreads = numberOfThreads l  
+                in                      
+                (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
+                ||> List.zip                 
+                |> List.map (fun pair -> async { return listToParallel pair })
+                |> Async.Parallel  
+                |> Async.RunSynchronously                   
+                |> ignore<unit array>
 
     | true  ->
             ()
@@ -149,7 +169,7 @@ let map (action : 'a -> 'b) (list : 'a list) =
          |> Async.RunSynchronously  
          |> List.ofArray
  
-let map2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
+let map2'<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
     
     let l = xs1 |> List.length 
 
@@ -170,6 +190,27 @@ let map2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) 
                     |> Async.RunSynchronously
                     |> List.ofArray
                     |> List.concat
+
+    | true  ->
+            []
+
+let map2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
+    
+    let l = xs1 |> List.length 
+
+    match (l = 0 || xs2.IsEmpty) || l <> (xs2 |> List.length) with
+    | false -> 
+            let listToParallel (xs1, xs2) = (xs1, xs2) ||> List.map2 mapping    
+                                
+            let numberOfThreads = numberOfThreads l  
+                in                      
+                (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
+                ||> List.zip                 
+                |> List.map (fun pair -> async { return listToParallel pair })
+                |> Async.Parallel  
+                |> Async.RunSynchronously
+                |> List.ofArray
+                |> List.concat
 
     | true  ->
             []
