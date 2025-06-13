@@ -121,10 +121,8 @@ module WebScraping_KODISFMRecord4 =
 
             | Error err 
                 ->
-                postToLogFile (sprintf "%s Error%s" <| string err <| "#4") 
-                |> Async.RunSynchronously 
-                |> ignore<ResponsePost>  
-                Error err  
+                 postToLog <| string err <| "#4"
+                 Error err  
             
         //try with blok zrusen
                  

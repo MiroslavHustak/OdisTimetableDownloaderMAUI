@@ -42,9 +42,7 @@ module IO_Operations =
                         with 
                         | ex 
                             ->
-                            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#38")
-                            |> Async.RunSynchronously
-                            |> ignore<ResponsePost> 
+                            postToLog <| string ex.Message <| "#38"
                             Error FileDeleteError
                 }
     
@@ -73,9 +71,7 @@ module IO_Operations =
                         with 
                         | ex
                             ->
-                            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#39")
-                            |> Async.RunSynchronously 
-                            |> ignore<ResponsePost>
+                            postToLog <| string ex.Message <| "#39"
                             Error FileDeleteError                       
                 }
     
@@ -94,9 +90,7 @@ module IO_Operations =
         with
         | ex 
             ->
-            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#40")
-            |> Async.RunSynchronously 
-            |> ignore<ResponsePost> 
+            postToLog <| string ex.Message <| "#40"
             Error FileDownloadErrorMHD //dpoMsg1   
       
     let internal createFolders dirList =  
@@ -122,9 +116,7 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToLogFile (sprintf "%s Error%s" <|string ex.Message <| "#41") 
-            |> Async.RunSynchronously 
-            |> ignore<ResponsePost> 
+            postToLog <| string ex.Message <| "#41"
             Error CreateFolderError   
         
     let internal ensureMainDirectoriesExist () =
@@ -148,7 +140,5 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToLogFile (sprintf "%s Error%s" <| string ex.Message <| "#42") 
-            |> Async.RunSynchronously 
-            |> ignore<ResponsePost> 
+            postToLog <| string ex.Message <| "#42"
             Error CreateFolderError   

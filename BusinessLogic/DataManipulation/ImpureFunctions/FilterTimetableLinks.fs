@@ -38,10 +38,7 @@ module FilterTimetableLinks =
             |> Result.defaultWith
                 (fun err 
                     -> 
-                    postToLogFile (sprintf "%s Error%s" <| err <| "#108")
-                    |> Async.RunSynchronously
-                    |> ignore<ResponsePost>
-
+                    postToLog <| err <| "#108"
                     String.Empty
                 )
         
@@ -61,10 +58,7 @@ module FilterTimetableLinks =
             |> Result.defaultWith
                 (fun err 
                     -> 
-                    postToLogFile (sprintf "%s Error%s" <| err <| "#109")
-                    |> Async.RunSynchronously
-                    |> ignore<ResponsePost>
-
+                    postToLog <| err <| "#109"
                     String.Empty
                 )
 
@@ -154,10 +148,7 @@ module FilterTimetableLinks =
                 |> Result.defaultWith
                     (fun err 
                         -> 
-                        postToLogFile (sprintf "%s Error%s" <| err <| "#110")
-                        |> Async.RunSynchronously
-                        |> ignore<ResponsePost>
-
+                        postToLog <| err <| "#110"
                         String.Empty
                     )
 
@@ -175,10 +166,7 @@ module FilterTimetableLinks =
                 |> Result.defaultWith
                     (fun err 
                         -> 
-                        postToLogFile (sprintf "%s Error%s" <| err <| "#111")
-                        |> Async.RunSynchronously
-                        |> ignore<ResponsePost>
-
+                        postToLog <| err <| "#111"
                         String.Empty
                     )
         

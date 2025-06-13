@@ -23,7 +23,6 @@ open LogEntries
 open Helpers
 open Helpers.Builders
 
-
 module Logging = 
 
     [<Struct>]
@@ -85,6 +84,12 @@ module Logging =
                 with
                 | ex -> return { Message1 = String.Empty; Message2 = sprintf "Request failed with error message %s" (string ex.Message) }     
             } 
+
+    let internal postToLog (msg: 'a) errCode =   
+    
+        postToLogFile (sprintf "%s Error%s" <| string msg <| errCode) 
+        |> Async.RunSynchronously
+        |> ignore<ResponsePost>  
 
     //*************************************************************************** 
     #if WINDOWS   

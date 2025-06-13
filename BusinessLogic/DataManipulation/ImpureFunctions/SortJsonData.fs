@@ -205,8 +205,5 @@ module SortJsonData =
         with
         | ex
             ->  
-            postToLogFile (sprintf "%s Error%s" <| (string ex.Message) <| "#107")
-            |> Async.RunSynchronously
-            |> ignore<ResponsePost>
-           
+            postToLog <| string ex.Message <| "#107"
             Error JsonFilteringError        
