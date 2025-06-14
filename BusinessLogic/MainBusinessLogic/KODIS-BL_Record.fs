@@ -38,7 +38,7 @@ module KODIS_BL_Record =
     //************************ Main code ***********************************************************
 
     let internal downloadAndSaveJson jsonLinkList pathToJsonList (token : CancellationToken) reportProgress = //FsHttp
-               
+                   
         let l = jsonLinkList |> List.length
             in
             let counterAndProgressBar =
@@ -60,9 +60,7 @@ module KODIS_BL_Record =
                         {    
                             counterAndProgressBar.Post <| Inc 1                           
                             
-                            token.ThrowIfCancellationRequested ()
-                           
-                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
+                            token.ThrowIfCancellationRequested ()                            
                                                                     
                             let existingFileLength =                               
                                 checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
@@ -96,12 +94,19 @@ module KODIS_BL_Record =
                             //Async varianta musi byt quli cancellation token
                             use! response = get >> Request.sendAsync <| uri  
 
-                            match response.statusCode with
+                            let statusCode = response.statusCode
+
+                            match statusCode with
                             | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
                                 ->         
                                 do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+                            | HttpStatusCode.Forbidden 
+                                ->
+                                postToLogFile (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2111") 
+                                |> Async.RunSynchronously 
+                                |> ignore<ResponsePost> 
                             | _ ->
-                                failwith String.Empty                             
+                                postToLog <| statusCode <| "#2112"
                         } 
                     |> Async.Catch
                     |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)  
@@ -113,13 +118,11 @@ module KODIS_BL_Record =
                         -> 
                         None
 
-                    | Error err
+                    | Error ex
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 20)
-                        |> Async.RunSynchronously 
-                        |> ignore<ResponsePost>   
+                        postToLog <| ex.Message <| "#20"
 
-                        match (string err.Message).Contains "OperationCanceled" with 
+                        match (string ex.Message).Contains "OperationCanceled" with 
                         | true  -> Some <| Error StopJsonDownloading
                         | false -> Some <| Error JsonDownloadError                      
                 )
@@ -128,9 +131,7 @@ module KODIS_BL_Record =
         with
         | ex  
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 21) 
-            |> Async.RunSynchronously
-            |> ignore<ResponsePost>      
+            postToLog <| ex.Message <| "#21"
             
             match (string ex.Message).Contains "OperationCanceled" with 
             | true  -> Error StopJsonDownloading
@@ -143,9 +144,7 @@ module KODIS_BL_Record =
         with
         | ex
             ->
-            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 22)
-            |> Async.RunSynchronously
-            |> ignore<ResponsePost>      
+            postToLog <| ex.Message <| "#22"
             Error DataFilteringError 
                     
     let internal downloadAndSave token = 
@@ -180,8 +179,6 @@ module KODIS_BL_Record =
                                             counterAndProgressBar.Post <| Inc 1
                                                                                        
                                             token.ThrowIfCancellationRequested ()
-
-                                            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
 
                                             let pathToFileExistFirstCheck = 
                                                 checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
@@ -221,16 +218,22 @@ module KODIS_BL_Record =
                                                     //Async varianta musi byt quli cancellation token 
                                                     use! response = get >> Request.sendAsync <| uri  
                                                                                                        
-                                                    match response.statusCode with
-                                                    | HttpStatusCode.PartialContent | HttpStatusCode.OK  // 206    // 200
+                                                    let statusCode = response.statusCode
+                                                    
+                                                    match statusCode with
+                                                    | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
                                                         ->         
                                                         do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+                                                    | HttpStatusCode.Forbidden 
+                                                        ->
+                                                        postToLogFile (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211") 
+                                                        |> Async.RunSynchronously 
+                                                        |> ignore<ResponsePost> 
                                                     | _ ->
-                                                        failwith String.Empty  
-
+                                                        postToLog <| statusCode <| "#2212"
                                                 | None 
                                                     ->
-                                                    failwith String.Empty                                             
+                                                    failwith "Failed pathToFileExistFirstCheck"                                              
                                         } 
                                     |> Async.Catch
                                     |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
@@ -242,13 +245,11 @@ module KODIS_BL_Record =
                                         -> 
                                         None
 
-                                    | Error err
+                                    | Error ex
                                         ->
-                                        postToLogFile (sprintf "%s Error%i" <| string err.Message <| 23) 
-                                        |> Async.RunSynchronously
-                                        |> ignore<ResponsePost>   
-                                       
-                                        match (string err.Message).Contains "OperationCanceled" with 
+                                        postToLog <| ex.Message <| "#23"
+                                                                            
+                                        match (string ex.Message).Contains "OperationCanceled" with 
                                         | true  -> Some <| Error StopDownloading
                                         | false -> Some <| Error FileDownloadError 
                                 )
@@ -257,9 +258,7 @@ module KODIS_BL_Record =
                         with
                         | ex                             
                             -> 
-                            postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 24)
-                            |> Async.RunSynchronously
-                            |> ignore<ResponsePost>      
+                            postToLog <| ex.Message <| "#24"
                             
                             match (string ex.Message).Contains "OperationCanceled" with 
                             | true  -> Error StopDownloading
@@ -273,9 +272,7 @@ module KODIS_BL_Record =
                 return
                     match context.dir |> Directory.Exists with 
                     | false ->
-                            postToLogFile (sprintf "%s Error%i" <| string NoFolderError <| 251)
-                            |> Async.RunSynchronously 
-                            |> ignore<ResponsePost>   
+                            postToLog <| NoFolderError <| "#251"
                             Error NoFolderError                                             
                     | true  ->
                             try
@@ -291,46 +288,34 @@ module KODIS_BL_Record =
 
                                      | Error err 
                                          ->
-                                         postToLogFile (sprintf "%s Error%i" <| string err <| 25)
-                                         |> Async.RunSynchronously
-                                         |> ignore<ResponsePost>
-
+                                         postToLog <| err <| "#25"
+                                        
                                          let pathToDir = kodisPathTemp                   
                                              in                                            
                                              match deleteAllODISDirectories pathToDir with
                                              | Ok _    
                                                  -> 
-                                                 postToLogFile (sprintf "%s Error%i" <| string err <| 252)
-                                                 |> Async.RunSynchronously
-                                                 |> ignore<ResponsePost> 
+                                                 postToLog <| err <| "#252"
                                                  Error err              
                                              | Error _ 
                                                  ->
-                                                 postToLogFile (sprintf "%s Error%i" <| string err <| 253) 
-                                                 |> Async.RunSynchronously
-                                                 |> ignore<ResponsePost> 
+                                                 postToLog <| err <| "#253"
                                                  Error FileDeleteError  
 
                             with
                             | ex 
                                 ->
-                                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 26)
-                                |> Async.RunSynchronously 
-                                |> ignore<ResponsePost>  
-                                
+                                postToLog <| ex.Message <| "#26"
+                                                               
                                 let pathToDir = kodisPathTemp                   
                                     in 
                                     match deleteAllODISDirectories pathToDir with
                                     | Ok _    
                                         -> 
-                                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadError <| 261)
-                                        |> Async.RunSynchronously
-                                        |> ignore<ResponsePost> 
+                                        postToLog <| FileDownloadError <| "#261"
                                         Error FileDownloadError 
                                     | Error _ 
                                         -> 
-                                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteError <| 262) 
-                                        |> Async.RunSynchronously 
-                                        |> ignore<ResponsePost> 
+                                        postToLog <| FileDeleteError <| "#262"
                                         Error FileDeleteError  
             }               

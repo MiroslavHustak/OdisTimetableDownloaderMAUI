@@ -83,8 +83,8 @@
     <Compile Include="Settings\SettingsDPO.fs" />
     <Compile Include="Settings\SettingsKODIS.fs" />
     <Compile Include="Settings\SettingsMDPO.fs" />
-    <Compile Include="Helpers\CEBuilders.fs" />
-    <Compile Include="Helpers\ErrorHandlers.fs" />
+    <Compile Include="MonadicStructures\CEBuilders.fs" />
+    <Compile Include="ErrorHandling\ErrorHandlers.fs" />
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Parsing.fs" />
     <Compile Include="Helpers\HardRestart.fs" />

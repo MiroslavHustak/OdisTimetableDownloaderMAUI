@@ -116,9 +116,6 @@ module DPO_BL =
             async
                 {                      
                     try   
-
-                        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13  ////quli Android 7.1
-
                         let client = 
                             
                             pyramidOfDoom
@@ -185,17 +182,13 @@ module DPO_BL =
                            
                         | Error err 
                             -> 
-                            postToLogFile (sprintf "%s Error%i" <| err <| 34)
-                            |> Async.RunSynchronously 
-                            |> ignore<ResponsePost>   
+                            postToLog <| err <| "#34"
                             return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 35) 
-                        |> Async.RunSynchronously
-                        |> ignore<ResponsePost>   
+                        postToLog <| string ex.Message <| "#35"
                         return Error FileDownloadErrorMHD 
                 } 
     
@@ -224,13 +217,11 @@ module DPO_BL =
                             -> 
                             None
 
-                        | Error err
+                        | Error ex
                             ->
-                            postToLogFile (sprintf "%s Error%i" <| string err.Message <| 36) 
-                            |> Async.RunSynchronously 
-                            |> ignore<ResponsePost>   
+                            postToLog <| ex.Message <| "#36"
 
-                            match (string err.Message).Contains "The operation was canceled." with 
+                            match (string ex.Message).Contains "The operation was canceled." with 
                             | true  -> Some <| Error StopDownloadingMHD
                             | false -> Some <| Error FileDownloadErrorMHD
                     )
@@ -239,24 +230,18 @@ module DPO_BL =
             with
             | ex      
                 ->
-                postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 37)
-                |> Async.RunSynchronously
-                |> ignore<ResponsePost>    
+                postToLog <| string ex.Message <| "#37"
 
                 let dirName = ODISDefault.OdisDir5                       
                     in
                     match deleteOneODISDirectoryMHD dirName dpoPathTemp with
                     | Ok _    
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| string FileDownloadErrorMHD<| 371)
-                        |> Async.RunSynchronously 
-                        |> ignore<ResponsePost>   
+                        postToLog <| FileDownloadErrorMHD <| "#371"
                         Error FileDownloadErrorMHD
                     | Error _ 
                         ->
-                        postToLogFile (sprintf "%s Error%i" <| string FileDeleteErrorMHD <| 372) 
-                        |> Async.RunSynchronously 
-                        |> ignore<ResponsePost>   
+                        postToLog <| FileDeleteErrorMHD <| "#372"
                         Error FileDeleteErrorMHD 
 
         downloadTimetables reportProgress token   

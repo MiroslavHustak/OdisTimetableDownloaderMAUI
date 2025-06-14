@@ -1,10 +1,15 @@
 ﻿namespace OdisTimetableDownloaderMAUI
 
+open System.Net
 open Fabulous.Maui
 open Microsoft.Maui.Hosting
 
 type MauiProgram =
+
     static member CreateMauiApp() =
+
+        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
+
         MauiApp
             .CreateBuilder()
             .UseFabulousApp(App.program)

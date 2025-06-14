@@ -38,10 +38,7 @@ module FilterTimetableLinks =
             |> Result.defaultWith
                 (fun err 
                     -> 
-                    postToLogFile (sprintf "%s Error%i" <| err <| 108)
-                    |> Async.RunSynchronously
-                    |> ignore<ResponsePost>
-
+                    postToLog <| err <| "#108"
                     String.Empty
                 )
         
@@ -61,10 +58,7 @@ module FilterTimetableLinks =
             |> Result.defaultWith
                 (fun err 
                     -> 
-                    postToLogFile (sprintf "%s Error%i" <| err <| 109)
-                    |> Async.RunSynchronously
-                    |> ignore<ResponsePost>
-
+                    postToLog <| err <| "#109"
                     String.Empty
                 )
 
@@ -154,10 +148,7 @@ module FilterTimetableLinks =
                 |> Result.defaultWith
                     (fun err 
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| err <| 110)
-                        |> Async.RunSynchronously
-                        |> ignore<ResponsePost>
-
+                        postToLog <| err <| "#110"
                         String.Empty
                     )
 
@@ -175,10 +166,7 @@ module FilterTimetableLinks =
                 |> Result.defaultWith
                     (fun err 
                         -> 
-                        postToLogFile (sprintf "%s Error%i" <| err <| 111)
-                        |> Async.RunSynchronously
-                        |> ignore<ResponsePost>
-
+                        postToLog <| err <| "#111"
                         String.Empty
                     )
         
@@ -208,6 +196,7 @@ module FilterTimetableLinks =
                         fun () -> oldPrefix.Contains("R") && oldPrefix.Length = 4
                         fun () -> oldPrefix.Contains("NAD")
                         fun () -> oldPrefix.Contains("X")
+                        fun () -> oldPrefix.Contains("P")
                     ]
 
                 match List.filter (fun condition -> condition()) conditions with
@@ -280,7 +269,7 @@ module FilterTimetableLinks =
                     -> 
                     value
                     |> List.ofSeq                 
-                    |> List.Parallel.map 
+                    |> List.map //List.Parallel.map is overkill here
                         (fun item
                             -> 
                             let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
@@ -297,7 +286,7 @@ module FilterTimetableLinks =
                             let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
                             cond1 && cond2 
                         )         
-                    |> List.Parallel.map (fun item -> splitKodisLink item) 
+                    |> List.map (fun item -> splitKodisLink item) //List.Parallel.map is overkill here
                 )          
                            
         //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************

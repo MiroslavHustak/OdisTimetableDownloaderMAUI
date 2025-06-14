@@ -124,7 +124,7 @@ module SortJsonData =
                                             value
                                             |> Seq.collect _.Attachments
                                             |> List.ofSeq
-                                            |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace)
+                                            |> List.map (fun item -> item.Url |> Option.ofNullEmptySpace) //List.Parallel.map je overkill
                                             |> List.choose id  // Remove `None` values
                                             |> List.toSeq
                                         )
@@ -149,7 +149,7 @@ module SortJsonData =
                                 let fn1 (value : JsonProvider1.Attachment seq) = 
                                     value
                                     |> List.ofSeq
-                                    |> List.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) //jj, funguje to :-)                                    
+                                    |> List.map (fun item -> item.Url |> Option.ofNullEmptySpace) //List.Parallel.map - jj, funguje to :-), ale je to overkill                                    
                                     |> List.choose id //co neprojde, to beze slova ignoruju
                                     |> List.toSeq
 
@@ -205,8 +205,5 @@ module SortJsonData =
         with
         | ex
             ->  
-            postToLogFile (sprintf "%s Error%i" <| (string ex.Message) <| 107)
-            |> Async.RunSynchronously
-            |> ignore<ResponsePost>
-           
+            postToLog <| string ex.Message <| "#107"
             Error JsonFilteringError        

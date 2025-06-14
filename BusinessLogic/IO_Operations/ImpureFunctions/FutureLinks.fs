@@ -61,9 +61,7 @@ module FutureLinks =
                 with
                 | ex 
                     ->
-                    postToLogFile (sprintf "%s Error%i" <| string ex.Message <| 44)
-                    |> Async.RunSynchronously
-                    |> ignore<ResponsePost> 
+                    postToLog <| string ex.Message <| "#44"
 
                     return Error <| ApiResponseError (string ex.Message)
             }
