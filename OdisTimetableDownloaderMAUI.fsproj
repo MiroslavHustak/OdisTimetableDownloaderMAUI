@@ -48,18 +48,18 @@
 	
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <AndroidKeyStore>False</AndroidKeyStore>
-    <AndroidSigningStorePass>74764</AndroidSigningStorePass>
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
-    <AndroidSigningKeyPass>74764</AndroidSigningKeyPass>
+    <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
     <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
-    <AndroidKeyStore>False</AndroidKeyStore>
-    <AndroidSigningStorePass>74764</AndroidSigningStorePass>
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
-    <AndroidSigningKeyPass>74764</AndroidSigningKeyPass>
+    <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
     <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
   </PropertyGroup>
 
