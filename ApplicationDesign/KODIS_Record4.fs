@@ -107,8 +107,8 @@ module WebScraping_KODISFMRecord4 =
                         
                         dispatchIterationMessage context2.Msg1
                                                
-                        match list.Length >= 8 with //eqv of 8 threads
-                        | true  -> context List.Parallel.map2
+                        match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
+                        | true  -> context List.Parallel.map2_IO
                         | false -> context List.map2
 
                         |> environment.DownloadAndSave token     

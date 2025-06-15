@@ -94,9 +94,10 @@ module KeepScreenOnManager = //DeviceDisplay.KeepScreenOn z .NET MAUI hodil exn,
                 let flags =
                     WakeLockFlags.ScreenDim ||| WakeLockFlags.AcquireCausesWakeup ||| WakeLockFlags.OnAfterRelease
 
-                let lock : PowerManager.WakeLock =          
-                    let powerManager = activity.GetSystemService(Context.PowerService) :?> PowerManager        
-                    powerManager.NewWakeLock(flags, "MyApp:PreventSleepDuringDownload")  
+                let! getSystemService = activity.GetSystemService(Context.PowerService) |> Option.ofNull, ()  
+                let! lock = 
+                    let powerManager = getSystemService :?> PowerManager        
+                    Some <| powerManager.NewWakeLock(flags, "MyApp:PreventSleepDuringDownload"), ()  
                     
                 let!_ = enable |> Option.ofBool, WakeLockHelper.releaseWakeLock lock
                 do WakeLockHelper.acquireWakeLock lock               
@@ -125,23 +126,30 @@ module AndroidUIHelpers =
     let internal bringAppToForeground () =
 
         try
-            option
+            pyramidOfDoom 
                 {
-                    use! context = Application.Context |> Option.ofNull
-                    use! packageManager = context.PackageManager |> Option.ofNull
-                    use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull  
-                    let! _ = 
+                    use! context = Application.Context |> Option.ofNull, None
+                    //use context : Context = context
+                    use! packageManager = context.PackageManager |> Option.ofNull, None
+                    //use packageManager : PM.PackageManager = packageManager
+            
+                    let! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None
+                    use intent : Intent = intent
+            
+                    do! 
                         intent.AddFlags
                             (
-                                ActivityFlags.NewTask ||| 
-                                ActivityFlags.ClearTop ||| 
-                                ActivityFlags.ClearTask ||| 
-                                ActivityFlags.BroughtToFront ||| 
+                                ActivityFlags.NewTask |||
+                                ActivityFlags.ClearTop |||
+                                ActivityFlags.ClearTask |||
+                                ActivityFlags.BroughtToFront |||
                                 ActivityFlags.SingleTop
                             )
                             |> Option.ofNull
-
-                    return! context.StartActivity(intent) |> Option.ofNull
+                            |> Option.map (fun _ -> ()), None
+            
+                    do context.StartActivity(intent) 
+                    return Some () // Return unit option
                 }
         with
         | ex
@@ -152,18 +160,19 @@ module AndroidUIHelpers =
     //Not used yet
     let internal sendAppToBackground () =
         try
-            option
+            pyramidOfDoom
                 {
-                    use! context = Application.Context |> Option.ofNull
-                    use! packageManager = context.PackageManager |> Option.ofNull
+                    use! context = Application.Context |> Option.ofNull, None
+                    //use context : Context = context 
                 
-                    use homeIntent = new Intent(Intent.ActionMain)
-                    let! _ = 
+                    use homeIntent : Intent = new Intent(Intent.ActionMain)
+                    do! 
                         homeIntent.AddCategory(Intent.CategoryHome)
                                   .SetFlags(ActivityFlags.NewTask)
                                   |> Option.ofNull 
+                                  |> Option.map (fun _ -> ()), None
 
-                    return! context.StartActivity(homeIntent) |> Option.ofNull
+                    return! Some <| context.StartActivity(homeIntent) 
                 }
         with
         | ex 
@@ -178,10 +187,11 @@ module AndroidUIHelpers =
                 try
                     do! Async.Sleep 500 
                     
-                    option
+                    pyramidOfDoom
                         {
-                            use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull
-                            let! _ = 
+                            use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
+                            //use intent : Intent = intent 
+                            do!  
                                 intent.AddFlags
                                     (
                                         ActivityFlags.NewTask ||| 
@@ -191,10 +201,15 @@ module AndroidUIHelpers =
                                         ActivityFlags.SingleTop
                                     )
                                     |> Option.ofNull
-                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull
-                            let!_ = intent.SetData(uri) |> Option.ofNull 
+                                    |> Option.map (fun _ -> ()), None
 
-                            return! Application.Context.StartActivity(intent)|> Option.ofNull
+                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
+                            do! 
+                                intent.SetData(uri)
+                                |> Option.ofNull 
+                                |> Option.map (fun _ -> ()), None
+
+                            return! Some <| Application.Context.StartActivity(intent)
                         }
 
                     |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
@@ -205,43 +220,6 @@ module AndroidUIHelpers =
                     string ex.Message |> ignore<string> // Log error
                     ()
             }
-
-module AndroidDownloadService =
-    
-    //Not used yet
-    let internal downloadManager (url: string) (fileName: string) =
-
-        option
-            {
-                use! context = Application.Context |> Option.ofNull
-                use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull                
-                use! uri = Uri.Parse(url) |> Option.ofNull                
-                use! request = new DownloadManager.Request(uri) |> Option.ofNull                
-                let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull
-                let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNullEmpty
-                let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull                                
-
-                return downloadManager.Enqueue(request)        
-            }
-
-    //Not used yet 
-    let internal downloadManagerResult (url: string) (fileName: string) =
-
-        try
-            pyramidOfDoom 
-                {
-                    use! context = Application.Context |> Option.ofNull, Error "Application context is not available."
-                    use! downloadManager = context.GetSystemService(Context.DownloadService) :?> DownloadManager |> Option.ofNull, Error "DownloadManager service is not available on this device."
-                    use! uri = Uri.Parse(url) |> Option.ofNull, Error "Failed to parse the URL into a URI."
-                    use! request = new DownloadManager.Request(uri) |> Option.ofNull, Error "Failed to create request."
-                    let! _ = request.SetNotificationVisibility(DownloadVisibility.Hidden) |> Option.ofNull, Error "Failed to set notification visibility."
-                    let! downloadsDir = Android.OS.Environment.DirectoryDownloads |> Option.ofNullEmpty, Error "Downloads directory is not accessible."
-                    let! _ = request.SetDestinationInExternalPublicDir(downloadsDir, fileName) |> Option.ofNull, Error "Failed to set destination directory."
-    
-                    return Ok <| downloadManager.Enqueue(request)
-                }
-        with
-        | ex -> Error (sprintf "Error in StartDownload: %s" ex.Message)
 
 #endif
 

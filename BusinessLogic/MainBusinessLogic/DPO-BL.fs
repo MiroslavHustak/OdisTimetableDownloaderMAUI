@@ -70,7 +70,9 @@ module DPO_BL =
                                     option
                                         {
                                             let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                                            let nodes : string = nodes
                                             let! attr = attr.Value () |> Option.ofNullEmpty
+                                            let attr : string = attr
                                                                
                                             return (nodes, attr)
                                         }                                                          

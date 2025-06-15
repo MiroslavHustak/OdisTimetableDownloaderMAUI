@@ -19,6 +19,7 @@
 
     <!-- The warning XA4211 appears because the .NET MAUI build tools default to the latest available API level for compiling Android applications, which in this case is API 34 (Android 14). This discrepancy doesn't prevent your app from targeting Android 12; however, the tooling will still use API 34 for some aspects of the compilation. -->
 	<!-- <NoWarn>XA4211</NoWarn> -->
+	<NoWarn>FS3261</NoWarn>  
 
     <!-- App Identifier -->
     <ApplicationId>com.companyname.OdisTimetableDownloaderMAUI</ApplicationId>
@@ -48,17 +49,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidKeyStore>False</AndroidKeyStore>
-    <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
+    <AndroidSigningStorePass>74764</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
-    <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+    <AndroidSigningKeyPass>74764</AndroidSigningKeyPass>
     <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
     <AndroidKeyStore>False</AndroidKeyStore>
-    <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
+    <AndroidSigningStorePass>74764</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
-    <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+    <AndroidSigningKeyPass>74764</AndroidSigningKeyPass>
     <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
   </PropertyGroup>
 

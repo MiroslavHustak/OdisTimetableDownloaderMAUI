@@ -48,12 +48,13 @@ module SettingsGeneral =
     let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
     let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
     let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" //Nouzove reseni
-    //let internal kodisPathTemp4 = @"/FabulousTimetables4/" //Nouzove reseni -> Android download manager
     let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
     let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"      
     #endif
 
     (*
+    Right-click g:\Users\User\... (vsechny adresare anebo adresar nad tim), select Properties > Security, and grant full control.
+        
     do *.fsproj pridat:
     <PropertyGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
 	  <DefineConstants>WINDOWS</DefineConstants>

@@ -99,7 +99,9 @@ module MDPO_BL = //FsHttp
                                 option  //pyramidOfDoom with None
                                     {
                                         let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                                        let nodes : string = nodes
                                         let! attr = attr.Value () |> Option.ofNullEmpty
+                                        let attrr : string = attr
                                                                
                                         return (nodes, attr)
                                     }                                                          
@@ -346,7 +348,9 @@ module MDPO_BL = //FsHttp
                                 option  //pyramidOfDoom with None
                                     {
                                         let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                                        let nodes : string = nodes
                                         let! attr = attr.Value () |> Option.ofNullEmpty
+                                        let attr : string = attr
                                                                
                                         return (nodes, attr)
                                     }                                                          

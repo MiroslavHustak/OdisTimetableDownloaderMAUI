@@ -90,7 +90,7 @@ module IO_Operations =
         with
         | ex 
             ->
-            postToLog <| string ex.Message <| "#40"
+            postToLog <| pathToDir <| "#40"
             Error FileDownloadErrorMHD //dpoMsg1   
       
     let internal createFolders dirList =  

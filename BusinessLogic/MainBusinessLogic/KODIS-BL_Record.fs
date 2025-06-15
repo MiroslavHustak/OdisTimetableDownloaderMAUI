@@ -53,7 +53,7 @@ module KODIS_BL_Record =
       
         try 
             (jsonLinkList, pathToJsonList)
-            ||> List.Parallel.map2
+            ||> List.Parallel.map2_IO
                 (fun uri (pathToFile : string) 
                     ->    
                     async  //Async musi byt quli cancellation token

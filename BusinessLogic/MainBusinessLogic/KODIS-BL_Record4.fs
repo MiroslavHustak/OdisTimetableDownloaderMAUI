@@ -30,10 +30,6 @@ open Helpers.Builders
 open Helpers.Connectivity
 open Helpers.FileInfoHelper
 
-#if ANDROID
-open Helpers.AndroidDownloadService
-#endif 
-
 open Settings.Messages
 open Settings.SettingsGeneral
 

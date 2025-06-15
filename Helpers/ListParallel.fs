@@ -56,10 +56,94 @@ let private numberOfThreads l =
 
             | _     -> 1
         
-    | false -> 1
+    | false -> 
+            1
 
-let iter' action list =  
+//********************************************************************
+//CPU-bound operations
+//********************************************************************
+
+let iter_CPU (action : 'a -> unit) (list : 'a list) =
+
+    match list with
+    | [] ->
+         ()
+    | _  ->
+         let listToParallel list = list |> List.iter action        
+         
+         let l = list |> List.length
+             in
+             let numberOfThreads = numberOfThreads l   
+                 in                           
+                 let myList = splitListIntoEqualParts numberOfThreads list                             
+                     in 
+                     fun i -> async { return listToParallel (List.item i myList) }
+                     |> List.init (List.length myList)
+                     |> Async.Parallel  
+                     |> Async.Ignore
+                     |> Async.RunSynchronously 
+
+let iter2_CPU<'a, 'b> (mapping: 'a -> 'b -> unit) (xs1: 'a list) (xs2: 'b list) : unit =
+
+    match xs1, xs2 with
+    | [], _ | _, [] 
+        -> 
+        ()
+    | _ when List.length xs1 <> List.length xs2 
+        -> 
+        ()
+    | _ ->
+        let numberOfThreads = numberOfThreads (List.length xs1)
         
+        (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)
+        ||> List.zip 
+        |> List.toArray        
+        |> Array.Parallel.iter (fun (chunk1, chunk2) -> (chunk1, chunk2) ||> List.iter2 mapping) 
+
+let map_CPU (action : 'a -> 'b) (list : 'a list) =
+
+    match list with
+    | [] -> 
+         []
+    | _  ->
+         let listToParallel (list : 'a list) = list |> List.map action 
+            
+         let l = list |> List.length
+             in
+             let numberOfThreads = numberOfThreads l   
+                 in                          
+                 let myList : 'a list list = splitListIntoEqualParts numberOfThreads list 
+                     in
+                     fun i -> async { return listToParallel (List.item i myList) }
+                     |> List.init (List.length myList)
+                     |> Async.Parallel      
+                     |> Async.RunSynchronously
+                     |> List.ofArray
+                     |> List.concat
+
+let map2_CPU<'a, 'b, 'c> (mapping: 'a -> 'b -> 'c) (xs1: 'a list) (xs2: 'b list) : 'c list =
+
+    match xs1, xs2 with
+    | [], _ | _, [] 
+        ->
+        []
+    | _ when List.length xs1 <> List.length xs2
+        ->
+        []
+    | _ ->
+        let numberOfThreads = numberOfThreads (List.length xs1)
+
+        (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)
+        ||> List.zip 
+        |> List.toArray 
+        |> Array.Parallel.map (fun (chunk1, chunk2) -> (chunk1, chunk2) ||> List.map2 mapping) 
+        |> Array.toList 
+        |> List.concat
+
+//*********************************************************************
+//code quotations
+let iter'_CPU (action : 'a -> unit) (list : 'a list) =
+
     match list with
     | [] ->
          ()
@@ -76,22 +160,11 @@ let iter' action list =
                      |> List.init (List.length myList)
                      |> List.map _.Compile()      
                      |> Async.Parallel  
+                     |> Async.Ignore
                      |> Async.RunSynchronously 
-                     |> ignore<unit array>
 
-let iter action list =
-
-    match list with
-    | [] ->
-         ()
-    | _  ->
-         list
-         |> List.map (fun item -> async { return action item })  // Create an async task for each item
-         |> Async.Parallel  
-         |> Async.RunSynchronously  
-         |> ignore<unit array>
-
-let iter2'<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
+//code quotations
+let iter2'_CPU<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
     
     let l = xs1 |> List.length   
 
@@ -109,33 +182,14 @@ let iter2'<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) 
                     |> List.init (List.length myList)
                     |> List.map _.Compile()       
                     |> Async.Parallel  
+                    |> Async.Ignore
                     |> Async.RunSynchronously
-                    |> ignore<unit array>
 
     | true  ->
             ()
 
-let iter2<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
-    
-    let l = xs1 |> List.length   
-
-    match (l = 0 || xs2.IsEmpty) || l <> (xs2 |> List.length) with
-    | false -> 
-            let listToParallel (xs1, xs2) = (xs1, xs2) ||> List.iter2 mapping    
-                           
-            let numberOfThreads = numberOfThreads l  
-                in                      
-                (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
-                ||> List.zip                 
-                |> List.map (fun pair -> async { return listToParallel pair })
-                |> Async.Parallel  
-                |> Async.RunSynchronously                   
-                |> ignore<unit array>
-
-    | true  ->
-            ()
-
-let map' (action : 'a -> 'b) (list : 'a list) =
+//code quotations
+let map'_CPU (action : 'a -> 'b) (list : 'a list) =
 
     match list with
     | [] -> 
@@ -157,19 +211,8 @@ let map' (action : 'a -> 'b) (list : 'a list) =
                      |> List.ofArray
                      |> List.concat
 
-let map (action : 'a -> 'b) (list : 'a list) =
-
-    match list with
-    | [] -> 
-         []
-    | _  ->
-         list
-         |> List.map (fun item -> async { return action item })  
-         |> Async.Parallel  
-         |> Async.RunSynchronously  
-         |> List.ofArray
- 
-let map2'<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
+//code quotations
+let map2'_CPU<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
     
     let l = xs1 |> List.length 
 
@@ -194,7 +237,51 @@ let map2'<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list)
     | true  ->
             []
 
-let map2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
+//********************************************************************
+//IO-bound operations
+//********************************************************************
+
+let iter_IO action list =
+
+    match list with
+    | [] ->
+         ()
+    | _  ->
+         list
+         |> List.map (fun item -> async { return action item })  
+         |> Async.Parallel  
+         |> Async.RunSynchronously  
+         |> ignore<unit array>
+
+let iter2_IO<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
+
+    async
+        {
+            match xs1, xs2 with
+            | [], _ | _, [] -> return ()
+            | _ when List.length xs1 <> List.length xs2 -> return ()
+            | _ ->
+                return!
+                    List.zip xs1 xs2
+                    |> List.map (fun (a, b) -> async { return mapping a b} )
+                    |> Async.Parallel
+                    |> Async.Ignore
+        }
+    |> Async.RunSynchronously
+
+let map_IO (action : 'a -> 'b) (list : 'a list) =
+
+    match list with
+    | [] -> 
+         []
+    | _  ->
+         list
+         |> List.map (fun item -> async { return action item })  
+         |> Async.Parallel  
+         |> Async.RunSynchronously  
+         |> List.ofArray
+
+let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
     
     let l = xs1 |> List.length 
 
