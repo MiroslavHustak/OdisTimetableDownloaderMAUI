@@ -129,12 +129,8 @@ module AndroidUIHelpers =
             pyramidOfDoom 
                 {
                     use! context = Application.Context |> Option.ofNull, None
-                    //use context : Context = context
-                    use! packageManager = context.PackageManager |> Option.ofNull, None
-                    //use packageManager : PM.PackageManager = packageManager
-            
-                    let! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None
-                    use intent : Intent = intent
+                    use! packageManager = context.PackageManager |> Option.ofNull, None            
+                    use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None
             
                     do! 
                         intent.AddFlags
@@ -162,9 +158,7 @@ module AndroidUIHelpers =
         try
             pyramidOfDoom
                 {
-                    use! context = Application.Context |> Option.ofNull, None
-                    //use context : Context = context 
-                
+                    use! context = Application.Context |> Option.ofNull, None                
                     use homeIntent : Intent = new Intent(Intent.ActionMain)
                     do! 
                         homeIntent.AddCategory(Intent.CategoryHome)
