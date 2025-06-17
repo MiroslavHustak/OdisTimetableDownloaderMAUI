@@ -34,10 +34,10 @@ module SettingsGeneral =
 
     let internal maxDegreeOfParallelism = 16
     let internal maxDegreeOfParallelismThrottled = 6
-    //let internal maxDegreeOfParallelismKODIS_JSON = 12
-    //let internal maxDegreeOfParallelismKODIS = 12
+    let internal maxDegreeOfParallelismMedium = 12
 
     let internal myIdeaOfASmallList = 24
+    let internal myIdeaOfALargelList = 100
 
     //let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"  //Android 7.1      
     

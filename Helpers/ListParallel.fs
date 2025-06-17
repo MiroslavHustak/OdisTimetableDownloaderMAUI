@@ -61,9 +61,28 @@ let private numberOfThreads l =
     | false -> 
             1
 
+let private maxDegreeOfParallelismAdapted =
+
+    let (|Small|Medium|Large|) length =
+        match length with
+        | length 
+            when length < myIdeaOfASmallList 
+            -> Small
+
+        | length
+            when length >= myIdeaOfASmallList && length <= myIdeaOfALargelList 
+            -> Medium
+        | _ 
+            -> Large
+    
+    function
+        | Small  -> maxDegreeOfParallelismThrottled
+        | Medium -> maxDegreeOfParallelismMedium
+        | Large  -> maxDegreeOfParallelism
+
 //*********************************************************************
 
-// Using Array.Parallel.iter
+// Using Array.Parallel.iter  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter_CPU (action : 'a -> unit) (list : 'a list) : unit =
 
     match list with
@@ -87,10 +106,7 @@ let iter_IO (action : 'a -> unit) (list : 'a list) =
         ()
     | _ 
         ->
-        let maxDegreeOfParallelismAdapted =
-            match list |> List.length < myIdeaOfASmallList with
-            | true  -> maxDegreeOfParallelismThrottled
-            | false -> maxDegreeOfParallelism            
+        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdapted <| list
             in 
             list
             |> List.map (fun item -> async { return action item })
@@ -98,7 +114,7 @@ let iter_IO (action : 'a -> unit) (list : 'a list) =
             |> Async.Ignore
             |> Async.RunSynchronously //Async.Parallel doesn't block any threads while waiting for IO operations to complete.
 
-// Using Array.Parallel.map //Array.Parallel.map is designed for CPU-bound work.
+// Using Array.Parallel.map //Array.Parallel.map is designed for CPU-bound work.  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let map_CPU (action : 'a -> 'b) (list : 'a list) : 'b list =
 
     match list with
@@ -122,10 +138,7 @@ let map_IO (action : 'a -> 'b) (list : 'a list) =
     | [] -> 
          []
     | _  ->
-         let maxDegreeOfParallelismAdapted =              
-             match list |> List.length < myIdeaOfASmallList with
-             | true  -> maxDegreeOfParallelismThrottled
-             | false -> maxDegreeOfParallelism
+         let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdapted <| list  
              in 
              list
              |> List.map (fun item -> async { return action item })  
@@ -133,7 +146,7 @@ let map_IO (action : 'a -> 'b) (list : 'a list) =
              |> Async.RunSynchronously  
              |> List.ofArray
 
-// Using Array.Parallel.iter
+// Using Array.Parallel.iter //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter2_CPU<'a, 'b> (mapping: 'a -> 'b -> unit) (xs1: 'a list) (xs2: 'b list) : unit =
 
     match xs1, xs2 with
@@ -160,10 +173,7 @@ let iter2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b 
         ->
         let listToParallel (xs1, xs2) = List.map2 mapping xs1 xs2
 
-        let maxDegreeOfParallelismAdapted =              
-            match xs1 |> List.length < myIdeaOfASmallList with
-            | true  -> maxDegreeOfParallelismThrottled
-            | false -> maxDegreeOfParallelism
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdapted l
             in
             (splitListIntoEqualParts maxDegreeOfParallelismAdapted xs1, splitListIntoEqualParts maxDegreeOfParallelismAdapted xs2)
             ||> List.zip
@@ -176,7 +186,7 @@ let iter2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b 
         ->
         ()
 
-// Using Array.Parallel.map
+// Using Array.Parallel.map  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let map2_CPU<'a, 'b, 'c> (mapping: 'a -> 'b -> 'c) (xs1: 'a list) (xs2: 'b list) : 'c list =
 
     match xs1, xs2 with
@@ -205,10 +215,7 @@ let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b lis
         ->
         let listToParallel (xs1, xs2) = List.map2 mapping xs1 xs2
 
-        let maxDegreeOfParallelismAdapted =              
-            match xs1 |> List.length < myIdeaOfASmallList with
-            | true  -> maxDegreeOfParallelismThrottled
-            | false -> maxDegreeOfParallelism
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdapted l
             in
             (splitListIntoEqualParts maxDegreeOfParallelismAdapted xs1, splitListIntoEqualParts maxDegreeOfParallelismAdapted xs2)
             ||> List.zip
@@ -220,7 +227,9 @@ let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b lis
 
     | true 
         ->
-        []   
+        [] 
+
+
 
 //*********************************************************************
 // Code quotations, for educational purposes only
