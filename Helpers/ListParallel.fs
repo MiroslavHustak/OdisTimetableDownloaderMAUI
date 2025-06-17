@@ -9,6 +9,8 @@ open FSharp.Control
 open Microsoft.FSharp.Quotations
 open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 
+open Settings.SettingsGeneral
+
 let private expr (param : 'a) = Expr.Value param  
   
 let private splitListIntoEqualParts (numParts : int) (originalList : 'a list) =   //well, almost equal parts :-)           
@@ -59,30 +61,79 @@ let private numberOfThreads l =
     | false -> 
             1
 
-//********************************************************************
-//CPU-bound operations
-//********************************************************************
+//*********************************************************************
 
-let iter_CPU (action : 'a -> unit) (list : 'a list) =
+// Using Array.Parallel.iter
+let iter_CPU (action : 'a -> unit) (list : 'a list) : unit =
 
     match list with
-    | [] ->
-         ()
-    | _  ->
-         let listToParallel list = list |> List.iter action        
-         
-         let l = list |> List.length
-             in
-             let numberOfThreads = numberOfThreads l   
-                 in                           
-                 let myList = splitListIntoEqualParts numberOfThreads list                             
-                     in 
-                     fun i -> async { return listToParallel (List.item i myList) }
-                     |> List.init (List.length myList)
-                     |> Async.Parallel  
-                     |> Async.Ignore
-                     |> Async.RunSynchronously 
+    | []
+        -> 
+        ()
+    | _ ->
+        let l = List.length list
+            in
+            let numberOfThreads = numberOfThreads l
+                in
+                splitListIntoEqualParts numberOfThreads list        
+                |> List.toArray
+                |> Array.Parallel.iter (List.iter action)   
 
+let iter_IO (action : 'a -> unit) (list : 'a list) =
+ 
+    match list with
+    | [] 
+        -> 
+        ()
+    | _ 
+        ->
+        let maxDegreeOfParallelismAdapted =
+            match list |> List.length < myIdeaOfASmallList with
+            | true  -> maxDegreeOfParallelismThrottled
+            | false -> maxDegreeOfParallelism            
+            in 
+            list
+            |> List.map (fun item -> async { return action item })
+            |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+            |> Async.Ignore
+            |> Async.RunSynchronously //Async.Parallel doesn't block any threads while waiting for IO operations to complete.
+
+// Using Array.Parallel.map //Array.Parallel.map is designed for CPU-bound work.
+let map_CPU (action : 'a -> 'b) (list : 'a list) : 'b list =
+
+    match list with
+    | []
+        -> 
+        []
+    | _ ->
+        let l = List.length list
+            in
+            let numberOfThreads = numberOfThreads l
+                in
+                splitListIntoEqualParts numberOfThreads list        
+                |> List.toArray
+                |> Array.Parallel.map (List.map action)  
+                |> List.ofArray
+                |> List.concat
+
+let map_IO (action : 'a -> 'b) (list : 'a list) =
+
+    match list with
+    | [] -> 
+         []
+    | _  ->
+         let maxDegreeOfParallelismAdapted =              
+             match list |> List.length < myIdeaOfASmallList with
+             | true  -> maxDegreeOfParallelismThrottled
+             | false -> maxDegreeOfParallelism
+             in 
+             list
+             |> List.map (fun item -> async { return action item })  
+             |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+             |> Async.RunSynchronously  
+             |> List.ofArray
+
+// Using Array.Parallel.iter
 let iter2_CPU<'a, 'b> (mapping: 'a -> 'b -> unit) (xs1: 'a list) (xs2: 'b list) : unit =
 
     match xs1, xs2 with
@@ -94,33 +145,38 @@ let iter2_CPU<'a, 'b> (mapping: 'a -> 'b -> unit) (xs1: 'a list) (xs2: 'b list) 
         ()
     | _ ->
         let numberOfThreads = numberOfThreads (List.length xs1)
-        
-        (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)
-        ||> List.zip 
-        |> List.toArray        
-        |> Array.Parallel.iter (fun (chunk1, chunk2) -> (chunk1, chunk2) ||> List.iter2 mapping) 
+            in
+            (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)
+            ||> List.zip 
+            |> List.toArray        
+            |> Array.Parallel.iter (fun (chunk1, chunk2) -> (chunk1, chunk2) ||> List.iter2 mapping) 
 
-let map_CPU (action : 'a -> 'b) (list : 'a list) =
+let iter2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =   
+    
+    let l = List.length xs1
+    
+    match (l = 0 || xs2.IsEmpty) || l <> List.length xs2 with
+    | false
+        ->
+        let listToParallel (xs1, xs2) = List.map2 mapping xs1 xs2
 
-    match list with
-    | [] -> 
-         []
-    | _  ->
-         let listToParallel (list : 'a list) = list |> List.map action 
-            
-         let l = list |> List.length
-             in
-             let numberOfThreads = numberOfThreads l   
-                 in                          
-                 let myList : 'a list list = splitListIntoEqualParts numberOfThreads list 
-                     in
-                     fun i -> async { return listToParallel (List.item i myList) }
-                     |> List.init (List.length myList)
-                     |> Async.Parallel      
-                     |> Async.RunSynchronously
-                     |> List.ofArray
-                     |> List.concat
+        let maxDegreeOfParallelismAdapted =              
+            match xs1 |> List.length < myIdeaOfASmallList with
+            | true  -> maxDegreeOfParallelismThrottled
+            | false -> maxDegreeOfParallelism
+            in
+            (splitListIntoEqualParts maxDegreeOfParallelismAdapted xs1, splitListIntoEqualParts maxDegreeOfParallelismAdapted xs2)
+            ||> List.zip
+            |> List.map (fun pair -> async { return listToParallel pair })
+            |> Async.Parallel
+            |> Async.Ignore
+            |> Async.RunSynchronously
 
+    | true 
+        ->
+        ()
+
+// Using Array.Parallel.map
 let map2_CPU<'a, 'b, 'c> (mapping: 'a -> 'b -> 'c) (xs1: 'a list) (xs2: 'b list) : 'c list =
 
     match xs1, xs2 with
@@ -132,16 +188,43 @@ let map2_CPU<'a, 'b, 'c> (mapping: 'a -> 'b -> 'c) (xs1: 'a list) (xs2: 'b list)
         []
     | _ ->
         let numberOfThreads = numberOfThreads (List.length xs1)
+            in
+            (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)
+            ||> List.zip 
+            |> List.toArray 
+            |> Array.Parallel.map (fun (chunk1, chunk2) -> (chunk1, chunk2) ||> List.map2 mapping) 
+            |> Array.toList 
+            |> List.concat
 
-        (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)
-        ||> List.zip 
-        |> List.toArray 
-        |> Array.Parallel.map (fun (chunk1, chunk2) -> (chunk1, chunk2) ||> List.map2 mapping) 
-        |> Array.toList 
-        |> List.concat
+let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+    
+    let l = List.length xs1
+    
+    match (l = 0 || xs2.IsEmpty) || l <> List.length xs2 with
+    | false
+        ->
+        let listToParallel (xs1, xs2) = List.map2 mapping xs1 xs2
+
+        let maxDegreeOfParallelismAdapted =              
+            match xs1 |> List.length < myIdeaOfASmallList with
+            | true  -> maxDegreeOfParallelismThrottled
+            | false -> maxDegreeOfParallelism
+            in
+            (splitListIntoEqualParts maxDegreeOfParallelismAdapted xs1, splitListIntoEqualParts maxDegreeOfParallelismAdapted xs2)
+            ||> List.zip
+            |> List.map (fun pair -> async { return listToParallel pair })
+            |> Async.Parallel
+            |> Async.RunSynchronously
+            |> List.ofArray
+            |> List.concat
+
+    | true 
+        ->
+        []   
 
 //*********************************************************************
-//code quotations
+// Code quotations, for educational purposes only
+//*********************************************************************
 let iter'_CPU (action : 'a -> unit) (list : 'a list) =
 
     match list with
@@ -236,91 +319,3 @@ let map2'_CPU<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b l
 
     | true  ->
             []
-
-//********************************************************************
-//IO-bound operations
-//********************************************************************
-
-let iter_IO action list =
-
-    match list with
-    | [] ->
-         ()
-    | _  ->
-         list
-         |> List.map (fun item -> async { return action item })  
-         |> Async.Parallel  
-         |> Async.RunSynchronously  
-         |> ignore<unit array>
-
-let iter2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =   
-    
-    let l = xs1 |> List.length 
-
-    match (l = 0 || xs2.IsEmpty) || l <> (xs2 |> List.length) with
-    | false -> 
-            let listToParallel (xs1, xs2) = (xs1, xs2) ||> List.map2 mapping    
-                                
-            let numberOfThreads = numberOfThreads l  
-                in                      
-                (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
-                ||> List.zip                 
-                |> List.map (fun pair -> async { return listToParallel pair })
-                |> Async.Parallel  
-                |> Async.Ignore
-                |> Async.RunSynchronously
-
-    | true  ->
-            ()
-
-let map_IO (action : 'a -> 'b) (list : 'a list) =
-
-    match list with
-    | [] -> 
-         []
-    | _  ->
-         list
-         |> List.map (fun item -> async { return action item })  
-         |> Async.Parallel  
-         |> Async.RunSynchronously  
-         |> List.ofArray
-
-let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
-    
-    let l = xs1 |> List.length 
-
-    match (l = 0 || xs2.IsEmpty) || l <> (xs2 |> List.length) with
-    | false -> 
-            let listToParallel (xs1, xs2) = (xs1, xs2) ||> List.map2 mapping    
-                                
-            let numberOfThreads = numberOfThreads l  
-                in                      
-                (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
-                ||> List.zip                 
-                |> List.map (fun pair -> async { return listToParallel pair })
-                |> Async.Parallel  
-                |> Async.RunSynchronously
-                |> List.ofArray
-                |> List.concat
-
-    | true  ->
-            []
-
-//Interesting behaviour
-//Thread Pool Queue = number of threads, downloading is waiting until thread count = number of threads or maxDegreeOfParallelism
-let map2_IO_Test<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
-   
-   match xs1, xs2 with
-    | [], _ | _, [] 
-        ->
-        []
-    | _ when List.length xs1 <> List.length xs2
-        ->
-        []
-    | _ ->
-        List.zip xs1 xs2
-        |> List.map (fun (a, b) -> async { return mapping a b })
-        //|> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = 100)
-        |> Async.Parallel
-        |> Async.RunSynchronously
-        |> List.ofArray

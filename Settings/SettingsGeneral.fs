@@ -32,6 +32,13 @@ module SettingsGeneral =
     let internal timeOutInSeconds = 10 
     let internal waitingForNetConn = 30 //vterin
 
+    let internal maxDegreeOfParallelism = 16
+    let internal maxDegreeOfParallelismThrottled = 6
+    //let internal maxDegreeOfParallelismKODIS_JSON = 12
+    //let internal maxDegreeOfParallelismKODIS = 12
+
+    let internal myIdeaOfASmallList = 24
+
     //let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"  //Android 7.1      
     
     let internal apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" 

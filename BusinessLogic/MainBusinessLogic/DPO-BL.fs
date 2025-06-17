@@ -20,6 +20,7 @@ open Helpers.FileInfoHelper
 open Api.Logging
 open Api.FutureLinks
 
+open Types.Types
 open Types.ErrorTypes  
 
 open Settings.Messages
@@ -27,6 +28,7 @@ open Settings.SettingsDPO
 open Settings.SettingsGeneral
 
 open IO_Operations.IO_Operations
+
 
 //HttpClient
 module DPO_BL =
@@ -195,10 +197,41 @@ module DPO_BL =
                 } 
     
         let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, MHDErrors> = 
+
+            let l = filterTimetables |> List.length
+                in
+                let counterAndProgressBar =
+                    MailboxProcessor<MsgIncrement>
+                        .StartImmediate
+                            <|
+                            fun inbox 
+                                ->
+                                let rec loop n = 
+                                    async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
+                                loop 0
             
             try
+                // Array.Parallel.map doesn’t propagate CancellationToken — there’s no built-in mechanism in Array.Parallel.map to cancel the in-flight computations.
+                // Therefore async with Async.RunSynchronously shall be used
+                // But: Array.Parallel.map with Async.RunSynchronously blocks thread pool threads    
+                // Array.Parallel.map is designed for CPU-bound work anyway
+                filterTimetables 
+                |> List.Parallel.map_IO
+                    (fun (link, pathToFile)
+                        -> 
+                        async
+                            {
+                                counterAndProgressBar.Post <| Inc 1
+                                token.ThrowIfCancellationRequested ()
+                                return! downloadFileTaskAsync link pathToFile 
+                            }
+                        |> Async.Catch
+                        |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                        |> Result.ofChoice
+                    )                 
+                (*
                 let l = filterTimetables |> List.length
-        
+
                 filterTimetables 
                 |> List.mapi
                     (fun i (link, pathToFile)
@@ -213,6 +246,7 @@ module DPO_BL =
                         |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                         |> Result.ofChoice
                     ) 
+                *) 
                 |> List.tryPick
                     (function
                         | Ok _ 

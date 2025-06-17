@@ -144,7 +144,7 @@ module WebScraping_KODISFMRecord =
                             dispatchIterationMessage context2.Msg1
                           
                             match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
-                            | true  -> context List.Parallel.map2'_CPU
+                            | true  -> context List.Parallel.map2_IO
                             | false -> context List.map2                          
     
                             |> environment.DownloadAndSave token     

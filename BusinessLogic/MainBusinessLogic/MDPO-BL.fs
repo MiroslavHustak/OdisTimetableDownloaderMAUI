@@ -21,6 +21,7 @@ open Helpers.FileInfoHelper
 open Api.Logging
 open Api.FutureLinks
 
+open Types.Types
 open Types.ErrorTypes
 
 open Settings.Messages
@@ -214,8 +215,36 @@ module MDPO_BL = //FsHttp
                 } 
     
         let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, MHDErrors> = 
+
+            let l = filterTimetables |> Map.count
+                in
+                let counterAndProgressBar =
+                    MailboxProcessor<MsgIncrement>
+                        .StartImmediate
+                            <|
+                            fun inbox 
+                                ->
+                                let rec loop n = 
+                                    async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
+                                loop 0
         
             try
+                filterTimetables
+                |> Map.toList 
+                |> List.Parallel.map_IO
+                    (fun (link, pathToFile)
+                        -> 
+                        async
+                            {
+                                counterAndProgressBar.Post <| Inc 1
+                                token.ThrowIfCancellationRequested () //tady rychlejsi, nez s config_cancellationToken
+                                return! downloadFileTaskAsync token link pathToFile
+                            }
+                        |> Async.Catch
+                        |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                        |> Result.ofChoice
+                    )   
+                (*
                 let l = filterTimetables |> Map.count
                     in
                     filterTimetables
@@ -233,6 +262,8 @@ module MDPO_BL = //FsHttp
                             |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                             |> Result.ofChoice    
                         )  
+
+                *)
                     |> List.tryPick
                         (function
                             | Ok _ 
@@ -481,8 +512,36 @@ module MDPO_BL = //FsHttp
                 } 
     
         let downloadTimetables reportProgress (token : CancellationToken) : Result<unit, MHDErrors> = 
+
+            let l = filterTimetables |> Map.count
+                in
+                let counterAndProgressBar =
+                    MailboxProcessor<MsgIncrement>
+                        .StartImmediate
+                            <|
+                            fun inbox 
+                                ->
+                                let rec loop n = 
+                                    async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
+                                loop 0
         
             try
+                filterTimetables
+                |> Map.toList 
+                |> List.Parallel.map_IO
+                    (fun (link, pathToFile)
+                        -> 
+                        async
+                            {
+                                counterAndProgressBar.Post <| Inc 1
+                                token.ThrowIfCancellationRequested () //tady rychlejsi, nez s config_cancellationToken
+                                return! downloadFileTaskAsync token link pathToFile
+                            }
+                        |> Async.Catch
+                        |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                        |> Result.ofChoice
+                    )   
+                (*   
                 let l = filterTimetables |> Map.count
                     in
                     filterTimetables
@@ -500,6 +559,7 @@ module MDPO_BL = //FsHttp
                             |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) 
                             |> Result.ofChoice    
                         )  
+                 *)   
                     |> List.tryPick
                         (function
                             | Ok _ 
