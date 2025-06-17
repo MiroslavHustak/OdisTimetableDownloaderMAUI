@@ -51,12 +51,33 @@ module SettingsGeneral =
     let internal kodisPathTemp4 = @"g:\Users\User\Data4\"
     let internal dpoPathTemp = @"g:\Users\User\Data4\"
     let internal mdpoPathTemp = @"g:\Users\User\Data4\"
+
+    let internal pathTP_CurrentValidity = @"g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\"
+    let internal pathCanopy_CurrentValidity = @"g:\Users\User\Data4\JR_ODIS_aktualni_vcetne_vyluk\"    
+
+    let internal pathTP_FutureValidity = @"g:\Users\User\Data\JR_ODIS_pouze_budouci_platnost\"   
+    let internal pathCanopy_FutureValidity = @"g:\Users\User\Data4\JR_ODIS_pouze_budouci_platnost\"
+     
+    let internal pathTP_WithoutReplacementService = @"g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\" 
+    let internal pathCanopy_WithoutReplacementService = @"g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\"  
     #else
     let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
     let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
     let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" 
     let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
-    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"      
+    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"  
+
+    let internal pathTP_CurrentValidity = @"g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\"
+    let internal pathCanopy_CurrentValidity = @"g:\Users\User\Data4\JR_ODIS_aktualni_vcetne_vyluk\"    
+
+    let internal pathTP_FutureValidity = @"g:\Users\User\Data\JR_ODIS_pouze_budouci_platnost\"   
+    let internal pathCanopy_FutureValidity = @"g:\Users\User\Data4\JR_ODIS_pouze_budouci_platnost\"
+
+    let internal pathTP_WithoutReplacementService = @"g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\" 
+    let internal pathCanopy_WithoutReplacementService = @"g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\"  
+    
+
+
     #endif
 
     (*
