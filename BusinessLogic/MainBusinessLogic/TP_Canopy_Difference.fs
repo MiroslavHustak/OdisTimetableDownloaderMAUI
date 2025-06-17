@@ -16,6 +16,7 @@ open FsToolkit.ErrorHandling
 open Settings
 open Settings.SettingsGeneral
 
+//TODO: dodelat
 module TP_Canopy_Difference = 
     
     let private getDirNames pathToDir = Directory.EnumerateDirectories pathToDir         
@@ -61,7 +62,7 @@ module TP_Canopy_Difference =
                 printfn "************************************************" 
             )
          
-    let internal main () = //Netestovano na pritomnost souboru, nestoji to za tu namahu        
+    let internal main () = //Rozpracovana cast, netestovano na pritomnost souboru      
             
         try     
             printfn "CurrentValidity"
