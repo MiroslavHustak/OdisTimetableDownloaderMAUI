@@ -11,6 +11,8 @@ open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 
 open Settings.SettingsGeneral
 
+// *****************************Helpers***********************************
+
 let private expr (param : 'a) = Expr.Value param  
   
 let private splitListIntoEqualParts (numParts : int) (originalList : 'a list) =   //well, almost equal parts :-)           
@@ -80,7 +82,7 @@ let private maxDegreeOfParallelismAdapted =
         | Medium -> maxDegreeOfParallelismMedium
         | Large  -> maxDegreeOfParallelism
 
-//*********************************************************************
+//**************************Functions*******************************************
 
 // Using Array.Parallel.iter  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter_CPU (action : 'a -> unit) (list : 'a list) : unit =
@@ -230,11 +232,10 @@ let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b lis
         [] 
 
 
-
 //*********************************************************************
 // Code quotations, for educational purposes only
 //*********************************************************************
-let iter'_CPU (action : 'a -> unit) (list : 'a list) =
+let iter' (action : 'a -> unit) (list : 'a list) =
 
     match list with
     | [] ->
@@ -256,7 +257,7 @@ let iter'_CPU (action : 'a -> unit) (list : 'a list) =
                      |> Async.RunSynchronously 
 
 //code quotations
-let iter2'_CPU<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
+let iter2'<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) = 
     
     let l = xs1 |> List.length   
 
@@ -281,7 +282,7 @@ let iter2'_CPU<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b li
             ()
 
 //code quotations
-let map'_CPU (action : 'a -> 'b) (list : 'a list) =
+let map' (action : 'a -> 'b) (list : 'a list) =
 
     match list with
     | [] -> 
@@ -304,7 +305,7 @@ let map'_CPU (action : 'a -> 'b) (list : 'a list) =
                      |> List.concat
 
 //code quotations
-let map2'_CPU<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
+let map2'<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) =   
     
     let l = xs1 |> List.length 
 
