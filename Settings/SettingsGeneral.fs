@@ -47,7 +47,7 @@ module SettingsGeneral =
     #else
     let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
     let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
-    let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" //Nouzove reseni
+    let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" 
     let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
     let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"      
     #endif

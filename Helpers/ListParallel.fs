@@ -253,21 +253,25 @@ let iter_IO action list =
          |> Async.RunSynchronously  
          |> ignore<unit array>
 
-let iter2_IO<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
+let iter2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =   
+    
+    let l = xs1 |> List.length 
 
-    async
-        {
-            match xs1, xs2 with
-            | [], _ | _, [] -> return ()
-            | _ when List.length xs1 <> List.length xs2 -> return ()
-            | _ ->
-                return!
-                    List.zip xs1 xs2
-                    |> List.map (fun (a, b) -> async { return mapping a b} )
-                    |> Async.Parallel
-                    |> Async.Ignore
-        }
-    |> Async.RunSynchronously
+    match (l = 0 || xs2.IsEmpty) || l <> (xs2 |> List.length) with
+    | false -> 
+            let listToParallel (xs1, xs2) = (xs1, xs2) ||> List.map2 mapping    
+                                
+            let numberOfThreads = numberOfThreads l  
+                in                      
+                (splitListIntoEqualParts numberOfThreads xs1, splitListIntoEqualParts numberOfThreads xs2)  
+                ||> List.zip                 
+                |> List.map (fun pair -> async { return listToParallel pair })
+                |> Async.Parallel  
+                |> Async.Ignore
+                |> Async.RunSynchronously
+
+    | true  ->
+            ()
 
 let map_IO (action : 'a -> 'b) (list : 'a list) =
 
@@ -301,3 +305,22 @@ let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b lis
 
     | true  ->
             []
+
+//Interesting behaviour
+//Thread Pool Queue = number of threads, downloading is waiting until thread count = number of threads or maxDegreeOfParallelism
+let map2_IO_Test<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+   
+   match xs1, xs2 with
+    | [], _ | _, [] 
+        ->
+        []
+    | _ when List.length xs1 <> List.length xs2
+        ->
+        []
+    | _ ->
+        List.zip xs1 xs2
+        |> List.map (fun (a, b) -> async { return mapping a b })
+        //|> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = 100)
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> List.ofArray
