@@ -48,27 +48,25 @@ module TP_Canopy_Difference =
             )
         |> Seq.collect id       
 
-    // The main function to call
     let internal calculate_TP_Canopy_Difference () : Result<unit, string> =
         try
-            let logs =
-                [
-                    "CurrentValidity"
-                    "\n"
-                    String.replicate 48 "*"
-                    yield! result () pathTP_CurrentValidity pathCanopy_CurrentValidity
-                    "\n"
-                    "FutureValidity"
-                    String.replicate 48 "*"
-                    yield! result () pathTP_FutureValidity pathCanopy_FutureValidity
-                    "\n"
-                    "WithoutReplacementService"
-                    String.replicate 48 "*"
-                    yield! result () pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
-                ]
-
-            let json =             
-                logs
+            let json =  
+                seq
+                    {
+                        "CurrentValidity"
+                        "\n"
+                        String.replicate 48 "*"
+                        yield! result () pathTP_CurrentValidity pathCanopy_CurrentValidity
+                        "\n"
+                        "FutureValidity"
+                        String.replicate 48 "*"
+                        yield! result () pathTP_FutureValidity pathCanopy_FutureValidity
+                        "\n"
+                        "WithoutReplacementService"
+                        String.replicate 48 "*"
+                        yield! result () pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
+                    }                
+                |> List.ofSeq
                 |> List.map Encode.string
                 |> Encode.list
                 |> Encode.toString 2
