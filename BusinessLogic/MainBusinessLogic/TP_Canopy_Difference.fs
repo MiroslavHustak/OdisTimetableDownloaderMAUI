@@ -1,5 +1,6 @@
 ﻿namespace BusinessLogic
 
+open System
 open System.IO
 open Thoth.Json.Net
 
@@ -54,14 +55,14 @@ module TP_Canopy_Difference =
                 seq
                     {
                         "CurrentValidity"
-                        "\n"
+                        String.Empty
                         String.replicate 48 "*"
                         yield! result () pathTP_CurrentValidity pathCanopy_CurrentValidity
-                        "\n"
+                        String.Empty
                         "FutureValidity"
                         String.replicate 48 "*"
                         yield! result () pathTP_FutureValidity pathCanopy_FutureValidity
-                        "\n"
+                        String.Empty
                         "WithoutReplacementService"
                         String.replicate 48 "*"
                         yield! result () pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
@@ -74,7 +75,7 @@ module TP_Canopy_Difference =
             #if WINDOWS
             serializeWithThoth json logFileName2
             #else
-            Ok () //serializeWithThoth json logFileName2 // Save to a file (on mobile, use Environment or FileSystem APIs from .NET MAUI)
+            serializeWithThoth json logFileName2 //TODO predelat, kdyby byly problemy
             #endif
            
         with
