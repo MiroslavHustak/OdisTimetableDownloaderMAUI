@@ -167,13 +167,18 @@ module WebScraping_KODISFMRecord4 =
                 let! msg2 = result contextFutureValidity, errFn
                 let! msg3 = result contextWithoutReplacementService, errFn   
 
+                let msg4 = 
+                    match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference () with
+                    | Ok _      -> String.Empty
+                    | Error err -> err                    
+
                 let separator = String.Empty
 
                 let combinedMessage = 
-                    [ msg1; msg2; msg3 ] 
+                    [ msg1; msg2; msg3; msg4 ] 
                     |> List.choose Option.ofNullEmptySpace
                     |> List.map (fun msg -> sprintf "\n%s" msg)
-                    |> String.concat separator                         
+                    |> String.concat separator       
 
                 return sprintf "%s%s" dispatchMsg3 combinedMessage
             }          

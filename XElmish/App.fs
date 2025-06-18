@@ -845,7 +845,7 @@ module App =
 
                                             match webscraping_MDPO reportProgress token mdpoPathTemp with
                                             | Ok _     
-                                                -> 
+                                                ->                                                
                                                 return mauiMdpoMsg
 
                                             | Error err 

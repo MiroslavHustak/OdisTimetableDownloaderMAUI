@@ -1,83 +1,85 @@
 ﻿namespace BusinessLogic
 
-open System
 open System.IO
-open System.Net
-open System.Net.Http
-open System.Threading
+open Thoth.Json.Net
 
-//******************************************
+//************************************************************
 
-open FSharp.Data
-open FsToolkit.ErrorHandling
-
-//******************************************
-
-open Settings
+open Helpers.Serialization
 open Settings.SettingsGeneral
 
-//TODO: dodelat
-module TP_Canopy_Difference = 
-    
-    let private getDirNames pathToDir = Directory.EnumerateDirectories pathToDir         
-        
-    let private getUniqueFileNames (folderPathTP: string) (folderPathCanopy: string) =
+module TP_Canopy_Difference =
 
-        let fileNamesTP =
-            Directory.EnumerateFiles folderPathTP
-            |> Seq.map Path.GetFileName
-            |> Set.ofSeq
+    let private printResults () uniqueFileNamesTP uniqueFileNamesCanopy = 
         
-        let fileNamesCanopy =
-            Directory.EnumerateFiles folderPathCanopy
+        seq
+            {
+                sprintf "Je v TP, ale chybi v Canopy %A" uniqueFileNamesTP                  
+                sprintf "Je v Canopy, ale chybi v TP %A" uniqueFileNamesCanopy
+                String.replicate 48 "*"
+            }
+
+    let private getUniqueFileNames () folderPathTP folderPathCanopy =
+
+        let fileNames path =
+
+            Directory.EnumerateFiles path
             |> Seq.map Path.GetFileName
             |> Set.ofSeq
+
+        let fileNamesTP = fileNames folderPathTP                    
+        let fileNamesCanopy = fileNames folderPathCanopy        
         
         Set.difference fileNamesTP fileNamesCanopy |> Set.toList, Set.difference fileNamesCanopy fileNamesTP |> Set.toList
-    
-    let private result2 (folderPathTP: string) (folderPathCanopy: string) =  
-    
-        (getDirNames folderPathTP, getDirNames folderPathCanopy)
-        ||> Seq.iter2
-            (fun pathTP pathCanopy 
-                ->
-                let uniqueFileNamesTP, uniqueFileNamesCanopy = getUniqueFileNames pathTP pathCanopy 
-                printfn "Je v TP, ale chybi v Canopy %A" uniqueFileNamesTP                  
-                printfn "Je v Canopy, ale chybi v TP %A" uniqueFileNamesCanopy
-                printfn "************************************************" 
-            )  
-            
-    let private result (folderPathTP: string) (folderPathCanopy: string) =
+                
+    let private result () folderPathTP folderPathCanopy =
+
+        let getDirNames pathToDir = Directory.EnumerateDirectories pathToDir 
        
         match folderPathTP = pathTP_FutureValidity && folderPathCanopy = pathCanopy_FutureValidity with
         | true  -> (seq {folderPathTP}, seq {folderPathCanopy})
         | false -> (getDirNames folderPathTP, getDirNames folderPathCanopy)
 
-        ||> Seq.iter2
+        ||> Seq.map2
             (fun pathTP pathCanopy
                 ->
-                let uniqueFileNamesTP, uniqueFileNamesCanopy = getUniqueFileNames pathTP pathCanopy 
-                printfn "Je v TP, ale chybi v Canopy %A" uniqueFileNamesTP                  
-                printfn "Je v Canopy, ale chybi v TP %A" uniqueFileNamesCanopy
-                printfn "************************************************" 
+                let uniqueFileNamesTP, uniqueFileNamesCanopy = getUniqueFileNames () pathTP pathCanopy 
+                printResults () uniqueFileNamesTP uniqueFileNamesCanopy
             )
-         
-    let internal main () = //Rozpracovana cast, netestovano na pritomnost souboru      
+        |> Seq.collect id       
+
+    // The main function to call
+    let internal calculate_TP_Canopy_Difference () : Result<unit, string> =
+        try
+            let logs =
+                [
+                    "CurrentValidity"
+                    "\n"
+                    String.replicate 48 "*"
+                    yield! result () pathTP_CurrentValidity pathCanopy_CurrentValidity
+                    "\n"
+                    "FutureValidity"
+                    String.replicate 48 "*"
+                    yield! result () pathTP_FutureValidity pathCanopy_FutureValidity
+                    "\n"
+                    "WithoutReplacementService"
+                    String.replicate 48 "*"
+                    yield! result () pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
+                ]
+
+            let json =             
+                logs
+                |> List.map Encode.string
+                |> Encode.list
+                |> Encode.toString 2
             
-        try     
-            printfn "CurrentValidity"
-            result pathTP_CurrentValidity pathCanopy_CurrentValidity
-       
-            printfn "FutureValidity"
-            let uniqueFileNamesTP, uniqueFileNamesCanopy = getUniqueFileNames pathTP_FutureValidity pathCanopy_FutureValidity 
-            printfn "Je v TP, ale chybi v Canopy %A" uniqueFileNamesTP                  
-            printfn "Je v Canopy, ale chybi v TP %A" uniqueFileNamesCanopy
-            printfn "************************************************" 
-         
-            printfn "WithoutReplacementService"
-            result pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
+            #if WINDOWS
+            serializeWithThoth json logFileName2
+            #else
+            Ok () //serializeWithThoth json logFileName2 // Save to a file (on mobile, use Environment or FileSystem APIs from .NET MAUI)
+            #endif
+           
         with
-        | ex -> printfn "%s\n" (string ex.Message)
-
-
-    
+        | ex 
+            ->
+            Error (string ex.Message)

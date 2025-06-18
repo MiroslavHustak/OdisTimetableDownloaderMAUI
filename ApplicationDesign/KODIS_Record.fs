@@ -202,6 +202,11 @@ module WebScraping_KODISFMRecord =
                     let! msg1 = result contextCurrentValidity, errFn
                     let! msg2 = result contextFutureValidity, errFn
                     let! msg3 = result contextWithoutReplacementService, errFn   
+
+                    let msg4 = 
+                        match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference () with
+                        | Ok _      -> String.Empty
+                        | Error err -> err        
     
                     let separator = String.Empty
     

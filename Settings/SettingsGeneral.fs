@@ -10,6 +10,7 @@ open Types.ErrorTypes
 module SettingsGeneral =  
 
     let internal logFileName = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\logEntries.json"
+    let internal logFileName2 = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\tp_canopy_difference.json"
 
     let internal ODISDefault =  
         {          
@@ -44,41 +45,32 @@ module SettingsGeneral =
     let internal apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" 
     let internal urlLogging = "http://kodis.somee.com/api/logging" 
 
-    // F# compiler directives
     #if WINDOWS
     let internal partialPathJsonTemp = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
     let internal kodisPathTemp = @"g:\Users\User\Data\"
     let internal kodisPathTemp4 = @"g:\Users\User\Data4\"
     let internal dpoPathTemp = @"g:\Users\User\Data4\"
     let internal mdpoPathTemp = @"g:\Users\User\Data4\"
-
-    let internal pathTP_CurrentValidity = @"g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\"
-    let internal pathCanopy_CurrentValidity = @"g:\Users\User\Data4\JR_ODIS_aktualni_vcetne_vyluk\"    
-
-    let internal pathTP_FutureValidity = @"g:\Users\User\Data\JR_ODIS_pouze_budouci_platnost\"   
-    let internal pathCanopy_FutureValidity = @"g:\Users\User\Data4\JR_ODIS_pouze_budouci_platnost\"
-     
-    let internal pathTP_WithoutReplacementService = @"g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\" 
-    let internal pathCanopy_WithoutReplacementService = @"g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\"  
+    let path = sprintf "%s%s/" kodisPathTemp 
+    let path4 = sprintf "%s%s/" kodisPathTemp4  
     #else
     let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
     let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
     let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" 
     let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
-    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"  
-
-    let internal pathTP_CurrentValidity = @"g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\"
-    let internal pathCanopy_CurrentValidity = @"g:\Users\User\Data4\JR_ODIS_aktualni_vcetne_vyluk\"    
-
-    let internal pathTP_FutureValidity = @"g:\Users\User\Data\JR_ODIS_pouze_budouci_platnost\"   
-    let internal pathCanopy_FutureValidity = @"g:\Users\User\Data4\JR_ODIS_pouze_budouci_platnost\"
-
-    let internal pathTP_WithoutReplacementService = @"g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\" 
-    let internal pathCanopy_WithoutReplacementService = @"g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\"  
-    
-
-
+    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/" 
+    let path = sprintf "%s%s/" kodisPathTemp 
+    let path4 = sprintf "%s%s/" kodisPathTemp4 
     #endif
+
+    let internal pathTP_CurrentValidity = path ODISDefault.OdisDir1 
+    let internal pathCanopy_CurrentValidity = path4 ODISDefault.OdisDir1
+
+    let internal pathTP_FutureValidity = path ODISDefault.OdisDir2   
+    let internal pathCanopy_FutureValidity = path4 ODISDefault.OdisDir2
+
+    let internal pathTP_WithoutReplacementService = path ODISDefault.OdisDir4  
+    let internal pathCanopy_WithoutReplacementService = path4 ODISDefault.OdisDir4 
 
     (*
     Right-click g:\Users\User\... (vsechny adresare anebo adresar nad tim), select Properties > Security, and grant full control.

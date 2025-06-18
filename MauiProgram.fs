@@ -22,7 +22,7 @@ type MauiProgram =
                    
                     |> ignore<IFontCollection>
                 )
-            .Build()   
+            .Build()          
 
 // Approx. 4300 LoC as of Apr 24, 2025
 // REST API approx. 400 LoC as of Apr 24, 2025

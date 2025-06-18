@@ -17,7 +17,6 @@ open Settings.SettingsGeneral
 open DataModelling.Dtm
 open TransformationLayers.ApiTransformLayer
 
-
 module LogEntries = 
 
     let private decoderGet : Decoder<ResponseGetLogEntries> =
