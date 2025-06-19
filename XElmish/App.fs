@@ -300,7 +300,7 @@ module App =
 
         let initialModelNoConn = 
             {       
-                PermissionGranted = permissionGranted
+                PermissionGranted = true //aby se button RequestPermission nezobrazoval
                 ProgressMsg = String.Empty
                 NetConnMsg = noNetConnInitial
                 CloudProgressMsg = String.Empty
@@ -346,14 +346,14 @@ module App =
             cancellationActor.Post <| UpdateState2 (false, ctsNew)
         
         #if ANDROID
-        let permissionGranted = permissionCheck () |> Async.RunSynchronously  //available API employed by permissionCheck is async-only
+        let permissionGranted = permissionCheck () |> Async.RunSynchronously  //available API employed by permissionCheck is async-only        
         #else
         let permissionGranted = true
         #endif       
-               
+        
         let initialModel = 
             {       
-                PermissionGranted = permissionGranted //melo by byt vzdy true
+                PermissionGranted = permissionGranted
                 ProgressMsg = String.Empty
                 NetConnMsg = String.Empty
                 CloudProgressMsg = String.Empty
@@ -372,7 +372,7 @@ module App =
 
         let initialModelNoConn = 
             {    
-                PermissionGranted = permissionGranted //melo by byt vzdy true
+                PermissionGranted = true  //aby se button RequestPermission nezobrazoval
                 ProgressMsg = String.Empty
                 NetConnMsg = noNetConnInitial
                 CloudProgressMsg = String.Empty
@@ -409,22 +409,29 @@ module App =
         | RequestPermission 
             ->
             #if ANDROID
+
+            let permissionStatus = 
+                async
+                    {
+                        let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                        return status = PermissionStatus.Granted
+                    }
+                |> Async.RunSynchronously //available API employed by status is async-only
+
             let cmd =
                 Cmd.ofMsg
-                    (
-                        async
-                            {
-                                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                        
-                                match status = PermissionStatus.Granted with
-                                | true  ->                                         
-                                        return PermissionResult true
-                                | false -> 
-                                        do! openAppSettings ()
-                                        return PermissionResult true
-                            }
-                        |> Async.RunSynchronously //available API employed by status is async-only
-                )
+                    (                        
+                        match permissionStatus with
+                        | true  
+                            ->                                         
+                            PermissionResult true
+                        | false
+                            -> 
+                            //PermissionGranted je tady false
+                            do openAppSettings ()
+                            PermissionResult true  //po settings nastavime PermissionGranted na true
+                    )
+
             m, cmd
             #else
             m, Cmd.none

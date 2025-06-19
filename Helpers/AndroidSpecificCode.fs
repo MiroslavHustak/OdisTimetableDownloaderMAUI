@@ -2,6 +2,7 @@
 
 open System
 open System.Net.Http
+open System.Threading
 
 open Helpers
 open Helpers.Builders
@@ -175,45 +176,43 @@ module AndroidUIHelpers =
             None    
 
     let internal openAppSettings () =
-
-        async 
-            {
-                try
-                    do! Async.Sleep 500 
+    
+            try
+                Thread.Sleep 500 
                     
-                    pyramidOfDoom
-                        {
-                            use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
-                            //use intent : Intent = intent 
-                            do!  
-                                intent.AddFlags
-                                    (
-                                        ActivityFlags.NewTask ||| 
-                                        ActivityFlags.ClearTop ||| 
-                                        ActivityFlags.ClearTask ||| 
-                                        ActivityFlags.BroughtToFront ||| 
-                                        ActivityFlags.SingleTop
-                                    )
-                                    |> Option.ofNull
-                                    |> Option.map (fun _ -> ()), None
-
-                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
-                            do! 
-                                intent.SetData(uri)
-                                |> Option.ofNull 
+                pyramidOfDoom
+                    {
+                        use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
+                        //use intent : Intent = intent 
+                        do!  
+                            intent.AddFlags
+                                (
+                                    ActivityFlags.NewTask ||| 
+                                    ActivityFlags.ClearTop ||| 
+                                    ActivityFlags.ClearTask ||| 
+                                    ActivityFlags.BroughtToFront ||| 
+                                    ActivityFlags.SingleTop
+                                )
+                                |> Option.ofNull
                                 |> Option.map (fun _ -> ()), None
 
-                            return! Some <| Application.Context.StartActivity(intent)
-                        }
+                        use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
+                        do! 
+                            intent.SetData(uri)
+                            |> Option.ofNull 
+                            |> Option.map (fun _ -> ()), None
 
-                    |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
+                        return! Some <| Application.Context.StartActivity(intent)
+                    }
+
+                |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                     
-                with
-                | ex
-                    ->
-                    string ex.Message |> ignore<string> // Log error
-                    ()
-            }
+            with
+            | ex
+                ->
+                string ex.Message |> ignore<string> // Log error
+                ()
+            
 
 #endif
 
