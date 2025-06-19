@@ -1,4 +1,15 @@
-﻿namespace OdisTimetableDownloaderMAUI
+﻿(*
+Code in this file uses Fabulous, a functional-first UI framework.
+
+https://fabulous.dev
+https://github.com/fabulous-dev/Fabulous
+
+Copyright 2016-2023 Timothée Larivoir, Edgar Gonzales, and contributors
+
+Licensed under the Apache License, Version 2.0 (the "License")
+*)
+
+namespace OdisTimetableDownloaderMAUI
 
 open System
 open System.Threading
