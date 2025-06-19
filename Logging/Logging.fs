@@ -45,7 +45,7 @@ module Logging =
                 }
             )
 
-    let internal postToLogFile errorMessage = 
+    let internal postToLogFile () errorMessage = 
 
         //prima transformace na json string (bez pouziti records / serializace / Thoth encoders )
         let s1 = "{ \"list\": ["
@@ -87,7 +87,7 @@ module Logging =
 
     let internal postToLog (msg: 'a) errCode =   
     
-        postToLogFile (sprintf "%s Error%s" <| string msg <| errCode) 
+        postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
         |> Async.RunSynchronously
         |> ignore<ResponsePost>  
 
@@ -107,7 +107,7 @@ module Logging =
                         let! filepath = (Path.GetFullPath logFileName) |> Option.ofNullEmpty, Error String.Empty
 
                         let logEntries = 
-                            async { return! getLogEntriesFromRestApi url } 
+                            async { return! getLogEntriesFromRestApi () url } 
                             |> Async.RunSynchronously
                             |> function Ok logEntries -> logEntries | Error _ -> "Chyba při čtení logEntries z API"   
                    

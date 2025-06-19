@@ -50,10 +50,10 @@ module FutureLinks =
                         let! jsonString = Response.toTextAsync response
                         let response = Decode.fromString decoderGet jsonString
 
-                        return transformLinksApiResponse postToLogFile response
+                        return transformLinksApiResponse postToLogFile () response
                        
                     | _ -> 
-                        postToLogFile (sprintf "Request failed with status code %d" (int response.statusCode))
+                        postToLogFile () (sprintf "Request failed with status code %d" (int response.statusCode))
                         |> Async.RunSynchronously 
                         |> ignore<ResponsePost>   
                        

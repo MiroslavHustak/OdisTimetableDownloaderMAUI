@@ -11,7 +11,7 @@ open Helpers.Builders
 
 module Serialization =     
     
-    //filepath -> musim tam mit alespon prazdny json soubor
+    //filepath -> musim tam mit alespon prazdny json soubor, netvori se automaticky, pokud neexistuje
     let internal serializeWithThoth (json : string) (path : string) =   
         
         let prepareJsonAsyncWrite () = // it only prepares an asynchronous operation that writes the json string

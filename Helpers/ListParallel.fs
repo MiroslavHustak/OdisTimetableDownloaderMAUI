@@ -47,7 +47,7 @@ let private splitListIntoEqualParts (numParts : int) (originalList : 'a list) = 
         
 let private numberOfThreads l =  
         
-    let numberOfThreads = Environment.ProcessorCount //all List.Parallel.iter/iter2/map/map2 are impure because of that :-(
+    let numberOfThreads = Environment.ProcessorCount 
         
     match (>) numberOfThreads 0 with 
     | true  ->                            
@@ -83,6 +83,7 @@ let private maxDegreeOfParallelismAdapted =
         | Large  -> maxDegreeOfParallelism
 
 //**************************Functions*******************************************
+// Although functions using numberOfThreads, async and tasks are technically impure, they are pure in the sense that they do not change any state outside their scope
 
 // Using Array.Parallel.iter  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter_CPU (action : 'a -> unit) (list : 'a list) : unit =

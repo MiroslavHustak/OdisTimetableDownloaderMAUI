@@ -75,7 +75,7 @@ module TP_Canopy_Difference =
             #if WINDOWS
             serializeWithThoth json logFileName2
             #else
-            serializeWithThoth json logFileName3 //TODO predelat, kdyby byly problemy
+            serializeWithThoth json logFileName3 
             #endif
            
         with

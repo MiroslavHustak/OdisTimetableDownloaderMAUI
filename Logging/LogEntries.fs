@@ -30,7 +30,7 @@ module LogEntries =
                 }
             )
 
-    let internal getLogEntriesFromRestApi url = 
+    let internal getLogEntriesFromRestApi () url = 
     
         async
             {       
