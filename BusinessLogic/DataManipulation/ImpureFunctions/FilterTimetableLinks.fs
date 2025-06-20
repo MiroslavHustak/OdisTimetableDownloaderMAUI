@@ -17,21 +17,21 @@ open Settings.SettingsKODIS
 open DataModelling.DataModel
 
 module FilterTimetableLinks =  
+
+    // Array vubec rychlost nezvysilo
     
     let internal filterTimetableLinks param (pathToDir : string) (diggingResult : Result<string list, PdfDownloadErrors>) = 
 
         //*************************************Helpers for SQL columns********************************************
 
+        let datePatternRegex = Regex(@"202[3-9]_[0-1][0-9]_[0-3][0-9]_202[4-9]_[0-1][0-9]_[0-3][0-9]", RegexOptions.Compiled)
+
         let extractSubstring (input : string) =
             
             try
-                let pattern = @"202[3-9]_[0-1][0-9]_[0-3][0-9]_202[4-9]_[0-1][0-9]_[0-3][0-9]"
-                    in
-                    let regex = Regex pattern 
-                        in       
-                        match (regex.Match input).Success with
-                        | true  -> Ok input 
-                        | false -> Ok String.Empty 
+                match (datePatternRegex.Match input).Success with
+                | true  -> Ok input 
+                | false -> Ok String.Empty 
             with 
             | ex -> Error <| string ex.Message                  
                   
@@ -45,13 +45,10 @@ module FilterTimetableLinks =
         let extractSubstring1 (input : string) =
 
             try
-                let pattern = @"202[3-9]_[0-1][0-9]_[0-3][0-9]_202[4-9]_[0-1][0-9]_[0-3][0-9]"
-                    in
-                    let regex = Regex pattern 
-                        in
-                        match (regex.Match input).Success with
-                        | true  -> Ok (regex.Match input).Value
-                        | false -> Ok String.Empty
+                match (datePatternRegex.Match input).Success with
+                | true  -> Ok (datePatternRegex.Match input).Value
+                | false -> Ok String.Empty
+                       
             with 
             | ex -> Error <| string ex.Message                    
 
@@ -268,8 +265,7 @@ module FilterTimetableLinks =
                 (fun value 
                     -> 
                     value
-                    |> List.ofSeq                 
-                    |> List.map //List.Parallel.map is overkill here
+                    |> List.Parallel.map_CPU 
                         (fun item
                             -> 
                             let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
@@ -278,7 +274,7 @@ module FilterTimetableLinks =
                             | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
                             | false -> item                                       
                         )  
-                    |> List.sort //jen quli testovani
+                    //|> List.sort //jen quli testovani
                     |> List.filter
                         (fun item
                             -> 
@@ -286,16 +282,16 @@ module FilterTimetableLinks =
                             let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
                             cond1 && cond2 
                         )         
-                    |> List.map (fun item -> splitKodisLink item) //List.Parallel.map is overkill here
+                    |> List.Parallel.map_CPU (fun item -> splitKodisLink item) 
                 )          
                            
         //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
         let createPathsForDownloadedFiles filteredList : (string * string) list = 
           
             filteredList
-            |> List.map 
+            |> List.Parallel.map_CPU 
                 (fun item -> fst item |> function CompleteLink value -> value, snd item |> function FileToBeSaved value -> value)
-            |> List.map
+            |> List.Parallel.map_CPU
                 (fun (link, file) 
                     -> 
                     let path =                                         

@@ -26,8 +26,10 @@ open Helpers.FileInfoHelper
 module SortJsonData =  
 
     //*************************Helpers************************************************************
+
+    let private tempJson1, tempJson2 = jsonEmpty, readAllTextAsync pathkodisMHDTotal |> Async.RunSynchronously 
       
-    let private tempJson1, tempJson2 = 
+    let private tempJson11, tempJson22 = //zatim zkusebne nepouzivat
 
         [
             readAllTextAsync pathkodisMHDTotal 
@@ -77,7 +79,7 @@ module SortJsonData =
                             )
                 }
             
-        let kodisTimetables3 : Reader<string list, string seq> = 
+        let kodisTimetables3 : Reader<string list, string seq> = //Array tady vubec nepomohlo
 
             reader //Reader monad for educational purposes only, no real benefit here  
                 {
@@ -85,8 +87,8 @@ module SortJsonData =
 
                     return 
                         pathToJsonList3 
-                        |> Seq.ofList 
-                        |> Seq.collect 
+                        |> Array.ofList 
+                        |> Array.collect 
                             (fun pathToJson 
                                 ->    
                                 let kodisJsonSamples =    
@@ -106,14 +108,14 @@ module SortJsonData =
                                 let timetables = 
                                     kodisJsonSamples
                                     |> Option.ofNull
-                                    |> Option.map (fun value -> value.Data |> Seq.map _.Timetable)
-                                    |> Option.defaultValue  Seq.empty
+                                    |> Option.map (fun value -> value.Data |> Array.map _.Timetable)
+                                    |> Option.defaultValue  Array.empty
                                  
                                 let vyluky = 
                                     kodisJsonSamples
                                     |> Option.ofNull
-                                    |> Option.map (fun value -> value.Data |> Seq.collect _.Vyluky)
-                                    |> Option.defaultValue Seq.empty
+                                    |> Option.map (fun value -> value.Data |> Array.collect _.Vyluky)
+                                    |> Option.defaultValue Array.empty
                                  
                                 let attachments = 
                                     vyluky
@@ -122,16 +124,15 @@ module SortJsonData =
                                         (fun value
                                             -> 
                                             value
-                                            |> Seq.collect _.Attachments
-                                            |> List.ofSeq
-                                            |> List.map (fun item -> item.Url |> Option.ofNullEmptySpace) //List.Parallel.map je overkill
-                                            |> List.choose id  // Remove `None` values
-                                            |> List.toSeq
+                                            |> Array.collect _.Attachments
+                                            |> Array.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) 
+                                            |> Array.choose id  // Remove `None` values
                                         )
-                                    |> Option.defaultValue Seq.empty
+                                    |> Option.defaultValue Array.empty
                                      
-                                Seq.append timetables attachments   
+                                Array.append timetables attachments   
                             )  
+                        |> Seq.ofArray
                 }       
          
         let kodisAttachments : Reader<string list, string seq> = //Reader monad for educational purposes only, no real benefit here
@@ -149,7 +150,7 @@ module SortJsonData =
                                 let fn1 (value : JsonProvider1.Attachment seq) = 
                                     value
                                     |> List.ofSeq
-                                    |> List.map (fun item -> item.Url |> Option.ofNullEmptySpace) //List.Parallel.map - jj, funguje to :-), ale je to overkill                                    
+                                    |> List.Parallel.map_CPU (fun item -> item.Url |> Option.ofNullEmptySpace) // jj, funguje to :-)                               
                                     |> List.choose id //co neprojde, to beze slova ignoruju
                                     |> List.toSeq
 
