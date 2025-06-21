@@ -25,11 +25,7 @@ open Helpers.FileInfoHelper
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
 module SortJsonData =  
-
-    //*************************Helpers************************************************************
-
-    let private tempJson1, tempJson2 = jsonEmpty, readAllTextAsync pathkodisMHDTotal |> Async.RunSynchronously 
-         
+        
     let internal digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
                     
         let kodisTimetables3 : Reader<string list, string seq> = 
@@ -37,6 +33,8 @@ module SortJsonData =
             reader //Reader monad for educational purposes only, no real benefit here  
                 {
                     let! pathToJsonList3 = fun env -> env 
+
+                    let tempJson1, tempJson2 = jsonEmpty, readAllTextAsync pathkodisMHDTotal |> Async.RunSynchronously 
 
                     let kodisJsonSamples =  //The biggest performance drag is the JsonProvider parsing => parallel done separatelly
                         pathToJsonList3 
@@ -72,7 +70,8 @@ module SortJsonData =
                                     vyluky
                                     |> Option.ofNull
                                     |> Option.map
-                                        (fun value -> 
+                                        (fun value 
+                                            -> 
                                             value
                                             |> Array.collect (_.Attachments)
                                             |> Array.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) 
