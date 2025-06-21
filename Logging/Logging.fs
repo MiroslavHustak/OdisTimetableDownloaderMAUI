@@ -22,6 +22,7 @@ open LogEntries
 
 open Helpers
 open Helpers.Builders
+open Helpers.FileInfoHelper
 
 module Logging = 
 
@@ -102,10 +103,19 @@ module Logging =
                 pyramidOfDoom
                     {  
                         let url = "http://kodis.somee.com/api/logging"
-                                               
+                                            
                         //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
-                        let! filepath = (Path.GetFullPath logFileName) |> Option.ofNullEmpty, Error String.Empty
+                        let filePath = Path.GetFullPath logFileName
+                        let! filepath = filePath |> Option.ofNullEmpty, Error String.Empty
 
+                        let filePath =  
+                            match File.Exists filepath with
+                                | true  -> 
+                                        filePath
+                                | false ->
+                                        File.WriteAllText(filepath, jsonEmpty)
+                                        filePath
+                       
                         let logEntries = 
                             async { return! getLogEntriesFromRestApi () url } 
                             |> Async.RunSynchronously

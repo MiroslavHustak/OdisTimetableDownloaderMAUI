@@ -5,26 +5,34 @@ open System.Data
 open FsToolkit.ErrorHandling
 
 //************************************************************
+open FileInfoHelper
 
 open Helpers
 open Helpers.Builders
 
 module Serialization =     
     
-    //filepath -> musim tam mit alespon prazdny json soubor, netvori se automaticky, pokud neexistuje
     let internal serializeWithThoth (json : string) (path : string) =   
         
         let prepareJsonAsyncWrite () = // it only prepares an asynchronous operation that writes the json string
       
             try  
                 pyramidOfDoom
-                    {
-                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, None 
+                    {                   
+                        //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
 
-                        let fInfodat : FileInfo = FileInfo filepath
-                        do! fInfodat.Exists |> Option.ofBool, None
+                        let path = Path.GetFullPath path 
+                        let! path = path |> Option.ofNullEmpty, None 
+
+                        let path =  
+                            match File.Exists path with
+                            | true  -> 
+                                    path
+                            | false ->
+                                    File.WriteAllText(path, jsonEmpty)
+                                    path
                                                              
-                        let writer = new StreamWriter(filepath, false)                
+                        let writer = new StreamWriter(path, false)                
                         let!_  = writer |> Option.ofNull, None
                                                                                  
                         return Some writer
@@ -60,6 +68,3 @@ module Serialization =
                 | ex -> return Error (string ex.Message) 
             }   
         |> Async.RunSynchronously 
-           
-
-
