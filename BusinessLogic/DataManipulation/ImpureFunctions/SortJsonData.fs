@@ -23,168 +23,68 @@ open Helpers
 open Helpers.Builders
 open Helpers.FileInfoHelper
 
+// Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
 module SortJsonData =  
 
     //*************************Helpers************************************************************
 
     let private tempJson1, tempJson2 = jsonEmpty, readAllTextAsync pathkodisMHDTotal |> Async.RunSynchronously 
-      
-    let private tempJson11, tempJson22 = //zatim zkusebne nepouzivat
-
-        [
-            readAllTextAsync pathkodisMHDTotal 
-            readAllTextAsync pathkodisMHDTotal2_0 
-        ]         
-        |> Async.Parallel 
-        |> Async.Catch
-        |> Async.RunSynchronously
-        |> Result.ofChoice                      
-        |> function
-            | Ok [|a; b|]    
-                -> 
-                a, b
-            | Ok _ | Error _ 
-                -> 
-                jsonEmpty, jsonEmpty 
-
-    //cancellation token jsem tady zrusil, aktivace nastava uz drive
-
+         
     let internal digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
-        
-        let kodisTimetables () : Reader<string list, string seq> =
-        
-            reader  //Reader monad for educational purposes only, no real benefit here  
-                {
-                    let! pathToJsonList = fun env -> env
-        
-                    return 
-                        pathToJsonList
-                        |> Seq.ofList
-                        |> Seq.collect
-                            (fun pathToJson 
-                                ->  
-                                async
-                                    {
-                                        try                                               
-                                            let! json = readAllTextAsync pathToJson
-                                            return JsonProvider1.Parse json                                                
-                                        with 
-                                        | _ -> return JsonProvider1.Parse tempJson1
-                                    }
-                                |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
-                                
-                                |> Option.ofNull
-                                |> Option.map (Seq.map _.Timetable)
-                                |> Option.defaultValue  Seq.empty
-                            )
-                }
-            
-        let kodisTimetables3 : Reader<string list, string seq> = //Array tady vubec nepomohlo
+                    
+        let kodisTimetables3 : Reader<string list, string seq> = 
 
             reader //Reader monad for educational purposes only, no real benefit here  
                 {
                     let! pathToJsonList3 = fun env -> env 
 
-                    return 
+                    let kodisJsonSamples =  //The biggest performance drag is the JsonProvider parsing => parallel done separatelly
                         pathToJsonList3 
-                        |> Array.ofList 
-                        |> Array.collect 
+                        |> List.Parallel.map_CPU
                             (fun pathToJson 
+                                ->
+                                try
+                                    let json = readAllText pathToJson
+                                    JsonProvider2.Parse json
+                                with
+                                | _ -> JsonProvider2.Parse tempJson2
+                            )  
+
+                    return 
+                        (pathToJsonList3, kodisJsonSamples) 
+                        ||> List.Parallel.map2_CPU 
+                            (fun pathToJson kodisJsonSample
                                 ->    
-                                let kodisJsonSamples =    
-                                    try
-                                        async
-                                            {
-                                                try
-                                                    let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
-                                                    return JsonProvider2.Parse json
-                                                with 
-                                                | _ -> return JsonProvider2.Parse tempJson2
-                                            }
-                                        |> Async.RunSynchronously  //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
-                                    with
-                                    | _ -> JsonProvider2.Parse tempJson2   
-                                 
+                                //JsonProvider's results are of Array type => Array is used
                                 let timetables = 
-                                    kodisJsonSamples
+                                    kodisJsonSample
                                     |> Option.ofNull
-                                    |> Option.map (fun value -> value.Data |> Array.map _.Timetable)
-                                    |> Option.defaultValue  Array.empty
-                                 
-                                let vyluky = 
-                                    kodisJsonSamples
-                                    |> Option.ofNull
-                                    |> Option.map (fun value -> value.Data |> Array.collect _.Vyluky)
+                                    |> Option.map (fun value -> value.Data |> Array.Parallel.map (_.Timetable))
                                     |> Option.defaultValue Array.empty
-                                 
+                             
+                                let vyluky = 
+                                    kodisJsonSample
+                                    |> Option.ofNull
+                                    |> Option.map (fun value -> value.Data |> Array.Parallel.map (_.Vyluky) |> Array.concat)
+                                    |> Option.defaultValue Array.empty
+                             
                                 let attachments = 
                                     vyluky
                                     |> Option.ofNull
                                     |> Option.map
-                                        (fun value
-                                            -> 
+                                        (fun value -> 
                                             value
-                                            |> Array.collect _.Attachments
+                                            |> Array.collect (_.Attachments)
                                             |> Array.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) 
                                             |> Array.choose id  // Remove `None` values
                                         )
                                     |> Option.defaultValue Array.empty
-                                     
+                                 
                                 Array.append timetables attachments   
-                            )  
-                        |> Seq.ofArray
-                }       
-         
-        let kodisAttachments : Reader<string list, string seq> = //Reader monad for educational purposes only, no real benefit here
-            
-            reader 
-                {
-                    let! pathToJsonList = fun env -> env 
-                        
-                    return                          
-                        pathToJsonList
-                        |> Seq.ofList 
-                        |> Seq.collect  //vzhledem ke komplikovanosti nepouzivam Result.sequence pro Array.collect (po zmene na seq ocekavam to same), nejde Some, nejde Ok jako vyse
-                            (fun pathToJson 
-                                -> 
-                                let fn1 (value : JsonProvider1.Attachment seq) = 
-                                    value
-                                    |> List.ofSeq
-                                    |> List.Parallel.map_CPU (fun item -> item.Url |> Option.ofNullEmptySpace) // jj, funguje to :-)                               
-                                    |> List.choose id //co neprojde, to beze slova ignoruju
-                                    |> List.toSeq
-
-                                let fn2 (item : JsonProvider1.Vyluky) =    
-                                    item.Attachments 
-                                    |> Option.ofNull        
-                                    |> Option.map fn1
-                                    |> Option.defaultValue Seq.empty
-                                       
-                                let fn3 (item : JsonProvider1.Root) =  
-                                    item.Vyluky
-                                    |> Option.ofNull  
-                                    |> Option.map (Seq.collect fn2)
-                                    |> Option.defaultValue Seq.empty
-                                       
-                                let kodisJsonSamples = 
-                                    try
-                                        async
-                                            {
-                                                try
-                                                    let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
-                                                    return JsonProvider1.Parse json
-                                                with 
-                                                | _ -> return JsonProvider1.Parse tempJson1
-                                            }
-                                        |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator     
-                                    with
-                                    | _ -> JsonProvider1.Parse tempJson1
-                                    
-                                kodisJsonSamples
-                                |> Option.ofNull
-                                |> Option.map (Seq.collect fn3)
-                                |> Option.defaultValue Seq.empty
                             ) 
+                        |> List.toArray 
+                        |> Array.concat    
+                        |> Seq.ofArray
                 }
            
         let addOn () =  

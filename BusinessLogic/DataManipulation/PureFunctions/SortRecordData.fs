@@ -11,6 +11,8 @@ open Settings.SettingsKODIS
 open DataModelling.DataModel
 
 module SortRecordData =  
+
+    // Code with array and Array.Parallel.map as fast as the following code with list. 
     
     let internal sortLinksOut (dataToBeFiltered : RcData list) validity = 
       
