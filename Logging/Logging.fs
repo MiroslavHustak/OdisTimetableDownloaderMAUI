@@ -102,7 +102,7 @@ module Logging =
                 pyramidOfDoom
                     {  
                         let url = "http://kodis.somee.com/api/logging"
-
+                                               
                         //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
                         let! filepath = (Path.GetFullPath logFileName) |> Option.ofNullEmpty, Error String.Empty
 

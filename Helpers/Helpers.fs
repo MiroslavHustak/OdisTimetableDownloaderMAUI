@@ -17,6 +17,31 @@ module FileInfoHelper =
 
     let [<Literal>] internal jsonEmpty = """[ {} ]"""
 
+    let internal writeAllText path content =
+
+        pyramidOfDoom
+            {
+                let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
+                let fInfoDat = FileInfo filepath
+                let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+    
+                File.WriteAllText(filepath, content)
+                return Ok ()
+            }
+        |> Result.defaultValue ()
+
+    let internal writeAllTextAsync path content =
+
+        pyramidOfDoom
+            {
+                let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
+                let fInfoDat = FileInfo filepath
+                let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+    
+                return Ok (File.WriteAllTextAsync(filepath, content) |> Async.AwaitTask)
+            }
+        |> Result.defaultWith (fun _ -> async { return () })    
+
     let internal readAllText path = 
 
         pyramidOfDoom
