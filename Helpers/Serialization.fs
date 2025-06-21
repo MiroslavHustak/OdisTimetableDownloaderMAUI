@@ -17,12 +17,10 @@ module Serialization =
         let prepareJsonAsyncWrite () = // it only prepares an asynchronous operation that writes the json string
       
             try  
-                pyramidOfDoom
+                option
                     {                   
                         //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
-
-                        let path = Path.GetFullPath path 
-                        let! path = path |> Option.ofNullEmpty, None 
+                        let! path = Path.GetFullPath path  |> Option.ofNullEmpty  
 
                         let path =  
                             match File.Exists path with
@@ -33,9 +31,9 @@ module Serialization =
                                     path
                                                              
                         let writer = new StreamWriter(path, false)                
-                        let!_  = writer |> Option.ofNull, None
+                        do! writer |> Option.ofNull
                                                                                  
-                        return Some writer
+                        return writer
                     }         
                       
                 |> Option.map 
