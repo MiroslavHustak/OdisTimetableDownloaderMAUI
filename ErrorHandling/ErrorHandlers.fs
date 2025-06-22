@@ -95,6 +95,11 @@ module Option =
         | Some value -> f value
         | None       -> None
 
+    let orElseWith (f: unit -> 'T option) (option: 'T option) : 'T option =
+        match option with
+        | Some x -> Some x
+        | None   -> f()
+
     *) 
 
     (*

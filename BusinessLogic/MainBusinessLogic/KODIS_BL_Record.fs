@@ -143,10 +143,10 @@ module KODIS_BL_Record =
             | true  -> Error StopJsonDownloading
             | false -> Error JsonDownloadError  
     
-    let internal operationOnDataFromJson variant dir =   
+    let internal operationOnDataFromJson (reportProgress : float * float -> unit) variant dir =   
 
         try               
-            digThroughJsonStructure >> filterTimetableLinks variant dir <| () 
+            digThroughJsonStructure >> filterTimetableLinks variant dir <| reportProgress
         with
         | ex
             ->

@@ -22,17 +22,30 @@ open Settings.SettingsKODIS
 open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
+open Types.Types
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
 module SortJsonData =  
         
-    let internal digThroughJsonStructure () = //prohrabeme se strukturou json souboru 
+    let internal digThroughJsonStructure reportProgress = //prohrabeme se strukturou json souboru 
                     
         let kodisTimetables3 : Reader<string list, string seq> = 
 
             reader //Reader monad for educational purposes only, no real benefit here  
                 {
                     let! pathToJsonList3 = fun env -> env 
+
+                    let l = pathToJsonList3 |> List.length
+                        in
+                        let counterAndProgressBar =
+                            MailboxProcessor<MsgIncrement>
+                                .StartImmediate
+                                    <|
+                                    fun inbox 
+                                        ->
+                                        let rec loop n = 
+                                            async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
+                                        loop 0
 
                     let tempJson1, tempJson2 = jsonEmpty, readAllTextAsync pathkodisMHDTotal |> Async.RunSynchronously 
 
@@ -42,7 +55,8 @@ module SortJsonData =
                             (fun pathToJson 
                                 ->
                                 try
-                                    let json = readAllText pathToJson
+                                    counterAndProgressBar.Post <| Inc 1
+                                    let json = readAllText pathToJson                                    
                                     JsonProvider2.Parse json
                                 with
                                 | _ -> JsonProvider2.Parse tempJson2
@@ -52,7 +66,9 @@ module SortJsonData =
                         (pathToJsonList3, kodisJsonSamples) 
                         ||> List.Parallel.map2_CPU 
                             (fun pathToJson kodisJsonSample
-                                ->    
+                                ->                                    
+                                counterAndProgressBar.Post <| Inc 1
+
                                 //JsonProvider's results are of Array type => Array is used
                                 let timetables = 
                                     kodisJsonSample

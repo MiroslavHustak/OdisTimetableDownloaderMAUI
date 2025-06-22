@@ -12,7 +12,7 @@ module SettingsGeneral =
     let internal logFileName = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\logEntries.json"
     let internal logFileName2 = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\tp_canopy_difference.json"
     let internal logFileName3 = @"/storage/emulated/0/Logs/tp_canopy_difference.json"
-    let internal logDirTP_Canopy = @"/storage/emulated/0/Logs/tp_canopy_difference.json"
+    let internal logDirTP_Canopy = @"/storage/emulated/0/Logs"
 
     let internal ODISDefault =  
         {          

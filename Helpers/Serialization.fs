@@ -21,14 +21,18 @@ module Serialization =
                     {                   
                         //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
                         let! path = Path.GetFullPath path  |> Option.ofNullEmpty, None  
-
-                        let path =  
-                            match File.Exists path with
-                            | true  -> 
-                                    path
-                            | false ->
+                                               
+                        let pathOption =
+                            File.Exists path
+                            |> Option.fromBool path
+                            |> Option.orElseWith 
+                                (fun ()
+                                    ->
                                     File.WriteAllText(path, jsonEmpty)
-                                    path
+                                    Some path
+                                ) 
+
+                        let! path = pathOption, None 
                                                              
                         let writer = new StreamWriter(path, false)                
                         let!_ = writer |> Option.ofNull, None
