@@ -21,7 +21,7 @@ open Settings.SettingsKODIS
 
 open Helpers
 open Helpers.Builders
-open Helpers.FileInfoHelper
+open Helpers.DirFileHelper
 
 module SortJsonDataFull =  
 

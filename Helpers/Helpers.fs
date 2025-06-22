@@ -1,6 +1,6 @@
 ﻿namespace Helpers
 
-module FileInfoHelper = 
+module DirFileHelper = 
 
     open System
     open System.IO
@@ -78,8 +78,8 @@ module FileInfoHelper =
                 let fInfodat : FileInfo = FileInfo filepath
 
                 return! condition fInfodat |> Option.ofBool  
-            }              
-       
+            }     
+  
 module MyString = 
         
     open System    

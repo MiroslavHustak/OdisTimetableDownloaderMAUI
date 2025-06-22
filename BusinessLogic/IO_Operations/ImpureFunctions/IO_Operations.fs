@@ -142,3 +142,17 @@ module IO_Operations =
             ->
             postToLog <| string ex.Message <| "#42"
             Error CreateFolderError   
+
+    let internal createTP_Canopy_Folder pathDir = 
+
+        try           
+            match Directory.Exists pathDir with
+            | true  -> () 
+            | false -> Directory.CreateDirectory pathDir |> ignore<DirectoryInfo> 
+              
+            |> Ok  
+        with 
+        | ex
+            ->
+            postToLog <| string ex.Message <| "#421"
+            Error CreateFolderError1   

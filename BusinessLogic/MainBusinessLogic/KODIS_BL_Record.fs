@@ -27,7 +27,7 @@ open Api.FutureLinks
 
 open Helpers
 open Helpers.Builders
-open Helpers.FileInfoHelper
+open Helpers.DirFileHelper
 
 open JsonData.SortJsonData
 open IO_Operations.IO_Operations
@@ -79,7 +79,7 @@ module KODIS_BL_Record =
                                         http
                                             {
                                                 GET uri
-                                                config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                 config_cancellationToken token //token2  //funguje
                                                 header headerContent1 headerContent2
                                             }
@@ -87,7 +87,7 @@ module KODIS_BL_Record =
                                         http
                                             {
                                                 GET uri
-                                                config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                 config_cancellationToken token //token2 //funguje
                                             }
                             
@@ -117,6 +117,12 @@ module KODIS_BL_Record =
                     | Ok _ 
                         -> 
                         None
+
+                    | Error ex
+                        when (string ex.Message).Contains "SSL connection could not be established" 
+                        ->
+                        postToLog <| string ex.Message <| "#74764-20"
+                        None               
 
                     | Error ex
                         ->
@@ -203,7 +209,7 @@ module KODIS_BL_Record =
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token //token2  //funguje
                                                                         header headerContent1 headerContent2
                                                                     }
@@ -211,7 +217,7 @@ module KODIS_BL_Record =
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token //token2 //funguje
                                                                     }
                                                     
@@ -246,19 +252,25 @@ module KODIS_BL_Record =
                                         None
 
                                     | Error ex
+                                        when (string ex.Message).Contains "SSL connection could not be established" 
                                         ->
-                                        postToLog <| ex.Message <| "#23"
-                                                                            
+                                        postToLog <| string ex.Message <| "#74764-23"
+                                        None                                        
+
+                                    | Error ex
+                                        ->
+                                        postToLog <| string ex.Message <| "#23"
+                                                                        
                                         match (string ex.Message).Contains "OperationCanceled" with 
                                         | true  -> Some <| Error StopDownloading
-                                        | false -> Some <| Error FileDownloadError 
+                                        | false -> Some <| Error FileDownloadError  
                                 )
                             |> Option.defaultValue (Ok ())
                              
                         with
                         | ex                             
                             -> 
-                            postToLog <| ex.Message <| "#24"
+                            postToLog <| string ex.Message <| "#24"
                             
                             match (string ex.Message).Contains "OperationCanceled" with 
                             | true  -> Error StopDownloading

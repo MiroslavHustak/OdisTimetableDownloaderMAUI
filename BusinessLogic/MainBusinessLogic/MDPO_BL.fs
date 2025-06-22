@@ -16,7 +16,7 @@ open FsToolkit.ErrorHandling
 
 open Helpers
 open Helpers.Builders
-open Helpers.FileInfoHelper
+open Helpers.DirFileHelper
 
 open Api.Logging
 open Api.FutureLinks

@@ -28,7 +28,7 @@ open Api.FutureLinks
 open Helpers
 open Helpers.Builders
 open Helpers.Connectivity
-open Helpers.FileInfoHelper
+open Helpers.DirFileHelper
 
 open Settings.Messages
 open Settings.SettingsGeneral
@@ -264,7 +264,7 @@ module KODIS_BL_Record4 =
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token //CancellationToken.None //token2  //funguje
                                                                         header headerContent1 headerContent2
                                                                     }
@@ -272,7 +272,7 @@ module KODIS_BL_Record4 =
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token //CancellationToken.None //token2  //funguje
                                                                     }
 
@@ -305,6 +305,11 @@ module KODIS_BL_Record4 =
                                     | Ok _ 
                                         -> 
                                         None
+                                    | Error ex
+                                        when (string ex.Message).Contains "SSL connection could not be established" 
+                                        ->
+                                        postToLog <| string ex.Message <| "#74764-171"
+                                        None               
 
                                     | Error ex
                                         ->

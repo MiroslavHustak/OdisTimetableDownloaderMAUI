@@ -76,6 +76,7 @@ module WebScraping_KODISFMRecord4 =
             | DataFilteringError   -> dataFilteringError
             | FileDeleteError      -> fileDeleteError 
             | CreateFolderError    -> createFolderError
+            | CreateFolderError1   -> createFolderError1
             | FileDownloadError    -> match environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
             | CanopyError          -> canopyError
             | TimeoutError         -> "timeout"
@@ -162,6 +163,10 @@ module WebScraping_KODISFMRecord4 =
             {                                
                 let!_ = environment.DeleteAllODISDirectories path, errFn  
                 let!_ = IO_Operations.IO_Operations.createFolders dirList, errFn 
+
+                #if ANDROID
+                let!_ = createTP_Canopy_Folder logDirTP_Canopy, errFn 
+                #endif
 
                 let! msg1 = result contextCurrentValidity, errFn
                 let! msg2 = result contextFutureValidity, errFn

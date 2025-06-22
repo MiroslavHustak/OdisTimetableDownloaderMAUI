@@ -21,7 +21,7 @@ open Settings.SettingsKODIS
 
 open Helpers
 open Helpers.Builders
-open Helpers.FileInfoHelper
+open Helpers.DirFileHelper
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
 module SortJsonData =  

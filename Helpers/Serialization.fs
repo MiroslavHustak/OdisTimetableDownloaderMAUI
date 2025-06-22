@@ -5,7 +5,7 @@ open System.Data
 open FsToolkit.ErrorHandling
 
 //************************************************************
-open FileInfoHelper
+open DirFileHelper
 
 open Helpers
 open Helpers.Builders
@@ -17,10 +17,10 @@ module Serialization =
         let prepareJsonAsyncWrite () = // it only prepares an asynchronous operation that writes the json string
       
             try  
-                option
+                pyramidOfDoom //nelze option CE (TODO: look at the definition code to find out why)
                     {                   
                         //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
-                        let! path = Path.GetFullPath path  |> Option.ofNullEmpty  
+                        let! path = Path.GetFullPath path  |> Option.ofNullEmpty, None  
 
                         let path =  
                             match File.Exists path with
@@ -31,9 +31,9 @@ module Serialization =
                                     path
                                                              
                         let writer = new StreamWriter(path, false)                
-                        do! writer |> Option.ofNull
+                        let!_ = writer |> Option.ofNull, None
                                                                                  
-                        return writer
+                        return Some writer
                     }         
                       
                 |> Option.map 

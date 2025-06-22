@@ -29,6 +29,7 @@ module ErrorTypes =
         | JsonFilteringError //vyjimecne to musime dat tady
         | FileDeleteError
         | CreateFolderError
+        | CreateFolderError1
         | FileDownloadError
         | NoFolderError
         | CanopyError
