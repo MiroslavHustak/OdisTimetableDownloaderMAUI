@@ -4,6 +4,7 @@
 module List.Parallel
 
 open System
+open System.Threading
 
 open FSharp.Control
 open Microsoft.FSharp.Quotations
@@ -232,6 +233,28 @@ let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b lis
         ->
         [] 
 
+let map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+    
+    let l = List.length xs1
+    
+    match (l = 0 || xs2.IsEmpty) || l <> List.length xs2 with
+    | false
+        ->
+        let listToParallel (xs1, xs2) = List.map2 mapping xs1 xs2
+
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdapted l
+            in
+            (splitListIntoEqualParts maxDegreeOfParallelismAdapted xs1, splitListIntoEqualParts maxDegreeOfParallelismAdapted xs2)
+            ||> List.zip
+            |> List.map (fun pair -> async { return listToParallel pair })
+            |> Async.Parallel
+            |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)  
+            |> List.ofArray
+            |> List.concat
+
+    | true 
+        ->
+        [] 
 
 //*********************************************************************
 // Code quotations, for educational purposes only

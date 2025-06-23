@@ -52,8 +52,8 @@ module KODIS_BL_Record =
                             loop 0
       
         try 
-            (jsonLinkList, pathToJsonList)
-            ||> List.Parallel.map2_IO
+            (token, jsonLinkList, pathToJsonList)
+            |||> List.Parallel.map2_IO_Token 
                 (fun uri (pathToFile : string) 
                     ->    
                     async  //Async musi byt quli cancellation token
@@ -80,7 +80,7 @@ module KODIS_BL_Record =
                                             {
                                                 GET uri
                                                 //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                config_cancellationToken token //token2  //funguje
+                                                config_cancellationToken token 
                                                 header headerContent1 headerContent2
                                             }
                                 | false ->
@@ -88,7 +88,7 @@ module KODIS_BL_Record =
                                             {
                                                 GET uri
                                                 //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                config_cancellationToken token //token2 //funguje
+                                                config_cancellationToken token 
                                             }
                             
                             //Async varianta musi byt quli cancellation token
@@ -143,10 +143,11 @@ module KODIS_BL_Record =
             | true  -> Error StopJsonDownloading
             | false -> Error JsonDownloadError  
     
-    let internal operationOnDataFromJson (reportProgress : float * float -> unit) variant dir =   
+    let internal operationOnDataFromJson (reportProgress : float * float -> unit) token variant dir =   
 
         try               
-            digThroughJsonStructure >> filterTimetableLinks variant dir <| reportProgress
+            digThroughJsonStructure reportProgress token
+            |> filterTimetableLinks variant dir 
         with
         | ex
             ->
@@ -180,11 +181,14 @@ module KODIS_BL_Record =
                             ||> context.listMappingFunction
                                 (fun uri (pathToFile: string) 
                                     -> 
-                                    async  //Async musi byt quli cancellation token
+                                    // The external async block, combined with cancellation-aware async operations, makes code much more responsive to cancellation.
+                                    async  // to support cancellation in the middle of asynchronous operations
                                         {    
                                             counterAndProgressBar.Post <| Inc 1
-                                                                                       
-                                            token.ThrowIfCancellationRequested ()
+                                                   
+                                            // Artificial checkpoint
+                                            // Good practice to place it here if you have any synchronous or CPU-bound work between async calls.
+                                            token.ThrowIfCancellationRequested () 
 
                                             let pathToFileExistFirstCheck = 
                                                 checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
@@ -221,7 +225,7 @@ module KODIS_BL_Record =
                                                                         config_cancellationToken token //token2 //funguje
                                                                     }
                                                     
-                                                    //Async varianta musi byt quli cancellation token 
+                                                    // Cancellation-aware async operation
                                                     use! response = get >> Request.sendAsync <| uri  
                                                                                                        
                                                     let statusCode = response.statusCode
@@ -229,6 +233,7 @@ module KODIS_BL_Record =
                                                     match statusCode with
                                                     | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
                                                         ->         
+                                                        // Cancellation-aware async operation
                                                         do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                                     | HttpStatusCode.Forbidden 
                                                         ->

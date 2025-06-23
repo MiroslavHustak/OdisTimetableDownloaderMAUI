@@ -23,11 +23,12 @@ open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
 open Types.Types
+open System
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
 module SortJsonData =  
         
-    let internal digThroughJsonStructure reportProgress = //prohrabeme se strukturou json souboru 
+    let internal digThroughJsonStructure reportProgress (token : CancellationToken) = //prohrabeme se strukturou json souboru 
                     
         let kodisTimetables3 : Reader<string list, string seq> = 
 
@@ -47,28 +48,31 @@ module SortJsonData =
                                             async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
                                         loop 0
 
-                    let tempJson1, tempJson2 = jsonEmpty, readAllTextAsync pathkodisMHDTotal |> Async.RunSynchronously 
+                    let tempJson1, tempJson2 = jsonEmpty, readAllText pathkodisMHDTotal 
 
-                    let kodisJsonSamples =  //The biggest performance drag is the JsonProvider parsing => parallel done separatelly
-                        pathToJsonList3 
-                        |> List.Parallel.map_CPU
+                    let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel done separatelly
+                        pathToJsonList3
+                        |> List.Parallel.map_CPU 
                             (fun pathToJson 
                                 ->
                                 try
+                                    token.ThrowIfCancellationRequested()  // Artificial checkpoint 
                                     counterAndProgressBar.Post <| Inc 1
-                                    let json = readAllText pathToJson                                    
-                                    JsonProvider2.Parse json
+                                    // byt existuje async verze, nestoji to vytvoreni externiho async bloku, gor kdyz to koliduje s JsonProvider2.Parse tempJson2
+                                    let json = readAllText pathToJson 
+                                    JsonProvider2.Parse json //The biggest performance drag je sync function
                                 with
-                                | _ -> JsonProvider2.Parse tempJson2
-                            )  
+                                | :? OperationCanceledException 
+                                    -> failwith String.Empty 
+                                | _ 
+                                    -> JsonProvider2.Parse tempJson2
+                            )
 
                     return 
                         (pathToJsonList3, kodisJsonSamples) 
                         ||> List.Parallel.map2_CPU 
                             (fun pathToJson kodisJsonSample
-                                ->                                    
-                                counterAndProgressBar.Post <| Inc 1
-
+                                ->  
                                 //JsonProvider's results are of Array type => Array is used
                                 let timetables = 
                                     kodisJsonSample
