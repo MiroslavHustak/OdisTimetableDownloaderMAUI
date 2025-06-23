@@ -136,7 +136,7 @@ module WebScraping_KODISFMRecord =
                             -> 
                             let context listMappingFunction = 
                                 {
-                                    listMappingFunction = listMappingFunction //nepotrebne, ale ponechano, bo jinak bych predelaval plno kodu
+                                    listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types
                                     reportProgress = reportProgress
                                     dir = dir
                                     list = list
@@ -144,7 +144,7 @@ module WebScraping_KODISFMRecord =
                            
                             dispatchIterationMessage context2.Msg1
                           
-                            //nepotrebne, ale ponechano, bo jinak bych predelaval plno kodu
+                            //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
                             //**********************************************************************
                             match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
                             | true  -> context List.Parallel.map2_IO
@@ -199,13 +199,13 @@ module WebScraping_KODISFMRecord =
                     }
                                                        
             pyramidOfInferno
-                {                                
-                    let!_ = environment.DeleteAllODISDirectories path, errFn  
-                    let!_ = createFolders dirList, errFn 
-
+                {       
                     #if ANDROID
                     let!_ = createTP_Canopy_Folder logDirTP_Canopy, errFn 
                     #endif
+
+                    let!_ = environment.DeleteAllODISDirectories path, errFn  
+                    let!_ = createFolders dirList, errFn 
     
                     let! msg1 = result contextCurrentValidity, errFn
                     let! msg2 = result contextFutureValidity, errFn

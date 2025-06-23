@@ -100,14 +100,15 @@ module WebScraping_KODISFMRecord4 =
                         -> 
                         let context listMappingFunction = 
                             {
-                                listMappingFunction = listMappingFunction
+                                listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
                                 reportProgress = reportProgress
                                 dir = dir
                                 list = list
                             }
                         
                         dispatchIterationMessage context2.Msg1
-                                               
+
+                        //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)                      
                         match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
                         | true  -> context List.Parallel.map2_IO
                         | false -> context List.map2
@@ -160,13 +161,13 @@ module WebScraping_KODISFMRecord4 =
                 }
                                                    
         pyramidOfInferno
-            {                                
-                let!_ = environment.DeleteAllODISDirectories path, errFn  
-                let!_ = IO_Operations.IO_Operations.createFolders dirList, errFn 
-
+            {             
                 #if ANDROID
                 let!_ = createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
+
+                let!_ = environment.DeleteAllODISDirectories path, errFn  
+                let!_ = IO_Operations.IO_Operations.createFolders dirList, errFn 
 
                 let! msg1 = result contextCurrentValidity, errFn
                 let! msg2 = result contextFutureValidity, errFn
