@@ -36,8 +36,8 @@ module SettingsGeneral =
     let internal waitingForNetConn = 30 //vterin
 
     let internal maxDegreeOfParallelism = 16
-    let internal maxDegreeOfParallelismThrottled = 6
-    let internal maxDegreeOfParallelismMedium = 12
+    let internal maxDegreeOfParallelismThrottled = 4
+    let internal maxDegreeOfParallelismMedium = 8
 
     let internal myIdeaOfASmallList = 24
     let internal myIdeaOfALargelList = 100
