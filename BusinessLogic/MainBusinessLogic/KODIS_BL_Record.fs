@@ -107,6 +107,8 @@ module KODIS_BL_Record =
                                 |> ignore<ResponsePost> 
                             | _ ->
                                 postToLog <| statusCode <| "#2112"
+                            
+                            token.ThrowIfCancellationRequested ()  
                         } 
                     |> Async.Catch
                     |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)  
@@ -176,10 +178,11 @@ module KODIS_BL_Record =
                                                                 
                     return    
                         try 
-                            context.list
-                            |> List.unzip             
-                            ||> context.listMappingFunction
-                                (fun uri (pathToFile: string) 
+                            let uri, pathToFile = context.list |> List.unzip
+
+                            (token, uri, pathToFile)
+                            |||> List.Parallel.map2_IO_Token //context.listMappingFunction                            
+                                (fun uri (pathToFile : string) 
                                     -> 
                                     // The external async block, combined with cancellation-aware async operations, makes code much more responsive to cancellation.
                                     async  // to support cancellation in the middle of asynchronous operations
@@ -214,7 +217,7 @@ module KODIS_BL_Record =
                                                                     {
                                                                         GET uri
                                                                         //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token //token2  //funguje
+                                                                        config_cancellationToken token 
                                                                         header headerContent1 headerContent2
                                                                     }
                                                         | false ->
@@ -222,7 +225,7 @@ module KODIS_BL_Record =
                                                                     {
                                                                         GET uri
                                                                         //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token //token2 //funguje
+                                                                        config_cancellationToken token 
                                                                     }
                                                     
                                                     // Cancellation-aware async operation
@@ -242,9 +245,12 @@ module KODIS_BL_Record =
                                                         |> ignore<ResponsePost> 
                                                     | _ ->
                                                         postToLog <| statusCode <| "#2212"
+
+                                                    token.ThrowIfCancellationRequested ()  
+
                                                 | None 
                                                     ->
-                                                    failwith "Failed pathToFileExistFirstCheck"                                              
+                                                    failwith "Failed pathToFileExistFirstCheck"     
                                         } 
                                     |> Async.Catch
                                     |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)

@@ -228,9 +228,10 @@ module KODIS_BL_Record4 =
                     return   
                         try
                             //monitorConnectivity (token : CancellationToken)
-                            context.list
-                            |> List.unzip             
-                            ||> context.listMappingFunction
+                            let uri, pathToFile = context.list |> List.unzip
+                            
+                            (token, uri, pathToFile)
+                            |||> List.Parallel.map2_IO_Token //context.listMappingFunction    
                                 (fun uri (pathToFile : string) 
                                     -> 
                                     //let token2 = tokenTrigger ()  //zatim nepotrebne
@@ -265,7 +266,7 @@ module KODIS_BL_Record4 =
                                                                     {
                                                                         GET uri
                                                                         //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token //CancellationToken.None //token2  //funguje
+                                                                        config_cancellationToken token 
                                                                         header headerContent1 headerContent2
                                                                     }
                                                         | false ->
@@ -273,7 +274,7 @@ module KODIS_BL_Record4 =
                                                                     {
                                                                         GET uri
                                                                         //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token //CancellationToken.None //token2  //funguje
+                                                                        config_cancellationToken token 
                                                                     }
 
                                                     use! response = get >> Request.sendAsync <| uri  
@@ -292,9 +293,12 @@ module KODIS_BL_Record4 =
                                                         |> ignore<ResponsePost> 
                                                     | _ ->
                                                         postToLog <| statusCode <| "#1712"
+
+                                                    token.ThrowIfCancellationRequested ()   
+
                                                 | None 
                                                     ->
-                                                    failwith "Failed pathToFileExistFirstCheck"                                              
+                                                    failwith "Failed pathToFileExistFirstCheck"      
                                         } 
                                     |> Async.Catch
                                     |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)

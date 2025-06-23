@@ -136,7 +136,7 @@ module WebScraping_KODISFMRecord =
                             -> 
                             let context listMappingFunction = 
                                 {
-                                    listMappingFunction = listMappingFunction
+                                    listMappingFunction = listMappingFunction //nepotrebne, ale ponechano, bo jinak bych predelaval plno kodu
                                     reportProgress = reportProgress
                                     dir = dir
                                     list = list
@@ -144,9 +144,12 @@ module WebScraping_KODISFMRecord =
                            
                             dispatchIterationMessage context2.Msg1
                           
+                            //nepotrebne, ale ponechano, bo jinak bych predelaval plno kodu
+                            //**********************************************************************
                             match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
                             | true  -> context List.Parallel.map2_IO
-                            | false -> context List.map2                          
+                            | false -> context List.map2  
+                            //**********************************************************************
     
                             |> environment.DownloadAndSave token     
     
