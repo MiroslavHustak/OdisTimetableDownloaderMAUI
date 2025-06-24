@@ -40,30 +40,69 @@
     <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'tizen'">6.5</SupportedOSPlatformVersion>
     <AndroidSigningKeyStore>AndroidKey.keystore</AndroidSigningKeyStore>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">25.0</SupportedOSPlatformVersion>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
-	<DefineConstants>WINDOWS</DefineConstants>
-  </PropertyGroup>
-	
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
-    <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <AndroidKeyStore>True</AndroidKeyStore>
-    <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
-    <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
-    <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
-    <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
-  </PropertyGroup>
+ <!-- Ensure WINDOWS symbol only for Windows target -->
+<PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'windows'">
+  <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
-    <AndroidKeyStore>True</AndroidKeyStore>
-    <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
-    <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
-    <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
-    <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
-  </PropertyGroup>
+<!-- Ensure ANDROID symbol only for Android target -->
+<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+  <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
+</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'" />
+<!-- Android Release-specific settings -->
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-android|AnyCPU'">
+  <AndroidPackageFormat>apk</AndroidPackageFormat>
+  <AndroidKeyStore>True</AndroidKeyStore>
+  <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
+  <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
+  <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+</PropertyGroup>
+
+<!-- Android Debug-specific settings -->
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-android|AnyCPU'">
+  <AndroidKeyStore>True</AndroidKeyStore>
+  <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
+  <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
+  <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+</PropertyGroup>
+
+<!-- iOS Debug-specific settings -->
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-ios|AnyCPU'">
+  <DefineConstants>$(DefineConstants);IOS</DefineConstants>
+</PropertyGroup>
+
+<!-- macCatalyst Debug-specific settings -->
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-maccatalyst|AnyCPU'">
+  <DefineConstants>$(DefineConstants);MACCATALYST</DefineConstants>
+</PropertyGroup>
+
+<!-- Windows Debug-specific settings -->
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-windows10.0.19041.0|AnyCPU'">
+  <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+</PropertyGroup>
+
+<!-- iOS Release-specific settings -->
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-ios|AnyCPU'">
+  <DefineConstants>$(DefineConstants);IOS</DefineConstants>
+</PropertyGroup>
+
+<!-- macCatalyst Release-specific settings -->
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-maccatalyst|AnyCPU'">
+  <DefineConstants>$(DefineConstants);MACCATALYST</DefineConstants>
+  <!-- Ensure compatibility between RuntimeIdentifier and PlatformTarget -->
+  <RuntimeIdentifier>maccatalyst-arm64</RuntimeIdentifier>
+  <PlatformTarget>arm64</PlatformTarget>
+</PropertyGroup>
+
+<!-- Windows Release-specific settings -->
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-windows10.0.19041.0|AnyCPU'">
+  <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+</PropertyGroup>
+
 
   <ItemGroup>
     <!-- App Icon -->

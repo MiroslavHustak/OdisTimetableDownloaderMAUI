@@ -134,7 +134,7 @@ module WebScraping_KODISFMRecord =
                     when
                         list <> List.empty
                             -> 
-                            let context listMappingFunction = 
+                            let context listMappingFunction : Context<'a, 'b, 'c> = 
                                 {
                                     listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types
                                     reportProgress = reportProgress

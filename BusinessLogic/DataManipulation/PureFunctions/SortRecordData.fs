@@ -12,7 +12,7 @@ open DataModelling.DataModel
 
 module SortRecordData =  
 
-    // Code with array and Array.Parallel.map as fast as the following code with list. 
+    // Code with array and Array.Parallel.map as fast as the following code with Seq. 
     
     let internal sortLinksOut (dataToBeFiltered : RcData list) validity = 
       
