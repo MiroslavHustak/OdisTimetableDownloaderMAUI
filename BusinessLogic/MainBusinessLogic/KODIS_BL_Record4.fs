@@ -224,7 +224,8 @@ module KODIS_BL_Record4 =
 
                             //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                             let removeDuplicatePathPairs uri pathToFile =
-                                List.zip uri pathToFile
+                                (uri, pathToFile)
+                                ||> List.zip 
                                 |> List.distinctBy snd
                             
                             let uri, pathToFile =
