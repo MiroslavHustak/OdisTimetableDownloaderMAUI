@@ -2,6 +2,18 @@
 
 open System.Threading
 
+module Lazy_IO_Monad =
+
+    type internal IO<'a> = IO of (unit -> 'a)
+
+    let internal runLazyIO (IO f) = lazy f() //laziness for education purposes
+    let internal runIO (IO action) = action()
+
+    //not used yet
+    let internal returnIO x = IO (fun () -> x)
+    let internal bindIO (IO f) g = IO (fun () -> (runLazyIO (g (f ()))).Force())
+    let internal mapIO f io = bindIO io (f >> returnIO)
+
 module Types =
 
     [<Struct>]   //vhodne pro 16 bytes => 4096 characters

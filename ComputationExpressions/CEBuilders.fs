@@ -1,6 +1,34 @@
 ﻿namespace Helpers
 
 module Builders =
+
+    // A minimal IO<'a> computation expression in F# that mimics Haskell's IO monad
+
+    open Types.Lazy_IO_Monad
+        
+    type internal IOBuilder = IOBuilder with
+        member _.Return(x : 'a) : IO<'a> = IO(fun () -> x)
+        member _.ReturnFrom(x : 'a) = x
+        member _.Bind(m : IO<'a>, f : 'a -> IO<'b>) : IO<'b> =
+            IO(fun ()
+                ->
+                let a = runIO m
+                runIO (f a)
+            )
+        member _.Zero(x : 'a) : IO<'a> = IO(fun () -> x)
+
+    let internal io = IOBuilder
+
+    (*
+    getLine :: IO String
+    getLine = 
+        getChar >>= \c ->
+            if c == '\n'
+                then return ""
+                else getLine >>= \l -> return (c : l)
+    *)
+
+    //**************************************************************************************
                      
     [<Struct>]
     type internal MyBuilder3 = MyBuilder3 with       

@@ -6,10 +6,14 @@ open Thoth.Json.Net
 
 //************************************************************
 
+open Types.Lazy_IO_Monad
+
+open Helpers.Builders
 open Helpers.Serialization
+
 open Settings.SettingsGeneral
 
-module TP_Canopy_Difference =
+module TP_Canopy_Difference =    
 
     let private printResults () uniqueFileNamesTP uniqueFileNamesCanopy = 
         
@@ -73,9 +77,9 @@ module TP_Canopy_Difference =
                 |> Encode.toString 2
             
             #if WINDOWS
-            serializeWithThoth json logFileName2
+            io { return! runIO <| serializeWithThoth json logFileName2 }    
             #else
-            serializeWithThoth json logFileName3 
+            runIO (serializeWithThoth json logFileName3) 
             #endif
            
         with
