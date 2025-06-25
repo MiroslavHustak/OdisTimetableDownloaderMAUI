@@ -28,7 +28,7 @@ open Settings.SettingsDPO
 open Settings.SettingsGeneral
 
 open IO_Operations.IO_Operations
-
+open Types.Haskell_IO_Monad_Simulation
 
 //HttpClient
 module DPO_BL =
@@ -140,7 +140,7 @@ module DPO_BL =
                             client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
 
                             let existingFileLength =                               
-                                checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                 |> function
                                     | Some _ -> (FileInfo pathToFile).Length
                                     | None   -> 0L

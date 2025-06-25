@@ -2,16 +2,15 @@
 
 open System.Threading
 
-module Lazy_IO_Monad =
+module Haskell_IO_Monad_Simulation =
 
-    type internal IO<'a> = IO of (unit -> 'a)
+    type internal IO<'a> = IO of (unit -> 'a) // wrapping custom type simulating Haskell IO Monad
 
-    let internal runLazyIO (IO f) = lazy f() //laziness for education purposes
     let internal runIO (IO action) = action()
 
     //not used yet
     let internal returnIO x = IO (fun () -> x)
-    let internal bindIO (IO f) g = IO (fun () -> (runLazyIO (g (f ()))).Force())
+    let internal bindIO (IO f) g = IO (fun () -> (runIO (g (f ()))))
     let internal mapIO f io = bindIO io (f >> returnIO)
 
 module Types =

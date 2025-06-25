@@ -29,6 +29,7 @@ open Settings.SettingsMDPO
 open Settings.SettingsGeneral    
 
 open IO_Operations.IO_Operations
+open Types.Haskell_IO_Monad_Simulation
 
 module MDPO_BL = //FsHttp
 
@@ -139,7 +140,7 @@ module MDPO_BL = //FsHttp
                             pyramidOfDoom
                                 {         
                                     let existingFileLength =                               
-                                        checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                        runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                         |> function
                                             | Some _ -> (FileInfo pathToFile).Length
                                             | None   -> 0L                                  
@@ -418,7 +419,7 @@ module MDPO_BL = //FsHttp
                             pyramidOfDoom
                                 {                
                                     let existingFileLength =                               
-                                        checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                        runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                         |> function
                                             | Some _ -> (FileInfo pathToFile).Length
                                             | None   -> 0L

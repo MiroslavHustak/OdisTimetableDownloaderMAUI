@@ -24,6 +24,8 @@ open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
+open Types.Haskell_IO_Monad_Simulation
+
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 // 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
 
@@ -174,7 +176,7 @@ module WebScraping_KODISFMRecord4 =
                 let! msg3 = result contextWithoutReplacementService, errFn   
 
                 let msg4 = 
-                    match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference () with
+                    match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
                     | Ok _      -> String.Empty
                     | Error err -> err                    
 

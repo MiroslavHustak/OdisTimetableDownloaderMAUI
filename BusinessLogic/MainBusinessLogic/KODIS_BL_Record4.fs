@@ -3,10 +3,7 @@
 open System
 open System.IO
 open System.Net
-open System.Net.Http
 open System.Threading
-open System.Threading.Tasks
-open System.Net.NetworkInformation
 
 //************************************************************
 
@@ -30,12 +27,10 @@ open Helpers.Builders
 open Helpers.Connectivity
 open Helpers.DirFileHelper
 
-open Settings.Messages
 open Settings.SettingsGeneral
-
-open Api.FutureLinks
 open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
+open Types.Haskell_IO_Monad_Simulation
 
 module KODIS_BL_Record4 =    
         
@@ -200,10 +195,8 @@ module KODIS_BL_Record4 =
                     
                     return Error DataFilteringError  
             }
-        |> Async.RunSynchronously
-
-        //priprava na pripadne pouziti cancellation token, zabal to pak to try-with
-        //|> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) 
+        |> Async.RunSynchronously //priprava na pripadne pouziti cancellation token, zabal to pak to try-with
+                                  //|> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) 
                     
     let internal downloadAndSave token = 
         
@@ -243,13 +236,13 @@ module KODIS_BL_Record4 =
                                             token.ThrowIfCancellationRequested ()                                            
 
                                             let pathToFileExistFirstCheck = 
-                                                checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
+                                                runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
                                                 in
                                                 match pathToFileExistFirstCheck with  //tady nelze |> function - smesuje to async a pyramidOfDoom computation expressions
                                                 | Some _
                                                     -> 
                                                     let existingFileLength =                               
-                                                        checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                                        runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                                         |> function
                                                             | Some _ -> (FileInfo pathToFile).Length
                                                             | None   -> 0L

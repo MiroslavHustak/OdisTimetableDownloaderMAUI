@@ -1,5 +1,6 @@
 ﻿namespace JsonData
 
+open System
 open System.Threading
 
 //************************************************************
@@ -13,17 +14,17 @@ open EmbeddedTP.EmbeddedTP
 //************************************************************
 
 open Types
+open Types.Types
 open Types.ErrorTypes
 
 open Api.Logging
 
 open Settings.SettingsKODIS
+open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
-open Types.Types
-open System
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
 module SortJsonData =  
@@ -48,7 +49,7 @@ module SortJsonData =
                                             async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
                                         loop 0
 
-                    let tempJson1, tempJson2 = jsonEmpty, readAllText pathkodisMHDTotal 
+                    let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 
                     let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel done separatelly
                         pathToJsonList3
@@ -59,7 +60,7 @@ module SortJsonData =
                                     token.ThrowIfCancellationRequested()  // Artificial checkpoint 
                                     counterAndProgressBar.Post <| Inc 1
                                     // byt existuje async verze, nestoji to vytvoreni externiho async bloku, gor kdyz to koliduje s JsonProvider2.Parse tempJson2
-                                    let json = readAllText pathToJson 
+                                    let json = readAllText >> runIO <| pathToJson 
                                     JsonProvider2.Parse json //The biggest performance drag je sync function
                                 with
                                 | :? OperationCanceledException 

@@ -18,6 +18,7 @@ open Types.ErrorTypes
 open Api.Logging
 
 open Settings.SettingsKODIS
+open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
@@ -27,13 +28,14 @@ module SortJsonDataFull =
 
     //*************************Helpers************************************************************
 
-    let private tempJson1, tempJson2 = jsonEmpty, readAllTextAsync pathkodisMHDTotal |> Async.RunSynchronously 
+    let private tempJson1, tempJson2 = 
+        jsonEmpty, readAllTextAsync >> runIO >> Async.RunSynchronously <| pathkodisMHDTotal 
       
     let private tempJson11, tempJson22 = //zatim zkusebne nepouzivat
 
         [
-            readAllTextAsync pathkodisMHDTotal 
-            readAllTextAsync pathkodisMHDTotal2_0 
+            readAllTextAsync >> runIO <| pathkodisMHDTotal 
+            readAllTextAsync >> runIO <| pathkodisMHDTotal2_0 
         ]         
         |> Async.Parallel 
         |> Async.Catch
@@ -66,7 +68,7 @@ module SortJsonDataFull =
                                 async
                                     {
                                         try                                               
-                                            let! json = readAllTextAsync pathToJson
+                                            let! json = readAllTextAsync >> runIO <| pathToJson
                                             return JsonProvider1.Parse json                                                
                                         with 
                                         | _ -> return JsonProvider1.Parse tempJson1
@@ -91,7 +93,7 @@ module SortJsonDataFull =
                             (fun pathToJson 
                                 ->
                                 try
-                                    let json = readAllText pathToJson
+                                    let json = readAllText >> runIO <| pathToJson
                                     JsonProvider2.Parse json
                                 with
                                 | _ -> JsonProvider2.Parse tempJson2
@@ -170,7 +172,7 @@ module SortJsonDataFull =
                                         async
                                             {
                                                 try
-                                                    let! json = readAllTextAsync pathToJson  //tady nelze Result.sequence 
+                                                    let! json = readAllTextAsync >> runIO <| pathToJson  //tady nelze Result.sequence 
                                                     return JsonProvider1.Parse json
                                                 with 
                                                 | _ -> return JsonProvider1.Parse tempJson1

@@ -63,7 +63,9 @@ module Option =
         | true  -> Some value  
         | false -> None
 
-    let internal ofNull (value : 'nullableValue) =
+    //Technically impure because of System.Object.ReferenceEquals
+    //Pragmatically pure as there are no side effects      
+    let internal ofNull (value : 'nullableValue) =     
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
         | true  -> None
         | false -> Some value             
@@ -138,7 +140,6 @@ module Option =
             }
 
     let internal toResult err = 
-
         function   
         | Some value -> Ok value 
         | None       -> Error err     

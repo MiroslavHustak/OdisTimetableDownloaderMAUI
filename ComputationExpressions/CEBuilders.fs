@@ -2,9 +2,11 @@
 
 module Builders =
 
+    //**************************************************************************************
+
     // A minimal IO<'a> computation expression in F# that mimics Haskell's IO monad
 
-    open Types.Lazy_IO_Monad
+    open Types.Haskell_IO_Monad_Simulation
         
     type internal IOBuilder = IOBuilder with
         member _.Return(x : 'a) : IO<'a> = IO(fun () -> x)

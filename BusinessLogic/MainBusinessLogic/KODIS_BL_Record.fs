@@ -32,6 +32,7 @@ open Helpers.DirFileHelper
 open JsonData.SortJsonData
 open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
+open Types.Haskell_IO_Monad_Simulation
 
 module KODIS_BL_Record =   
            
@@ -63,7 +64,7 @@ module KODIS_BL_Record =
                             token.ThrowIfCancellationRequested ()                            
                                                                     
                             let existingFileLength =                               
-                                checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                 |> function
                                     | Some _ -> (FileInfo pathToFile).Length
                                     | None   -> 0L
@@ -194,13 +195,13 @@ module KODIS_BL_Record =
                                             token.ThrowIfCancellationRequested () 
 
                                             let pathToFileExistFirstCheck = 
-                                                checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
+                                                runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
                                                 in
                                                 match pathToFileExistFirstCheck with  
                                                 | Some _
                                                     -> 
                                                     let existingFileLength =                               
-                                                        checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                                        runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                                         |> function
                                                             | Some _ -> (FileInfo pathToFile).Length
                                                             | None   -> 0L

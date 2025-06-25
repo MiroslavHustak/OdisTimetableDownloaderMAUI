@@ -12,6 +12,7 @@ module DirFileHelper =
     open Helpers.Builders    
     open Settings.Messages
     open FsToolkit.ErrorHandling
+    open Haskell_IO_Monad_Simulation
 
     //***************************
 
@@ -19,67 +20,80 @@ module DirFileHelper =
 
     let internal writeAllText path content =
 
-        pyramidOfDoom
-            {
-                let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
-                let fInfoDat = FileInfo filepath
-                let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
-    
-                File.WriteAllText(filepath, content)
-                return Ok ()
-            }
-        |> Result.defaultValue ()
+        IO (fun () 
+                ->  
+                pyramidOfDoom
+                    {
+                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
+                        let fInfoDat = FileInfo filepath
+                        let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+
+                        return Ok <| File.WriteAllText(filepath, content)
+                    }
+                |> Result.defaultValue ()
+            )
 
     let internal writeAllTextAsync path content =
 
-        pyramidOfDoom
-            {
-                let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
-                let fInfoDat = FileInfo filepath
-                let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+        IO (fun () 
+                ->  
+                pyramidOfDoom
+                    {
+                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
+                        let fInfoDat = FileInfo filepath
+                        let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
     
-                return Ok (File.WriteAllTextAsync(filepath, content) |> Async.AwaitTask)
-            }
-        |> Result.defaultWith (fun _ -> async { return () })    
+                        return Ok (File.WriteAllTextAsync(filepath, content) |> Async.AwaitTask)
+                    }
+                |> Result.defaultWith (fun _ -> async { return () }) 
+            )   
 
     let internal readAllText path = 
 
-        pyramidOfDoom
-            {
-                //path je sice casto pod kontrolou a filepath nebude null, nicmene pro jistotu...  
-                let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError                                                
-                let fInfoDat = FileInfo filepath
-                let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+        IO (fun () 
+                ->  
+                pyramidOfDoom
+                    {
+                        //path je sice casto pod kontrolou a filepath nebude null, nicmene pro jistotu...  
+                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError                                                
+                        let fInfoDat = FileInfo filepath
+                        let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
 
-                return Ok <| File.ReadAllText filepath                                           
-            }  
+                        return Ok <| File.ReadAllText filepath                                           
+                    }  
             
-        |> Result.defaultValue jsonEmpty //TODO logfile, nestoji to za to vytahovat Result nahoru                                 
+                |> Result.defaultValue jsonEmpty //TODO logfile, nestoji to za to vytahovat Result nahoru     
+            )
                     
     let internal readAllTextAsync path = 
 
-        pyramidOfDoom
-            {   
-                //path je sice casto pod kontrolou a filepath nebude null, nicmene pro jistotu...  
-                let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
-                let fInfoDat = FileInfo filepath
-                let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+        IO (fun () 
+                -> 
+                pyramidOfDoom
+                    {   
+                        //path je sice casto pod kontrolou a filepath nebude null, nicmene pro jistotu...  
+                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
+                        let fInfoDat = FileInfo filepath
+                        let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
 
-                return Ok (File.ReadAllTextAsync filepath |> Async.AwaitTask)                                          
-            }  
+                        return Ok (File.ReadAllTextAsync filepath |> Async.AwaitTask)                                          
+                    }  
             
-        |> Result.defaultWith (fun _ -> async { return jsonEmpty }) //TODO logfile, nestoji to za to vytahovat Result nahoru
+                |> Result.defaultWith (fun _ -> async { return jsonEmpty }) //TODO logfile, nestoji to za to vytahovat Result nahoru
+            )
 
     let internal checkFileCondition pathToFile condition =
-        
-        option
-            {
-                let! filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty                     
-                let fInfodat : FileInfo = FileInfo filepath
 
-                return! condition fInfodat |> Option.ofBool  
-            }     
-  
+        IO (fun () 
+                -> 
+                option
+                    {
+                        let! filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty                     
+                        let fInfodat : FileInfo = FileInfo filepath
+
+                        return! condition fInfodat |> Option.ofBool  
+                    }     
+            )
 module MyString = 
         
     open System    
