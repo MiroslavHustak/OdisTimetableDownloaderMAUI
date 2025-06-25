@@ -74,8 +74,9 @@ module KODIS_BL_Record4 =
                 ->        
                 async 
                     {                                 
-                        connectivityListener2 
-                            (fun isConnected 
+                        connectivityListener2 >> runIO 
+                            <|
+                            fun isConnected 
                                 ->
                                 async
                                     {
@@ -84,7 +85,6 @@ module KODIS_BL_Record4 =
                                         | false -> () //cancellationActor.Post <| UpdateState false
                                     }    
                                 |> Async.StartImmediate  
-                            ) 
                                 
                         do! Async.Sleep 600000 //zatim nepotrebujeme
                     }
@@ -126,7 +126,7 @@ module KODIS_BL_Record4 =
                 with
                 | ex
                     ->
-                    postToLog <| ex.Message <| "#12"
+                    runIO (postToLog <| ex.Message <| "#12")
                     defaultToken               
         
         //Template //zatim nepouzivano
@@ -176,22 +176,22 @@ module KODIS_BL_Record4 =
 
                         | [ Error err; _ ]    
                             -> 
-                            postToLog <| err <| "#13"
+                            runIO (postToLog <| err <| "#13")
                             Error err
 
                         | [ _; Error err ] 
                             ->
-                            postToLog <| err <| "#14"
+                            runIO (postToLog <| err <| "#14")
                             Error err
 
                         | _                   
                             ->
-                            postToLog <| DataFilteringError <| "#15"
+                            runIO (postToLog <| DataFilteringError <| "#15")
                             Error DataFilteringError
 
                 | Choice2Of2 ex
                     -> 
-                    postToLog <| ex.Message <| "#16"
+                    runIO (postToLog <| ex.Message <| "#16")
                     
                     return Error DataFilteringError  
             }
@@ -296,7 +296,7 @@ module KODIS_BL_Record4 =
                                                         |> Async.RunSynchronously 
                                                         |> ignore<ResponsePost> 
                                                     | _ ->
-                                                        postToLog <| statusCode <| "#1712"
+                                                        runIO (postToLog <| statusCode <| "#1712")
 
                                                     token.ThrowIfCancellationRequested ()   
 
@@ -316,12 +316,12 @@ module KODIS_BL_Record4 =
                                     | Error ex
                                         when (string ex.Message).Contains "SSL connection could not be established" 
                                         ->
-                                        postToLog <| string ex.Message <| "#74764-171"
+                                        runIO (postToLog <| string ex.Message <| "#74764-171")
                                         None               
 
                                     | Error ex
                                         ->
-                                        postToLog <| ex.Message <| "#171"
+                                        runIO (postToLog <| ex.Message <| "#171")
                                                                                
                                         match (string ex.Message).Contains "OperationCanceled" with 
                                         | true  -> Some <| Error StopDownloading
@@ -331,7 +331,7 @@ module KODIS_BL_Record4 =
                         with
                         | ex 
                             ->
-                            postToLog <| ex.Message <| "#17"
+                            runIO (postToLog <| ex.Message <| "#17")
                                                           
                             match (string ex.Message).Contains "OperationCanceled" with 
                             | true  -> Error StopDownloading
@@ -345,7 +345,7 @@ module KODIS_BL_Record4 =
                 return
                     match context.dir |> Directory.Exists with 
                     | false ->
-                            postToLog <| NoFolderError <| "#181"
+                            runIO (postToLog <| NoFolderError <| "#181")
                             Error NoFolderError    
                             
                     | true  ->
@@ -362,33 +362,33 @@ module KODIS_BL_Record4 =
 
                                      | Error err 
                                          ->
-                                         postToLog <| err <| "#18"
+                                         runIO (postToLog <| err <| "#18")
 
                                          let pathToDir = kodisPathTemp4                   
                                              in                                        
                                              match deleteAllODISDirectories pathToDir with
                                              | Ok _    
                                                  -> 
-                                                 postToLog <| err <| "#182"
+                                                 runIO (postToLog <| err <| "#182")
                                                  Error err              
                                              | Error _ 
                                                  ->
-                                                 postToLog <| FileDeleteError <| "#183"
+                                                 runIO (postToLog <| FileDeleteError <| "#183")
                                                  Error FileDeleteError                                            
                             with
                             | ex 
                                 ->
-                                postToLog <| ex.Message <| "#19"
+                                runIO (postToLog <| ex.Message <| "#19")
                                
                                 let pathToDir = kodisPathTemp4                   
                                     in  
                                     match deleteAllODISDirectories pathToDir with
                                     | Ok _   
                                         -> 
-                                        postToLog <| FileDownloadError <| "#191"
+                                        runIO (postToLog <| FileDownloadError <| "#191")
                                         Error FileDownloadError 
                                     | Error _ 
                                         -> 
-                                        postToLog <| FileDeleteError <| "#192"
+                                        runIO (postToLog <| FileDeleteError <| "#192")
                                         Error FileDeleteError  
             }

@@ -2,7 +2,6 @@
 
 module DirFileHelper = 
 
-    open System
     open System.IO
 
     //***************************
@@ -10,7 +9,6 @@ module DirFileHelper =
     open Types.ErrorTypes
 
     open Helpers.Builders    
-    open Settings.Messages
     open FsToolkit.ErrorHandling
     open Haskell_IO_Monad_Simulation
 

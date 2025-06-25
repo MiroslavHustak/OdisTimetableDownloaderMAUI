@@ -15,10 +15,10 @@ open FsToolkit.ErrorHandling
 //************************************************************
 
 open Types
-open Types.ErrorTypes
-open Settings.SettingsGeneral
+open Types.Haskell_IO_Monad_Simulation
 
 open LogEntries
+open Settings.SettingsGeneral
 
 open Helpers
 open Helpers.Builders
@@ -48,7 +48,7 @@ module Logging =
 
     let internal postToLogFile () errorMessage = 
 
-        //prima transformace na json string (bez pouziti records / serializace / Thoth encoders )
+        //direct transformation to a json string (without records / serialization / Thoth encoders )
         let s1 = "{ \"list\": ["
         let s2 = [ errorMessage; string DateTimeOffset.UtcNow ] |> List.map (sprintf "\"%s\"") |> String.concat ","
         let s3 = "] }"
@@ -87,10 +87,13 @@ module Logging =
             } 
 
     let internal postToLog (msg: 'a) errCode =   
-    
-        postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
-        |> Async.RunSynchronously
-        |> ignore<ResponsePost>  
+
+        IO (fun () 
+                ->     
+                postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
+                |> Async.RunSynchronously
+                |> ignore<ResponsePost>  
+           )
 
     //*************************************************************************** 
     #if WINDOWS   
@@ -117,7 +120,7 @@ module Logging =
                                         filePath
                        
                         let logEntries = 
-                            async { return! getLogEntriesFromRestApi () url } 
+                            async { return! getLogEntriesFromRestApi >> runIO <| url } 
                             |> Async.RunSynchronously
                             |> function Ok logEntries -> logEntries | Error _ -> "Chyba při čtení logEntries z API"   
                    

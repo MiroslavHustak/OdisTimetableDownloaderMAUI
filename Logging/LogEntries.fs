@@ -1,6 +1,5 @@
 ﻿namespace Api
 
-open System
 open System.Net
 
 //************************************************************
@@ -12,9 +11,10 @@ open Thoth.Json.Net
 
 open Types
 open Types.ErrorTypes
-open Settings.SettingsGeneral
+open Types.Haskell_IO_Monad_Simulation
 
 open DataModelling.Dtm
+open Settings.SettingsGeneral
 open TransformationLayers.ApiTransformLayer
 
 module LogEntries = 
@@ -30,31 +30,34 @@ module LogEntries =
                 }
             )
 
-    let internal getLogEntriesFromRestApi () url = 
-    
-        async
-            {       
-                try
-                    use! response = 
-                        http
-                            {
-                                GET url
-                                header "X-API-KEY" apiKeyTest 
-                            }
-                        |> Request.sendAsync
-                
-                    match response.statusCode with
-                    | HttpStatusCode.OK 
-                        ->
-                        let! jsonString = Response.toTextAsync response
-                        let response = Decode.fromString decoderGet jsonString
+    let internal getLogEntriesFromRestApi url = 
 
-                        return Ok <| transformLogEntriesApiResponse response
+        IO (fun () 
+                -> 
+                async
+                    {       
+                        try
+                            use! response = 
+                                http
+                                    {
+                                        GET url
+                                        header "X-API-KEY" apiKeyTest 
+                                    }
+                                |> Request.sendAsync
+                
+                            match response.statusCode with
+                            | HttpStatusCode.OK 
+                                ->
+                                let! jsonString = Response.toTextAsync response
+                                let response = Decode.fromString decoderGet jsonString
+
+                                return Ok <| transformLogEntriesApiResponse response
                        
-                    | _ -> 
-                        return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
-                with
-                | ex 
-                    ->
-                    return Error <| ApiResponseError (string ex.Message)
-            }
+                            | _ -> 
+                                return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
+                        with
+                        | ex 
+                            ->
+                            return Error <| ApiResponseError (string ex.Message)
+                    }
+           )

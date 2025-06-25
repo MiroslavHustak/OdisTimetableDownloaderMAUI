@@ -107,7 +107,7 @@ module KODIS_BL_Record =
                                 |> Async.RunSynchronously 
                                 |> ignore<ResponsePost> 
                             | _ ->
-                                postToLog <| statusCode <| "#2112"
+                                runIO (postToLog <| statusCode <| "#2112")
                             
                             token.ThrowIfCancellationRequested ()  
                         } 
@@ -124,12 +124,12 @@ module KODIS_BL_Record =
                     | Error ex
                         when (string ex.Message).Contains "SSL connection could not be established" 
                         ->
-                        postToLog <| string ex.Message <| "#74764-20"
+                        runIO (postToLog <| string ex.Message <| "#74764-20")
                         None               
 
                     | Error ex
                         ->
-                        postToLog <| ex.Message <| "#20"
+                        runIO (postToLog <| ex.Message <| "#20")
 
                         match (string ex.Message).Contains "OperationCanceled" with 
                         | true  -> Some <| Error StopJsonDownloading
@@ -140,7 +140,7 @@ module KODIS_BL_Record =
         with
         | ex  
             ->
-            postToLog <| ex.Message <| "#21"
+            runIO (postToLog <| ex.Message <| "#21")
             
             match (string ex.Message).Contains "OperationCanceled" with 
             | true  -> Error StopJsonDownloading
@@ -154,7 +154,7 @@ module KODIS_BL_Record =
         with
         | ex
             ->
-            postToLog <| ex.Message <| "#22"
+            runIO (postToLog <| ex.Message <| "#22")
             Error DataFilteringError 
                     
     let internal downloadAndSave token = 
@@ -254,7 +254,7 @@ module KODIS_BL_Record =
                                                         |> Async.RunSynchronously 
                                                         |> ignore<ResponsePost> 
                                                     | _ ->
-                                                        postToLog <| statusCode <| "#2212"
+                                                        runIO (postToLog <| statusCode <| "#2212")
 
                                                     token.ThrowIfCancellationRequested ()  
 
@@ -275,12 +275,12 @@ module KODIS_BL_Record =
                                     | Error ex
                                         when (string ex.Message).Contains "SSL connection could not be established" 
                                         ->
-                                        postToLog <| string ex.Message <| "#74764-23"
+                                        runIO (postToLog <| string ex.Message <| "#74764-23")
                                         None                                        
 
                                     | Error ex
                                         ->
-                                        postToLog <| string ex.Message <| "#23"
+                                        runIO (postToLog <| string ex.Message <| "#23")
                                                                         
                                         match (string ex.Message).Contains "OperationCanceled" with 
                                         | true  -> Some <| Error StopDownloading
@@ -291,7 +291,7 @@ module KODIS_BL_Record =
                         with
                         | ex                             
                             -> 
-                            postToLog <| string ex.Message <| "#24"
+                            runIO (postToLog <| string ex.Message <| "#24")
                             
                             match (string ex.Message).Contains "OperationCanceled" with 
                             | true  -> Error StopDownloading
@@ -305,7 +305,7 @@ module KODIS_BL_Record =
                 return
                     match context.dir |> Directory.Exists with 
                     | false ->
-                            postToLog <| NoFolderError <| "#251"
+                            runIO (postToLog <| NoFolderError <| "#251")
                             Error NoFolderError    
                             
                     | true  ->
@@ -322,34 +322,34 @@ module KODIS_BL_Record =
 
                                      | Error err 
                                          ->
-                                         postToLog <| err <| "#25"
+                                         runIO (postToLog <| err <| "#25")
                                         
                                          let pathToDir = kodisPathTemp                   
                                              in                                            
                                              match deleteAllODISDirectories pathToDir with
                                              | Ok _    
                                                  -> 
-                                                 postToLog <| err <| "#252"
+                                                 runIO (postToLog <| err <| "#252")
                                                  Error err              
                                              | Error _ 
                                                  ->
-                                                 postToLog <| err <| "#253"
+                                                 runIO (postToLog <| err <| "#253")
                                                  Error FileDeleteError  
 
                             with
                             | ex 
                                 ->
-                                postToLog <| ex.Message <| "#26"
+                                runIO (postToLog <| ex.Message <| "#26")
                                                                
                                 let pathToDir = kodisPathTemp                   
                                     in 
                                     match deleteAllODISDirectories pathToDir with
                                     | Ok _    
                                         -> 
-                                        postToLog <| FileDownloadError <| "#261"
+                                        runIO (postToLog <| FileDownloadError <| "#261")
                                         Error FileDownloadError 
                                     | Error _ 
                                         -> 
-                                        postToLog <| FileDeleteError <| "#262"
+                                        runIO (postToLog <| FileDeleteError <| "#262")
                                         Error FileDeleteError  
             }               

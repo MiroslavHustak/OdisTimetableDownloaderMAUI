@@ -48,7 +48,7 @@ let private splitListIntoEqualParts (numParts : int) (originalList : 'a list) = 
         
 let private numberOfThreads l =  
         
-    let numberOfThreads = Environment.ProcessorCount 
+    let numberOfThreads = Environment.ProcessorCount //pragmatically pure
         
     match (>) numberOfThreads 0 with 
     | true  ->                            

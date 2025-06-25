@@ -1,7 +1,6 @@
 ﻿namespace Helpers
 
 open System.IO
-open System.Data
 open FsToolkit.ErrorHandling
 
 //************************************************************

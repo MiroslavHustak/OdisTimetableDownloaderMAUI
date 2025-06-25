@@ -8,6 +8,7 @@ open System.Text.RegularExpressions
 open Types
 open Types.Types
 open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.MyString
@@ -38,7 +39,7 @@ module FilterTimetableLinks =
             |> Result.defaultWith
                 (fun err 
                     -> 
-                    postToLog <| err <| "#108"
+                    runIO (postToLog <| err <| "#108")
                     String.Empty
                 )
         
@@ -55,7 +56,7 @@ module FilterTimetableLinks =
             |> Result.defaultWith
                 (fun err 
                     -> 
-                    postToLog <| err <| "#109"
+                    runIO (postToLog <| err <| "#109")
                     String.Empty
                 )
 
@@ -145,7 +146,7 @@ module FilterTimetableLinks =
                 |> Result.defaultWith
                     (fun err 
                         -> 
-                        postToLog <| err <| "#110"
+                        runIO (postToLog <| err <| "#110")
                         String.Empty
                     )
 
@@ -163,7 +164,7 @@ module FilterTimetableLinks =
                 |> Result.defaultWith
                     (fun err 
                         -> 
-                        postToLog <| err <| "#111"
+                        runIO (postToLog <| err <| "#111")
                         String.Empty
                     )
         

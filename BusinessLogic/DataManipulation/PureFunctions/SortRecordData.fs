@@ -1,11 +1,7 @@
 ﻿namespace Records
 
-open System
-open System.Data
-
 open Types
 open Types.Types
-open Types.ErrorTypes
 
 open Settings.SettingsKODIS
 open DataModelling.DataModel

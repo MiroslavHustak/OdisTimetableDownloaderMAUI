@@ -2,71 +2,82 @@
 
 module Connectivity =  
 
-    open System
     open Microsoft.Maui.Networking
-    open System.Net.NetworkInformation    
     
     //**********************************
-        
+                
     open Types.Types    
+    open Types.Haskell_IO_Monad_Simulation
 
     let private actor = 
 
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 
 
-        MailboxProcessor<ConnectivityMessage>
-            .StartImmediate
-                <|
-                fun inbox
-                    ->
-                    let rec loop (isConnected : bool) = 
-                        async
-                            {
-                                match! inbox.Receive() with
-                                | UpdateState newState
-                                    ->
-                                    return! loop newState
+        IO (fun () 
+                -> 
+                MailboxProcessor<ConnectivityMessage> //impure
+                    .StartImmediate
+                        <|
+                        fun inbox
+                            ->
+                            let rec loop (isConnected : bool) = 
+                                async
+                                    {
+                                        match! inbox.Receive() with
+                                        | UpdateState newState
+                                            ->
+                                            return! loop newState
 
-                                | CheckState replyChannel
-                                    ->                            
-                                    replyChannel.Reply(isConnected) 
-                                    return! loop isConnected
-                            }
+                                        | CheckState replyChannel
+                                            ->                            
+                                            replyChannel.Reply(isConnected) 
+                                            return! loop isConnected
+                                    }
             
-                    loop false // Start the loop with whatever initial value
+                            loop false // Start the loop with whatever initial value 
+            )
 
-    let internal connectivityListener () = //vysledek je bool
+    let internal connectivityListener () = //vysledek je bool //impure
+
+        IO (fun () 
+                -> 
+                let initialConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                    in
+                    (runIO actor).Post <| UpdateState initialConnected // prvotni inicializace mailboxu
     
-        let initialConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
-            in
-            actor.Post <| UpdateState initialConnected // prvotni inicializace mailboxu
-    
-        let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
+                let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
              
-            try  
-                let isConnected = (=) args.NetworkAccess NetworkAccess.Internet  
-                    in
-                    actor.Post <| UpdateState isConnected
-            with
-            | _ -> ()  //TODO logfile
-    
-        Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
+                    try  
+                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet  
+                            in
+                            (runIO actor).Post <| UpdateState isConnected
+                    with
+                    | _ -> ()  //Proste at to tise pokracuje
             
-        actor.PostAndReply (fun replyChannel -> CheckState replyChannel)
+                Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
+            
+                (runIO actor).PostAndReply (fun replyChannel -> CheckState replyChannel)
+            )        
 
-    let internal connectivityListener2 onConnectivityChange = //vysledek je unit
+    let internal connectivityListener2 onConnectivityChange = //vysledek je unit //impure
+
+        IO (fun () 
+                -> 
         
-        let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
+                let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
 
-            try  
-                let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
-                    in
-                    onConnectivityChange isConnected
-            with
-            | _ -> ()  //TODO logfile          
+                    try  
+                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
+                            in
+                            onConnectivityChange isConnected
+                    with
+                    | _ -> ()  //Proste at to tise pokracuje         
             
-        Connectivity.ConnectivityChanged.Add connectivityChangedHandler
+                Connectivity.ConnectivityChanged.Add connectivityChangedHandler
+            )
+
+//******************** Zatim se nepouziva ********************************************
 
 module CheckNetConnection =  
     
@@ -77,14 +88,14 @@ module CheckNetConnection =
 
     open System.Net.NetworkInformation
 
-    //******************** Zatim se nepouziva ********************************************     
+    //******************** Zatim se nepouziva TODO IO Monad ********************************************     
            
     let internal checkInternetConnectivityWM () = //Only for Windows Machine
         
         NetworkInterface.GetIsNetworkAvailable () |> Option.ofBool 
     
 
-    //******************** Zatim se nepouziva ******************************************** 
+    //******************** Zatim se nepouziva TODO IO Monad ******************************************** 
     #if ANDROID
     let internal checkInternetConnectivityAE () =
 

@@ -58,7 +58,7 @@ module MDPO_BL = //FsHttp
                     with
                     | ex 
                         -> 
-                        postToLog <| ex.Message <| "#25"
+                        runIO (postToLog <| ex.Message <| "#25")
                        
                         return None
                 }           
@@ -203,14 +203,14 @@ module MDPO_BL = //FsHttp
                                                                  
                         | Error err 
                             -> 
-                            postToLog <| err <| "#26"
+                            runIO (postToLog <| err <| "#26")
                            
                             return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
-                        postToLog <| ex.Message <| "#27"
+                        runIO (postToLog <| ex.Message <| "#27")
                        
                         return Error FileDownloadErrorMHD  
                 } 
@@ -273,7 +273,7 @@ module MDPO_BL = //FsHttp
 
                             | Error ex
                                 ->
-                                postToLog <| ex.Message <| "#28"
+                                runIO (postToLog <| ex.Message <| "#28")
 
                                 match (string ex.Message).Contains "The operation was canceled." with 
                                 | true  -> Some <| Error StopDownloadingMHD
@@ -284,16 +284,16 @@ module MDPO_BL = //FsHttp
             with
             | ex    
                 ->
-                postToLog <| ex.Message <| "#281"
+                runIO (postToLog <| ex.Message <| "#281")
                
                 let dirName = ODISDefault.OdisDir6                       
                     in
                     match deleteOneODISDirectoryMHD dirName mdpoPathTemp with
                     | Ok _    -> 
-                              postToLog <| FileDownloadErrorMHD <| "#282"
+                              runIO (postToLog <| FileDownloadErrorMHD <| "#282")
                               Error FileDownloadErrorMHD
                     | Error _ -> 
-                              postToLog <| FileDeleteErrorMHD <| "#283"                             
+                              runIO (postToLog <| FileDeleteErrorMHD <| "#283")                             
                               Error FileDeleteErrorMHD 
                                          
         downloadTimetables reportProgress token
@@ -336,7 +336,7 @@ module MDPO_BL = //FsHttp
                     with
                     | ex 
                         -> 
-                        postToLog <| ex.Message <| "#29"
+                        runIO (postToLog <| ex.Message <| "#29")
                        
                         return None
                   
@@ -500,14 +500,14 @@ module MDPO_BL = //FsHttp
                                                                  
                         | Error err 
                             -> 
-                            postToLog <| err <| "#30"
+                            runIO (postToLog <| err <| "#30")
                            
                             return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
-                        postToLog <| ex.Message <| "#31"
+                        runIO (postToLog <| ex.Message <| "#31")
                       
                         return Error FileDownloadErrorMHD  
                 } 
@@ -569,7 +569,7 @@ module MDPO_BL = //FsHttp
 
                             | Error ex
                                 ->
-                                postToLog <| ex.Message <| "#32"
+                                runIO (postToLog <| ex.Message <| "#32")
                                 
                                 match (string ex.Message).Contains "The operation was canceled." with
                                 | true  -> Some <| Error StopDownloadingMHD
@@ -580,18 +580,18 @@ module MDPO_BL = //FsHttp
             with
             | ex   
                 ->
-                postToLog <| ex.Message <| "#33"
+                runIO (postToLog <| ex.Message <| "#33")
                
                 let dirName = ODISDefault.OdisDir6                       
                     in
                     match deleteOneODISDirectoryMHD dirName mdpoPathTemp with
                     | Ok _   
                         -> 
-                        postToLog <| FileDownloadErrorMHD <| "#331"
+                        runIO (postToLog <| FileDownloadErrorMHD <| "#331")
                         Error FileDownloadErrorMHD
                     | Error _ 
                         -> 
-                        postToLog <| FileDeleteErrorMHD <| "#332"
+                        runIO (postToLog <| FileDeleteErrorMHD <| "#332")
                         Error FileDeleteErrorMHD 
                                          
         downloadTimetables reportProgress token

@@ -1,13 +1,16 @@
 ﻿namespace Helpers
 
+// nechej reference, jak jsou, intellisense jen halucinuje
 open System
 open System.Net.Http
 open System.Threading
 
+open FsToolkit.ErrorHandling
+
 open Helpers
 open Helpers.Builders
 
-open FsToolkit.ErrorHandling
+open Types.Haskell_IO_Monad_Simulation
 
 #if ANDROID
 open Android.OS
@@ -65,153 +68,174 @@ type UnsafeAndroidClientHandler() =
 module WakeLockHelper = //pouze pro Android API 33 a Android API 34
 
     let internal acquireWakeLock (lock : PowerManager.WakeLock) = 
-    
-        match lock with
-        | lock
-            when lock.IsHeld 
+
+        IO (fun () 
                 ->
-                ()
-        | _     -> 
-                lock.Acquire()
+                match lock with
+                | lock when lock.IsHeld ->
+                    // WakeLock is already held, no need to acquire it again
+                    ()
+                | _ ->
+                    lock.Acquire() // Acquire the WakeLock if not already held
+           )
+     
        
     let internal releaseWakeLock (lock : PowerManager.WakeLock) =  
 
-        match lock with
-        | lock
-            when lock.IsHeld 
+        IO (fun () 
                 ->
-                lock.Release()
-        | _     -> 
-                ()
+                match lock with
+                | lock
+                    when lock.IsHeld 
+                        ->
+                        lock.Release()
+                | _     -> 
+                        ()
+           )
 
 module KeepScreenOnManager = //DeviceDisplay.KeepScreenOn z .NET MAUI hodil exn, proto primo API z Androidu
 
     let internal keepScreenOn enable =
-        
-        pyramidOfDoom
-            {
-                let! activity = Platform.CurrentActivity |> Option.ofNull, ()
 
-                let flags =
-                    WakeLockFlags.ScreenDim ||| WakeLockFlags.AcquireCausesWakeup ||| WakeLockFlags.OnAfterRelease
+        IO (fun () 
+                ->
+                pyramidOfDoom
+                    {
+                        let! activity = Platform.CurrentActivity |> Option.ofNull, ()
 
-                let! getSystemService = activity.GetSystemService(Context.PowerService) |> Option.ofNull, ()  
-                let! lock = 
-                    let powerManager = getSystemService :?> PowerManager        
-                    Some <| powerManager.NewWakeLock(flags, "MyApp:PreventSleepDuringDownload"), ()  
+                        let flags =
+                            WakeLockFlags.ScreenDim ||| WakeLockFlags.AcquireCausesWakeup ||| WakeLockFlags.OnAfterRelease
+
+                        let! getSystemService = activity.GetSystemService(Context.PowerService) |> Option.ofNull, ()  
+                        let! lock = 
+                            let powerManager = getSystemService :?> PowerManager        
+                            Some <| powerManager.NewWakeLock(flags, "MyApp:PreventSleepDuringDownload"), ()  
                     
-                let!_ = enable |> Option.ofBool, WakeLockHelper.releaseWakeLock lock
-                do WakeLockHelper.acquireWakeLock lock               
-                let!_ = enable |> Option.ofBool, activity.Window.ClearFlags(WindowManagerFlags.KeepScreenOn) 
+                        let!_ = enable |> Option.ofBool, runIO <| WakeLockHelper.releaseWakeLock lock
+                        runIO <| WakeLockHelper.acquireWakeLock lock               
+                        let!_ = enable |> Option.ofBool, activity.Window.ClearFlags(WindowManagerFlags.KeepScreenOn) 
 
-                return activity.Window.AddFlags(WindowManagerFlags.KeepScreenOn)        
-            }    
+                        return activity.Window.AddFlags(WindowManagerFlags.KeepScreenOn)        
+                    }    
+           )
 
 module AndroidUIHelpers =
 
     let internal permissionCheck () =
-    
-        async
-            {
-                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
 
-                match status with
-                | PermissionStatus.Granted
-                    -> 
-                    return true
-                | _ -> 
-                    return false
-            }   
+        IO (fun () 
+                ->
+                async
+                    {
+                        let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+
+                        match status with
+                        | PermissionStatus.Granted
+                            -> 
+                            return true
+                        | _ -> 
+                            return false
+                    }   
+           )
 
     //Not used yet
     let internal bringAppToForeground () =
 
-        try
-            pyramidOfDoom 
-                {
-                    use! context = Application.Context |> Option.ofNull, None
-                    use! packageManager = context.PackageManager |> Option.ofNull, None            
-                    use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None
+        IO (fun () 
+                ->
+                try
+                    pyramidOfDoom 
+                        {
+                            use! context = Application.Context |> Option.ofNull, None
+                            use! packageManager = context.PackageManager |> Option.ofNull, None            
+                            use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None
             
-                    do! 
-                        intent.AddFlags
-                            (
-                                ActivityFlags.NewTask |||
-                                ActivityFlags.ClearTop |||
-                                ActivityFlags.ClearTask |||
-                                ActivityFlags.BroughtToFront |||
-                                ActivityFlags.SingleTop
-                            )
-                            |> Option.ofNull
-                            |> Option.map (fun _ -> ()), None
+                            do! 
+                                intent.AddFlags
+                                    (
+                                        ActivityFlags.NewTask |||
+                                        ActivityFlags.ClearTop |||
+                                        ActivityFlags.ClearTask |||
+                                        ActivityFlags.BroughtToFront |||
+                                        ActivityFlags.SingleTop
+                                    )
+                                    |> Option.ofNull
+                                    |> Option.map (fun _ -> ()), None
             
-                    do context.StartActivity(intent) 
-                    return Some () // Return unit option
-                }
-        with
-        | ex
-            -> 
-            string ex.Message |> ignore<string> // TODO: logfile
-            None  
+                            do context.StartActivity(intent) 
+                            return Some () // Return unit option
+                        }
+                with
+                | ex
+                    -> 
+                    string ex.Message |> ignore<string> // TODO: logfile
+                    None  
+           )
     
     //Not used yet
     let internal sendAppToBackground () =
-        try
-            pyramidOfDoom
-                {
-                    use! context = Application.Context |> Option.ofNull, None                
-                    use homeIntent : Intent = new Intent(Intent.ActionMain)
-                    do! 
-                        homeIntent.AddCategory(Intent.CategoryHome)
-                                  .SetFlags(ActivityFlags.NewTask)
-                                  |> Option.ofNull 
-                                  |> Option.map (fun _ -> ()), None
 
-                    return! Some <| context.StartActivity(homeIntent) 
-                }
-        with
-        | ex 
-            ->
-            string ex.Message |> ignore<string> // TODO: logfile
-            None    
+        IO (fun () 
+                ->
+                try
+                    pyramidOfDoom
+                        {
+                            use! context = Application.Context |> Option.ofNull, None                
+                            use homeIntent : Intent = new Intent(Intent.ActionMain)
+                            do! 
+                                homeIntent.AddCategory(Intent.CategoryHome)
+                                          .SetFlags(ActivityFlags.NewTask)
+                                          |> Option.ofNull 
+                                          |> Option.map (fun _ -> ()), None
+
+                            return! Some <| context.StartActivity(homeIntent) 
+                        }
+                with
+                | ex 
+                    ->
+                    string ex.Message |> ignore<string> // TODO: logfile
+                    None    
+           )
 
     let internal openAppSettings () =
-    
-        try
-            Thread.Sleep 500 
+
+        IO (fun () 
+                ->
+                try
+                    Thread.Sleep 500 
                     
-            pyramidOfDoom
-                {
-                    use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
-                    do!  
-                        intent.AddFlags
-                            (
-                                ActivityFlags.NewTask ||| 
-                                ActivityFlags.ClearTop ||| 
-                                ActivityFlags.ClearTask ||| 
-                                ActivityFlags.BroughtToFront ||| 
-                                ActivityFlags.SingleTop
-                            )
-                            |> Option.ofNull
-                            |> Option.map (fun _ -> ()), None
+                    pyramidOfDoom
+                        {
+                            use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
+                            do!  
+                                intent.AddFlags
+                                    (
+                                        ActivityFlags.NewTask ||| 
+                                        ActivityFlags.ClearTop ||| 
+                                        ActivityFlags.ClearTask ||| 
+                                        ActivityFlags.BroughtToFront ||| 
+                                        ActivityFlags.SingleTop
+                                    )
+                                    |> Option.ofNull
+                                    |> Option.map (fun _ -> ()), None
 
-                    use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
-                    do! 
-                        intent.SetData(uri)
-                        |> Option.ofNull 
-                        |> Option.map (fun _ -> ()), None
+                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
+                            do! 
+                                intent.SetData(uri)
+                                |> Option.ofNull 
+                                |> Option.map (fun _ -> ()), None
 
-                    return! Some <| Application.Context.StartActivity(intent)
-                }
+                            return! Some <| Application.Context.StartActivity(intent)
+                        }
 
-            |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
+                    |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                     
-        with
-        | ex
-            ->
-            string ex.Message |> ignore<string> // Log error
-            ()
-            
+                with
+                | ex
+                    ->
+                    string ex.Message |> ignore<string> // Log error
+                    ()
+            )
 
 #endif
 

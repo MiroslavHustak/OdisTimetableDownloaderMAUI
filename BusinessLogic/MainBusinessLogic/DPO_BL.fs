@@ -18,12 +18,10 @@ open Helpers.Builders
 open Helpers.DirFileHelper
 
 open Api.Logging
-open Api.FutureLinks
 
 open Types.Types
 open Types.ErrorTypes  
 
-open Settings.Messages
 open Settings.SettingsDPO
 open Settings.SettingsGeneral
 
@@ -186,13 +184,13 @@ module DPO_BL =
                            
                         | Error err 
                             -> 
-                            postToLog <| err <| "#34"
+                            runIO (postToLog <| err <| "#34")
                             return Error ConnectionError   
                            
                     with                                                         
                     | ex
                         ->
-                        postToLog <| string ex.Message <| "#35"
+                        runIO (postToLog <| string ex.Message <| "#35")
                         return Error FileDownloadErrorMHD 
                 } 
     
@@ -255,7 +253,7 @@ module DPO_BL =
 
                         | Error ex
                             ->
-                            postToLog <| ex.Message <| "#36"
+                            runIO (postToLog <| ex.Message <| "#36")
 
                             match (string ex.Message).Contains "The operation was canceled." with 
                             | true  -> Some <| Error StopDownloadingMHD
@@ -266,18 +264,18 @@ module DPO_BL =
             with
             | ex      
                 ->
-                postToLog <| string ex.Message <| "#37"
+                runIO (postToLog <| string ex.Message <| "#37")
 
                 let dirName = ODISDefault.OdisDir5                       
                     in
                     match deleteOneODISDirectoryMHD dirName dpoPathTemp with
                     | Ok _    
                         -> 
-                        postToLog <| FileDownloadErrorMHD <| "#371"
+                        runIO (postToLog <| FileDownloadErrorMHD <| "#371")
                         Error FileDownloadErrorMHD
                     | Error _ 
                         ->
-                        postToLog <| FileDeleteErrorMHD <| "#372"
+                        runIO (postToLog <| FileDeleteErrorMHD <| "#372")
                         Error FileDeleteErrorMHD 
 
         downloadTimetables reportProgress token   

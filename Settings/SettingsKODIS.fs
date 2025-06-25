@@ -1,7 +1,6 @@
 ﻿namespace Settings
 
 open System
-open Microsoft.Maui.Storage
 
 //************************
 

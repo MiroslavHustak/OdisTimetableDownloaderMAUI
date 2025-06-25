@@ -1,6 +1,5 @@
 ﻿namespace Api
 
-open System
 open System.Net
 
 //************************************************************
@@ -12,6 +11,8 @@ open Thoth.Json.Net
 
 open Types
 open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
+
 open Settings.SettingsGeneral
 
 open Api.Logging
@@ -50,7 +51,7 @@ module FutureLinks =
                         let! jsonString = Response.toTextAsync response
                         let response = Decode.fromString decoderGet jsonString
 
-                        return transformLinksApiResponse postToLogFile () response
+                        return runIO <| transformLinksApiResponse postToLogFile response
                        
                     | _ -> 
                         postToLogFile () (sprintf "Request failed with status code %d" (int response.statusCode))
@@ -61,7 +62,7 @@ module FutureLinks =
                 with
                 | ex 
                     ->
-                    postToLog <| string ex.Message <| "#44"
+                    runIO (postToLog <| string ex.Message <| "#44")
 
                     return Error <| ApiResponseError (string ex.Message)
             }

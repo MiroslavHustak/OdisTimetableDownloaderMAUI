@@ -5,9 +5,9 @@ open System.IO
 //************************************************************
 open Types
 open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
-open Api.FutureLinks
 
 open Helpers.Builders
 
@@ -15,8 +15,6 @@ open CreatingPathsAndNames
 
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
-
-open FsToolkit.ErrorHandling
 
 module IO_Operations =    
     
@@ -42,7 +40,7 @@ module IO_Operations =
                         with 
                         | ex 
                             ->
-                            postToLog <| string ex.Message <| "#38"
+                            runIO (postToLog <| string ex.Message <| "#38")
                             Error FileDeleteError
                 }
     
@@ -71,7 +69,7 @@ module IO_Operations =
                         with 
                         | ex
                             ->
-                            postToLog <| string ex.Message <| "#39"
+                            runIO (postToLog <| string ex.Message <| "#39")
                             Error FileDeleteError                       
                 }
     
@@ -90,7 +88,7 @@ module IO_Operations =
         with
         | ex 
             ->
-            postToLog <| pathToDir <| "#40"
+            runIO (postToLog <| pathToDir <| "#40")
             Error FileDownloadErrorMHD //dpoMsg1   
       
     let internal createFolders dirList =  
@@ -116,7 +114,7 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToLog <| string ex.Message <| "#41"
+            runIO (postToLog <| string ex.Message <| "#41")
             Error CreateFolderError   
         
     let internal ensureMainDirectoriesExist () =
@@ -140,7 +138,7 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToLog <| string ex.Message <| "#42"
+            runIO (postToLog <| string ex.Message <| "#42")
             Error CreateFolderError   
 
     let internal createTP_Canopy_Folder pathDir = 
@@ -154,5 +152,5 @@ module IO_Operations =
         with 
         | ex
             ->
-            postToLog <| string ex.Message <| "#421"
+            runIO (postToLog <| string ex.Message <| "#421")
             Error CreateFolderError1   

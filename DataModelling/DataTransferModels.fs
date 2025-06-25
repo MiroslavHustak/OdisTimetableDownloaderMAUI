@@ -1,7 +1,5 @@
 ﻿namespace DataModelling
 
-open System
-
 module Dtm =
     
     [<Struct>]
