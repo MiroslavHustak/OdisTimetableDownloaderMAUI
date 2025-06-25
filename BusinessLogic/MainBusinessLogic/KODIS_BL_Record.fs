@@ -179,7 +179,16 @@ module KODIS_BL_Record =
                                                                 
                     return    
                         try 
-                            let uri, pathToFile = context.list |> List.unzip
+                            //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
+                            let removeDuplicatePathPairs uri pathToFile =
+                                List.zip uri pathToFile
+                                |> List.distinctBy snd
+                            
+                            let uri, pathToFile =
+                                context.list
+                                |> List.distinct
+                                |> List.unzip
+                                |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile |> List.unzip
 
                             (token, uri, pathToFile)
                             |||> List.Parallel.map2_IO_Token //context.listMappingFunction                            
@@ -297,7 +306,8 @@ module KODIS_BL_Record =
                     match context.dir |> Directory.Exists with 
                     | false ->
                             postToLog <| NoFolderError <| "#251"
-                            Error NoFolderError                                             
+                            Error NoFolderError    
+                            
                     | true  ->
                             try
                                 match context.list with

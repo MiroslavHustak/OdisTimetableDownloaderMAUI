@@ -245,8 +245,8 @@ module FilterTimetableLinks =
             {
                 OldPrefixRc = OldPrefix oldPrefix
                 NewPrefixRc = NewPrefix (newPrefix oldPrefix)
-                StartDateRc = StartDateRcOpt (TryParserDate.parseDate () <| extractStartDate totalDateInterval)
-                EndDateRc = EndDateRcOpt (TryParserDate.parseDate () <| extractEndDate totalDateInterval)
+                StartDateRc = StartDateRcOpt (TryParserDate.parseDate <| extractStartDate totalDateInterval)
+                EndDateRc = EndDateRcOpt (TryParserDate.parseDate <| extractEndDate totalDateInterval)
                 TotalDateIntervalRc = TotalDateInterval totalDateInterval
                 SuffixRc = Suffix suffix
                 JsGeneratedStringRc = JsGeneratedString jsGeneratedString

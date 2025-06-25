@@ -221,9 +221,19 @@ module KODIS_BL_Record4 =
                     return   
                         try
                             //monitorConnectivity (token : CancellationToken)
-                            let uri, pathToFile = context.list |> List.unzip
+
+                            //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
+                            let removeDuplicatePathPairs uri pathToFile =
+                                List.zip uri pathToFile
+                                |> List.distinctBy snd
                             
-                            (token, uri, pathToFile)
+                            let uri, pathToFile =
+                                context.list
+                                |> List.distinct
+                                |> List.unzip
+                                |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile |> List.unzip
+                            
+                            (token, uri, pathToFile)     
                             |||> List.Parallel.map2_IO_Token //context.listMappingFunction    
                                 (fun uri (pathToFile : string) 
                                     -> 
@@ -234,7 +244,7 @@ module KODIS_BL_Record4 =
                                             counterAndProgressBar.Post <| Inc 1
 
                                             token.ThrowIfCancellationRequested ()                                            
-
+                                            
                                             let pathToFileExistFirstCheck = 
                                                 runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
                                                 in
@@ -335,7 +345,8 @@ module KODIS_BL_Record4 =
                     match context.dir |> Directory.Exists with 
                     | false ->
                             postToLog <| NoFolderError <| "#181"
-                            Error NoFolderError                                             
+                            Error NoFolderError    
+                            
                     | true  ->
                             try
                                 match context.list with
