@@ -9,21 +9,16 @@ open System.Threading
 
 open Types.Types
 open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
 
-open Helpers
 open Helpers.Builders
 
 open Api.Logging
-open Api.FutureLinks
-
 open BusinessLogic.MDPO_BL  
+open IO_Operations.IO_Operations
 
 open Settings.Messages
 open Settings.SettingsGeneral  
-
-open FsToolkit.ErrorHandling
-
-open IO_Operations.IO_Operations
 
 module WebScraping_MDPO =
 
@@ -82,7 +77,7 @@ module WebScraping_MDPO =
                 with
                 | ex 
                     -> 
-                    postToLog <| string ex.Message <| "#7"
+                    runIO (postToLog <| string ex.Message <| "#7")
                     Error FileDownloadErrorMHD //dpoMsg1
            
             | FilterDownloadSave   //Quli problemum s certifikatem www.mdpo.cz zatim try with bloky vsade, kaj se da
@@ -102,7 +97,7 @@ module WebScraping_MDPO =
                 with
                 | ex 
                     ->
-                    postToLog <| string ex.Message <| "#8" //net_http_ssl_connection_failed
+                    runIO (postToLog <| string ex.Message <| "#8") //net_http_ssl_connection_failed
 
                     try
                         let pathToSubdir =
@@ -123,7 +118,7 @@ module WebScraping_MDPO =
                     with
                     | ex 
                         ->
-                        postToLog <| string ex.Message <| "#9"
+                        runIO (postToLog <| string ex.Message <| "#9")
                         Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
                                                                   
         pyramidOfInferno

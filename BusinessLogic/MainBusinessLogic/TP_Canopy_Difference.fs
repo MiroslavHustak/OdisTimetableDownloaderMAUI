@@ -27,7 +27,7 @@ module TP_Canopy_Difference =
 
     let private fileNames path =
 
-        IO(fun () 
+        IO (fun () 
                 ->
                 try
                     Directory.EnumerateFiles path
@@ -38,11 +38,11 @@ module TP_Canopy_Difference =
                     ->
                     runIO (postToLog <| string ex.Message <| "#Canopy01")
                     Set.empty<string>
-            )
+           )
 
     let private getDirNames pathToDir =
 
-        IO(fun () 
+        IO (fun () 
                 ->
                 try
                     Directory.EnumerateDirectories pathToDir 
@@ -51,7 +51,7 @@ module TP_Canopy_Difference =
                     ->
                     runIO (postToLog <| string ex.Message <| "#Canopy02")
                     Seq.empty<string>
-            )
+           )
           
     let private getUniqueFileNames folderPathTP folderPathCanopy =
 

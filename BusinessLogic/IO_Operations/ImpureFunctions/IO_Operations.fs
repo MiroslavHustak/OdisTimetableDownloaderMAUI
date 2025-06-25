@@ -86,7 +86,7 @@ module IO_Operations =
                 |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                 |> Ok
         with
-        | ex 
+        | _ 
             ->
             runIO (postToLog <| pathToDir <| "#40")
             Error FileDownloadErrorMHD //dpoMsg1   

@@ -3,9 +3,7 @@
 open System
 open System.IO
 open System.Net
-open System.Net.Http
 open System.Threading
-open System.Net.NetworkInformation
 
 //************************************************************
 
@@ -17,22 +15,18 @@ open FsToolkit.ErrorHandling
 open Types
 open Types.Types
 open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
 
-open Settings.Messages
-open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
 open Api.Logging
-open Api.FutureLinks
 
-open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
 
 open JsonData.SortJsonData
 open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
-open Types.Haskell_IO_Monad_Simulation
 
 module KODIS_BL_Record =   
            

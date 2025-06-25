@@ -145,14 +145,14 @@ module KODIS_BL_Record4 =
         let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
             async
                 {
-                    let! getFromRestApi = getFutureLinksFromRestApi url1
+                    let! getFromRestApi = getFutureLinksFromRestApi >> runIO <| url1
                     return filterTimetableLinks variant dir getFromRestApi
                 }
     
         let result2 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
             async
                 {
-                    let! getFromRestApi = getFutureLinksFromRestApi url2
+                    let! getFromRestApi = getFutureLinksFromRestApi >> runIO <| url2
                     match variant with
                     | FutureValidity -> return filterTimetableLinks variant dir getFromRestApi
                     | _              -> return Ok []

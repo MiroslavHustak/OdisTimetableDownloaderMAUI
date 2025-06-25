@@ -8,6 +8,7 @@ open System.Threading
 open Types
 open Types.Types
 open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
 
 open BusinessLogic4.KODIS_BL_Record4
 
@@ -15,16 +16,10 @@ open Helpers
 open Helpers.Builders
 
 open Api.Logging
-open Api.FutureLinks
-
 open IO_Operations.IO_Operations
-open IO_Operations.CreatingPathsAndNames
 
 open Settings.Messages
-open Settings.SettingsKODIS
 open Settings.SettingsGeneral
-
-open Types.Haskell_IO_Monad_Simulation
 
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 // 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
@@ -125,7 +120,7 @@ module WebScraping_KODISFMRecord4 =
 
             | Error err 
                 ->
-                 postToLog <| string err <| "#4"
+                 runIO (postToLog <| string err <| "#4")
                  Error err  
             
         //try with blok zrusen

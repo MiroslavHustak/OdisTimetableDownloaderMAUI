@@ -33,36 +33,39 @@ module FutureLinks =
             )
 
     let internal getFutureLinksFromRestApi url = 
-    
-        async
-            {       
-                try
-                    use! response = 
-                        http
-                            {
-                                GET url
-                                header "X-API-KEY" apiKeyTest 
-                            }
-                        |> Request.sendAsync
+
+        IO (fun () 
+                ->         
+                async
+                    {       
+                        try
+                            use! response = 
+                                http
+                                    {
+                                        GET url
+                                        header "X-API-KEY" apiKeyTest 
+                                    }
+                                |> Request.sendAsync
                 
-                    match response.statusCode with
-                    | HttpStatusCode.OK 
-                        ->
-                        let! jsonString = Response.toTextAsync response
-                        let response = Decode.fromString decoderGet jsonString
+                            match response.statusCode with
+                            | HttpStatusCode.OK 
+                                ->
+                                let! jsonString = Response.toTextAsync response
+                                let response = Decode.fromString decoderGet jsonString
 
-                        return runIO <| transformLinksApiResponse postToLogFile response
+                                return runIO <| transformLinksApiResponse postToLogFile response
                        
-                    | _ -> 
-                        postToLogFile () (sprintf "Request failed with status code %d" (int response.statusCode))
-                        |> Async.RunSynchronously 
-                        |> ignore<ResponsePost>   
+                            | _ -> 
+                                postToLogFile () (sprintf "Request failed with status code %d" (int response.statusCode))
+                                |> Async.RunSynchronously 
+                                |> ignore<ResponsePost>   
                        
-                        return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
-                with
-                | ex 
-                    ->
-                    runIO (postToLog <| string ex.Message <| "#44")
+                                return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
+                        with
+                        | ex 
+                            ->
+                            runIO (postToLog <| string ex.Message <| "#44")
 
-                    return Error <| ApiResponseError (string ex.Message)
-            }
+                            return Error <| ApiResponseError (string ex.Message)
+                    }
+           )

@@ -2,30 +2,22 @@
 
 open System
 open System.IO
-open System.Net
 open System.Threading
-
-open Microsoft.Maui.Devices
 
 //**********************************
 
 open Types.Types   
 open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
 
-open Helpers
 open Helpers.Builders
 
 open Api.Logging
-open Api.FutureLinks
-
-open BusinessLogic.DPO_BL
-   
-open Settings.Messages 
-open Settings.SettingsGeneral  
-
-open FsToolkit.ErrorHandling
-
+open BusinessLogic.DPO_BL   
 open IO_Operations.IO_Operations
+
+open Settings.Messages
+open Settings.SettingsGeneral 
 
 module WebScraping_DPO =
 
@@ -80,7 +72,7 @@ module WebScraping_DPO =
                 with
                 | ex 
                     -> 
-                    postToLog <| string ex.Message <| "#10"
+                    runIO (postToLog <| string ex.Message <| "#10")
                     Error FileDownloadErrorMHD //dpoMsg1
 
             | FilterDownloadSave   
@@ -101,7 +93,7 @@ module WebScraping_DPO =
                 with
                 | ex 
                     ->
-                    postToLog <| string ex.Message <| "#11"
+                    runIO (postToLog <| string ex.Message <| "#11")
                     Error FileDownloadErrorMHD //dpoMsg2    
                        
         pyramidOfInferno

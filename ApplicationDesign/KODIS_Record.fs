@@ -18,7 +18,6 @@ open Helpers
 open Helpers.Builders
 
 open Api.Logging
-open Api.FutureLinks
 
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
@@ -82,19 +81,19 @@ module WebScraping_KODISFMRecord =
             try
                 try
                     #if ANDROID
-                    KeepScreenOnManager.keepScreenOn true
+                    KeepScreenOnManager.keepScreenOn >> runIO <| true
                     #endif
                     //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
                     environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
                 finally
                     #if ANDROID
-                    KeepScreenOnManager.keepScreenOn false
+                    KeepScreenOnManager.keepScreenOn >> runIO <| false
                     #endif
                     ()              
             with
             | ex
                 -> 
-                postToLog <| string ex.Message <| "#5" 
+                runIO (postToLog <| string ex.Message <| "#5") 
                 Error JsonDownloadError 
             
             |> Result.map (fun _ -> dispatchMsg1) 
@@ -162,7 +161,7 @@ module WebScraping_KODISFMRecord =
     
                 | Error err                    
                     ->
-                    postToLog <| string err <| "#6"
+                    runIO (postToLog <| string err <| "#6")
                     Error err  
                                  
             //try with blok zrusen   
