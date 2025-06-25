@@ -14,8 +14,6 @@ module Connectivity =
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 
 
-        IO (fun () 
-                -> 
                 MailboxProcessor<ConnectivityMessage> //impure
                     .StartImmediate
                         <|
@@ -36,7 +34,6 @@ module Connectivity =
                                     }
             
                             loop false // Start the loop with whatever initial value 
-            )
 
     let internal connectivityListener () = //vysledek je bool //impure
 
@@ -44,20 +41,20 @@ module Connectivity =
                 -> 
                 let initialConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
                     in
-                    (runIO actor).Post <| UpdateState initialConnected // prvotni inicializace mailboxu
+                    actor.Post <| UpdateState initialConnected // prvotni inicializace mailboxu
     
                 let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
              
                     try  
                         let isConnected = (=) args.NetworkAccess NetworkAccess.Internet  
                             in
-                            (runIO actor).Post <| UpdateState isConnected
+                            actor.Post <| UpdateState isConnected
                     with
                     | _ -> ()  //Proste at to tise pokracuje
             
                 Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
             
-                (runIO actor).PostAndReply (fun replyChannel -> CheckState replyChannel)
+                actor.PostAndReply (fun replyChannel -> CheckState replyChannel)
             )        
 
     let internal connectivityListener2 onConnectivityChange = //vysledek je unit //impure
