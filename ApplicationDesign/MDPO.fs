@@ -60,8 +60,7 @@ module WebScraping_MDPO =
     let internal webscraping_MDPO reportProgress token pathToDir =  
 
         IO (fun () 
-                ->
-           
+                ->           
                 let stateReducer token (state : State) (action : Actions) (environment : Environment) =
 
                     let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir6 ]

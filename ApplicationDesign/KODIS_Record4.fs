@@ -16,10 +16,14 @@ open Helpers
 open Helpers.Builders
 
 open Api.Logging
+
+open IO_Operations
 open IO_Operations.IO_Operations
+open IO_Operations.CreatingPathsAndNames
 
 open Settings.Messages
 open Settings.SettingsGeneral
+
 
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 // 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
@@ -125,7 +129,7 @@ module WebScraping_KODISFMRecord4 =
             
         //try with blok zrusen
                  
-        let dirList = IO_Operations.CreatingPathsAndNames.createNewDirectoryPaths path listODISDefault4
+        let dirList = createNewDirectoryPaths path listODISDefault4
             in
             let contextCurrentValidity = 
                 {
@@ -164,7 +168,7 @@ module WebScraping_KODISFMRecord4 =
                 #endif
 
                 let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
-                let!_ = runIO <| IO_Operations.IO_Operations.createFolders dirList, errFn 
+                let!_ = runIO <| createFolders dirList, errFn 
 
                 let! msg1 = result contextCurrentValidity, errFn
                 let! msg2 = result contextFutureValidity, errFn

@@ -8,11 +8,12 @@ open System.Threading
 open Types
 open Types.Types
 open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
 
 open FsToolkit.ErrorHandling
 
 open BusinessLogic.KODIS_BL_Record
-open Types.Haskell_IO_Monad_Simulation
+open BusinessLogic.TP_Canopy_Difference
 
 open Helpers
 open Helpers.Builders
@@ -217,7 +218,7 @@ module WebScraping_KODISFMRecord =
                         let! msg3 = result contextWithoutReplacementService, errFn   
 
                         let msg4 = 
-                            match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
+                            match calculate_TP_Canopy_Difference >> runIO <| () with
                             | Ok _      -> String.Empty
                             | Error err -> err        
     
