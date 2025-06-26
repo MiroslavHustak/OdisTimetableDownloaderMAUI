@@ -24,7 +24,7 @@ open Android.Provider
 open Xamarin
 open Xamarin.Essentials
 
-//**********************************************************************************
+//****************************** JAVA ***********************************
 
 open Java.Interop
 open Javax.Net.Ssl

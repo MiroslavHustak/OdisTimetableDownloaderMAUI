@@ -1,9 +1,5 @@
 ﻿namespace Settings
 
-open System
-
-//***************************
-
 open Types.Types
 
 module SettingsGeneral =  

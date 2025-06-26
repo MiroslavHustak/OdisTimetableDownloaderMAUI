@@ -4,7 +4,7 @@ open System.Threading
 
 module Haskell_IO_Monad_Simulation =
 
-    type internal IO<'a> = IO of (unit -> 'a) // wrapping custom type simulating Haskell IO Monad
+    type internal IO<'a> = IO of (unit -> 'a) // wrapping custom type simulating Haskell IO Monad (without the unnecessary monad)
 
     let internal runIO (IO action) = action()
 

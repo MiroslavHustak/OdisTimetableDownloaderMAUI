@@ -43,10 +43,10 @@ module WebScraping_MDPO =
 
     type private Environment = 
         {
-            SafeFilterTimetables : unit -> string -> CancellationToken -> Map<string, string>
-            SafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> Map<string, string> -> Result<unit, MHDErrors>
-            UnsafeFilterTimetables : unit -> string -> CancellationToken -> Map<string, string>
-            UnsafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> Map<string, string> -> Result<unit, MHDErrors>
+            SafeFilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
+            SafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
+            UnsafeFilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
+            UnsafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
         }
 
     let private environment : Environment =
@@ -66,7 +66,7 @@ module WebScraping_MDPO =
             match action with      
             | DeleteOneODISDirectory
                 ->  
-                deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir
+                runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir
 
             | CreateFolders         
                 -> 
@@ -92,8 +92,8 @@ module WebScraping_MDPO =
                         | false ->
                                 Error FileDeleteErrorMHD                             
                         | true  -> 
-                                environment.SafeFilterTimetables () pathToSubdir token 
-                                |> environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir                                        
+                                let filterTmtb = environment.SafeFilterTimetables pathToSubdir token
+                                runIO <| environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb                                       
                 with
                 | ex 
                     ->
@@ -109,8 +109,9 @@ module WebScraping_MDPO =
                             | false ->
                                     Error FileDeleteErrorMHD                             
                             | true  -> 
-                                    environment.UnsafeFilterTimetables () pathToSubdir token  
-                                    |> environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir 
+                                    let filterTmtb = environment.UnsafeFilterTimetables pathToSubdir token  
+                                    
+                                    (runIO <| environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb)
                                     |> function
                                         | Ok _      -> Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
                                         | Error err -> Error err       
@@ -132,10 +133,10 @@ module WebScraping_MDPO =
                     | ServiceUnavailable    -> "503 Service Unavailable"        
                     | NotFound              -> "404 Page Not Found"
                     | CofeeMakerUnavailable -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-                    | FileDownloadErrorMHD  -> match deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoMsg1 | Error _ -> mdpoMsg0 
+                    | FileDownloadErrorMHD  -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoMsg1 | Error _ -> mdpoMsg0 
                     | ConnectionError       -> noNetConn
                     | FileDeleteErrorMHD    -> fileDeleteError
-                    | StopDownloadingMHD    -> match deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
+                    | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
                     | TestDuCase ex         -> ex 
 
                 let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err

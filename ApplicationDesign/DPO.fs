@@ -42,14 +42,14 @@ module WebScraping_DPO =
 
     type private Environment = 
         {
-            FilterTimetables : unit -> string -> (string * string) list
-            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> (string * string) list -> Result<unit, MHDErrors>
+            FilterTimetables : string -> IO<(string * string) list>
+            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> IO<(string * string) list> -> IO<Result<unit, MHDErrors>>
         }
 
     let private environment: Environment =
         { 
-            FilterTimetables = filterTimetables
-            DownloadAndSaveTimetables = downloadAndSaveTimetables
+            FilterTimetables = filterTimetables  
+            DownloadAndSaveTimetables = downloadAndSaveTimetables   
         }    
 
     let internal webscraping_DPO reportProgress token pathToDir =  
@@ -61,7 +61,7 @@ module WebScraping_DPO =
             match action with       
             | DeleteOneODISDirectory 
                 ->                                   
-                deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir                                    
+                runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir                                    
                                     
             | CreateFolders         
                 -> 
@@ -88,8 +88,8 @@ module WebScraping_DPO =
                         | false ->
                                 Error FileDeleteErrorMHD                             
                         | true  -> 
-                                environment.FilterTimetables () pathToSubdir 
-                                |> environment.DownloadAndSaveTimetables reportProgress token                                        
+                                let filterTmtb = environment.FilterTimetables pathToSubdir                                     
+                                runIO <| environment.DownloadAndSaveTimetables reportProgress token filterTmtb 
                 with
                 | ex 
                     ->
@@ -107,10 +107,10 @@ module WebScraping_DPO =
                     | ServiceUnavailable    -> "503 Service Unavailable"        
                     | NotFound              -> "404 Page Not Found"
                     | CofeeMakerUnavailable -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-                    | FileDownloadErrorMHD  -> match deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoMsg1 | Error _ -> dpoMsg0 
+                    | FileDownloadErrorMHD  -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoMsg1 | Error _ -> dpoMsg0 
                     | ConnectionError       -> noNetConn
                     | FileDeleteErrorMHD    -> fileDeleteError
-                    | StopDownloadingMHD    -> match deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
+                    | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
                     | TestDuCase ex         -> ex
 
                 let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err

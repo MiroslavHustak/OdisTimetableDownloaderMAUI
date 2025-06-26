@@ -52,9 +52,9 @@ module WebScraping_KODISFMRecord =
 
     type private Environment = 
         {
-            DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> Result<unit, JsonDownloadErrors>
-            DeleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
-            OperationOnDataFromJson : (float * float -> unit) -> CancellationToken -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
+            DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> IO<Result<unit, JsonDownloadErrors>>
+            DeleteAllODISDirectories : string -> IO<Result<unit, PdfDownloadErrors>>
+            OperationOnDataFromJson : (float * float -> unit) -> CancellationToken -> Validity -> string -> IO<Result<(string * string) list, PdfDownloadErrors>> 
             DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, PdfDownloadErrors>
         }
 
@@ -63,7 +63,7 @@ module WebScraping_KODISFMRecord =
             DownloadAndSaveJson = downloadAndSaveJson 
             DeleteAllODISDirectories = deleteAllODISDirectories   
             OperationOnDataFromJson = operationOnDataFromJson
-            DownloadAndSave = downloadAndSave
+            DownloadAndSave = downloadAndSave >> runIO
         }    
 
     let internal stateReducerCmd1 (token : CancellationToken) path reportProgress =
@@ -84,7 +84,7 @@ module WebScraping_KODISFMRecord =
                     KeepScreenOnManager.keepScreenOn >> runIO <| true
                     #endif
                     //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
-                    environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
+                    runIO <| environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
                 finally
                     #if ANDROID
                     KeepScreenOnManager.keepScreenOn >> runIO <| false
@@ -113,21 +113,21 @@ module WebScraping_KODISFMRecord =
                 | FileDeleteError      -> fileDeleteError 
                 | CreateFolderError    -> createFolderError   
                 | CreateFolderError1   -> createFolderError1
-                | FileDownloadError    -> match environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+                | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
                 | CanopyError          -> canopyError
                 | TimeoutError         -> "timeout"
                 | PdfConnectionError   -> cancelMsg2 
                 | ApiResponseError err -> err
                 | ApiDecodingError     -> canopyError
                 | NetConnPdfError err  -> err
-                | StopDownloading      -> match environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+                | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
     
             let result (context2 : Context2) =  
                
                 dispatchWorkIsComplete dispatchMsg2
                          
                 let dir = context2.DirList |> List.item context2.VariantInt  
-                let list = operationOnDataFromJson reportProgress token context2.Variant dir 
+                let list = runIO <| operationOnDataFromJson reportProgress token context2.Variant dir 
     
                 match list with
                 | Ok list
@@ -150,10 +150,10 @@ module WebScraping_KODISFMRecord =
                             | true  -> context List.Parallel.map2_IO
                             | false -> context List.map2  
                             //**********************************************************************
+                             
+                            |> environment.DownloadAndSave token   
     
-                            |> environment.DownloadAndSave token     
-    
-                | Ok list
+                | Ok _
                     ->  
                     dispatchIterationMessage context2.Msg2    
                     System.Threading.Thread.Sleep(6000)     
@@ -201,11 +201,11 @@ module WebScraping_KODISFMRecord =
             pyramidOfInferno
                 {       
                     #if ANDROID
-                    let!_ = createTP_Canopy_Folder logDirTP_Canopy, errFn 
+                    let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                     #endif
 
-                    let!_ = environment.DeleteAllODISDirectories path, errFn  
-                    let!_ = createFolders dirList, errFn 
+                    let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
+                    let!_ = runIO <| createFolders dirList, errFn 
     
                     let! msg1 = result contextCurrentValidity, errFn
                     let! msg2 = result contextFutureValidity, errFn

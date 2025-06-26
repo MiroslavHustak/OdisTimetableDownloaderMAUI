@@ -98,98 +98,100 @@ module Logging =
     //*************************************************************************** 
     #if WINDOWS   
 
-    let internal saveJsonToFile () : Result<unit, string> =
+    let internal saveJsonToFile () =
+        
+        IO (fun () 
+                ->
+                let prepareJsonAsyncAppend () =
 
-        let prepareJsonAsyncAppend () =
-
-            try                 
-                pyramidOfDoom
-                    {  
-                        let url = "http://kodis.somee.com/api/logging"
+                    try                 
+                        pyramidOfDoom
+                            {  
+                                let url = "http://kodis.somee.com/api/logging"
                                             
-                        //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
-                        let filePath = Path.GetFullPath logFileName
-                        let! filepath = filePath |> Option.ofNullEmpty, Error String.Empty
+                                //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
+                                let filePath = Path.GetFullPath logFileName
+                                let! filepath = filePath |> Option.ofNullEmpty, Error String.Empty
 
-                        let filePath =  
-                            match File.Exists filepath with
-                                | true  -> 
-                                        filePath
-                                | false ->
-                                        File.WriteAllText(filepath, jsonEmpty)
-                                        filePath
+                                let filePath =  
+                                    match File.Exists filepath with
+                                        | true  -> 
+                                                filePath
+                                        | false ->
+                                                File.WriteAllText(filepath, jsonEmpty)
+                                                filePath
                        
-                        let logEntries = 
-                            async { return! getLogEntriesFromRestApi >> runIO <| url } 
-                            |> Async.RunSynchronously
-                            |> function Ok logEntries -> logEntries | Error _ -> "Chyba při čtení logEntries z API"   
+                                let logEntries = 
+                                    async { return! getLogEntriesFromRestApi >> runIO <| url } 
+                                    |> Async.RunSynchronously
+                                    |> function Ok logEntries -> logEntries | Error _ -> "Chyba při čtení logEntries z API"   
                    
-                        let writer = new StreamWriter(filepath, true) // Append mode
-                        let! _ = writer |> Option.ofNull, Error String.Empty
+                                let writer = new StreamWriter(filepath, true) // Append mode
+                                let! _ = writer |> Option.ofNull, Error String.Empty
     
-                        return Ok (writer, logEntries)  
-                    }
-                |> Result.map
-                    (fun (writer, logEntries) 
-                        ->
-                        async
-                            {
-                                do! writer.WriteLineAsync logEntries |> Async.AwaitTask
-                                do! writer.FlushAsync() |> Async.AwaitTask
-    
-                                return! writer.DisposeAsync().AsTask() |> Async.AwaitTask
+                                return Ok (writer, logEntries)  
                             }
-                    )
-            with
-            | ex -> Error (string ex.Message)
+                        |> Result.map
+                            (fun (writer, logEntries) 
+                                ->
+                                async
+                                    {
+                                        do! writer.WriteLineAsync logEntries |> Async.AwaitTask
+                                        do! writer.FlushAsync() |> Async.AwaitTask
     
-        let checkFileSize () =
+                                        return! writer.DisposeAsync().AsTask() |> Async.AwaitTask
+                                    }
+                            )
+                    with
+                    | ex -> Error (string ex.Message)
+    
+                let checkFileSize () =
             
-            try
-                (Path.GetFullPath logFileName)
-                |> Option.ofNullEmpty 
-                |> Option.map
-                    (fun path
-                        ->                   
-                        let fileInfo = FileInfo path
+                    try
+                        (Path.GetFullPath logFileName)
+                        |> Option.ofNullEmpty 
+                        |> Option.map
+                            (fun path
+                                ->                   
+                                let fileInfo = FileInfo path
             
-                        let sizeKb = 
-                            match fileInfo.Exists with
-                            | true  -> fileInfo.Length / 1024L  //abychom dostali hodnotu v KB
-                            | false -> 0L
+                                let sizeKb = 
+                                    match fileInfo.Exists with
+                                    | true  -> fileInfo.Length / 1024L  //abychom dostali hodnotu v KB
+                                    | false -> 0L
                         
-                        match (<) sizeKb <| int64 maxFileSizeKb with
-                        | true  -> ()
-                        | false -> fileInfo.Delete()
+                                match (<) sizeKb <| int64 maxFileSizeKb with
+                                | true  -> ()
+                                | false -> fileInfo.Delete()
             
-                        sizeKb
-                    )
+                                sizeKb
+                            )
             
-            with
-            | _ -> None
+                            with
+                            | _ -> None
     
-        async
-            {
-                try
-                    match checkFileSize () with
-                    | Some _
-                        ->
-                        match prepareJsonAsyncAppend () with
-                        | Ok asyncWriter
-                            ->
-                            do! asyncWriter
-                            return Ok ()
+                async
+                    {
+                        try
+                            match checkFileSize () with
+                            | Some _
+                                ->
+                                match prepareJsonAsyncAppend () with
+                                | Ok asyncWriter
+                                    ->
+                                    do! asyncWriter
+                                    return Ok ()
 
-                        | Error _
-                            ->
-                            return Error String.Empty
+                                | Error _
+                                    ->
+                                    return Error String.Empty
 
-                    | None
-                        ->
-                        return Error String.Empty
-                with
-                | _ -> return Error String.Empty
-            }
-        |> Async.RunSynchronously
-
+                            | None
+                                ->
+                                return Error String.Empty
+                        with
+                        | _ -> return Error String.Empty
+                    }
+                |> Async.RunSynchronously
+        )
     #endif

@@ -9,31 +9,31 @@ module Connectivity =
     open Types.Types    
     open Types.Haskell_IO_Monad_Simulation
 
-    let private actor = 
+    let private actor = //tady nelze IO Monad (pak se actor nespousti tak, jak je treba)
 
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 
 
-                MailboxProcessor<ConnectivityMessage> //impure
-                    .StartImmediate
-                        <|
-                        fun inbox
-                            ->
-                            let rec loop (isConnected : bool) = 
-                                async
-                                    {
-                                        match! inbox.Receive() with
-                                        | UpdateState newState
-                                            ->
-                                            return! loop newState
+        MailboxProcessor<ConnectivityMessage> //impure
+            .StartImmediate
+                <|
+                fun inbox
+                    ->
+                    let rec loop (isConnected : bool) = 
+                        async
+                            {
+                                match! inbox.Receive() with
+                                | UpdateState newState
+                                    ->
+                                    return! loop newState
 
-                                        | CheckState replyChannel
-                                            ->                            
-                                            replyChannel.Reply(isConnected) 
-                                            return! loop isConnected
-                                    }
+                                | CheckState replyChannel
+                                    ->                            
+                                    replyChannel.Reply(isConnected) 
+                                    return! loop isConnected
+                            }
             
-                            loop false // Start the loop with whatever initial value 
+                    loop false // Start the loop with whatever initial value 
 
     let internal connectivityListener () = //vysledek je bool //impure
 
@@ -55,13 +55,12 @@ module Connectivity =
                 Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
             
                 actor.PostAndReply (fun replyChannel -> CheckState replyChannel)
-            )        
+        )        
 
     let internal connectivityListener2 onConnectivityChange = //vysledek je unit //impure
 
         IO (fun () 
-                -> 
-        
+                ->         
                 let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
 
                     try  
@@ -72,7 +71,7 @@ module Connectivity =
                     | _ -> ()  //Proste at to tise pokracuje         
             
                 Connectivity.ConnectivityChanged.Add connectivityChangedHandler
-            )
+        )
 
 //******************** Zatim se nepouziva ********************************************
 

@@ -4,7 +4,7 @@ open System
 open System.IO
 open Thoth.Json.Net
 
-//************************************************************
+//*******************
 
 open Helpers.Builders
 open Helpers.Serialization

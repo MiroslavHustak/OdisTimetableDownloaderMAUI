@@ -50,8 +50,8 @@ module WebScraping_KODISFMRecord4 =
 
     type private Environment = 
         {
-            DeleteAllODISDirectories : string -> Result<unit, PdfDownloadErrors>
-            OperationOnDataFromJson : CancellationToken -> Validity -> string -> Result<(string * string) list, PdfDownloadErrors> 
+            DeleteAllODISDirectories : string -> IO<Result<unit, PdfDownloadErrors>>
+            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Result<(string * string) list, PdfDownloadErrors>> 
             DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, PdfDownloadErrors>
         }
 
@@ -59,7 +59,7 @@ module WebScraping_KODISFMRecord4 =
         { 
             DeleteAllODISDirectories = deleteAllODISDirectories   
             OperationOnDataFromJson = operationOnDataFromJson
-            DownloadAndSave = downloadAndSave
+            DownloadAndSave = downloadAndSave >> runIO
         }    
 
     let private stateReducer (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
@@ -74,21 +74,21 @@ module WebScraping_KODISFMRecord4 =
             | FileDeleteError      -> fileDeleteError 
             | CreateFolderError    -> createFolderError
             | CreateFolderError1   -> createFolderError1
-            | FileDownloadError    -> match environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+            | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
             | CanopyError          -> canopyError
             | TimeoutError         -> "timeout"
             | PdfConnectionError   -> cancelMsg2 
             | ApiResponseError err -> err
             | ApiDecodingError     -> canopyError
             | NetConnPdfError err  -> err
-            | StopDownloading      -> match environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+            | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
 
         let result (context2 : Context2) =   
 
             dispatchWorkIsComplete dispatchMsg2
                      
             let dir = context2.DirList |> List.item context2.VariantInt  
-            let list = operationOnDataFromJson token context2.Variant dir 
+            let list = runIO <| operationOnDataFromJson token context2.Variant dir 
 
             match list with
             | Ok list
@@ -112,7 +112,7 @@ module WebScraping_KODISFMRecord4 =
 
                         |> environment.DownloadAndSave token     
 
-            | Ok list
+            | Ok _
                 ->   
                 dispatchIterationMessage context2.Msg2
                 System.Threading.Thread.Sleep(6000) 
@@ -160,11 +160,11 @@ module WebScraping_KODISFMRecord4 =
         pyramidOfInferno
             {             
                 #if ANDROID
-                let!_ = createTP_Canopy_Folder logDirTP_Canopy, errFn 
+                let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
 
-                let!_ = environment.DeleteAllODISDirectories path, errFn  
-                let!_ = IO_Operations.IO_Operations.createFolders dirList, errFn 
+                let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
+                let!_ = runIO <| IO_Operations.IO_Operations.createFolders dirList, errFn 
 
                 let! msg1 = result contextCurrentValidity, errFn
                 let! msg2 = result contextFutureValidity, errFn

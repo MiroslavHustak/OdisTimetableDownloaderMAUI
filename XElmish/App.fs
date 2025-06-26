@@ -164,68 +164,74 @@ module App =
 
     let private countDown dispatch = //Not used yet
 
-        //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
+        IO (fun () 
+                ->  
+                //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
       
-        [ waitingForNetConn .. -1 .. 0 ]  // -1 for backward counting
-        |> List.toSeq                                             
-        |> AsyncSeq.ofSeq
-        |> AsyncSeq.iterAsync
-            (fun remaining 
-                ->      
-                QuitCountdown >> dispatch <| (quitMsg remaining)
+                [ waitingForNetConn .. -1 .. 0 ]  // -1 for backward counting
+                |> List.toSeq                                             
+                |> AsyncSeq.ofSeq
+                |> AsyncSeq.iterAsync
+                    (fun remaining 
+                        ->      
+                        QuitCountdown >> dispatch <| (quitMsg remaining)
                 
-                match connectivityListener >> runIO <| () with
-                | false 
-                    when remaining = 0  
-                        ->
-                        async { return dispatch Quit } |> Async.executeOnMainThread    
-                | false
-                    when remaining <> 0
-                        -> 
-                        Async.Sleep 1000 //po vterine to odpocitava
-                | _
-                        -> 
-                        async
-                            { 
-                                //tato varianta v pozadi jede dal
-                                return NetConnMessage >> dispatch <| continueDownload
-                            } 
-                        |> Async.executeOnMainThread                           
-            ) 
-        
+                        match connectivityListener >> runIO <| () with
+                        | false 
+                            when remaining = 0  
+                                ->
+                                async { return dispatch Quit } |> Async.executeOnMainThread    
+                        | false
+                            when remaining <> 0
+                                -> 
+                                Async.Sleep 1000 //po vterine to odpocitava
+                        | _
+                                -> 
+                                async
+                                    { 
+                                        //tato varianta v pozadi jede dal
+                                        return NetConnMessage >> dispatch <| continueDownload
+                                    } 
+                                |> Async.executeOnMainThread                           
+                    ) 
+        )
+
     let private countDown2 dispatch =
         
-        //This "loop" fn anotated with [<TailCall>] tested as a module fn in another F# project; no warnings encountered
-        let rec loop remaining =
+        IO (fun () 
+               ->  
+                //This "loop" fn anotated with [<TailCall>] tested as a module fn in another F# project; no warnings encountered
+                let rec loop remaining =
 
-            async
-                {
-                    QuitCountdown >> dispatch <| (quitMsg remaining)
+                    async
+                        {
+                            QuitCountdown >> dispatch <| (quitMsg remaining)
     
-                    match connectivityListener >> runIO <| () with
-                    | false 
-                        when remaining = 0
-                            ->
-                            RestartVisible >> dispatch <| false
+                            match connectivityListener >> runIO <| () with
+                            | false 
+                                when remaining = 0
+                                    ->
+                                    RestartVisible >> dispatch <| false
 
-                            do! 
-                                async { return dispatch Quit }
-                                |> Async.executeOnMainThread  
-                    | false 
-                        when remaining <> 0 
-                            ->
-                            do! Async.Sleep 1000
-                            RestartVisible >> dispatch <| false
+                                    do! 
+                                        async { return dispatch Quit }
+                                        |> Async.executeOnMainThread  
+                            | false 
+                                when remaining <> 0 
+                                    ->
+                                    do! Async.Sleep 1000
+                                    RestartVisible >> dispatch <| false
                            
-                            return! loop (remaining - 1) // Recurring with the next remaining value
-                    | _ 
-                            ->
-                            do! 
-                                async { return NetConnMessage >> dispatch <| continueDownload } 
-                                |> Async.executeOnMainThread 
-                }
+                                    return! loop (remaining - 1) // Recurring with the next remaining value
+                            | _ 
+                                    ->
+                                    do! 
+                                        async { return NetConnMessage >> dispatch <| continueDownload } 
+                                        |> Async.executeOnMainThread 
+                        }
     
-        Async.StartImmediate (loop waitingForNetConn) 
+                Async.StartImmediate (loop waitingForNetConn) 
+        )
                       
     let init () =  
     
@@ -258,7 +264,7 @@ module App =
                                             | false -> 
                                                     NetConnMessage >> dispatch <| noNetConn 
                                                     do! Async.Sleep 2000
-                                                    countDown2 dispatch
+                                                    countDown2 >> runIO <| dispatch
                                             #else                                            
                                             match isConnected with
                                             | true  -> NetConnMessage >> dispatch <| yesNetConn 
@@ -318,7 +324,7 @@ module App =
                 Label2Visible = true
             } 
             
-        match ensureMainDirectoriesExist with
+        match runIO <| ensureMainDirectoriesExist with
         | Ok _ 
             -> 
             try          
@@ -503,7 +509,7 @@ module App =
         | Quit  
             -> 
             #if WINDOWS
-            Api.Logging.saveJsonToFile () |> ignore<Result<unit, string>>
+            runIO <| Api.Logging.saveJsonToFile () |> ignore<Result<unit, string>>
             #endif
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, Cmd.none
@@ -941,7 +947,7 @@ module App =
                     (VStack(spacing = 25.) 
                         {       
                             // Progress circle
-                            GraphicsView(progressCircle m.Progress)
+                            GraphicsView(runIO <| progressCircle m.Progress)
                                 .height(130.)
                                 .width(130.)  
                                 .isVisible(not m.KodisVisible || m.ProgressCircleVisible)
