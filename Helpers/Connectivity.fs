@@ -14,7 +14,7 @@ module Connectivity =
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 
 
-        MailboxProcessor<ConnectivityMessage> //impure
+        MailboxProcessor<ConnectivityMessage> //technically impure, but pragmatically pure
             .StartImmediate
                 <|
                 fun inbox
@@ -35,7 +35,7 @@ module Connectivity =
             
                     loop false // Start the loop with whatever initial value 
 
-    let internal connectivityListener () = //vysledek je bool //impure
+    let internal connectivityListener () = //impure
 
         IO (fun () 
                 -> 
@@ -57,7 +57,7 @@ module Connectivity =
                 actor.PostAndReply (fun replyChannel -> CheckState replyChannel)
         )        
 
-    let internal connectivityListener2 onConnectivityChange = //vysledek je unit //impure
+    let internal connectivityListener2 onConnectivityChange = //impure
 
         IO (fun () 
                 ->         

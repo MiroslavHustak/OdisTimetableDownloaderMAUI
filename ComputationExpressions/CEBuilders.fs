@@ -8,7 +8,7 @@ module Builders =
 
     open Types.Haskell_IO_Monad_Simulation
         
-    type internal IOBuilder = IOBuilder with
+    type internal IOBuilder = IOBuilder with  //for testing purposes only
         member _.Return(x : 'a) : IO<'a> = IO(fun () -> x)
         member _.ReturnFrom(x : 'a) = x
         member _.Bind(m : IO<'a>, f : 'a -> IO<'b>) : IO<'b> =

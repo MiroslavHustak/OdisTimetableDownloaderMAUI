@@ -559,11 +559,13 @@ module App =
                                                 | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
-                                            return 
+                                            let result = 
                                                 stateReducerCmd1
                                                 <| token
                                                 <| kodisPathTemp
-                                                <| reportProgress
+                                                <| reportProgress 
+
+                                            return runIO result                                                     
                                         }
                                     |> Async.StartChild
 
@@ -592,14 +594,16 @@ module App =
                                                 match token.IsCancellationRequested with
                                                 | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                       
-                                            return
+
+                                            let result = 
                                                 stateReducerCmd2 
                                                 <| token
                                                 <| kodisPathTemp
                                                 <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                 <| fun message -> IterationMessage >> dispatch <| message 
                                                 <| reportProgress            
+                                       
+                                            return runIO result
                                         }
                                     |> Async.StartChild 
                                
@@ -684,13 +688,15 @@ module App =
                                                 | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
-                                            return
+                                            let result = 
                                                 stateReducerCmd4
                                                 <| token
                                                 <| kodisPathTemp4
                                                 <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                 <| fun message -> IterationMessage >> dispatch <| message 
-                                                <| reportProgress            
+                                                <| reportProgress      
+
+                                            return runIO result  
                                         }
                                     |> Async.StartChild 
 
@@ -772,7 +778,7 @@ module App =
                                                 | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)    
 
-                                            match webscraping_DPO reportProgress token dpoPathTemp with  
+                                            match runIO <| webscraping_DPO reportProgress token dpoPathTemp with  
                                             | Ok _     
                                                 -> 
                                                 return mauiDpoMsg
@@ -868,7 +874,7 @@ module App =
                                                 | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false) 
 
-                                            match webscraping_MDPO reportProgress token mdpoPathTemp with
+                                            match runIO <| webscraping_MDPO reportProgress token mdpoPathTemp with
                                             | Ok _     
                                                 ->                                                
                                                 return mauiMdpoMsg

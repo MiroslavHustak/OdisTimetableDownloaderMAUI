@@ -67,162 +67,168 @@ module WebScraping_KODISFMRecord =
         }    
 
     let internal stateReducerCmd1 (token : CancellationToken) path reportProgress =
-       
-        let downloadAndSaveJson reportProgress (token : CancellationToken) = 
+    
+        IO (fun () 
+                ->       
+                let downloadAndSaveJson reportProgress (token : CancellationToken) = 
 
-            let errFn err =  
-                match err with
-                | JsonDownloadError    -> jsonDownloadError
-                | JsonConnectionError  -> cancelMsg2
-                | NetConnJsonError err -> err
-                | JsonTimeoutError     -> jsonDownloadError  
-                | StopJsonDownloading  -> jsonCancel
+                    let errFn err =  
+                        match err with
+                        | JsonDownloadError    -> jsonDownloadError
+                        | JsonConnectionError  -> cancelMsg2
+                        | NetConnJsonError err -> err
+                        | JsonTimeoutError     -> jsonDownloadError  
+                        | StopJsonDownloading  -> jsonCancel
                     
-            try
-                try
-                    #if ANDROID
-                    KeepScreenOnManager.keepScreenOn >> runIO <| true
-                    #endif
-                    //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
-                    runIO <| environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
-                finally
-                    #if ANDROID
-                    KeepScreenOnManager.keepScreenOn >> runIO <| false
-                    #endif
-                    ()              
-            with
-            | ex
-                -> 
-                runIO (postToLog <| string ex.Message <| "#5") 
-                Error JsonDownloadError 
+                    try
+                        try
+                            #if ANDROID
+                            KeepScreenOnManager.keepScreenOn >> runIO <| true
+                            #endif
+                            //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
+                            runIO <| environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
+                        finally
+                            #if ANDROID
+                            KeepScreenOnManager.keepScreenOn >> runIO <| false
+                            #endif
+                            ()              
+                    with
+                    | ex
+                        -> 
+                        runIO (postToLog <| string ex.Message <| "#5") 
+                        Error JsonDownloadError 
             
-            |> Result.map (fun _ -> dispatchMsg1) 
-            |> Result.mapError errFn
+                    |> Result.map (fun _ -> dispatchMsg1) 
+                    |> Result.mapError errFn
 
-        downloadAndSaveJson reportProgress token          
+                downloadAndSaveJson reportProgress token 
+        )
 
     let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
-    
-            let errFn err =  
 
-                match err with
-                | RcError              -> rcError
-                | NoFolderError        -> noFolderError
-                | JsonFilteringError   -> jsonFilteringError
-                | DataFilteringError   -> dataFilteringError
-                | FileDeleteError      -> fileDeleteError 
-                | CreateFolderError    -> createFolderError   
-                | CreateFolderError1   -> createFolderError1
-                | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
-                | CanopyError          -> canopyError
-                | TimeoutError         -> "timeout"
-                | PdfConnectionError   -> cancelMsg2 
-                | ApiResponseError err -> err
-                | ApiDecodingError     -> canopyError
-                | NetConnPdfError err  -> err
-                | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+        IO (fun () 
+                ->    
+                let errFn err =  
+
+                    match err with
+                    | RcError              -> rcError
+                    | NoFolderError        -> noFolderError
+                    | JsonFilteringError   -> jsonFilteringError
+                    | DataFilteringError   -> dataFilteringError
+                    | FileDeleteError      -> fileDeleteError 
+                    | CreateFolderError    -> createFolderError   
+                    | CreateFolderError1   -> createFolderError1
+                    | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+                    | CanopyError          -> canopyError
+                    | TimeoutError         -> "timeout"
+                    | PdfConnectionError   -> cancelMsg2 
+                    | ApiResponseError err -> err
+                    | ApiDecodingError     -> canopyError
+                    | NetConnPdfError err  -> err
+                    | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
     
-            let result (context2 : Context2) =  
+                let result (context2 : Context2) =  
                
-                dispatchWorkIsComplete dispatchMsg2
+                    dispatchWorkIsComplete dispatchMsg2
                          
-                let dir = context2.DirList |> List.item context2.VariantInt  
-                let list = runIO <| operationOnDataFromJson reportProgress token context2.Variant dir 
+                    let dir = context2.DirList |> List.item context2.VariantInt  
+                    let list = runIO <| operationOnDataFromJson reportProgress token context2.Variant dir 
     
-                match list with
-                | Ok list
-                    when
-                        list <> List.empty
-                            -> 
-                            let context listMappingFunction : Context<'a, 'b, 'c> = 
-                                {
-                                    listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types
-                                    reportProgress = reportProgress
-                                    dir = dir
-                                    list = list
-                                } 
+                    match list with
+                    | Ok list
+                        when
+                            list <> List.empty
+                                -> 
+                                let context listMappingFunction : Context<'a, 'b, 'c> = 
+                                    {
+                                        listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types
+                                        reportProgress = reportProgress
+                                        dir = dir
+                                        list = list
+                                    } 
                            
-                            dispatchIterationMessage context2.Msg1
+                                dispatchIterationMessage context2.Msg1
                           
-                            //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
-                            //**********************************************************************
-                            match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
-                            | true  -> context List.Parallel.map2_IO
-                            | false -> context List.map2  
-                            //**********************************************************************
+                                //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
+                                //**********************************************************************
+                                match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
+                                | true  -> context List.Parallel.map2_IO
+                                | false -> context List.map2  
+                                //**********************************************************************
                              
-                            |> environment.DownloadAndSave token   
+                                |> environment.DownloadAndSave token   
     
-                | Ok _
-                    ->  
-                    dispatchIterationMessage context2.Msg2    
-                    System.Threading.Thread.Sleep(6000)     
-                    Ok context2.Msg3 
+                    | Ok _
+                        ->  
+                        dispatchIterationMessage context2.Msg2    
+                        System.Threading.Thread.Sleep(6000)     
+                        Ok context2.Msg3 
     
-                | Error err                    
-                    ->
-                    runIO (postToLog <| string err <| "#6")
-                    Error err  
+                    | Error err                    
+                        ->
+                        runIO (postToLog <| string err <| "#6")
+                        Error err  
                                  
-            //try with blok zrusen   
+                //try with blok zrusen   
                     
-            let dirList = createNewDirectoryPaths path listODISDefault4
-                in
-                let contextCurrentValidity = 
-                    {
-                        DirList = dirList
-                        Variant = CurrentValidity
-                        Msg1 = msg1CurrentValidity
-                        Msg2 = msg2CurrentValidity
-                        Msg3 = msg3CurrentValidity
-                        VariantInt = 0
-                    }
+                let dirList = createNewDirectoryPaths path listODISDefault4
+                    in
+                    let contextCurrentValidity = 
+                        {
+                            DirList = dirList
+                            Variant = CurrentValidity
+                            Msg1 = msg1CurrentValidity
+                            Msg2 = msg2CurrentValidity
+                            Msg3 = msg3CurrentValidity
+                            VariantInt = 0
+                        }
     
-                let contextFutureValidity = 
-                    {
-                        DirList = dirList
-                        Variant = FutureValidity
-                        Msg1 = msg1FutureValidity
-                        Msg2 = msg2FutureValidity
-                        Msg3 = msg3FutureValidity
-                        VariantInt = 1
-                    }
+                    let contextFutureValidity = 
+                        {
+                            DirList = dirList
+                            Variant = FutureValidity
+                            Msg1 = msg1FutureValidity
+                            Msg2 = msg2FutureValidity
+                            Msg3 = msg3FutureValidity
+                            VariantInt = 1
+                        }
     
-                let contextWithoutReplacementService = 
-                    {
-                        DirList = dirList
-                        Variant = WithoutReplacementService
-                        Msg1 = msg1WithoutReplacementService
-                        Msg2 = msg2WithoutReplacementService
-                        Msg3 = msg3WithoutReplacementService
-                        VariantInt = 2
-                    }
+                    let contextWithoutReplacementService = 
+                        {
+                            DirList = dirList
+                            Variant = WithoutReplacementService
+                            Msg1 = msg1WithoutReplacementService
+                            Msg2 = msg2WithoutReplacementService
+                            Msg3 = msg3WithoutReplacementService
+                            VariantInt = 2
+                        }
                                                        
-            pyramidOfInferno
-                {       
-                    #if ANDROID
-                    let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
-                    #endif
+                pyramidOfInferno
+                    {       
+                        #if ANDROID
+                        let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
+                        #endif
 
-                    let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
-                    let!_ = runIO <| createFolders dirList, errFn 
+                        let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
+                        let!_ = runIO <| createFolders dirList, errFn 
     
-                    let! msg1 = result contextCurrentValidity, errFn
-                    let! msg2 = result contextFutureValidity, errFn
-                    let! msg3 = result contextWithoutReplacementService, errFn   
+                        let! msg1 = result contextCurrentValidity, errFn
+                        let! msg2 = result contextFutureValidity, errFn
+                        let! msg3 = result contextWithoutReplacementService, errFn   
 
-                    let msg4 = 
-                        match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
-                        | Ok _      -> String.Empty
-                        | Error err -> err        
+                        let msg4 = 
+                            match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
+                            | Ok _      -> String.Empty
+                            | Error err -> err        
     
-                    let separator = String.Empty
+                        let separator = String.Empty
     
-                    let combinedMessage = 
-                        [ msg1; msg2; msg3; msg4 ] 
-                        |> List.choose Option.ofNullEmptySpace
-                        |> List.map (fun msg -> sprintf "\n%s" msg)
-                        |> String.concat separator                         
+                        let combinedMessage = 
+                            [ msg1; msg2; msg3; msg4 ] 
+                            |> List.choose Option.ofNullEmptySpace
+                            |> List.map (fun msg -> sprintf "\n%s" msg)
+                            |> String.concat separator                         
     
-                    return sprintf "%s%s" dispatchMsg3 combinedMessage
-                }
+                        return sprintf "%s%s" dispatchMsg3 combinedMessage
+                    }
+        )

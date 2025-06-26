@@ -186,5 +186,9 @@ module WebScraping_KODISFMRecord4 =
                 return sprintf "%s%s" dispatchMsg3 combinedMessage
             }          
     
-    let stateReducerCmd4 token path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
-        stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 
+    let internal stateReducerCmd4 token path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
+
+        IO (fun () 
+                ->
+                stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 
+        )

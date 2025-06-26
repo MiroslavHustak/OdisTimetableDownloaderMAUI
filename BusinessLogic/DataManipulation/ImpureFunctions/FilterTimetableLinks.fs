@@ -23,7 +23,7 @@ module FilterTimetableLinks =
     
     let internal filterTimetableLinks param (pathToDir : string) (diggingResult : Result<string list, PdfDownloadErrors>) = 
 
-        IO (fun () 
+        IO (fun () //mozna overkill - je to quli Regexu, u ktereho je impurity nejednoznacna, zbytek je dle mne pragmatically pure
                 ->      
 
                 //*************************************Helpers for SQL columns********************************************

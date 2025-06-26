@@ -54,46 +54,54 @@ module TP_Canopy_Difference =
            )
           
     let private getUniqueFileNames folderPathTP folderPathCanopy =
-
-        let fileNamesTP = runIO <| fileNames folderPathTP                    
-        let fileNamesCanopy = runIO <| fileNames folderPathCanopy        
         
-        Set.difference fileNamesTP fileNamesCanopy |> Set.toList, Set.difference fileNamesCanopy fileNamesTP |> Set.toList
+        IO (fun () 
+                ->
+
+                let fileNamesTP = runIO <| fileNames folderPathTP                    
+                let fileNamesCanopy = runIO <| fileNames folderPathCanopy        
+        
+                Set.difference fileNamesTP fileNamesCanopy |> Set.toList, Set.difference fileNamesCanopy fileNamesTP |> Set.toList
+        )
                 
     let private result folderPathTP folderPathCanopy =
-       
-        match folderPathTP = pathTP_FutureValidity && folderPathCanopy = pathCanopy_FutureValidity with
-        | true  -> (seq {folderPathTP}, seq {folderPathCanopy})
-        | false -> (runIO <| getDirNames folderPathTP, runIO <| getDirNames folderPathCanopy)
 
-        ||> Seq.map2
-            (fun pathTP pathCanopy
+        IO (fun () 
                 ->
-                let uniqueFileNamesTP, uniqueFileNamesCanopy = getUniqueFileNames pathTP pathCanopy 
-                showResults uniqueFileNamesTP uniqueFileNamesCanopy
-            )
-        |> Seq.collect id       
+       
+                match folderPathTP = pathTP_FutureValidity && folderPathCanopy = pathCanopy_FutureValidity with
+                | true  -> (seq {folderPathTP}, seq {folderPathCanopy})
+                | false -> (runIO <| getDirNames folderPathTP, runIO <| getDirNames folderPathCanopy)
+
+                ||> Seq.map2
+                    (fun pathTP pathCanopy
+                        ->
+                        let uniqueFileNamesTP, uniqueFileNamesCanopy = runIO <| getUniqueFileNames pathTP pathCanopy 
+                        showResults uniqueFileNamesTP uniqueFileNamesCanopy
+                    )
+                |> Seq.collect id       
+        )
 
     let internal calculate_TP_Canopy_Difference () = 
 
-        IO(fun () 
+        IO (fun () 
                 ->
-                try //kdyby tady nebyl try-with block, byla by to uz pure function diky runIO bez ohledu na ()
+                try 
                     let json =  
                         seq
                             {
                                 "CurrentValidity"
                                 String.Empty
                                 String.replicate 48 "*"
-                                yield! result pathTP_CurrentValidity pathCanopy_CurrentValidity
+                                yield! runIO <| result pathTP_CurrentValidity pathCanopy_CurrentValidity
                                 String.Empty
                                 "FutureValidity"
                                 String.replicate 48 "*"
-                                yield! result pathTP_FutureValidity pathCanopy_FutureValidity
+                                yield! runIO <| result pathTP_FutureValidity pathCanopy_FutureValidity
                                 String.Empty
                                 "WithoutReplacementService"
                                 String.replicate 48 "*"
-                                yield! result pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
+                                yield! runIO <| result pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
                             }                
                         |> List.ofSeq
                         |> List.map Encode.string
