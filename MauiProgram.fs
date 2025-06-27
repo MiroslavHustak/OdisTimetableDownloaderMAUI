@@ -19,7 +19,7 @@ type MauiProgram =
 
     static member CreateMauiApp() =
 
-        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 //quli Android 7.1
+        ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 
 
         MauiApp
             .CreateBuilder()
