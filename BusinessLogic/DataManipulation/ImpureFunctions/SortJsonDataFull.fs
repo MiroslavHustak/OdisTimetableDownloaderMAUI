@@ -130,7 +130,8 @@ module SortJsonDataFull =
                                             vyluky
                                             |> Option.ofNull
                                             |> Option.map
-                                                (fun value -> 
+                                                (fun value
+                                                    -> 
                                                     value
                                                     |> Array.collect (_.Attachments)
                                                     |> Array.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) 
