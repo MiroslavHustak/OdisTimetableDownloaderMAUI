@@ -38,7 +38,7 @@ module TP_Canopy_Difference =
                     ->
                     runIO (postToLog <| string ex.Message <| "#Canopy01")
                     Set.empty<string>
-           )
+        )
 
     let private getDirNames pathToDir =
 
@@ -51,13 +51,12 @@ module TP_Canopy_Difference =
                     ->
                     runIO (postToLog <| string ex.Message <| "#Canopy02")
                     Seq.empty<string>
-           )
+        )
           
     let private getUniqueFileNames folderPathTP folderPathCanopy =
         
         IO (fun () 
                 ->
-
                 let fileNamesTP = runIO <| fileNames folderPathTP                    
                 let fileNamesCanopy = runIO <| fileNames folderPathCanopy        
         
@@ -67,8 +66,7 @@ module TP_Canopy_Difference =
     let private result folderPathTP folderPathCanopy =
 
         IO (fun () 
-                ->
-       
+                ->       
                 match folderPathTP = pathTP_FutureValidity && folderPathCanopy = pathCanopy_FutureValidity with
                 | true  -> (seq {folderPathTP}, seq {folderPathCanopy})
                 | false -> (runIO <| getDirNames folderPathTP, runIO <| getDirNames folderPathCanopy)

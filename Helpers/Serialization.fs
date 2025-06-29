@@ -1,20 +1,23 @@
 ﻿namespace Helpers
 
 open System.IO
+
+//************************************************************
+
 open FsToolkit.ErrorHandling
 
 //************************************************************
-open DirFileHelper
-
-open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
 
+open DirFileHelper
+
+open Types.Haskell_IO_Monad_Simulation
+
 module Serialization =     
 
     let internal serializeWithThoth (json : string) (path : string) : IO<Result<unit, string>> = 
-    // It is the eqv of a pure description of a side-effecting computation, returns simulation of an IO monad despite the unit type inside (it is like IO () in Haskell)
 
         IO (fun () 
                 ->        
@@ -23,7 +26,6 @@ module Serialization =
                     try  
                         pyramidOfDoom //nelze option CE (TODO: look at the definition code to find out why)
                             {                   
-                                //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
                                 let! path = Path.GetFullPath path |> Option.ofNullEmpty, None  
                                                
                                 let pathOption =

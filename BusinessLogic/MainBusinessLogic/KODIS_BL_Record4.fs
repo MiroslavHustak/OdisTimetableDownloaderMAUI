@@ -41,32 +41,35 @@ module KODIS_BL_Record4 =
     
     let private cancellationActor = //Template 004a for cancellation tokens (actor)
 
-        MailboxProcessor<ConnectivityMessage>
-            .StartImmediate
-                (fun inbox
-                    ->
-                    let rec loop (isConnected : bool) = 
-                        async
-                            {
-                                match! inbox.Receive() with
-                                | UpdateState newState
-                                    ->
-                                    return! loop newState
+        IO (fun () 
+                -> 
+                MailboxProcessor<ConnectivityMessage>
+                    .StartImmediate
+                        (fun inbox
+                            ->
+                            let rec loop (isConnected : bool) = 
+                                async
+                                    {
+                                        match! inbox.Receive() with
+                                        | UpdateState newState
+                                            ->
+                                            return! loop newState
 
-                                | CheckState replyChannel
-                                    ->                            
-                                    replyChannel.Reply(isConnected) 
-                                    return! loop isConnected
-                            }
+                                        | CheckState replyChannel
+                                            ->                            
+                                            replyChannel.Reply(isConnected) 
+                                            return! loop isConnected
+                                    }
             
-                    loop true // Start the loop with whatever initial value
-                )
+                            loop true // Start the loop with whatever initial value
+                        )
+        )
 
     let private monitorConnectivity (token : CancellationToken) =  //zatim nepouzivano
 
         IO (fun () 
                 -> 
-                cancellationActor.Post <| UpdateState true //inicializace
+                (runIO cancellationActor).Post <| UpdateState true //inicializace
 
                 AsyncSeq.initInfinite (fun _ -> true)
                 |> AsyncSeq.mapi (fun index _ -> index) 
@@ -136,7 +139,7 @@ module KODIS_BL_Record4 =
                             defaultToken               
         
                 //Template //zatim nepouzivano
-                cancellationActor.PostAndReply (fun replyChannel -> CheckState replyChannel)
+                (runIO cancellationActor).PostAndReply (fun replyChannel -> CheckState replyChannel)
                 |> function    
                     | true  -> CancellationToken.None   
                     | false -> token2 () 
@@ -327,6 +330,7 @@ module KODIS_BL_Record4 =
                                             | Ok _ 
                                                 -> 
                                                 None
+
                                             | Error ex
                                                 when (string ex.Message).Contains "SSL connection could not be established" 
                                                 ->
