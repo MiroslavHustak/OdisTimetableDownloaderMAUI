@@ -9,7 +9,7 @@ module Connectivity =
     open Types.Types    
     open Types.Haskell_IO_Monad_Simulation
 
-    let private actor = //tady nelze IO Monad (pak se actor nespousti tak, jak je treba)
+    let private actor = //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
 
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 

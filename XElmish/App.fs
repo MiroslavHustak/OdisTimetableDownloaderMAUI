@@ -119,48 +119,46 @@ module App =
         | UpdateStatus of float * float * bool 
         | WorkIsComplete of string * bool  
 
-    let private cancellationActor = 
+    let private cancellationActor =  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
 
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 
-        IO (fun () 
-                ->     
-                MailboxProcessor<CancellationMessage>
-                    .StartImmediate
-                        <|
-                        fun inbox 
-                            ->
-                            let rec loop (cancelIsRequested : bool) (cts : CancellationTokenSource) =
+       
+        MailboxProcessor<CancellationMessage>
+            .StartImmediate
+                <|
+                fun inbox 
+                    ->
+                    let rec loop (cancelIsRequested : bool) (cts : CancellationTokenSource) =
 
-                                async
-                                    {
-                                        match! inbox.Receive() with
-                                        | UpdateState2 (newState, newCts)
-                                            ->
-                                            match newState with
-                                            | true  ->
-                                                    cts.Cancel()
-                                                    cts.Dispose()
-                                            | false -> 
-                                                    () 
+                        async
+                            {
+                                match! inbox.Receive() with
+                                | UpdateState2 (newState, newCts)
+                                    ->
+                                    match newState with
+                                    | true  ->
+                                            cts.Cancel()
+                                            cts.Dispose()
+                                    | false -> 
+                                            () 
     
-                                            return! loop newState newCts
+                                    return! loop newState newCts
     
-                                        | CheckState2 replyChannel 
-                                            ->
-                                            let ctsTokenOpt =                        
-                                                try
-                                                    cts.Token |> Option.ofNull
-                                                with
-                                                | _ -> None                           
+                                | CheckState2 replyChannel 
+                                    ->
+                                    let ctsTokenOpt =                        
+                                        try
+                                            cts.Token |> Option.ofNull
+                                        with
+                                        | _ -> None                           
                      
-                                            replyChannel.Reply ctsTokenOpt 
+                                    replyChannel.Reply ctsTokenOpt 
 
-                                            return! loop cancelIsRequested cts
-                                    }
+                                    return! loop cancelIsRequested cts
+                            }
     
-                            loop false (new CancellationTokenSource()) //whatever to initialise
-           )
+                    loop false (new CancellationTokenSource()) //whatever to initialise
 
     let private countDown dispatch = //Not used yet
 
@@ -239,7 +237,7 @@ module App =
             
         let ctsInitial = new CancellationTokenSource()
             in
-            (runIO cancellationActor).Post <| UpdateState2 (false, ctsInitial) //inicializace
+            cancellationActor.Post <| UpdateState2 (false, ctsInitial) //inicializace
                 
         let monitorConnectivity (dispatch : Msg -> unit) =              
                    
@@ -350,7 +348,7 @@ module App =
 
         let ctsNew = new CancellationTokenSource()
             in
-            (runIO cancellationActor).Post <| UpdateState2 (false, ctsNew)
+            cancellationActor.Post <| UpdateState2 (false, ctsNew)
         
         #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only        
@@ -522,7 +520,7 @@ module App =
             ->
             let ctsNew = new CancellationTokenSource() 
                 in
-                (runIO cancellationActor).Post <| UpdateState2 (true, ctsNew)    
+                cancellationActor.Post <| UpdateState2 (true, ctsNew)    
            
             { m with ProgressMsg = cancelMsg3; ProgressCircleVisible = false; CancelVisible = false }, Cmd.none
 
@@ -542,7 +540,7 @@ module App =
             runIO <| KeepScreenOnManager.keepScreenOn true
             #endif
 
-            (runIO cancellationActor).PostAndReply <| fun replyChannel -> CheckState2 replyChannel
+            cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
                     ->                     
@@ -669,7 +667,7 @@ module App =
             runIO <| KeepScreenOnManager.keepScreenOn true
             #endif
 
-            (runIO cancellationActor).PostAndReply <| fun replyChannel -> CheckState2 replyChannel
+            cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
                     ->
@@ -759,7 +757,7 @@ module App =
             runIO <| KeepScreenOnManager.keepScreenOn true
             #endif
 
-            (runIO cancellationActor).PostAndReply <| fun replyChannel -> CheckState2 replyChannel
+            cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
                     ->
@@ -855,7 +853,7 @@ module App =
             runIO <| KeepScreenOnManager.keepScreenOn true
             #endif
 
-            (runIO cancellationActor).PostAndReply <| fun replyChannel -> CheckState2 replyChannel
+            cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
                     ->             

@@ -39,37 +39,34 @@ module KODIS_BL_Record4 =
 
     //*************************** Cancellation token templates ********************************
     
-    let private cancellationActor = //Template 004a for cancellation tokens (actor)
+    let private cancellationActor = //Template 004a for cancellation tokens (actor)  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
 
-        IO (fun () 
-                -> 
-                MailboxProcessor<ConnectivityMessage>
-                    .StartImmediate
-                        (fun inbox
-                            ->
-                            let rec loop (isConnected : bool) = 
-                                async
-                                    {
-                                        match! inbox.Receive() with
-                                        | UpdateState newState
-                                            ->
-                                            return! loop newState
+        MailboxProcessor<ConnectivityMessage>
+            .StartImmediate
+                (fun inbox
+                    ->
+                    let rec loop (isConnected : bool) = 
+                        async
+                            {
+                                match! inbox.Receive() with
+                                | UpdateState newState
+                                    ->
+                                    return! loop newState
 
-                                        | CheckState replyChannel
-                                            ->                            
-                                            replyChannel.Reply(isConnected) 
-                                            return! loop isConnected
-                                    }
+                                | CheckState replyChannel
+                                    ->                            
+                                    replyChannel.Reply(isConnected) 
+                                    return! loop isConnected
+                            }
             
-                            loop true // Start the loop with whatever initial value
-                        )
-        )
+                    loop true // Start the loop with whatever initial value
+                )
 
     let private monitorConnectivity (token : CancellationToken) =  //zatim nepouzivano
 
         IO (fun () 
                 -> 
-                (runIO cancellationActor).Post <| UpdateState true //inicializace
+                cancellationActor.Post <| UpdateState true //inicializace
 
                 AsyncSeq.initInfinite (fun _ -> true)
                 |> AsyncSeq.mapi (fun index _ -> index) 
@@ -139,7 +136,7 @@ module KODIS_BL_Record4 =
                             defaultToken               
         
                 //Template //zatim nepouzivano
-                (runIO cancellationActor).PostAndReply (fun replyChannel -> CheckState replyChannel)
+                cancellationActor.PostAndReply (fun replyChannel -> CheckState replyChannel)
                 |> function    
                     | true  -> CancellationToken.None   
                     | false -> token2 () 
