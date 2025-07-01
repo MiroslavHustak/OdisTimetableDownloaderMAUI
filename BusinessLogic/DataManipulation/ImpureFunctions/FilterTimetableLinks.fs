@@ -69,7 +69,8 @@ module FilterTimetableLinks =
             
                     match input.StartsWith prefix with
                     | false
-                        -> (None, 0)
+                        ->
+                        (None, 0)
 
                     | true
                         ->

@@ -97,8 +97,7 @@ module KODIS_BL_Record4 =
     let private tokenTrigger () = //Template //zatim nepouzivano
 
         IO (fun () 
-                ->   
-                  
+                ->                     
                 let token2 () = //Template //zatim nepouzivano
            
                     let defaultToken = CancellationToken.None
