@@ -130,9 +130,9 @@
     <Compile Include="Helpers\Serialization.fs" />
     <Compile Include="Helpers\Parsing.fs" />
     <Compile Include="Helpers\HardRestart.fs" />
-    <Compile Include="Helpers\Connectivity.fs" />
     <Compile Include="Helpers\ListParallel.fs" />
     <Compile Include="Helpers\AndroidSpecificCode.fs" />
+    <Compile Include="Connectivity\Connectivity.fs" />
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\DataTransferModels.fs" />
     <Compile Include="DataModelling\TransformationLayers.fs" />
@@ -155,6 +155,7 @@
     <Compile Include="ApplicationDesign\KODIS_Record.fs" />
     <Compile Include="ApplicationDesign\KODIS_Record4.fs" />
     <Compile Include="XElmish\ProgressCircle.fs" />
+    <Compile Include="XElmish\Counters.fs" />
     <Compile Include="XElmish\App.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />

@@ -45,6 +45,8 @@ open Settings.SettingsGeneral
 open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
+open Counters
+
 open Api.Logging
 
 open IO_Operations.IO_Operations
@@ -158,78 +160,7 @@ module App =
                                     return! loop cancelIsRequested cts
                             }
     
-                    loop false (new CancellationTokenSource()) //whatever to initialise
-
-    let private countDown dispatch = //Not used yet
-
-        IO (fun () 
-                ->  
-                //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
-      
-                [ waitingForNetConn .. -1 .. 0 ]  // -1 for backward counting
-                |> List.toSeq                                             
-                |> AsyncSeq.ofSeq
-                |> AsyncSeq.iterAsync
-                    (fun remaining 
-                        ->      
-                        QuitCountdown >> dispatch <| (quitMsg remaining)
-                
-                        match connectivityListener >> runIO <| () with
-                        | false 
-                            when remaining = 0  
-                                ->
-                                async { return dispatch Quit } |> Async.executeOnMainThread    
-                        | false
-                            when remaining <> 0
-                                -> 
-                                Async.Sleep 1000 //po vterine to odpocitava
-                        | _
-                                -> 
-                                async
-                                    { 
-                                        //tato varianta v pozadi jede dal
-                                        return NetConnMessage >> dispatch <| continueDownload
-                                    } 
-                                |> Async.executeOnMainThread                           
-                    ) 
-        )
-
-    let private countDown2 dispatch =
-        
-        IO (fun () 
-               ->  
-                //This "loop" fn anotated with [<TailCall>] tested as a module fn in another F# project; no warnings encountered
-                let rec loop remaining =
-
-                    async
-                        {
-                            QuitCountdown >> dispatch <| (quitMsg remaining)
-    
-                            match connectivityListener >> runIO <| () with
-                            | false 
-                                when remaining = 0
-                                    ->
-                                    RestartVisible >> dispatch <| false
-
-                                    do! 
-                                        async { return dispatch Quit }
-                                        |> Async.executeOnMainThread  
-                            | false 
-                                when remaining <> 0 
-                                    ->
-                                    do! Async.Sleep 1000
-                                    RestartVisible >> dispatch <| false
-                           
-                                    return! loop (remaining - 1) // Recurring with the next remaining value
-                            | _ 
-                                    ->
-                                    do! 
-                                        async { return NetConnMessage >> dispatch <| continueDownload } 
-                                        |> Async.executeOnMainThread 
-                        }
-    
-                Async.StartImmediate (loop waitingForNetConn) 
-        )
+                    loop false (new CancellationTokenSource()) //whatever to initialise    
                       
     let init () =  
     
@@ -239,11 +170,11 @@ module App =
             in
             cancellationActor.Post <| UpdateState2 (false, ctsInitial) //inicializace
                 
-        let monitorConnectivity (dispatch : Msg -> unit) =              
+        let monitorConnectivity (dispatch : Msg -> unit) = //obsahuje countDown2, nelze odsunout do Connectivity             
                    
             AsyncSeq.initInfinite (fun _ -> true)
-            |> AsyncSeq.mapi (fun index _ -> index)    //index for educational purposes
-            |> AsyncSeq.takeWhile ((=) true << (>=) 0) // indefinite sequence 
+            |> AsyncSeq.mapi (fun index _ -> index)    // index for educational purposes
+            |> AsyncSeq.takeWhile ((=) true << (>=) 0) // indefinite sequence // ((=) true << fun index -> index >= 0) 
             |> AsyncSeq.iterAsync 
                 (fun index 
                     ->        
@@ -262,7 +193,7 @@ module App =
                                             | false -> 
                                                     NetConnMessage >> dispatch <| noNetConn 
                                                     do! Async.Sleep 2000
-                                                    countDown2 >> runIO <| dispatch
+                                                    runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                             #else                                            
                                             match isConnected with
                                             | true  -> NetConnMessage >> dispatch <| yesNetConn 

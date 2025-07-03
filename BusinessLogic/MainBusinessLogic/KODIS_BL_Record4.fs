@@ -24,7 +24,6 @@ open Api.FutureLinks
 
 open Helpers
 open Helpers.Builders
-open Helpers.Connectivity
 open Helpers.DirFileHelper
 
 open Settings.SettingsGeneral
@@ -36,113 +35,7 @@ module KODIS_BL_Record4 =
         
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
     // 16-12-2024 Nic neni trvalejsiho, nez neco docasneho ...
-
-    //*************************** Cancellation token templates ********************************
-    
-    let private cancellationActor = //Template 004a for cancellation tokens (actor)  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
-
-        MailboxProcessor<ConnectivityMessage>
-            .StartImmediate
-                (fun inbox
-                    ->
-                    let rec loop (isConnected : bool) = 
-                        async
-                            {
-                                match! inbox.Receive() with
-                                | UpdateState newState
-                                    ->
-                                    return! loop newState
-
-                                | CheckState replyChannel
-                                    ->                            
-                                    replyChannel.Reply(isConnected) 
-                                    return! loop isConnected
-                            }
             
-                    loop true // Start the loop with whatever initial value
-                )
-
-    let private monitorConnectivity (token : CancellationToken) =  //zatim nepouzivano
-
-        IO (fun () 
-                -> 
-                cancellationActor.Post <| UpdateState true //inicializace
-
-                AsyncSeq.initInfinite (fun _ -> true)
-                |> AsyncSeq.mapi (fun index _ -> index) 
-                |> AsyncSeq.takeWhile ((=) true << fun index -> index >= 0) //indefinite sequence
-                |> AsyncSeq.iterAsync 
-                    (fun index 
-                        ->        
-                        async 
-                            {                                 
-                                connectivityListener2 >> runIO 
-                                    <|
-                                    fun isConnected 
-                                        ->
-                                        async
-                                            {
-                                                match isConnected with
-                                                | true  -> ()
-                                                | false -> () //cancellationActor.Post <| UpdateState false
-                                            }    
-                                        |> Async.StartImmediate  
-                                
-                                do! Async.Sleep 600000 //zatim nepotrebujeme
-                            }
-                    )
-                |> Async.StartImmediate 
-        )
-
-    let private tokenTrigger () = //Template //zatim nepouzivano
-
-        IO (fun () 
-                ->                     
-                let token2 () = //Template //zatim nepouzivano
-           
-                    let defaultToken = CancellationToken.None
-                        in
-                        try
-                            match new CancellationTokenSource() |> Option.ofNull with
-                            | Some newCts 
-                                ->
-                                try
-                                    let newToken =
-                                        try
-                                            Some newCts.Token
-                                        with
-                                        | _ -> None
-        
-                                    match newToken with
-                                    | Some newToken 
-                                        ->
-                                        newCts.Cancel() // This signal is irreversible once sent.
-                                        newToken
-
-                                    | None 
-                                        ->
-                                        newCts.Dispose()
-                                        defaultToken
-                                finally
-                                    newCts.Dispose()
-                            | None
-                                ->
-                                defaultToken
-                        with
-                        | ex
-                            ->
-                            runIO (postToLog <| ex.Message <| "#12")
-                            defaultToken               
-        
-                //Template //zatim nepouzivano
-                cancellationActor.PostAndReply (fun replyChannel -> CheckState replyChannel)
-                |> function    
-                    | true  -> CancellationToken.None   
-                    | false -> token2 () 
-        )
-
-    //************************ Main code *********************************
-        
     let internal operationOnDataFromJson token variant dir = 
     
         IO (fun () 
