@@ -56,7 +56,7 @@ module SortJsonData =
 
                                     let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 
-                                    let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel done separatelly
+                                    let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel computing done separatelly
                                         pathToJsonList3
                                         |> List.Parallel.map_CPU 
                                             (fun pathToJson 
@@ -64,7 +64,7 @@ module SortJsonData =
                                                 try
                                                     token.ThrowIfCancellationRequested()  // Artificial checkpoint 
                                                     counterAndProgressBar.Post <| Inc 1
-                                                    // byt existuje async verze, nestoji to vytvoreni externiho async bloku, gor kdyz to koliduje s JsonProvider2.Parse tempJson2
+                                                    // byt mam svoji async verzi, nestoji to vytvoreni externiho async bloku, gor kdyz to koliduje s JsonProvider2.Parse tempJson2
                                                     let json = readAllText >> runIO <| pathToJson 
                                                     JsonProvider2.Parse json //The biggest performance drag je sync function
                                                 with

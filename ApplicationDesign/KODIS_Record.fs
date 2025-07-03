@@ -221,7 +221,14 @@ module WebScraping_KODISFMRecord =
                                                        
                 pyramidOfInferno
                     {       
+                        #if ANDROID
+                        let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
+                        #endif
+                        let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
+                        let!_ = runIO <| createFolders dirList, errFn 
+
                         let lazyList = 
+                            //laziness jen jako priprava pro pripadne threadsafe multitasking, zatim zadny rozdil oproti eager + parameterless (krome trochu vetsiho overhead u lazy)
                             try               
                                 runIO <| parseJsonStructure reportProgress token  
                             with
@@ -230,13 +237,6 @@ module WebScraping_KODISFMRecord =
                                 runIO (postToLog <| ex.Message <| "#22-1")
                                 Error DataFilteringError 
                                 |> Lazy<Result<string list, PdfDownloadErrors>> 
-
-                        #if ANDROID
-                        let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
-                        #endif
-
-                        let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
-                        let!_ = runIO <| createFolders dirList, errFn 
     
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn
