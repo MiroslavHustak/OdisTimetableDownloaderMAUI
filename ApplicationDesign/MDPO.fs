@@ -28,12 +28,12 @@ module WebScraping_MDPO =
 
     type private State =  
         { 
-            TimetablesDownloadedAndSaved: unit  //zatim nevyuzito
+            TimetablesDownloadedAndSaved : int  //zatim nevyuzito
         }
     
     let private stateDefault = 
         {          
-            TimetablesDownloadedAndSaved = () //zatim nevyuzito
+            TimetablesDownloadedAndSaved = 0 //zatim nevyuzito
         }
 
     type private Actions =

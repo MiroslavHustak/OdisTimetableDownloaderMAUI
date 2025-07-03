@@ -34,12 +34,12 @@ module WebScraping_KODISFMRecord4 =
 
     type private State =  
         { 
-            TimetablesDownloadedAndSaved : unit
+            TimetablesDownloadedAndSaved : int
         }
 
     let private stateDefault = 
         {          
-            TimetablesDownloadedAndSaved = ()
+            TimetablesDownloadedAndSaved = 0
         }
 
     type private Context2 = 
