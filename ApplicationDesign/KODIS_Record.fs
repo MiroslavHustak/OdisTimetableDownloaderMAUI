@@ -23,9 +23,14 @@ open Api.Logging
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
 
+open JsonData.SortJsonData  
+open Filtering.FilterTimetableLinks  
+
 open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
+
+
 
 //Vzhledem k pouziti Elmishe priste podumej nad timto designem, mozna bude lepsi pure transformation layer
 
@@ -55,7 +60,8 @@ module WebScraping_KODISFMRecord =
         {
             DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> IO<Result<unit, JsonDownloadErrors>>
             DeleteAllODISDirectories : string -> IO<Result<unit, PdfDownloadErrors>>
-            OperationOnDataFromJson : (float * float -> unit) -> CancellationToken -> Validity -> string -> IO<Result<(string * string) list, PdfDownloadErrors>> 
+            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Lazy<Result<string list, PdfDownloadErrors>>> 
+            FilterTimetableLinks : Validity -> string -> Result<string list, PdfDownloadErrors> -> IO<Result<(string * string) list, PdfDownloadErrors>> 
             DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, PdfDownloadErrors>
         }
 
@@ -63,7 +69,8 @@ module WebScraping_KODISFMRecord =
         { 
             DownloadAndSaveJson = downloadAndSaveJson 
             DeleteAllODISDirectories = deleteAllODISDirectories   
-            OperationOnDataFromJson = operationOnDataFromJson
+            ParseJsonStructure = parseJsonStructure  
+            FilterTimetableLinks = filterTimetableLinks  
             DownloadAndSave = downloadAndSave >> runIO
         }    
 
@@ -127,14 +134,22 @@ module WebScraping_KODISFMRecord =
                     | ApiDecodingError     -> canopyError
                     | NetConnPdfError err  -> err
                     | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
-    
-                let result (context2 : Context2) =  
+                                                             
+                let result (lazyList : Lazy<Result<string list, PdfDownloadErrors>>) (context2 : Context2) =  
                
                     dispatchWorkIsComplete dispatchMsg2
-                         
-                    let dir = context2.DirList |> List.item context2.VariantInt  
-                    let list = runIO <| operationOnDataFromJson reportProgress token context2.Variant dir 
-    
+
+                    let dir = context2.DirList |> List.item context2.VariantInt 
+                    
+                    let list = 
+                        try  
+                            runIO <| filterTimetableLinks context2.Variant dir lazyList.Value //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
+                        with
+                        | ex
+                            ->
+                            runIO (postToLog <| ex.Message <| "#22-2")
+                            Error DataFilteringError 
+                            
                     match list with
                     | Ok list
                         when
@@ -206,6 +221,16 @@ module WebScraping_KODISFMRecord =
                                                        
                 pyramidOfInferno
                     {       
+                        let lazyList = 
+                            try               
+                                runIO <| parseJsonStructure reportProgress token  
+                            with
+                            | ex
+                                ->
+                                runIO (postToLog <| ex.Message <| "#22-1")
+                                Error DataFilteringError 
+                                |> Lazy<Result<string list, PdfDownloadErrors>> 
+
                         #if ANDROID
                         let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                         #endif
@@ -213,9 +238,9 @@ module WebScraping_KODISFMRecord =
                         let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
                         let!_ = runIO <| createFolders dirList, errFn 
     
-                        let! msg1 = result contextCurrentValidity, errFn
-                        let! msg2 = result contextFutureValidity, errFn
-                        let! msg3 = result contextWithoutReplacementService, errFn   
+                        let! msg1 = result lazyList contextCurrentValidity, errFn
+                        let! msg2 = result lazyList contextFutureValidity, errFn
+                        let! msg3 = result lazyList contextWithoutReplacementService, errFn   
 
                         let msg4 = 
                             match calculate_TP_Canopy_Difference >> runIO <| () with

@@ -144,21 +144,7 @@ module KODIS_BL_Record =
                     | true  -> Error StopJsonDownloading
                     | false -> Error JsonDownloadError  
             )
-    
-    let internal operationOnDataFromJson (reportProgress : float * float -> unit) token variant dir =   
-
-        IO (fun () 
-                -> 
-                try               
-                    let result = runIO <| digThroughJsonStructure reportProgress token
-                    runIO <| filterTimetableLinks variant dir result
-                with
-                | ex
-                    ->
-                    runIO (postToLog <| ex.Message <| "#22")
-                    Error DataFilteringError 
-        )
-                    
+            
     let internal downloadAndSave token = 
 
         IO (fun () 
