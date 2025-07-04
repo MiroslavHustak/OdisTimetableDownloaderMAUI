@@ -11,6 +11,7 @@ Pripadne ty soubory smazat (jen pri uplatneni Quit z Kodis, Kodis4, Dpo a Mdpo).
     init2 ()
 
 Pridat varovani pro vyse uvedeny kod, ze nejen ze nic nebylo stazeno, ale ze vse bylo smazano.
+Alternativne pred smazanim zrobit zalohu, keru pri neuspesnem stahovani moze uzivatel pouzit.
 
 Vypracovat logging pro Android verzi
 
@@ -19,3 +20,5 @@ Pro vsechny pripady chybneho certifikatu, jako je u MDPO, dat veskery unsafe kod
 Sjednotit objevovani se message "Internet funguje/nefunguje" (jen pro Android)
 
 Struct zrobit vsade, kaj je to mozne a ucelne
+
+JSON soubory smazat po parsingu

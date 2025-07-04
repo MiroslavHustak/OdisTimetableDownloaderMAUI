@@ -980,6 +980,7 @@ module App =
                             Button(buttonQuit, Quit)
                                 .semantics(hint = String.Empty)
                                 .centerHorizontal()
+                                .background(SolidColorBrush(Colors.Green))
                         }
                     )
                         .padding(30., 0., 30., 0.)

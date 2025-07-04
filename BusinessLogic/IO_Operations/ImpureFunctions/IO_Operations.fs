@@ -99,7 +99,25 @@ module IO_Operations =
                     ->
                     runIO (postToLog <| pathToDir <| "#40")
                     Error FileDownloadErrorMHD //dpoMsg1  
-        )
+        )   
+    
+    let internal deleteAllJsonFilesInDirectory pathToDir =
+
+        IO (fun () 
+                ->  
+                try      
+                    //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                    let dirInfo = DirectoryInfo pathToDir   
+                        in 
+                        dirInfo.EnumerateFiles()
+                        |> Seq.iter _.Delete()                       
+                with
+                | _ 
+                    ->
+                    ()
+                    //runIO (postToLog <| pathToDir <| "#40-1")
+                    //proste se nic nestane, tak se nesmazou, no...
+        )          
       
     let internal createFolders dirList =  
         IO (fun () 

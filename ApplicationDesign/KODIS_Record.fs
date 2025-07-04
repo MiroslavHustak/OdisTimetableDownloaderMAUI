@@ -245,8 +245,12 @@ module WebScraping_KODISFMRecord =
                         let msg4 = 
                             match calculate_TP_Canopy_Difference >> runIO <| () with
                             | Ok _      -> String.Empty
-                            | Error err -> err        
-    
+                            | Error err -> err      
+                            
+                        #if ANDROID     
+                        deleteAllJsonFilesInDirectory >> runIO <| partialPathJsonTemp 
+                        #endif
+
                         let separator = String.Empty
     
                         let combinedMessage = 
