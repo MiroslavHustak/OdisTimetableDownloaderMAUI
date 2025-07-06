@@ -25,5 +25,6 @@ module HardRestart =
                    | ex -> string ex.Message
                
                | None 
-                   -> quitError
-           )
+                   -> 
+                   quitError
+       )
