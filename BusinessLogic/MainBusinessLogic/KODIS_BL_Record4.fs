@@ -40,8 +40,8 @@ module KODIS_BL_Record4 =
     
         IO (fun () 
                 ->
-                let url1 = "http://kodis.somee.com/api/"  // Trailing slash preserved
-                let url2 = "http://kodis.somee.com/api/jsonLinks"
+                let url1 = urlApi  
+                let url2 = urlJson
     
                 let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
                     async

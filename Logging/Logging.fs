@@ -107,7 +107,7 @@ module Logging =
                     try                 
                         pyramidOfDoom
                             {  
-                                let url = "http://kodis.somee.com/api/logging"
+                                let url = urlLogging
                                             
                                 //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
                                 let filePath = Path.GetFullPath logFileName

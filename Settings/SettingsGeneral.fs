@@ -41,6 +41,8 @@ module SettingsGeneral =
     
     let internal apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" 
     let internal urlLogging = "http://kodis.somee.com/api/logging" 
+    let internal urlApi = "http://kodis.somee.com/api/"  // Trailing slash preserved
+    let internal urlJson = "http://kodis.somee.com/api/jsonLinks"
 
     #if WINDOWS
     let internal partialPathJsonTemp = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
