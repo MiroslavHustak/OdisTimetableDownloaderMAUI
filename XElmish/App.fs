@@ -198,8 +198,7 @@ module App =
                                             match isConnected with
                                             | true  -> NetConnMessage >> dispatch <| yesNetConn 
                                             | false -> NetConnMessage >> dispatch <| noNetConn                                                   
-                                            #endif
-                                           
+                                            #endif                                           
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 
