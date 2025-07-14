@@ -223,7 +223,7 @@ module KODIS_BL_Record4 =
                                             | Error ex
                                                 when (string ex.Message).Contains "SSL connection could not be established" 
                                                 ->
-                                                runIO (postToLog <| string ex.Message <| "#74764-171")
+                                                runIO (postToLog <| ex.Message <| "#74764-171")
                                                 None               
 
                                             | Error ex
@@ -256,7 +256,7 @@ module KODIS_BL_Record4 =
                                     Error NoFolderError    
                             
                             | true  ->
-                                    try
+                                    try                                        
                                         match context.list with
                                         | [] -> 
                                              Ok String.Empty 
@@ -292,10 +292,12 @@ module KODIS_BL_Record4 =
                                             match runIO <| deleteAllODISDirectories pathToDir with
                                             | Ok _   
                                                 -> 
+                                                runIO (postToLog <| ex.Message <| "#191")
                                                 runIO (postToLog <| FileDownloadError <| "#191")
                                                 Error FileDownloadError 
                                             | Error _ 
                                                 -> 
+                                                runIO (postToLog <| ex.Message <| "#192")
                                                 runIO (postToLog <| FileDeleteError <| "#192")
                                                 Error FileDeleteError  
                     }

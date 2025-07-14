@@ -197,7 +197,7 @@ module DPO_BL =
                                     with                                                         
                                     | ex
                                         ->
-                                        runIO (postToLog <| string ex.Message <| "#35")
+                                        runIO (postToLog <| ex.Message <| "#35")
                                         return Error FileDownloadErrorMHD 
                                 } 
                                 )
@@ -276,7 +276,7 @@ module DPO_BL =
                             with
                             | ex      
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#37")
+                                runIO (postToLog <| ex.Message <| "#37")
 
                                 let dirName = ODISDefault.OdisDir5                       
                                     in

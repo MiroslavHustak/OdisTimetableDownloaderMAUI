@@ -51,6 +51,7 @@ module SortJsonDataFull =
                         a, b
                     | Ok _ | Error _ 
                         -> 
+                        runIO (postToLog <| "jsonEmpty" <| "#107-22")
                         jsonEmpty, jsonEmpty  
         )
       
@@ -217,6 +218,6 @@ module SortJsonDataFull =
                 with
                 | ex
                     ->  
-                    runIO (postToLog <| string ex.Message <| "#107")
+                    runIO (postToLog <| ex.Message <| "#107")
                     Error JsonFilteringError     
         )

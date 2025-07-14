@@ -43,7 +43,7 @@ module IO_Operations =
                                 with 
                                 | ex 
                                     ->
-                                    runIO (postToLog <| string ex.Message <| "#38")
+                                    runIO (postToLog <| ex.Message <| "#38")
                                     Error FileDeleteError
                         }
     
@@ -75,7 +75,7 @@ module IO_Operations =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| "#39")
+                                    runIO (postToLog <| ex.Message <| "#39")
                                     Error FileDeleteError                       
                         }
     
@@ -144,7 +144,7 @@ module IO_Operations =
                 with 
                 | ex
                     ->
-                    runIO (postToLog <| string ex.Message <| "#41")
+                    runIO (postToLog <| ex.Message <| "#41")
                     Error CreateFolderError   
         )
         
@@ -171,7 +171,7 @@ module IO_Operations =
                 with 
                 | ex
                     ->
-                    runIO (postToLog <| string ex.Message <| "#42")
+                    runIO (postToLog <| ex.Message <| "#42")
                     Error CreateFolderError   
         )
 
@@ -188,6 +188,6 @@ module IO_Operations =
                 with 
                 | ex
                     ->
-                    runIO (postToLog <| string ex.Message <| "#421")
+                    runIO (postToLog <| ex.Message <| "#421")
                     Error CreateFolderError1   
         )

@@ -131,7 +131,7 @@ module SortJsonData =
                         with
                         | ex
                             ->  
-                            runIO (postToLog <| string ex.Message <| "#107")
+                            runIO (postToLog <| ex.Message <| "#107")
                             Error JsonFilteringError   
                     )
         )

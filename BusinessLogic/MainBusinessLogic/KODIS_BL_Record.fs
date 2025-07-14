@@ -122,7 +122,7 @@ module KODIS_BL_Record =
                             | Error ex
                                 when (string ex.Message).Contains "SSL connection could not be established" 
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#74764-20")
+                                runIO (postToLog <| ex.Message <| "#74764-20")
                                 None               
 
                             | Error ex
@@ -265,12 +265,12 @@ module KODIS_BL_Record =
                                             | Error ex
                                                 when (string ex.Message).Contains "SSL connection could not be established" 
                                                 ->
-                                                runIO (postToLog <| string ex.Message <| "#74764-23")
+                                                runIO (postToLog <| ex.Message <| "#74764-23")
                                                 None                                        
 
                                             | Error ex
                                                 ->
-                                                runIO (postToLog <| string ex.Message <| "#23")
+                                                runIO (postToLog <| ex.Message <| "#23")
                                                                         
                                                 match (string ex.Message).Contains "OperationCanceled" with 
                                                 | true  -> Some <| Error StopDownloading
@@ -281,7 +281,7 @@ module KODIS_BL_Record =
                                 with
                                 | ex                             
                                     -> 
-                                    runIO (postToLog <| string ex.Message <| "#24")
+                                    runIO (postToLog <| ex.Message <| "#24")
                             
                                     match (string ex.Message).Contains "OperationCanceled" with 
                                     | true  -> Error StopDownloading

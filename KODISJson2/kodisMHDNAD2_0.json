@@ -1,1 +1,1 @@
-{"data":[{"id":1726,"label":"X14","company":"DPO","type":"tram","category":"MHD Ostrava","route":"Přívoz,Hlučínská - Nová radnice - Hranečník - Nová huť jižní brána","timetable":"https://kodis-files.s3.eu-central-1.amazonaws.com/X14_2025_06_14_2025_06_15_v_2e84e342e7.pdf","timetable_valid_from":"2025-06-14","timetable_valid_until":"2025-06-15","numeric_label":14,"group":"NAD MHD","createdAt":"2025-06-11T07:02:34.756Z","updatedAt":"2025-06-11T07:02:34.756Z","vyluky":[]}],"meta":{"pagination":{"total":1}}}
+{"data":[],"meta":{"pagination":{"total":0}}}

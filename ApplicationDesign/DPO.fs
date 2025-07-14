@@ -74,7 +74,7 @@ module WebScraping_DPO =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#10")
+                            runIO (postToLog <| ex.Message <| "#10")
                             Error FileDownloadErrorMHD //dpoMsg1
 
                     | FilterDownloadSave   
@@ -88,6 +88,7 @@ module WebScraping_DPO =
                                 in
                                 match pathToSubdir |> Directory.Exists with 
                                 | false ->
+                                        runIO (postToLog <| FileDeleteErrorMHD <| "#11-1")  
                                         Error FileDeleteErrorMHD                             
                                 | true  -> 
                                         let filterTmtb = environment.FilterTimetables pathToSubdir                                     
@@ -95,7 +96,7 @@ module WebScraping_DPO =
                         with
                         | ex 
                             ->
-                            runIO (postToLog <| string ex.Message <| "#11")
+                            runIO (postToLog <| ex.Message <| "#11")
                             Error FileDownloadErrorMHD //dpoMsg2    
                        
                 pyramidOfInferno
