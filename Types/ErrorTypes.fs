@@ -13,6 +13,7 @@ module ErrorTypes =
         | FileDownloadErrorMHD
         | ConnectionError
         | FileDeleteErrorMHD
+        | FileCopyingErrorMHD
         | StopDownloadingMHD
         | TestDuCase of string
    

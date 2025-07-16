@@ -22,6 +22,7 @@ module Messages =
     let internal jsonFilteringError = "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
     let internal dataFilteringError = "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
     let internal fileDeleteError = "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
+    let internal fileCopyingError = "Chyba při kopírování starých souborů, pravděpodobně se bez nich budeš muset obejít." 
     let internal createFolderError = "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy."
     let internal createFolderError1 = "Chyba při tvorbě adresáře pro TP_Canopy_Difference." 
     let internal noFolderError = "Nejsou vytvořeny adresáře pro příslušné soubory, JŘ ODIS nebyly úspěšně staženy."

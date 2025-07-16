@@ -1,19 +1,22 @@
 ﻿namespace Helpers
 
+open System
+open System.IO
+
+//***************************
+open Types
+open Types.ErrorTypes
+
+open Helpers.Builders    
+open FsToolkit.ErrorHandling
+open Haskell_IO_Monad_Simulation
+
+open Helpers.CommandLineWorkflow
+
+//***************************
+
 module DirFileHelper = 
-
-    open System.IO
-
-    //***************************
-    open Types
-    open Types.ErrorTypes
-
-    open Helpers.Builders    
-    open FsToolkit.ErrorHandling
-    open Haskell_IO_Monad_Simulation
-
-    //***************************
-
+  
     let [<Literal>] internal jsonEmpty = """[ {} ]"""
 
     let internal writeAllText path content =
@@ -92,10 +95,10 @@ module DirFileHelper =
                         return! condition fInfodat |> Option.ofBool  
                     }     
             )
+
 module MyString = 
-        
-    open System    
-      
+       
+     
     [<CompiledName "CreateStringSeqFold">] 
     let internal createStringSeqFold (numberOfStrings : int, stringToAdd : string) : string =
 
@@ -104,10 +107,110 @@ module MyString =
 
 module Xor = 
 
-    open Helpers.Builders
-
     //pro xor CE musi byt explicitne typ, type inference bere u yield typ unit, coz tady jaksi nejde, bo bool
 
     //jen priklad pouziti, v realnem pripade pouzij primo xor { a; b } nebo xor { a; b; c }    
     let internal xor2 (a : bool) (b : bool) = xor { a; b }
     let internal xor3 (a : bool) (b : bool) (c : bool) = xor { a; b; c }    
+
+module CopyOrMoveDirectories = 
+ 
+    let private cmdBuilder = CommandLineProgramBuilder
+
+    [<Struct>]
+    type internal Config =
+        {
+            source : string
+            destination : string
+            fileName : string
+        }
+
+    [<Struct>]
+    type internal IO_Operation = 
+        | Copy
+        | Move    
+       
+    let rec private interpret config io_operation clp =
+
+        let f (source : Result<string, string>) (destination : Result<string, string>) : Result<unit, string> =
+
+            match source, destination with
+            | Ok s, Ok d 
+                ->
+                try
+                    match io_operation with
+                    | Copy
+                        -> 
+                        let copyOptions = 0          // Entire folder 
+                        let overwriteOptions = 0     // Overwrite all                        
+                        Ok <| NativeHelpers.Native.CopyDirContent64(s, d, copyOptions, overwriteOptions)
+                    | Move 
+                        ->
+                        Ok <| Directory.Move(s, d) 
+                with
+                | ex -> Error <| string ex.Message
+
+            | Error e, _ | _, Error e
+                ->
+                Error e            
+
+        match clp with 
+        | Pure x       
+            ->
+            x
+
+        | Free (SourceFilepath next) 
+            ->
+            let sourceFilepath source =      
+            
+                try
+                    pyramidOfDoom
+                        {
+                            let! value = Path.GetFullPath source |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s" source   
+                            let! value = 
+                                (
+                                    let fInfodat: FileInfo = FileInfo value   
+                                    Option.fromBool value fInfodat.Exists
+                                ), Error <| sprintf "Zdrojový soubor %s neexistuje" value
+                            return Ok value
+                        }
+                with
+                | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s" source (string ex.Message)
+
+            interpret config io_operation (next (sourceFilepath config.source))
+
+        | Free (DestinFilepath next) 
+            ->
+            let destinFilepath destination =  
+                try
+                    pyramidOfDoom
+                        {
+                            let! value = Path.GetFullPath destination |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s" destination                        
+                            let! value = 
+                                (
+                                    let dInfodat: DirectoryInfo = DirectoryInfo value   
+                                    Option.fromBool value dInfodat.Exists
+                                ), Error <| sprintf "Chyba při čtení cesty k %s" value
+                        
+                            return Ok value
+                        }
+                with
+                | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s" destination (string ex.Message)
+
+            interpret config io_operation (next (destinFilepath config.destination))
+
+        | Free (CopyOrMove (s, d)) 
+            ->          
+            f s d            
+
+    let internal copyOrMoveFiles config io_operation =  
+
+        cmdBuilder
+            {
+                let! sourceFilepath = Free (SourceFilepath Pure)                
+                let! destinFilepath = Free (DestinFilepath Pure)
+
+                return! Free (CopyOrMove (sourceFilepath, destinFilepath))
+            }
+
+        |> interpret config io_operation  

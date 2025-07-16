@@ -11,6 +11,7 @@ open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 open Helpers.Builders
+open Helpers.CopyOrMoveDirectories
 
 open Api.Logging
 open BusinessLogic.DPO_BL   
@@ -36,6 +37,7 @@ module WebScraping_DPO =
         }
 
     type private Actions =       
+        | CopyOldTimetables
         | DeleteOneODISDirectory
         | CreateFolders
         | FilterDownloadSave  
@@ -58,11 +60,29 @@ module WebScraping_DPO =
                 ->           
                 let stateReducer token (state : State) (action : Actions) (environment : Environment) =
             
-                    let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir5 ] //Android jen forward slash %s/%s            
+                    let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir5 ] //Android jen forward slash %s/%s  
+                    
+                    let config = 
+                        {
+                            source  = pathToDir
+                            destination = pathToDir
+                            fileName = pathToDir
+                        }
 
-                    match action with       
+                    match action with   
+                    | CopyOldTimetables 
+                        -> 
+                        match copyOrMoveFiles config Copy with
+                        | Ok _
+                            -> 
+                            Ok ()                         
+                        | Error err 
+                            ->
+                            runIO (postToLog <| err <| "#10-1")
+                            Error FileCopyingErrorMHD 
+
                     | DeleteOneODISDirectory 
-                        ->                                   
+                        ->    
                         runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir                                    
                                     
                     | CreateFolders         
@@ -111,6 +131,7 @@ module WebScraping_DPO =
                             | NotFound              -> "404 Page Not Found"
                             | CofeeMakerUnavailable -> "418 I'm a teapot. Look for a coffee maker elsewhere."
                             | FileDownloadErrorMHD  -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoMsg1 | Error _ -> dpoMsg0 
+                            | FileCopyingErrorMHD   -> fileCopyingError
                             | ConnectionError       -> noNetConn
                             | FileDeleteErrorMHD    -> fileDeleteError
                             | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1

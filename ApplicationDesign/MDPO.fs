@@ -141,6 +141,7 @@ module WebScraping_MDPO =
                             | NotFound              -> "404 Page Not Found"
                             | CofeeMakerUnavailable -> "418 I'm a teapot. Look for a coffee maker elsewhere."
                             | FileDownloadErrorMHD  -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoMsg1 | Error _ -> mdpoMsg0 
+                            | FileCopyingErrorMHD   -> fileCopyingError
                             | ConnectionError       -> noNetConn
                             | FileDeleteErrorMHD    -> fileDeleteError
                             | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
