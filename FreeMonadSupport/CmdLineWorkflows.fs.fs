@@ -17,7 +17,7 @@ module CommandLineWorkflow =
             | DestinFilepath next -> DestinFilepath (next >> f)
             | CopyOrMove s        -> CopyOrMove s 
      
-    //neni tail recursive
+    //[<TailCall>] neni ani tail recursive ani CPS compliant
     let rec internal bind f = 
         function
             | Free x -> x |> mapI (bind f) |> Free

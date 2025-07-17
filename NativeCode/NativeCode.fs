@@ -8,7 +8,7 @@ module Native =
     //type ProgressCallback = delegate of float * float -> unit
     
     [<DllImport(@"CppHelpers.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl)>]
-    extern void CopyDirContent64(
+    extern int CopyDirContent64(
         [<MarshalAs(UnmanagedType.LPWStr)>] string source,
         [<MarshalAs(UnmanagedType.LPWStr)>] string targetParent,
         int copyOptions,

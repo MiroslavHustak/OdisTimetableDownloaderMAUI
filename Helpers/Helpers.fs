@@ -135,7 +135,8 @@ module CopyOrMoveDirectories =
     type internal IO_Operation = 
         | Copy
         | Move    
-       
+
+    [<TailCall>]   
     let rec private interpret config io_operation clp =
 
         let f (source : Result<string, string>) (destination : Result<string, string>) : Result<unit, string> =
@@ -146,8 +147,10 @@ module CopyOrMoveDirectories =
                 try
                     match io_operation with
                     | Copy
-                        ->
-                        Ok <| Native.CopyDirContent64(s, d, 0, 0) 
+                        ->                        
+                        match Native.CopyDirContent64(s, d, 0, 0) with  //exn se musi chytat uz v C++
+                        | 0 -> Ok ()
+                        | _ -> Error <| sprintf "Chyba při kopírování adresáře %s do %s #300" s d
                        
                     | Move 
                         ->
@@ -171,16 +174,16 @@ module CopyOrMoveDirectories =
                 try
                     pyramidOfDoom
                         {
-                            let! value = Path.GetFullPath source |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s" source   
+                            let! value = Path.GetFullPath source |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s #301" source   
                             let! value = 
                                 (
                                     let dInfodat : DirectoryInfo = DirectoryInfo value   
                                     Option.fromBool value dInfodat.Exists
-                                ), Error <| sprintf "Zdrojový adresář %s neexistuje" value
+                                ), Error <| sprintf "Zdrojový adresář %s neexistuje #302" value
                             return Ok value
                         }
                 with
-                | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s" source (string ex.Message)
+                | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s #303" source (string ex.Message)
 
             interpret config io_operation (next (sourceFilepath config.source))
 
@@ -190,17 +193,17 @@ module CopyOrMoveDirectories =
                 try
                     pyramidOfDoom
                         {
-                            let! value = Path.GetFullPath destination |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s" destination                        
+                            let! value = Path.GetFullPath destination |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s #304" destination                        
                             let! value = 
                                 (
                                     let dInfodat: DirectoryInfo = DirectoryInfo value   
                                     Option.fromBool value dInfodat.Exists
-                                ), Error <| sprintf "Chyba při čtení cesty k %s" value
+                                ), Error <| sprintf "Chyba při čtení cesty k %s #305" value
                         
                             return Ok value
                         }
                 with
-                | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s" destination (string ex.Message)
+                | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s #306" destination (string ex.Message)
 
             interpret config io_operation (next (destinFilepath config.destination))
 
