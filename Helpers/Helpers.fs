@@ -2,10 +2,17 @@
 
 open System
 open System.IO
+open System.Diagnostics
+
+open Fabulous.Maui
+open Microsoft.Maui.ApplicationModel 
 
 //***************************
 open Types
 open Types.ErrorTypes
+
+open NativeHelpers
+open NativeHelpers.Native
 
 open Helpers.Builders    
 open FsToolkit.ErrorHandling
@@ -129,7 +136,7 @@ module CopyOrMoveDirectories =
         | Copy
         | Move    
        
-    let rec private interpret config io_operation clp =
+    let rec private interpret reportProgress config io_operation clp =
 
         let f (source : Result<string, string>) (destination : Result<string, string>) : Result<unit, string> =
 
@@ -139,10 +146,9 @@ module CopyOrMoveDirectories =
                 try
                     match io_operation with
                     | Copy
-                        -> 
-                        let copyOptions = 0          // Entire folder 
-                        let overwriteOptions = 0     // Overwrite all                        
-                        Ok <| NativeHelpers.Native.CopyDirContent64(s, d, copyOptions, overwriteOptions)
+                        ->
+                        Ok <| Native.CopyDirContent64(s, d, 0, 0) //ProgressCallback reportProgress jen imitace, zatim ponechavam
+                       
                     | Move 
                         ->
                         Ok <| Directory.Move(s, d) 
@@ -176,7 +182,7 @@ module CopyOrMoveDirectories =
                 with
                 | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s" source (string ex.Message)
 
-            interpret config io_operation (next (sourceFilepath config.source))
+            interpret reportProgress config io_operation (next (sourceFilepath config.source))
 
         | Free (DestinFilepath next) 
             ->
@@ -196,13 +202,13 @@ module CopyOrMoveDirectories =
                 with
                 | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s" destination (string ex.Message)
 
-            interpret config io_operation (next (destinFilepath config.destination))
+            interpret reportProgress config io_operation (next (destinFilepath config.destination))
 
         | Free (CopyOrMove (s, d)) 
             ->          
             f s d            
 
-    let internal copyOrMoveFiles config io_operation =  
+    let internal copyOrMoveFiles reportProgress config io_operation =  
 
         cmdBuilder
             {
@@ -212,4 +218,4 @@ module CopyOrMoveDirectories =
                 return! Free (CopyOrMove (sourceFilepath, destinFilepath))
             }
 
-        |> interpret config io_operation  
+        |> interpret reportProgress config io_operation  

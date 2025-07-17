@@ -15,6 +15,7 @@ module ErrorTypes =
         | FileDeleteErrorMHD
         | FileCopyingErrorMHD
         | StopDownloadingMHD
+        | LetItBeMHD
         | TestDuCase of string
    
     type internal JsonDownloadErrors = 

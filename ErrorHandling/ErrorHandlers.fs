@@ -19,6 +19,21 @@ module Result =
         let initialValue = Ok [] 
         List.foldBack prepend aListOfResults initialValue  
 
+    let internal fromOption = 
+        function   
+        | Some value -> Ok value
+        | None       -> Error String.Empty  
+
+    let internal toOption = 
+        function   
+        | Ok value -> Some value 
+        | Error _  -> None  
+
+    let internal fromBool ok err =                               
+        function   
+        | true  -> Ok ok  
+        | false -> Error err
+
     (*
     let defaultWith defaultFn res =
         match res with

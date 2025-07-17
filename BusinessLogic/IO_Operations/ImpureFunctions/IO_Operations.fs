@@ -159,6 +159,8 @@ module IO_Operations =
                         kodisPathTemp4 
                         dpoPathTemp 
                         mdpoPathTemp
+                        oldTimetablesPath
+                        oldTimetablesPath4
                     ]        
                     |> List.iter
                         (fun pathDir 

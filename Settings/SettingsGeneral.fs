@@ -50,6 +50,8 @@ module SettingsGeneral =
     let internal kodisPathTemp4 = @"g:\Users\User\Data4\"
     let internal dpoPathTemp = @"g:\Users\User\Data4\"
     let internal mdpoPathTemp = @"g:\Users\User\Data4\"
+    let internal oldTimetablesPath = @"g:\Users\User\DataOld\"
+    let internal oldTimetablesPath4 = @"g:\Users\User\DataOld4\"
     let path = sprintf "%s%s/" kodisPathTemp 
     let path4 = sprintf "%s%s/" kodisPathTemp4  
     #else
@@ -58,6 +60,8 @@ module SettingsGeneral =
     let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" 
     let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
     let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/" 
+    let internal oldTimetablesPath = @"/storage/emulated/0/FabulousTimetablesOld/"
+    let internal oldTimetablesPath4 = @"/storage/emulated/0/FabulousTimetablesOld4/"
     let path = sprintf "%s%s/" kodisPathTemp 
     let path4 = sprintf "%s%s/" kodisPathTemp4 
     #endif

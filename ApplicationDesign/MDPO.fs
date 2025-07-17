@@ -11,6 +11,7 @@ open Types.Types
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
+open Helpers
 open Helpers.Builders
 open Helpers.CopyOrMoveDirectories
 
@@ -65,25 +66,45 @@ module WebScraping_MDPO =
                 ->           
                 let stateReducer token (state : State) (action : Actions) (environment : Environment) =
 
-                    let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir6 ]
+                    let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir6 ] //due to uniformity
 
-                    let config = //TODO
+                    let config =
                         {
-                            source = @"g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_MDPO\"
-                            destination = @"g:\Users\User\Data4\JR_ODIS_x_old\"
+                            source = dirList pathToDir |> List.head 
+                            destination = oldTimetablesPath4
                         }
 
                     match action with   
                     | CopyOldTimetables 
-                        -> 
-                        match copyOrMoveFiles config Copy with
-                        | Ok _
-                            -> 
-                            Ok ()                         
-                        | Error err 
-                            ->
-                            runIO (postToLog <| err <| "#10-1")
-                            Error FileCopyingErrorMHD  
+                        ->                          
+                        pyramidOfInferno
+                            {
+                                let! _ = 
+                                    Directory.Exists config.source |> Result.fromBool () LetItBeMHD,
+                                        fun _ -> Ok ()     
+                                        
+                                let! _ =
+                                    Directory.Exists config.destination |> Result.fromBool () FileCopyingErrorMHD,
+                                        fun err 
+                                            ->
+                                            try
+                                                Directory.CreateDirectory config.destination |> ignore<DirectoryInfo>
+                                                Ok ()
+                                            with 
+                                            | ex 
+                                                ->
+                                                runIO (postToLog <| ex.Message <| "#10-3")
+                                                Error err                       
+                               
+                                let! _ = 
+                                    copyOrMoveFiles reportProgress config Copy,   
+                                        fun err
+                                            ->
+                                            runIO (postToLog <| err <| "#10-4")
+                                            Error FileCopyingErrorMHD
+                         
+                                return Ok ()
+                             }                        
                   
                     | DeleteOneODISDirectory
                         ->  
@@ -164,6 +185,7 @@ module WebScraping_MDPO =
                             | ConnectionError       -> noNetConn
                             | FileDeleteErrorMHD    -> fileDeleteError
                             | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
+                            | LetItBeMHD            -> String.Empty
                             | TestDuCase ex         -> ex 
 
                         let! _ = stateReducer token stateDefault CopyOldTimetables environment, fun err -> Error <| errFn err

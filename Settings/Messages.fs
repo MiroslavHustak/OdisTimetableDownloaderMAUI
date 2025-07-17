@@ -22,7 +22,7 @@ module Messages =
     let internal jsonFilteringError = "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
     let internal dataFilteringError = "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
     let internal fileDeleteError = "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
-    let internal fileCopyingError = "Chyba při kopírování starých souborů, pravděpodobně se bez nich budeš muset obejít." 
+    let internal fileCopyingError = "Chyba při zálohování starých souborů, restartuj aplikaci." 
     let internal createFolderError = "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy."
     let internal createFolderError1 = "Chyba při tvorbě adresáře pro TP_Canopy_Difference." 
     let internal noFolderError = "Nejsou vytvořeny adresáře pro příslušné soubory, JŘ ODIS nebyly úspěšně staženy."
@@ -59,8 +59,8 @@ module Messages =
   
     let internal progressMsgKodis = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
     let internal progressMsgKodis1 = "Varianta bez stahování JSON souborů a s použitím web API. Vyčkej na zahájení ..." 
-    let internal progressMsgDpo = "Stahují se JŘ DPO ..." 
-    let internal progressMsgMdpo = "Stahují se zastávkové JŘ MDPO ..."
+    let internal progressMsgDpo = "Zálohují se staré JŘ DPO a stahují se nové ..." 
+    let internal progressMsgMdpo = "Zálohují se staré zastávkové JŘ MDPO a stahují se nové ..."
 
     let internal mauiDpoMsg = "JŘ DPO úspěšně staženy."
     let internal mauiMdpoMsg = "Zastávkové JŘ MDPO úspěšně staženy."
