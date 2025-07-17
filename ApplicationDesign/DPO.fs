@@ -7,6 +7,7 @@ open System.Threading
 //**********************************
 
 open Types.Types   
+open Types.FreeMonad
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
@@ -92,6 +93,8 @@ module WebScraping_DPO =
                                                 Error err                       
                                
                                 let! _ = 
+                                    runFreeMonad 
+                                    <| 
                                     copyOrMoveFiles config Copy,   
                                         fun err
                                             ->
@@ -155,7 +158,7 @@ module WebScraping_DPO =
                             | ConnectionError       -> noNetConn
                             | FileDeleteErrorMHD    -> fileDeleteError
                             | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
-                            | LetItBeMHD               -> String.Empty
+                            | LetItBeMHD            -> String.Empty
                             | TestDuCase ex         -> ex
                         
                         let! _ = stateReducer token stateDefault CopyOldTimetables environment, fun err -> Error <| errFn err

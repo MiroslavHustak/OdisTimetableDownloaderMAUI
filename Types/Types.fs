@@ -13,6 +13,12 @@ module Haskell_IO_Monad_Simulation =
     let internal bindIO (IO f) g = IO (fun () -> (runIO (g (f ()))))
     let internal mapIO f io = bindIO io (f >> returnIO)
 
+module FreeMonad =
+
+    type internal FreeMonad<'a> = FreeMonad of (unit -> 'a) 
+
+    let internal runFreeMonad (FreeMonad action) = action ()
+
 module Types =
 
     [<Struct>]   //vhodne pro 16 bytes => 4096 characters

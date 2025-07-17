@@ -14,6 +14,7 @@ open Types.ErrorTypes
 open NativeHelpers
 open NativeHelpers.Native
 
+open FreeMonad
 open Helpers.Builders    
 open FsToolkit.ErrorHandling
 open Haskell_IO_Monad_Simulation
@@ -212,13 +213,17 @@ module CopyOrMoveDirectories =
             f s d            
 
     let internal copyOrMoveFiles config io_operation =  
+        
+        FreeMonad
+            (fun () 
+                -> 
+                cmdBuilder
+                    {
+                        let! sourceFilepath = Free (SourceFilepath Pure)                
+                        let! destinFilepath = Free (DestinFilepath Pure)
 
-        cmdBuilder
-            {
-                let! sourceFilepath = Free (SourceFilepath Pure)                
-                let! destinFilepath = Free (DestinFilepath Pure)
+                        return! Free (CopyOrMove (sourceFilepath, destinFilepath))
+                    }
 
-                return! Free (CopyOrMove (sourceFilepath, destinFilepath))
-            }
-
-        |> interpret config io_operation  
+                |> interpret config io_operation  
+            )

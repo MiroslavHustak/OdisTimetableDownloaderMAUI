@@ -8,6 +8,7 @@ open System.Threading
 //**********************************
 
 open Types.Types
+open Types.FreeMonad
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
@@ -97,6 +98,8 @@ module WebScraping_MDPO =
                                                 Error err                       
                                
                                 let! _ = 
+                                    runFreeMonad 
+                                    <| 
                                     copyOrMoveFiles config Copy,   
                                         fun err
                                             ->
