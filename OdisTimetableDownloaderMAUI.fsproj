@@ -103,7 +103,12 @@
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-windows10.0.19041.0|AnyCPU'">
         <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
-
+	
+  <ItemGroup>
+	  <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+  </ItemGroup>
 
   <ItemGroup>
     <!-- App Icon -->
@@ -126,7 +131,7 @@
     <Compile Include="Settings\SettingsKODIS.fs" />
     <Compile Include="Settings\SettingsMDPO.fs" />
     <Compile Include="ComputationExpressions\CEBuilders.fs" />
-    <Compile Include="FreeMonads\CmdLineWorkflows.fs.fs" />
+    <Compile Include="FreeMonadSupport\CmdLineWorkflows.fs.fs" />
     <Compile Include="ErrorHandling\ErrorHandlers.fs" />
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Serialization.fs" />

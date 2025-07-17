@@ -12,6 +12,7 @@ open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 open Helpers.Builders
+open Helpers.CopyOrMoveDirectories
 
 open Api.Logging
 open BusinessLogic.MDPO_BL  
@@ -37,6 +38,7 @@ module WebScraping_MDPO =
         }
 
     type private Actions =
+        | CopyOldTimetables
         | DeleteOneODISDirectory
         | CreateFolders
         | FilterDownloadSave    
@@ -64,8 +66,25 @@ module WebScraping_MDPO =
                 let stateReducer token (state : State) (action : Actions) (environment : Environment) =
 
                     let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir6 ]
-            
-                    match action with      
+
+                    let config = //TODO
+                        {
+                            source = @"g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_MDPO\"
+                            destination = @"g:\Users\User\Data4\JR_ODIS_x_old\"
+                        }
+
+                    match action with   
+                    | CopyOldTimetables 
+                        -> 
+                        match copyOrMoveFiles config Copy with
+                        | Ok _
+                            -> 
+                            Ok ()                         
+                        | Error err 
+                            ->
+                            runIO (postToLog <| err <| "#10-1")
+                            Error FileCopyingErrorMHD  
+                  
                     | DeleteOneODISDirectory
                         ->  
                         runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir
@@ -147,6 +166,7 @@ module WebScraping_MDPO =
                             | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
                             | TestDuCase ex         -> ex 
 
+                        let! _ = stateReducer token stateDefault CopyOldTimetables environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault FilterDownloadSave environment, fun err -> Error <| errFn err

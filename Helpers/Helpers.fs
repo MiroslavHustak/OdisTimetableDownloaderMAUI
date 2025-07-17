@@ -122,7 +122,6 @@ module CopyOrMoveDirectories =
         {
             source : string
             destination : string
-            fileName : string
         }
 
     [<Struct>]
@@ -169,9 +168,9 @@ module CopyOrMoveDirectories =
                             let! value = Path.GetFullPath source |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s" source   
                             let! value = 
                                 (
-                                    let fInfodat: FileInfo = FileInfo value   
-                                    Option.fromBool value fInfodat.Exists
-                                ), Error <| sprintf "Zdrojový soubor %s neexistuje" value
+                                    let dInfodat : DirectoryInfo = DirectoryInfo value   
+                                    Option.fromBool value dInfodat.Exists
+                                ), Error <| sprintf "Zdrojový adresář %s neexistuje" value
                             return Ok value
                         }
                 with

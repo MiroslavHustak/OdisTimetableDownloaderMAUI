@@ -62,11 +62,10 @@ module WebScraping_DPO =
             
                     let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir5 ] //Android jen forward slash %s/%s  
                     
-                    let config = 
+                    let config = //TODO
                         {
-                            source  = pathToDir
-                            destination = pathToDir
-                            fileName = pathToDir
+                            source = @"g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\"
+                            destination = @"g:\Users\User\Data4\JR_ODIS_x_old\"
                         }
 
                     match action with   
@@ -136,7 +135,8 @@ module WebScraping_DPO =
                             | FileDeleteErrorMHD    -> fileDeleteError
                             | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
                             | TestDuCase ex         -> ex
-
+                        
+                        let! _ = stateReducer token stateDefault CopyOldTimetables environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault FilterDownloadSave environment, fun err -> Error <| errFn err
