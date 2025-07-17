@@ -97,7 +97,7 @@ module WebScraping_MDPO =
                                                 Error err                       
                                
                                 let! _ = 
-                                    copyOrMoveFiles reportProgress config Copy,   
+                                    copyOrMoveFiles config Copy,   
                                         fun err
                                             ->
                                             runIO (postToLog <| err <| "#10-4")
