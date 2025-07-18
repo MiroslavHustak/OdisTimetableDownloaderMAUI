@@ -77,10 +77,10 @@ module WebScraping_KODISFMRecord4 =
             | JsonFilteringError   -> jsonFilteringError
             | DataFilteringError   -> dataFilteringError
             | FileDeleteError      -> fileDeleteError 
-            | CreateFolderError    -> createFolderError
+            | CreateFolderError4    -> createFolderError
             | CreateFolderError2   -> createFolderError2
             | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
-            | FolderMovingError    -> folderMovingError 
+            | FolderMovingError4    -> folderMovingError 
             | CanopyError          -> canopyError
             | TimeoutError         -> "timeout"
             | PdfConnectionError   -> cancelMsg2 
@@ -88,7 +88,7 @@ module WebScraping_KODISFMRecord4 =
             | ApiDecodingError     -> canopyError
             | NetConnPdfError err  -> err
             | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
-            | LetItBeKodis         -> String.Empty
+            | LetItBeKodis4         -> String.Empty
 
         let result (context2 : Context2) =   
 
@@ -166,22 +166,54 @@ module WebScraping_KODISFMRecord4 =
 
         let configKodis =
             {
-                source1 = path4 ODISDefault.OdisDir1 //@"g:\Users\User\Data4\JR_ODIS_aktualni_vcetne_vyluk\"
-                source2 = path4 ODISDefault.OdisDir2 //@"g:\Users\User\Data4\JR_ODIS_pouze_budouci_platnost\"
-                source3 = path4 ODISDefault.OdisDir4 //@"g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\"
-                destination = oldTimetablesPath4 //@"g:\Users\User\DataOld4\"
-            }  
-                                                   
+                source1 = path4 ODISDefault.OdisDir1 
+                source2 = path4 ODISDefault.OdisDir2 
+                source3 = path4 ODISDefault.OdisDir4 
+                destination = oldTimetablesPath4 
+            }
+
+        // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
+        // nicmene priprava na zpracovani err je provedena  
+        let moveTask1 () = 
+            async
+                {
+                    let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis4 FolderMovingError4
+                    return Ok () 
+                }
+        
+        let moveTask2 () = 
+            async 
+                {    
+                    let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis4 FolderMovingError4
+                    return Ok ()  
+                }
+
+        let moveTask3 () = 
+            async
+                {
+                    let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis4 FolderMovingError4
+                    return Ok ()  
+                }     
+               
+        //runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel start")
+        
+        [ 
+            moveTask1 ()
+            moveTask2 ()
+            moveTask3 ()
+        ]
+        |> Async.Parallel  
+        |> Async.Catch   //silently ignoring failed move operations //// becomes Async<Result<Result<_,_>[], exn>>
+        |> Async.Ignore  //silently ignoring failed move operations
+        |> Async.RunSynchronously
+        
+       // runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel end")                                           
+        
         pyramidOfInferno
             {             
                 #if ANDROID
                 let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
-
-                //priprava na zpracovani err je provedena, ale kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory
-                (runIO <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis FolderMovingError) |> ignore<Result<unit, PdfDownloadErrors>>
-                (runIO <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis FolderMovingError) |> ignore<Result<unit, PdfDownloadErrors>>
-                (runIO <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis FolderMovingError) |> ignore<Result<unit, PdfDownloadErrors>>
 
                 let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
                 let!_ = runIO <| createFolders dirList, errFn 

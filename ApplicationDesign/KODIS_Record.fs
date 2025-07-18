@@ -97,8 +97,8 @@ module WebScraping_KODISFMRecord =
                         | NetConnJsonError err -> err
                         | JsonTimeoutError     -> jsonDownloadError  
                         | StopJsonDownloading  -> jsonCancel
-                        | FolderMovingError2   -> folderMovingError
-                        | LetItBeKodis2        -> String.Empty
+                        | FolderMovingError   -> folderMovingError
+                        | LetItBeKodis        -> String.Empty
                     
                     try
                         try
@@ -106,28 +106,28 @@ module WebScraping_KODISFMRecord =
                             KeepScreenOnManager.keepScreenOn >> runIO <| true
                             #endif
 
-                            let downloadTask = 
+                            let downloadTask () = 
                                 async
                                     {
                                         //return! runIOAsync <| environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
                                         return! runIOAsync <| environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress 
                                     }
                             
-                            let moveAllTask = 
+                            let moveAllTask () = //staci jako celek, pri stahovani json souboru je casu dost
                                 async 
                                     {
                                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                                         // nicmene priprava na zpracovani err je provedena (jeste vytvorit list s Result, ten bude v Array.last)
-                                        let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis2 FolderMovingError2
-                                        let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis2 FolderMovingError2
-                                        let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis2 FolderMovingError2
+                                        let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis FolderMovingError
+                                        let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis FolderMovingError
+                                        let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis FolderMovingError
 
                                         return Ok ()  //silently ignoring failed move operations
                                     }
                             
                             [ 
-                                downloadTask
-                                moveAllTask
+                                downloadTask ()
+                                moveAllTask ()
                             ]
                             |> Async.Parallel  //uz to mame v try with bloku, Async.Catch only if you don’t want one task to cancel all others on failure
                             |> Async.RunSynchronously
@@ -162,10 +162,10 @@ module WebScraping_KODISFMRecord =
                     | JsonFilteringError   -> jsonFilteringError
                     | DataFilteringError   -> dataFilteringError
                     | FileDeleteError      -> fileDeleteError 
-                    | CreateFolderError    -> createFolderError   
+                    | CreateFolderError4    -> createFolderError   
                     | CreateFolderError2   -> createFolderError2
                     | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
-                    | FolderMovingError    -> folderMovingError 
+                    | FolderMovingError4    -> folderMovingError 
                     | CanopyError          -> canopyError
                     | TimeoutError         -> "timeout"
                     | PdfConnectionError   -> cancelMsg2 
@@ -173,7 +173,7 @@ module WebScraping_KODISFMRecord =
                     | ApiDecodingError     -> canopyError
                     | NetConnPdfError err  -> err
                     | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
-                    | LetItBeKodis         -> String.Empty
+                    | LetItBeKodis4         -> String.Empty
                                                              
                 let result (lazyList : Lazy<Result<string list, PdfDownloadErrors>>) (context2 : Context2) =  
                

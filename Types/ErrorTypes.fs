@@ -24,16 +24,16 @@ module ErrorTypes =
         | JsonConnectionError       
         | NetConnJsonError of string
         | StopJsonDownloading
-        | FolderMovingError2
-        | LetItBeKodis2
+        | FolderMovingError
+        | LetItBeKodis
            
     type internal PdfDownloadErrors =
         | RcError         
         | DataFilteringError
         | JsonFilteringError //vyjimecne to musime dat tady
         | FileDeleteError
-        | FolderMovingError
-        | CreateFolderError
+        | FolderMovingError4
+        | CreateFolderError4
         | CreateFolderError2
         | FileDownloadError
         | NoFolderError
@@ -44,4 +44,4 @@ module ErrorTypes =
         | ApiDecodingError
         | NetConnPdfError of string
         | StopDownloading
-        | LetItBeKodis
+        | LetItBeKodis4

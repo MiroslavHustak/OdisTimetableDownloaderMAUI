@@ -149,7 +149,7 @@ module IO_Operations =
                 | ex
                     ->
                     runIO (postToLog <| ex.Message <| "#41")
-                    Error CreateFolderError   
+                    Error CreateFolderError4   
         )
         
     let internal ensureMainDirectoriesExist () =
@@ -178,7 +178,7 @@ module IO_Operations =
                 | ex
                     ->
                     runIO (postToLog <| ex.Message <| "#42")
-                    Error CreateFolderError   
+                    Error CreateFolderError4   
         )
 
     let internal createTP_Canopy_Folder pathDir = 
