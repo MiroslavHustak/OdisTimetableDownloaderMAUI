@@ -26,3 +26,22 @@ module EmbeddedTP =
             System.IO.Path.Combine(ResolutionFolder, @"KODISJson/kodisMHDTotal2_0.json")
         with
         |_ -> String.Empty
+
+
+(*
+Vypada to, ze tento projekt nemoze mit adresar uvnitr hlavniho solution, tudiz v GitHubu pak EmbeddedTP neni
+
+V adresari, kaj je .git, zrob adresar ExternalFolder (radeji takto, at neni EmbeddedTP dva razy)
+
+Do nej presypej obsah EmbeddedTP
+
+Vcil jeden command po druhem, ne najednou
+
+git add ExternalFolder
+
+git commit -m "Add symlink to external folder"
+
+git push
+
+Opakuj pri kazde zmene EmbeddedTP
+*)
