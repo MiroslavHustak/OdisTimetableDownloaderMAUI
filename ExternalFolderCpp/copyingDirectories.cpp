@@ -1,7 +1,7 @@
 // Project/Properties/Language/C++ Language Standard => ISO C++17 Standard (/std:c++17)
 // 
-// git add ExternalFolderCpp
-// git commit -m "Add extra project"
+// git add ExternalFolderCpp //adresar musi byt v adresarovem systemu startovaciho projektu (nejdriv tam ale presun soubory z CppHelpers
+// git commit -m "Add move"
 // git push origin master
 
 #include "pch.h"
@@ -97,8 +97,6 @@ extern "C" __declspec(dllexport) int CopyDirContent64(
         return 1; // Catch-all for unexpected failures
     }
 }
-
-
 
 /*
 ***options controlling copy_file() when the file already exists***
