@@ -234,6 +234,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EmbeddedTP\EmbeddedTP.fsproj" />
+    <ProjectReference Include="..\FSharpHelpers\FSharpHelpers.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

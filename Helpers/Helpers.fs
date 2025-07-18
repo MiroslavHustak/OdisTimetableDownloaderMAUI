@@ -12,14 +12,19 @@ open Types
 open Types.Types
 open Types.ErrorTypes
 
+#if WINDOWS
 open NativeHelpers
 open NativeHelpers.Native
+#endif
+
+open FSharpHelpers.MoveDir
+open FSharpHelpers.CopyDir
 
 open FreeMonad
-open Helpers.Builders    
 open FsToolkit.ErrorHandling
 open Haskell_IO_Monad_Simulation
 
+open Helpers.Builders  
 open Helpers.CommandLineWorkflow
 
 //***************************
@@ -140,6 +145,7 @@ module CopyOrMoveDirectories =
             | Ok s, Ok d 
                 ->
                 try
+                    #if WINDOWS
                     match io_operation with
                     | Copy
                         ->                        
@@ -151,7 +157,13 @@ module CopyOrMoveDirectories =
                         ->
                         match Native.MoveDirContent64(s, d, 0) with  //exn se musi chytat uz v C++
                         | 0 -> Ok ()
-                        | _ -> Error <| sprintf "Chyba při přemístění adresáře %s do %s #310" s d
+                        | _ -> Error <| sprintf "Chyba při přemístění adresáře %s do %s #310" s d 
+
+                    #else
+                    match io_operation with
+                    | Copy -> copyDirectory s d 0 0                       
+                    | Move -> moveDirectory s d 0                        
+                    #endif
                 with
                 | ex -> Error <| string ex.Message
 
