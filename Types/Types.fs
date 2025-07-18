@@ -8,6 +8,8 @@ module Haskell_IO_Monad_Simulation =
 
     let internal runIO (IO action) = action ()
 
+    let internal runIOAsync (IO action) : Async<'a> = async { return action () }
+
     //not used yet
     let internal returnIO x = IO (fun () -> x)
     let internal bindIO (IO f) g = IO (fun () -> (runIO (g (f ()))))

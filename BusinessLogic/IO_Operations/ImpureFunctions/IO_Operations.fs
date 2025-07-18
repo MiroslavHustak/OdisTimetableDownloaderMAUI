@@ -1,16 +1,20 @@
 ﻿namespace IO_Operations
 
 open System.IO
+open System.Threading
 
 //************************************************************
 
 open Types
+open Types.FreeMonad
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
 
+open Helpers
 open Helpers.Builders
+open Helpers.CopyOrMoveDirectories
 
 open CreatingPathsAndNames
 
@@ -192,4 +196,60 @@ module IO_Operations =
                     ->
                     runIO (postToLog <| ex.Message <| "#421")
                     Error CreateFolderError2   
+        )
+
+    let internal moveFolders source destination err1 err2 = 
+    
+        IO (fun () 
+                ->
+                pyramidOfInferno
+                    {
+                        let! _ = 
+                            Directory.Exists source |> Result.fromBool () err1,
+                                fun _ -> Ok ()   
+                        
+                        let! _ =
+                            Directory.Exists destination |> Result.fromBool () err2,
+                                fun err 
+                                    ->
+                                    try
+                                        pyramidOfInferno 
+                                            {
+                                                let! _ =    
+                                                    let dirInfo = Directory.CreateDirectory destination
+                                                    Thread.Sleep 300 //wait for the directory to be created  
+    
+                                                    dirInfo.Exists |> Result.fromBool () err2,
+                                                        fun err
+                                                            ->
+                                                            runIO (postToLog <| err <| "#444-1")
+                                                            Error err2
+                                                let! _ =
+                                                    runFreeMonad
+                                                    <|
+                                                    copyOrMoveFiles { source = source; destination = destination } Move,
+                                                        fun err 
+                                                            ->
+                                                            runIO (postToLog <| err <| "#444-2")
+                                                            Error err2
+                                
+                                                return Ok ()
+                                            }                                 
+                                    with 
+                                    | ex 
+                                        ->
+                                        runIO (postToLog <| ex.Message <| "#444-3")
+                                        Error err                       
+               
+                        let! _ = 
+                            runFreeMonad 
+                            <| 
+                            copyOrMoveFiles { source = source; destination = destination } Move,   
+                                fun err
+                                    ->
+                                    runIO (postToLog <| err <| "#444-4")
+                                    Error err2
+                             
+                        return Ok ()
+                    } 
         )

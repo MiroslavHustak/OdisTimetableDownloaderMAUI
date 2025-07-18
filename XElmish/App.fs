@@ -487,13 +487,7 @@ module App =
                                                 | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                 | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
-                                            let result = 
-                                                stateReducerCmd1
-                                                <| token
-                                                <| kodisPathTemp
-                                                <| reportProgress 
-
-                                            return runIO result                                                     
+                                            return runIO (stateReducerCmd1 token reportProgress)                                                      
                                         }
                                     |> Async.StartChild
 

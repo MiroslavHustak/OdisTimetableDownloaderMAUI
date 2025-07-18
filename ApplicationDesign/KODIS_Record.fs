@@ -8,7 +8,6 @@ open System.Threading
 
 open Types
 open Types.Types
-open Types.FreeMonad
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
@@ -19,7 +18,6 @@ open BusinessLogic.TP_Canopy_Difference
 
 open Helpers
 open Helpers.Builders
-open Helpers.CopyOrMoveDirectories
 
 open Api.Logging
 
@@ -78,63 +76,15 @@ module WebScraping_KODISFMRecord =
             DownloadAndSave = downloadAndSave >> runIO
         }    
 
-    let internal stateReducerCmd1 (token : CancellationToken) path reportProgress =
+    let internal stateReducerCmd1 (token : CancellationToken) reportProgress =
 
-        let moveFolders source destination = 
-
-            IO (fun () 
-                    ->
-                    pyramidOfInferno
-                        {
-                            let! _ = 
-                                Directory.Exists source |> Result.fromBool () LetItBeKodis,
-                                    fun _ -> Ok ()   
-                    
-                            let! _ =
-                                Directory.Exists destination |> Result.fromBool () FolderMovingError,
-                                    fun err 
-                                        ->
-                                        try
-                                            pyramidOfInferno 
-                                                {
-                                                    let! _ =    
-                                                        let dirInfo = Directory.CreateDirectory destination
-                                                        Thread.Sleep 300 //wait for the directory to be created  
-
-                                                        dirInfo.Exists |> Result.fromBool () FolderMovingError,
-                                                            fun err
-                                                                ->
-                                                                runIO (postToLog <| err <| "#444-1")
-                                                                Error FolderMovingError
-                                                    let! _ =
-                                                        runFreeMonad
-                                                        <|
-                                                        copyOrMoveFiles { source = source; destination = destination } Move,
-                                                            fun err 
-                                                                ->
-                                                                runIO (postToLog <| err <| "#444-2")
-                                                                Error FolderMovingError
-                            
-                                                    return Ok ()
-                                                }                                 
-                                        with 
-                                        | ex 
-                                            ->
-                                            runIO (postToLog <| ex.Message <| "#444-3")
-                                            Error err                       
-           
-                            let! _ = 
-                                runFreeMonad 
-                                <| 
-                                copyOrMoveFiles { source = source; destination = destination } Move,   
-                                    fun err
-                                        ->
-                                        runIO (postToLog <| err <| "#444-4")
-                                        Error FolderMovingError
-                         
-                            return Ok ()
-                         } 
-            )
+        let configKodis =
+            {
+                source1 = path0 ODISDefault.OdisDir1 
+                source2 = path0 ODISDefault.OdisDir2 
+                source3 = path0 ODISDefault.OdisDir4 
+                destination = oldTimetablesPath 
+            }          
     
         IO (fun () 
                 ->       
@@ -147,14 +97,42 @@ module WebScraping_KODISFMRecord =
                         | NetConnJsonError err -> err
                         | JsonTimeoutError     -> jsonDownloadError  
                         | StopJsonDownloading  -> jsonCancel
+                        | FolderMovingError2   -> folderMovingError
+                        | LetItBeKodis2        -> String.Empty
                     
                     try
                         try
                             #if ANDROID
                             KeepScreenOnManager.keepScreenOn >> runIO <| true
                             #endif
-                            //environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
-                            runIO <| environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress     
+
+                            let downloadTask = 
+                                async
+                                    {
+                                        //return! runIOAsync <| environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
+                                        return! runIOAsync <| environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress 
+                                    }
+                            
+                            let moveAllTask = 
+                                async 
+                                    {
+                                        // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
+                                        // nicmene priprava na zpracovani err je provedena (jeste vytvorit list s Result, ten bude v Array.last)
+                                        let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis2 FolderMovingError2
+                                        let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis2 FolderMovingError2
+                                        let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis2 FolderMovingError2
+
+                                        return Ok ()  //silently ignoring failed move operations
+                                    }
+                            
+                            [ 
+                                downloadTask
+                                moveAllTask
+                            ]
+                            |> Async.Parallel  //uz to mame v try with bloku, Async.Catch only if you don’t want one task to cancel all others on failure
+                            |> Async.RunSynchronously
+                            |> Array.head
+                          
                         finally
                             #if ANDROID
                             KeepScreenOnManager.keepScreenOn >> runIO <| false

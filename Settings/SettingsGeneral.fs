@@ -52,7 +52,7 @@ module SettingsGeneral =
     let internal mdpoPathTemp = @"g:\Users\User\Data4\"
     let internal oldTimetablesPath = @"g:\Users\User\DataOld\"
     let internal oldTimetablesPath4 = @"g:\Users\User\DataOld4\"
-    let path = sprintf "%s%s/" kodisPathTemp 
+    let path0 = sprintf "%s%s/" kodisPathTemp 
     let path4 = sprintf "%s%s/" kodisPathTemp4  
     #else
     let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
@@ -62,17 +62,17 @@ module SettingsGeneral =
     let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/" 
     let internal oldTimetablesPath = @"/storage/emulated/0/FabulousTimetablesOld/"
     let internal oldTimetablesPath4 = @"/storage/emulated/0/FabulousTimetablesOld4/"
-    let path = sprintf "%s%s/" kodisPathTemp 
+    let path0 = sprintf "%s%s/" kodisPathTemp 
     let path4 = sprintf "%s%s/" kodisPathTemp4 
     #endif
 
-    let internal pathTP_CurrentValidity = path ODISDefault.OdisDir1 
+    let internal pathTP_CurrentValidity = path0 ODISDefault.OdisDir1 
     let internal pathCanopy_CurrentValidity = path4 ODISDefault.OdisDir1
 
-    let internal pathTP_FutureValidity = path ODISDefault.OdisDir2   
+    let internal pathTP_FutureValidity = path0 ODISDefault.OdisDir2   
     let internal pathCanopy_FutureValidity = path4 ODISDefault.OdisDir2
 
-    let internal pathTP_WithoutReplacementService = path ODISDefault.OdisDir4  
+    let internal pathTP_WithoutReplacementService = path0 ODISDefault.OdisDir4  
     let internal pathCanopy_WithoutReplacementService = path4 ODISDefault.OdisDir4 
 
     (*

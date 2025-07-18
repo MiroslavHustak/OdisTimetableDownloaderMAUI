@@ -1,14 +1,12 @@
 ﻿namespace ApplicationDesign4
 
 open System
-open System.IO
 open System.Threading
 
 //**********************************
 
 open Types
 open Types.Types
-open Types.FreeMonad
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
@@ -16,7 +14,6 @@ open BusinessLogic4.KODIS_BL_Record4
 
 open Helpers
 open Helpers.Builders
-open Helpers.CopyOrMoveDirectories
 
 open Api.Logging
 
@@ -174,62 +171,6 @@ module WebScraping_KODISFMRecord4 =
                 source3 = path4 ODISDefault.OdisDir4 //@"g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\"
                 destination = oldTimetablesPath4 //@"g:\Users\User\DataOld4\"
             }  
-
-        let moveFolders source destination = 
-
-            IO (fun () 
-                    ->
-                    pyramidOfInferno
-                        {
-                            let! _ = 
-                                Directory.Exists source |> Result.fromBool () LetItBeKodis,
-                                    fun _ -> Ok ()   
-                    
-                            let! _ =
-                                Directory.Exists destination |> Result.fromBool () FolderMovingError,
-                                    fun err 
-                                        ->
-                                        try
-                                            pyramidOfInferno 
-                                                {
-                                                    let! _ =    
-                                                        let dirInfo = Directory.CreateDirectory destination
-                                                        Thread.Sleep 300 //wait for the directory to be created  
-
-                                                        dirInfo.Exists |> Result.fromBool () FolderMovingError,
-                                                            fun err
-                                                                ->
-                                                                runIO (postToLog <| err <| "#444-1")
-                                                                Error FolderMovingError
-                                                    let! _ =
-                                                        runFreeMonad
-                                                        <|
-                                                        copyOrMoveFiles { source = source; destination = destination } Move,
-                                                            fun err 
-                                                                ->
-                                                                runIO (postToLog <| err <| "#444-2")
-                                                                Error FolderMovingError
-                            
-                                                    return Ok ()
-                                                }                                 
-                                        with 
-                                        | ex 
-                                            ->
-                                            runIO (postToLog <| ex.Message <| "#444-3")
-                                            Error err                       
-           
-                            let! _ = 
-                                runFreeMonad 
-                                <| 
-                                copyOrMoveFiles { source = source; destination = destination } Move,   
-                                    fun err
-                                        ->
-                                        runIO (postToLog <| err <| "#444-4")
-                                        Error FolderMovingError
-                         
-                            return Ok ()
-                         } 
-            )
                                                    
         pyramidOfInferno
             {             
@@ -237,9 +178,10 @@ module WebScraping_KODISFMRecord4 =
                 let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
 
-                let!_ = runIO <| moveFolders configKodis.source1 configKodis.destination, errFn 
-                let!_ = runIO <| moveFolders configKodis.source2 configKodis.destination, errFn
-                let!_ = runIO <| moveFolders configKodis.source3 configKodis.destination, errFn
+                //priprava na zpracovani err je provedena, ale kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory
+                (runIO <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis FolderMovingError) |> ignore<Result<unit, PdfDownloadErrors>>
+                (runIO <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis FolderMovingError) |> ignore<Result<unit, PdfDownloadErrors>>
+                (runIO <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis FolderMovingError) |> ignore<Result<unit, PdfDownloadErrors>>
 
                 let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
                 let!_ = runIO <| createFolders dirList, errFn 

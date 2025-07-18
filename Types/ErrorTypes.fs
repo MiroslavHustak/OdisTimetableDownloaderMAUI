@@ -24,6 +24,8 @@ module ErrorTypes =
         | JsonConnectionError       
         | NetConnJsonError of string
         | StopJsonDownloading
+        | FolderMovingError2
+        | LetItBeKodis2
            
     type internal PdfDownloadErrors =
         | RcError         
