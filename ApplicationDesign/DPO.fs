@@ -72,58 +72,8 @@ module WebScraping_DPO =
 
                     match action with   
                     | CopyOldTimetables 
-                        ->                          
-                        pyramidOfInferno
-                            {
-                                let! _ = 
-                                    Directory.Exists configMHD.source |> Result.fromBool () LetItBeMHD,
-                                        fun _ -> Ok ()   
-                                        
-                                let! _ =
-                                    Directory.Exists configMHD.destination |> Result.fromBool () FolderCopyOrMoveErrorMHD,
-                                        fun err 
-                                            ->
-                                            try
-                                                pyramidOfInferno 
-                                                    {
-                                                        let! _ =    
-                                                            let dirInfo = Directory.CreateDirectory configMHD.destination
-                                                            Thread.Sleep 00 //wait for the directory to be created
-
-                                                            dirInfo.Exists |> Result.fromBool () FolderCopyOrMoveErrorMHD,  
-                                                                fun err 
-                                                                    ->
-                                                                    runIO (postToLog <| err <| "#10-6")
-                                                                    Error FolderCopyOrMoveErrorMHD
-
-                                                        let! _ =
-                                                            runFreeMonad
-                                                            <|
-                                                            copyOrMoveFiles configMHD Move,
-                                                                fun err 
-                                                                    ->
-                                                                    runIO (postToLog <| err <| "#10-7")
-                                                                    Error FolderCopyOrMoveErrorMHD
-                                                
-                                                        return Ok ()
-                                                    }                                 
-                                            with 
-                                            | ex 
-                                                ->
-                                                runIO (postToLog <| ex.Message <| "#10-2")
-                                                Error err                       
-                               
-                                let! _ = 
-                                    runFreeMonad 
-                                    <| 
-                                    copyOrMoveFiles configMHD Move,   
-                                        fun err
-                                            ->
-                                            runIO (postToLog <| err <| "#10-1")
-                                            Error FolderCopyOrMoveErrorMHD
-                         
-                                return Ok ()
-                             }                        
+                        ->      
+                        runIO <| moveFolders configMHD.source configMHD.destination LetItBeMHD FolderCopyOrMoveErrorMHD
 
                     | DeleteOneODISDirectory 
                         ->    
@@ -182,7 +132,10 @@ module WebScraping_DPO =
                             | LetItBeMHD               -> String.Empty
                             | TestDuCase ex            -> ex
                         
-                        let! _ = stateReducer token stateDefault CopyOldTimetables environment, fun err -> Error <| errFn err
+                        // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
+                        // nicmene priprava na zpracovani err je provedena
+                        stateReducer token stateDefault CopyOldTimetables environment |> ignore<Result<unit, MHDErrors>> //silently ignoring failed move operations
+                        
                         let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault FilterDownloadSave environment, fun err -> Error <| errFn err
