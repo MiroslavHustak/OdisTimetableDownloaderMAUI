@@ -131,7 +131,7 @@
     <Compile Include="Settings\SettingsKODIS.fs" />
     <Compile Include="Settings\SettingsMDPO.fs" />
     <Compile Include="ComputationExpressions\CEBuilders.fs" />
-    <Compile Include="FreeMonadSupport\CmdLineWorkflows.fs.fs" />
+    <Compile Include="FreeMonadSupport\CmdLineWorkflows.fs" />
     <Compile Include="ErrorHandling\ErrorHandlers.fs" />
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Serialization.fs" />

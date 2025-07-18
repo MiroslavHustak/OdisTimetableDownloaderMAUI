@@ -1,12 +1,14 @@
 ﻿namespace ApplicationDesign
 
 open System
+open System.IO
 open System.Threading
 
 //**********************************
 
 open Types
 open Types.Types
+open Types.FreeMonad
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
@@ -17,9 +19,11 @@ open BusinessLogic.TP_Canopy_Difference
 
 open Helpers
 open Helpers.Builders
+open Helpers.CopyOrMoveDirectories
 
 open Api.Logging
 
+open IO_Operations
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
 
@@ -30,7 +34,7 @@ open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
-
+open BusinessLogic4.KODIS_BL_Record4
 
 //Vzhledem k pouziti Elmishe priste podumej nad timto designem, mozna bude lepsi pure transformation layer
 
@@ -75,6 +79,62 @@ module WebScraping_KODISFMRecord =
         }    
 
     let internal stateReducerCmd1 (token : CancellationToken) path reportProgress =
+
+        let moveFolders source destination = 
+
+            IO (fun () 
+                    ->
+                    pyramidOfInferno
+                        {
+                            let! _ = 
+                                Directory.Exists source |> Result.fromBool () LetItBeKodis,
+                                    fun _ -> Ok ()   
+                    
+                            let! _ =
+                                Directory.Exists destination |> Result.fromBool () FolderMovingError,
+                                    fun err 
+                                        ->
+                                        try
+                                            pyramidOfInferno 
+                                                {
+                                                    let! _ =    
+                                                        let dirInfo = Directory.CreateDirectory destination
+                                                        Thread.Sleep 300 //wait for the directory to be created  
+
+                                                        dirInfo.Exists |> Result.fromBool () FolderMovingError,
+                                                            fun err
+                                                                ->
+                                                                runIO (postToLog <| err <| "#444-1")
+                                                                Error FolderMovingError
+                                                    let! _ =
+                                                        runFreeMonad
+                                                        <|
+                                                        copyOrMoveFiles { source = source; destination = destination } Move,
+                                                            fun err 
+                                                                ->
+                                                                runIO (postToLog <| err <| "#444-2")
+                                                                Error FolderMovingError
+                            
+                                                    return Ok ()
+                                                }                                 
+                                        with 
+                                        | ex 
+                                            ->
+                                            runIO (postToLog <| ex.Message <| "#444-3")
+                                            Error err                       
+           
+                            let! _ = 
+                                runFreeMonad 
+                                <| 
+                                copyOrMoveFiles { source = source; destination = destination } Move,   
+                                    fun err
+                                        ->
+                                        runIO (postToLog <| err <| "#444-4")
+                                        Error FolderMovingError
+                         
+                            return Ok ()
+                         } 
+            )
     
         IO (fun () 
                 ->       
@@ -127,6 +187,7 @@ module WebScraping_KODISFMRecord =
                     | CreateFolderError    -> createFolderError   
                     | CreateFolderError2   -> createFolderError2
                     | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+                    | FolderMovingError    -> folderMovingError 
                     | CanopyError          -> canopyError
                     | TimeoutError         -> "timeout"
                     | PdfConnectionError   -> cancelMsg2 
@@ -134,6 +195,7 @@ module WebScraping_KODISFMRecord =
                     | ApiDecodingError     -> canopyError
                     | NetConnPdfError err  -> err
                     | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+                    | LetItBeKodis         -> String.Empty
                                                              
                 let result (lazyList : Lazy<Result<string list, PdfDownloadErrors>>) (context2 : Context2) =  
                
