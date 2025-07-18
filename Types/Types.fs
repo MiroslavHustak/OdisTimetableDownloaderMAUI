@@ -57,3 +57,19 @@ module Types =
         | CurrentValidity 
         | FutureValidity 
         | WithoutReplacementService  
+
+    [<Struct>]
+    type internal ConfigMHD =
+        {
+            source : string
+            destination : string
+        }
+
+    [<Struct>]
+    type internal ConfigKodis =
+        {
+            source1 : string
+            source2 : string
+            source3 : string
+            destination : string
+        }

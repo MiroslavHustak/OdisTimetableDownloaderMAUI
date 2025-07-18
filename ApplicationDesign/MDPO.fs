@@ -69,7 +69,7 @@ module WebScraping_MDPO =
 
                     let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir6 ] //due to uniformity
 
-                    let config =
+                    let configMHD =
                         {
                             source = dirList pathToDir |> List.head 
                             destination = oldTimetablesPath4
@@ -81,16 +81,36 @@ module WebScraping_MDPO =
                         pyramidOfInferno
                             {
                                 let! _ = 
-                                    Directory.Exists config.source |> Result.fromBool () LetItBeMHD,
+                                    Directory.Exists configMHD.source |> Result.fromBool () LetItBeMHD,
                                         fun _ -> Ok ()     
                                         
                                 let! _ =
-                                    Directory.Exists config.destination |> Result.fromBool () FileCopyingErrorMHD,
+                                    Directory.Exists configMHD.destination |> Result.fromBool () FolderCopyOrMoveErrorMHD,
                                         fun err 
                                             ->
                                             try
-                                                Directory.CreateDirectory config.destination |> ignore<DirectoryInfo>
-                                                Ok ()
+                                                pyramidOfInferno 
+                                                    {
+                                                        let! _ =    
+                                                            let dirInfo = Directory.CreateDirectory configMHD.destination
+                                                            Thread.Sleep 300 //wait for the directory to be created
+
+                                                            dirInfo.Exists |> Result.fromBool () FolderCopyOrMoveErrorMHD,  
+                                                                fun err 
+                                                                    ->
+                                                                    runIO (postToLog <| err <| "#10-8")
+                                                                    Error FolderCopyOrMoveErrorMHD
+                                                        let! _ =
+                                                            runFreeMonad
+                                                            <|
+                                                            copyOrMoveFiles configMHD Move,
+                                                                fun err 
+                                                                    ->
+                                                                    runIO (postToLog <| err <| "#10-4")
+                                                                    Error FolderCopyOrMoveErrorMHD
+                                                
+                                                        return Ok ()
+                                                    }                                                        
                                             with 
                                             | ex 
                                                 ->
@@ -100,11 +120,11 @@ module WebScraping_MDPO =
                                 let! _ = 
                                     runFreeMonad 
                                     <| 
-                                    copyOrMoveFiles config Copy,   
+                                    copyOrMoveFiles configMHD Move,   
                                         fun err
                                             ->
                                             runIO (postToLog <| err <| "#10-4")
-                                            Error FileCopyingErrorMHD
+                                            Error FolderCopyOrMoveErrorMHD
                          
                                 return Ok ()
                              }                        
@@ -163,7 +183,7 @@ module WebScraping_MDPO =
                                                 | Ok _      -> 
                                                             Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
                                                 | Error err ->
-                                                            runIO (postToLog <| err <| "#9-1") 
+                                                            runIO (postToLog <| err <| "#9-2") 
                                                             Error err       
                                             //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
                             with
@@ -177,19 +197,19 @@ module WebScraping_MDPO =
                         let errFn err =  
 
                             match err with
-                            | BadRequest            -> "400 Bad Request"
-                            | InternalServerError   -> "500 Internal Server Error"
-                            | NotImplemented        -> "501 Not Implemented"
-                            | ServiceUnavailable    -> "503 Service Unavailable"        
-                            | NotFound              -> "404 Page Not Found"
-                            | CofeeMakerUnavailable -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-                            | FileDownloadErrorMHD  -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoMsg1 | Error _ -> mdpoMsg0 
-                            | FileCopyingErrorMHD   -> fileCopyingError
-                            | ConnectionError       -> noNetConn
-                            | FileDeleteErrorMHD    -> fileDeleteError
-                            | StopDownloadingMHD    -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
-                            | LetItBeMHD            -> String.Empty
-                            | TestDuCase ex         -> ex 
+                            | BadRequest               -> "400 Bad Request"
+                            | InternalServerError      -> "500 Internal Server Error"
+                            | NotImplemented           -> "501 Not Implemented"
+                            | ServiceUnavailable       -> "503 Service Unavailable"        
+                            | NotFound                 -> "404 Page Not Found"
+                            | CofeeMakerUnavailable    -> "418 I'm a teapot. Look for a coffee maker elsewhere."
+                            | FileDownloadErrorMHD     -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoMsg1 | Error _ -> mdpoMsg0 
+                            | FolderCopyOrMoveErrorMHD -> folderCopyingError
+                            | ConnectionError          -> noNetConn
+                            | FileDeleteErrorMHD       -> fileDeleteError
+                            | StopDownloadingMHD       -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
+                            | LetItBeMHD               -> String.Empty
+                            | TestDuCase ex            -> ex 
 
                         let! _ = stateReducer token stateDefault CopyOldTimetables environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err

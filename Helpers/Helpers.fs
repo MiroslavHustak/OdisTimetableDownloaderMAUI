@@ -9,6 +9,7 @@ open Microsoft.Maui.ApplicationModel
 
 //***************************
 open Types
+open Types.Types
 open Types.ErrorTypes
 
 open NativeHelpers
@@ -126,13 +127,6 @@ module CopyOrMoveDirectories =
     let private cmdBuilder = CommandLineProgramBuilder
 
     [<Struct>]
-    type internal Config =
-        {
-            source : string
-            destination : string
-        }
-
-    [<Struct>]
     type internal IO_Operation = 
         | Copy
         | Move    
@@ -155,7 +149,9 @@ module CopyOrMoveDirectories =
                        
                     | Move 
                         ->
-                        Ok <| Directory.Move(s, d) 
+                        match Native.MoveDirContent64(s, d, 0) with  //exn se musi chytat uz v C++
+                        | 0 -> Ok ()
+                        | _ -> Error <| sprintf "Chyba při přemístění adresáře %s do %s #310" s d
                 with
                 | ex -> Error <| string ex.Message
 

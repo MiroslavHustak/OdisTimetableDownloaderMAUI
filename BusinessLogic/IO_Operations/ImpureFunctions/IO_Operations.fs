@@ -191,5 +191,5 @@ module IO_Operations =
                 | ex
                     ->
                     runIO (postToLog <| ex.Message <| "#421")
-                    Error CreateFolderError1   
+                    Error CreateFolderError2   
         )

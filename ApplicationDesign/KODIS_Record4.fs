@@ -25,6 +25,30 @@ open Settings.Messages
 open Settings.SettingsGeneral
 
 
+
+open System
+open System.IO
+open System.Threading
+
+//**********************************
+
+open Types.Types   
+open Types.FreeMonad
+open Types.ErrorTypes
+open Types.Haskell_IO_Monad_Simulation
+
+open Helpers
+open Helpers.Builders
+open Helpers.CopyOrMoveDirectories
+
+open Api.Logging
+open BusinessLogic.DPO_BL   
+open IO_Operations.IO_Operations
+
+open Settings.Messages
+open Settings.SettingsGeneral 
+
+
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 // 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
 
@@ -77,8 +101,9 @@ module WebScraping_KODISFMRecord4 =
             | DataFilteringError   -> dataFilteringError
             | FileDeleteError      -> fileDeleteError 
             | CreateFolderError    -> createFolderError
-            | CreateFolderError1   -> createFolderError1
+            | CreateFolderError2   -> createFolderError2
             | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+            | FolderMovingError    -> folderMovingError 
             | CanopyError          -> canopyError
             | TimeoutError         -> "timeout"
             | PdfConnectionError   -> cancelMsg2 
@@ -86,6 +111,7 @@ module WebScraping_KODISFMRecord4 =
             | ApiDecodingError     -> canopyError
             | NetConnPdfError err  -> err
             | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+            | LetItBeKodis         -> String.Empty
 
         let result (context2 : Context2) =   
 
@@ -160,12 +186,80 @@ module WebScraping_KODISFMRecord4 =
                     Msg3 = msg3WithoutReplacementService
                     VariantInt = 2
                 }
+
+        let configKodis =
+            {
+                source1 = path4 ODISDefault.OdisDir1 //@"g:\Users\User\Data4\JR_ODIS_aktualni_vcetne_vyluk\"
+                source2 = path4 ODISDefault.OdisDir2 //@"g:\Users\User\Data4\JR_ODIS_pouze_budouci_platnost\"
+                source3 = path4 ODISDefault.OdisDir4 //@"g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk\"
+                destination = oldTimetablesPath4 //@"g:\Users\User\DataOld4\"
+            }  
+
+        let moveFolders source destination = 
+
+            IO (fun () 
+                    ->
+                    pyramidOfInferno
+                        {
+                            let! _ = 
+                                Directory.Exists source |> Result.fromBool () LetItBeKodis,
+                                    fun _ -> Ok ()   
+                    
+                            let! _ =
+                                Directory.Exists destination |> Result.fromBool () FolderMovingError,
+                                    fun err 
+                                        ->
+                                        try
+                                            pyramidOfInferno 
+                                                {
+                                                    let! _ =    
+                                                        let dirInfo = Directory.CreateDirectory destination
+                                                        Thread.Sleep 300 //wait for the directory to be created  
+
+                                                        dirInfo.Exists |> Result.fromBool () FolderMovingError,
+                                                            fun err
+                                                                ->
+                                                                runIO (postToLog <| err <| "#444-1")
+                                                                Error FolderMovingError
+                                                    let! _ =
+                                                        runFreeMonad
+                                                        <|
+                                                        copyOrMoveFiles { source = source; destination = destination } Move,
+                                                            fun err 
+                                                                ->
+                                                                runIO (postToLog <| err <| "#444-2")
+                                                                Error FolderMovingError
+                            
+                                                    return Ok ()
+                                                }                                 
+                                        with 
+                                        | ex 
+                                            ->
+                                            runIO (postToLog <| ex.Message <| "#444-3")
+                                            Error err                       
+           
+                            let! _ = 
+                                runFreeMonad 
+                                <| 
+                                copyOrMoveFiles { source = source; destination = destination } Move,   
+                                    fun err
+                                        ->
+                                        runIO (postToLog <| err <| "#444-4")
+                                        Error FolderMovingError
+                         
+                            return Ok ()
+                         } 
+            )
                                                    
         pyramidOfInferno
             {             
                 #if ANDROID
                 let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
+
+                let!_ = runIO <| moveFolders configKodis.source1 configKodis.destination, errFn 
+                let!_ = runIO <| moveFolders configKodis.source2 configKodis.destination, errFn
+                let!_ = runIO <| moveFolders configKodis.source3 configKodis.destination, errFn
 
                 let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
                 let!_ = runIO <| createFolders dirList, errFn 

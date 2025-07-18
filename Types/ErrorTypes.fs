@@ -13,7 +13,7 @@ module ErrorTypes =
         | FileDownloadErrorMHD
         | ConnectionError
         | FileDeleteErrorMHD
-        | FileCopyingErrorMHD
+        | FolderCopyOrMoveErrorMHD
         | StopDownloadingMHD
         | LetItBeMHD
         | TestDuCase of string
@@ -30,8 +30,9 @@ module ErrorTypes =
         | DataFilteringError
         | JsonFilteringError //vyjimecne to musime dat tady
         | FileDeleteError
+        | FolderMovingError
         | CreateFolderError
-        | CreateFolderError1
+        | CreateFolderError2
         | FileDownloadError
         | NoFolderError
         | CanopyError
@@ -41,3 +42,4 @@ module ErrorTypes =
         | ApiDecodingError
         | NetConnPdfError of string
         | StopDownloading
+        | LetItBeKodis

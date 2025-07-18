@@ -125,7 +125,7 @@ module WebScraping_KODISFMRecord =
                     | DataFilteringError   -> dataFilteringError
                     | FileDeleteError      -> fileDeleteError 
                     | CreateFolderError    -> createFolderError   
-                    | CreateFolderError1   -> createFolderError1
+                    | CreateFolderError2   -> createFolderError2
                     | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
                     | CanopyError          -> canopyError
                     | TimeoutError         -> "timeout"
