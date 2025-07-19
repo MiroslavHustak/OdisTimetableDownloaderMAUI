@@ -135,7 +135,6 @@ module CopyOrMoveDirectories =
 
                         return! Free (CopyOrMove (sourceFilepath, destinFilepath))
                     }
-
                 |> interpret config io_operation  
             )
 
@@ -185,8 +184,7 @@ module DirFileHelper =
                         let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
 
                         return Ok <| File.ReadAllText filepath                                           
-                    }  
-            
+                    }              
                 |> Result.defaultValue jsonEmpty //TODO logfile, nestoji to za to vytahovat Result nahoru     
         )
                     
@@ -202,8 +200,7 @@ module DirFileHelper =
                         let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
 
                         return Ok (File.ReadAllTextAsync filepath |> Async.AwaitTask)                                          
-                    }  
-            
+                    }             
                 |> Result.defaultWith (fun _ -> async { return jsonEmpty }) //TODO logfile, nestoji to za to vytahovat Result nahoru
         )
 
