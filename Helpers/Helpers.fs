@@ -17,6 +17,7 @@ open NativeHelpers
 open NativeHelpers.Native
 #endif
 
+open FSharpHelpers
 open FSharpHelpers.MoveDir
 open FSharpHelpers.CopyDir
 
@@ -63,8 +64,8 @@ module CopyOrMoveDirectories =
 
                     #else
                     match io_operation with
-                    | Copy -> copyDirectory s d 0 0                       
-                    | Move -> moveDirectory s d 0                        
+                    | Copy -> CopyDir.runIO <| copyDirectory s d 0 0                       
+                    | Move -> MoveDir.runIO <| moveDirectory s d 0                        
                     #endif
                 with
                 | ex -> Error <| string ex.Message
