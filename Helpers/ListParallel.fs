@@ -68,7 +68,7 @@ let private numberOfThreads l =
 
 let private maxDegreeOfParallelismAdapted =
 
-    let (|Small|Medium|Large|) length =
+    let (|Small|Medium|Large|) length = //active pattern
         match length with
         | length 
             when length < myIdeaOfASmallList 

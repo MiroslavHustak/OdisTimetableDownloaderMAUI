@@ -26,10 +26,6 @@ module Native =
         int moveOption  // 0 = move entire folder, 1 = move contents only
     )
 
-    // git add ExternalFolderCpp
-    // git commit -m "Add extra project"
-    // git push origin master
-
     (*
     Pridat do fsproj
     <ItemGroup>

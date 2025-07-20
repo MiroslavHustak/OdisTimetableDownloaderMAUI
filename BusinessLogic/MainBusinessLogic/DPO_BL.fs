@@ -92,11 +92,28 @@ module DPO_BL =
 
                                     let adaptedLineName =
                                         let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
+                                        
                                         let rec x s =                                                                            
                                             match (getLastThreeCharacters s).Contains("?") with
                                             | true  -> x (sprintf "%s%s" s "_")                                                                             
                                             | false -> s
-                                        (x << s) item2
+
+                                        let xTail s =
+                                            let rec loop s =
+                                                match (getLastThreeCharacters s).Contains("?") with
+                                                | true  -> loop (sprintf "%s%s" s "_")
+                                                | false -> s
+                                            loop s
+
+                                        let rec xCPS s cont =
+                                            match (getLastThreeCharacters s).Contains("?") with
+                                            | true  -> xCPS (sprintf "%s%s" s "_") cont
+                                            | false -> cont s 
+                                        
+                                        // (x << s) item2
+                                        // xCPS (s item2) id
+                                        
+                                        (xTail << s) item2
                                         in   
                                         let lineName = 
                                             let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
@@ -200,7 +217,7 @@ module DPO_BL =
                                         runIO (postToLog <| ex.Message <| "#35")
                                         return Error FileDownloadErrorMHD 
                                 } 
-                                )
+                    )
     
                 let downloadTimetables reportProgress (token : CancellationToken) = 
 
