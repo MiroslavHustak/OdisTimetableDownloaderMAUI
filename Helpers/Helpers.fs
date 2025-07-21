@@ -2,7 +2,9 @@
 
 open System
 open System.IO
+open System.Text
 open System.Diagnostics
+open System.Runtime.InteropServices
 
 open Fabulous.Maui
 open Microsoft.Maui.ApplicationModel 
@@ -231,4 +233,31 @@ module Xor =
 
     //jen priklad pouziti, v realnem pripade pouzij primo xor { a; b } nebo xor { a; b; c }    
     let internal xor2 (a : bool) (b : bool) = xor { a; b }
-    let internal xor3 (a : bool) (b : bool) (c : bool) = xor { a; b; c }    
+    let internal xor3 (a : bool) (b : bool) (c : bool) = xor { a; b; c }   
+
+module StringCombine = 
+   
+    let toUtf16Ptr (s : string) =
+        let bytes = Encoding.Unicode.GetBytes(s + "\u0000") // null-terminated
+        let ptr = Marshal.AllocHGlobal bytes.Length
+        Marshal.Copy(bytes, 0, ptr, bytes.Length)
+        ptr
+
+    let fromUtf8Ptr (ptr : IntPtr) =
+        match ptr = IntPtr.Zero with
+        | true  -> "[error or null]"
+        | false -> Marshal.PtrToStringAnsi ptr            
+
+    let runTest () =
+
+        let s1 = toUtf16Ptr "Hello, "
+        let s2 = toUtf16Ptr "F# world!"
+
+        let combinedPtr = NativeHelpers.Native.combine_strings(s1, s2)
+        let result = fromUtf8Ptr combinedPtr
+                
+        NativeHelpers.Native.free_string combinedPtr
+        Marshal.FreeHGlobal s1
+        Marshal.FreeHGlobal s2
+
+        result

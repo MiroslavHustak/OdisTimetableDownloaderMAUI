@@ -11,6 +11,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppHelpers", "..\CppHelpers
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpHelpers", "..\FSharpHelpers\FSharpHelpers.fsproj", "{B23205C7-AB7F-406F-8FAD-59B5980F8F26}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RustHelpers", "RustHelpers", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		lib.rs = lib.rs
+		string_combine_dll.h = string_combine_dll.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

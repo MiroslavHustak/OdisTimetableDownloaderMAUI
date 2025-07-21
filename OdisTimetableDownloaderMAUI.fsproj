@@ -110,6 +110,12 @@
       </None>
   </ItemGroup>
 
+	<ItemGroup>
+		<None Include="e:\source\Rust\string_combine_dll\target\release\string_combine_dll.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
   <ItemGroup>
     <!-- App Icon -->
     <None Include="Monadic_function_composition.txt" />

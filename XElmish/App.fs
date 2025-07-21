@@ -799,7 +799,7 @@ module App =
                                             match runIO <| webscraping_MDPO reportProgress token mdpoPathTemp with
                                             | Ok _     
                                                 ->                                                
-                                                return mauiMdpoMsg
+                                                return mauiMdpoMsg //Helpers.StringCombine.runTest() //mauiMdpoMsg
 
                                             | Error err 
                                                 ->
