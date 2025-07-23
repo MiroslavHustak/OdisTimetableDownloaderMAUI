@@ -140,7 +140,7 @@ module CopyOrMoveDirectories =
                 |> interpret config io_operation  
             )
 
-module StringCombine = 
+module StringCombine = //testovaci modul pro Rust dll
 
     let internal sprintfNative str1 str2 : string option =
 

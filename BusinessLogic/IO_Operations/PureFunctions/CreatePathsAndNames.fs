@@ -41,7 +41,7 @@ module CreatingPathsAndNames =
 
         #if WINDOWS
         let str = 
-            sprintfNative pathToDir dirName
+            sprintfNative pathToDir dirName //testovani Rust dll
             |> Option.defaultValue String.Empty
         #else
         let str = sprintf"%s/%s" pathToDir dirName         
