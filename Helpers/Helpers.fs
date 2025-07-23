@@ -144,7 +144,7 @@ module StringCombine =
 
     let internal sprintfNative str1 str2 : string option =
 
-        let toUtf16Ptr (text: string) : IntPtr =
+        let toUtf16Ptr (text : string) : IntPtr =
             text
             |> Option.ofPtrOrNull
             |> Option.map 
@@ -157,7 +157,7 @@ module StringCombine =
                 )
             |> Option.defaultValue IntPtr.Zero
     
-        let fromUtf8Ptr (ptr: IntPtr) : string option =
+        let fromUtf8Ptr (ptr : IntPtr) : string option =
             ptr
             |> Option.ofPtrOrNull
             |> Option.map Marshal.PtrToStringAnsi
@@ -177,13 +177,13 @@ module StringCombine =
                         NativeHelpers.Native.free_string combinedPtr
                 )
         finally
-            match s1 <> IntPtr.Zero with
-            | true  -> Marshal.FreeHGlobal s1
-            | false -> ()
+            match s1 |> Option.ofPtrOrNull with
+            | Some _ -> Marshal.FreeHGlobal s1
+            | None   -> ()
 
-            match s2 <> IntPtr.Zero with
-            | true  -> Marshal.FreeHGlobal s2
-            | false -> ()
+            match s2 |> Option.ofPtrOrNull with
+            | Some _ -> Marshal.FreeHGlobal s2
+            | None   -> ()            
 
 module DirFileHelper = 
   
