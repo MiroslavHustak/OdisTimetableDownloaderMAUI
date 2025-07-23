@@ -85,9 +85,8 @@ module Option =
         | true  -> None
         | false -> Some value     
 
-    let internal ofPtrOrNull (value : 'nullableValue) =     
-
-        match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
+    let internal ofPtrOrNull (value : 'nullableValue) =  
+        match System.Object.ReferenceEquals(value, null) with 
         | true  ->
                 None
         | false -> 
@@ -101,7 +100,6 @@ module Option =
                     -> Some value          
                                   
     let internal ofNullEmpty (value : 'nullableValue) = //NullOrEmpty
-
         pyramidOfHell
             {
                 let!_ = not <| System.Object.ReferenceEquals(value, null), None 
@@ -159,7 +157,6 @@ module Option =
     *)
 
     let internal ofNullEmptySpace (value : 'nullableValue) = //NullOrEmpty, NullOrWhiteSpace
-    
         pyramidOfHell
             {
                 let!_ = not <| System.Object.ReferenceEquals(value, null), None 
