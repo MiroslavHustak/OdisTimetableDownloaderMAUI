@@ -79,8 +79,14 @@ module Option =
         | false -> None
 
     //Technically impure because of System.Object.ReferenceEquals
-    //Pragmatically pure as there are no side effects      
-    let internal ofNull (value : 'nullableValue) =     
+    //Pragmatically pure as there are no side effects        
+    let internal ofNull (value : 'nullableValue) =
+        match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
+        | true  -> None
+        | false -> Some value     
+
+    let internal ofPtrOrNull (value : 'nullableValue) =     
+
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
         | true  ->
                 None

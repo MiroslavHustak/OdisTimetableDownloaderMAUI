@@ -41,7 +41,7 @@ module CreatingPathsAndNames =
 
         #if WINDOWS
         let str = 
-            combineString pathToDir dirName
+            sprintfNative pathToDir dirName
             |> Option.defaultValue String.Empty
         #else
         let str = sprintf"%s/%s" pathToDir dirName         

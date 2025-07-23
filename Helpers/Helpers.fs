@@ -142,11 +142,11 @@ module CopyOrMoveDirectories =
 
 module StringCombine = 
 
-    let internal combineString str1 str2 : string option =
+    let internal sprintfNative str1 str2 : string option =
 
         let toUtf16Ptr (text: string) : IntPtr =
             text
-            |> Option.ofNull
+            |> Option.ofPtrOrNull
             |> Option.map 
                 (fun txt 
                     ->
@@ -159,7 +159,7 @@ module StringCombine =
     
         let fromUtf8Ptr (ptr: IntPtr) : string option =
             ptr
-            |> Option.ofNull
+            |> Option.ofPtrOrNull
             |> Option.map Marshal.PtrToStringAnsi
     
         let s1 = toUtf16Ptr str1
@@ -167,7 +167,7 @@ module StringCombine =
     
         try
             NativeHelpers.Native.combine_strings(s1, s2)
-            |> Option.ofNull
+            |> Option.ofPtrOrNull
             |> Option.bind 
                 (fun combinedPtr
                     ->
