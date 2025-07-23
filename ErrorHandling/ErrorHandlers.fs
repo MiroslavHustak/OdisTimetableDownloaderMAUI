@@ -82,9 +82,18 @@ module Option =
     //Pragmatically pure as there are no side effects      
     let internal ofNull (value : 'nullableValue) =     
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
-        | true  -> None
-        | false -> Some value             
-                             
+        | true  ->
+                None
+        | false -> 
+                match box value with
+                | null 
+                    -> None
+                | :? IntPtr as ptr 
+                    when ptr = IntPtr.Zero
+                    -> None
+                | _   
+                    -> Some value          
+                                  
     let internal ofNullEmpty (value : 'nullableValue) = //NullOrEmpty
 
         pyramidOfHell

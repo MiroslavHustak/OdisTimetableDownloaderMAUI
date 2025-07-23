@@ -1,8 +1,12 @@
 ﻿namespace IO_Operations
 
+open System
+open System.IO
+
 open Types
 open Types.Types
 open Helpers.Builders
+open Helpers.StringCombine
 
 module CreatingPathsAndNames =    
          
@@ -35,4 +39,11 @@ module CreatingPathsAndNames =
 
     let internal createOneNewDirectoryPath pathToDir dirName = 
 
-        [ sprintf"%s/%s" pathToDir dirName ]  //list -> aby bylo mozno pouzit funkci createFolders bez uprav //lomitko !!!
+        #if WINDOWS
+        let str = 
+            combineString pathToDir dirName
+            |> Option.defaultValue String.Empty
+        #else
+        let str = sprintf"%s/%s" pathToDir dirName         
+        #endif
+        [ str ]  //list -> aby bylo mozno pouzit funkci createFolders bez uprav //lomitko !!!

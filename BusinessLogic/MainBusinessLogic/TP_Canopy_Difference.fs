@@ -17,7 +17,7 @@ open Types.Haskell_IO_Monad_Simulation
 module TP_Canopy_Difference =    
 
     let private showResults uniqueFileNamesTP uniqueFileNamesCanopy = 
-        
+            
         seq
             {
                 sprintf "Je v TP, ale chybi v Canopy %A" uniqueFileNamesTP                  

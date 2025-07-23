@@ -140,6 +140,51 @@ module CopyOrMoveDirectories =
                 |> interpret config io_operation  
             )
 
+module StringCombine = 
+
+    let internal combineString str1 str2 : string option =
+
+        let toUtf16Ptr (text: string) : IntPtr =
+            text
+            |> Option.ofNull
+            |> Option.map 
+                (fun txt 
+                    ->
+                    let bytes = Encoding.Unicode.GetBytes(txt + "\u0000")
+                    let ptr = Marshal.AllocHGlobal bytes.Length
+                    Marshal.Copy(bytes, 0, ptr, bytes.Length)
+                    ptr
+                )
+            |> Option.defaultValue IntPtr.Zero
+    
+        let fromUtf8Ptr (ptr: IntPtr) : string option =
+            ptr
+            |> Option.ofNull
+            |> Option.map Marshal.PtrToStringAnsi
+    
+        let s1 = toUtf16Ptr str1
+        let s2 = toUtf16Ptr str2
+    
+        try
+            NativeHelpers.Native.combine_strings(s1, s2)
+            |> Option.ofNull
+            |> Option.bind 
+                (fun combinedPtr
+                    ->
+                    try
+                        fromUtf8Ptr combinedPtr
+                    finally
+                        NativeHelpers.Native.free_string combinedPtr
+                )
+        finally
+            match s1 <> IntPtr.Zero with
+            | true  -> Marshal.FreeHGlobal s1
+            | false -> ()
+
+            match s2 <> IntPtr.Zero with
+            | true  -> Marshal.FreeHGlobal s2
+            | false -> ()
+
 module DirFileHelper = 
   
     let [<Literal>] internal jsonEmpty = """[ {} ]"""
@@ -234,30 +279,3 @@ module Xor =
     //jen priklad pouziti, v realnem pripade pouzij primo xor { a; b } nebo xor { a; b; c }    
     let internal xor2 (a : bool) (b : bool) = xor { a; b }
     let internal xor3 (a : bool) (b : bool) (c : bool) = xor { a; b; c }   
-
-module StringCombine = 
-   
-    let toUtf16Ptr (s : string) =
-        let bytes = Encoding.Unicode.GetBytes(s + "\u0000") // null-terminated
-        let ptr = Marshal.AllocHGlobal bytes.Length
-        Marshal.Copy(bytes, 0, ptr, bytes.Length)
-        ptr
-
-    let fromUtf8Ptr (ptr : IntPtr) =
-        match ptr = IntPtr.Zero with
-        | true  -> "[error or null]"
-        | false -> Marshal.PtrToStringAnsi ptr            
-
-    let runTest () =
-
-        let s1 = toUtf16Ptr "Hello, "
-        let s2 = toUtf16Ptr "F# world!"
-
-        let combinedPtr = NativeHelpers.Native.combine_strings(s1, s2)
-        let result = fromUtf8Ptr combinedPtr
-                
-        NativeHelpers.Native.free_string combinedPtr
-        Marshal.FreeHGlobal s1
-        Marshal.FreeHGlobal s2
-
-        result
