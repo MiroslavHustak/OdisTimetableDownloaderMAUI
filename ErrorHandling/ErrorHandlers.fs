@@ -9,7 +9,6 @@ open Helpers.Builders
 module Result =    
             
     let internal sequence aListOfResults = //gets the first error - see the book Domain Modelling Made Functional
-
         let prepend firstR restR =
             match firstR, restR with
             | Ok first, Ok rest   -> Ok (first :: rest) | Error err1, Ok _ -> Error err1
