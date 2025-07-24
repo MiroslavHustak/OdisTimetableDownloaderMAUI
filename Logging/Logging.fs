@@ -48,52 +48,55 @@ module Logging =
 
     let internal postToLogFile () errorMessage = 
 
-        //direct transformation to a json string (without records / serialization / Thoth encoders )
-        let s1 = "{ \"list\": ["
-        let s2 = [ errorMessage; string DateTimeOffset.UtcNow ] |> List.map (sprintf "\"%s\"") |> String.concat ","
-        let s3 = "] }"
+        IO (fun () 
+                ->
+                //direct transformation to a json string (without records / serialization / Thoth encoders )
+                let s1 = "{ \"list\": ["
+                let s2 = [ errorMessage; string DateTimeOffset.UtcNow ] |> List.map (sprintf "\"%s\"") |> String.concat ","
+                let s3 = "] }"
 
-        let jsonPayload = sprintf "%s%s%s" s1 s2 s3   
+                let jsonPayload = sprintf "%s%s%s" s1 s2 s3   
        
-        async
-            {       
-                try
-                    let! response = 
-                        http
-                            {
-                                POST urlLogging
-                                header "X-API-KEY" apiKeyTest 
-                                body 
-                                json jsonPayload
-                            }
-                        |> Request.sendAsync       
+                async
+                    {       
+                        try
+                            let! response = 
+                                http
+                                    {
+                                        POST urlLogging
+                                        header "X-API-KEY" apiKeyTest 
+                                        body 
+                                        json jsonPayload
+                                    }
+                                |> Request.sendAsync       
                                             
-                    match response.statusCode with
-                    | HttpStatusCode.OK 
-                        -> 
-                        let! jsonMsg = Response.toTextAsync response
+                            match response.statusCode with
+                            | HttpStatusCode.OK 
+                                -> 
+                                let! jsonMsg = Response.toTextAsync response
     
-                        return                          
-                            Decode.fromString decoderPost jsonMsg   
-                            |> function
-                                | Ok value  -> value   
-                                | Error err -> { Message1 = String.Empty; Message2 = err }      
-                    | _ -> 
-                        return { Message1 = String.Empty; Message2 = sprintf "Request failed with status code %d" (int response.statusCode) }    
+                                return                          
+                                    Decode.fromString decoderPost jsonMsg   
+                                    |> function
+                                        | Ok value  -> value   
+                                        | Error err -> { Message1 = String.Empty; Message2 = err }      
+                            | _ -> 
+                                return { Message1 = String.Empty; Message2 = sprintf "Request failed with status code %d" (int response.statusCode) }    
                 
-                //Result type nema smysl u log files pro errors
-                with
-                | ex -> return { Message1 = String.Empty; Message2 = sprintf "Request failed with error message %s" (string ex.Message) }     
-            } 
+                        //Result type nema smysl u log files pro errors
+                        with
+                        | ex -> return { Message1 = String.Empty; Message2 = sprintf "Request failed with error message %s" (string ex.Message) }     
+                    } 
+        )        
 
     let internal postToLog (msg: 'a) errCode =   
 
         IO (fun () 
                 ->     
-                postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
+                runIO <| postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
                 |> Async.RunSynchronously
                 |> ignore<ResponsePost>  
-           )
+        )
 
     //*************************************************************************** 
     #if WINDOWS   

@@ -56,7 +56,7 @@ module FutureLinks =
                                 return runIO <| transformLinksApiResponse postToLogFile response
                        
                             | _ -> 
-                                postToLogFile () (sprintf "Request failed with status code %d" (int response.statusCode))
+                                runIO <| postToLogFile () (sprintf "Request failed with status code %d" (int response.statusCode))
                                 |> Async.RunSynchronously 
                                 |> ignore<ResponsePost>   
                        

@@ -101,7 +101,7 @@ module KODIS_BL_Record =
                                         do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                     | HttpStatusCode.Forbidden 
                                         ->
-                                        postToLogFile () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2111") 
+                                        runIO <| postToLogFile () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2111") 
                                         |> Async.RunSynchronously 
                                         |> ignore<ResponsePost> 
                                     | _ ->
@@ -240,7 +240,7 @@ module KODIS_BL_Record =
                                                                 do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
                                                             | HttpStatusCode.Forbidden 
                                                                 ->
-                                                                postToLogFile () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211") 
+                                                                runIO <| postToLogFile () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211") 
                                                                 |> Async.RunSynchronously 
                                                                 |> ignore<ResponsePost> 
                                                             | _ ->
