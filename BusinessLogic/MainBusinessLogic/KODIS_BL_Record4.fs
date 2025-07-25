@@ -40,20 +40,17 @@ module KODIS_BL_Record4 =
     
         IO (fun () 
                 ->
-                let url1 = urlApi  
-                let url2 = urlJson
-    
                 let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
                     async
                         {
-                            let! getFromRestApi = getFutureLinksFromRestApi >> runIO <| url1
+                            let! getFromRestApi = getFutureLinksFromRestApi >> runIO <| urlApi
                             return runIO <| filterTimetableLinks variant dir getFromRestApi
                         }
     
                 let result2 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
                     async
                         {
-                            let! getFromRestApi = getFutureLinksFromRestApi >> runIO <| url2
+                            let! getFromRestApi = getFutureLinksFromRestApi >> runIO <| urlJson
                             match variant with
                             | FutureValidity -> return runIO <| filterTimetableLinks variant dir getFromRestApi
                             | _              -> return Ok []
@@ -62,7 +59,10 @@ module KODIS_BL_Record4 =
                 async 
                     {
                         let! results = 
-                            [ result1; result2 ]
+                            [ 
+                                result1
+                                result2 
+                            ]
                             |> Async.Parallel
                             |> Async.Catch
     

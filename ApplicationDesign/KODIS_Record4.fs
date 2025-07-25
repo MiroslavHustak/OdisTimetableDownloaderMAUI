@@ -77,10 +77,10 @@ module WebScraping_KODISFMRecord4 =
             | JsonFilteringError   -> jsonFilteringError
             | DataFilteringError   -> dataFilteringError
             | FileDeleteError      -> fileDeleteError 
-            | CreateFolderError4    -> createFolderError
+            | CreateFolderError4   -> createFolderError
             | CreateFolderError2   -> createFolderError2
             | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
-            | FolderMovingError4    -> folderMovingError 
+            | FolderMovingError4   -> folderMovingError 
             | CanopyError          -> canopyError
             | TimeoutError         -> "timeout"
             | PdfConnectionError   -> cancelMsg2 
@@ -88,7 +88,7 @@ module WebScraping_KODISFMRecord4 =
             | ApiDecodingError     -> canopyError
             | NetConnPdfError err  -> err
             | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
-            | LetItBeKodis4         -> String.Empty
+            | LetItBeKodis4        -> String.Empty
 
         let result (context2 : Context2) =   
 
