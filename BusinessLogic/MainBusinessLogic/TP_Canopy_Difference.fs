@@ -31,17 +31,9 @@ module TP_Canopy_Difference =
         IO (fun () 
                 ->
                 try
-                    match runIO <| checkFileCondition path (fun fileInfo -> fileInfo.Exists) with
-                    | Some _ 
-                        ->
-                        Directory.EnumerateFiles path
-                        |> Seq.map Path.GetFileName
-                        |> Set.ofSeq                         
-                            
-                    | None 
-                        -> 
-                        Set.empty<string>                   
-                  
+                    Directory.EnumerateFiles path
+                    |> Seq.map Path.GetFileName
+                    |> Set.ofSeq   
                 with
                 | ex 
                     ->
@@ -55,16 +47,8 @@ module TP_Canopy_Difference =
                 ->
                 try
                     match runIO <| checkDirectoryCondition pathToDir (fun dirInfo -> dirInfo.Exists) with
-                    | Some _ 
-                        ->
-                        Directory.EnumerateDirectories pathToDir
-                        |> Seq.map Path.GetFullPath
-                        |> Seq.distinct                          
-                            
-                    | None 
-                        -> 
-                        Seq.empty<string>                   
-                  
+                    | Some _ -> Directory.EnumerateDirectories pathToDir                            
+                    | None   -> Seq.empty<string>    
                 with
                 | ex 
                     ->

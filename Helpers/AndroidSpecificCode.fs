@@ -102,17 +102,6 @@ module KeepScreenOnManager = //DeviceDisplay.KeepScreenOn z .NET MAUI hodil exn,
                 pyramidOfDoom
                     {
                         let! activity = Platform.CurrentActivity |> Option.ofNull, ()
-
-                        let flags =
-                            WakeLockFlags.ScreenDim ||| WakeLockFlags.AcquireCausesWakeup ||| WakeLockFlags.OnAfterRelease
-
-                        let! getSystemService = activity.GetSystemService(Context.PowerService) |> Option.ofNull, ()  
-                        let! lock = 
-                            let powerManager = getSystemService :?> PowerManager        
-                            Some <| powerManager.NewWakeLock(flags, "MyApp:PreventSleepDuringDownload"), ()  
-                    
-                        let!_ = enable |> Option.ofBool, runIO <| WakeLockHelper.releaseWakeLock lock
-                        runIO <| WakeLockHelper.acquireWakeLock lock               
                         let!_ = enable |> Option.ofBool, activity.Window.ClearFlags(WindowManagerFlags.KeepScreenOn) 
 
                         return activity.Window.AddFlags(WindowManagerFlags.KeepScreenOn)        
