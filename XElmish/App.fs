@@ -647,7 +647,7 @@ module App =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgKodis1 
-                                NetConnMsg = yesNetConn
+                                //NetConnMsg = yesNetConn
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 KodisVisible = false
                                 DpoVisible = false
