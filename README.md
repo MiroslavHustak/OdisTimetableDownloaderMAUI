@@ -14,7 +14,7 @@ Já osobně nemám talent pro UX/UI a z tohoto důvodu ani žádné velké nadš
 
 ************************************************************
 Solution structure (without Rust code and without Rust dll):
-'''
+<pre lang="markdown"> ```
 CppHelpers (Project)
 ├── CppHelpers.vcxproj
 ├── Header Files/
@@ -147,4 +147,4 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Main.fs (Windows-specific)
 └── Project References/
     └── EmbeddedTP.fsproj
-'''
+``` </pre>
