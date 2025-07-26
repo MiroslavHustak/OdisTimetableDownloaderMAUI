@@ -209,6 +209,7 @@ module App =
 
         #if ANDROID        
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
+        KeepScreenOnManager.keepScreenOn >> runIO <| true
 
         #else
         let permissionGranted = true
@@ -281,7 +282,9 @@ module App =
             cancellationActor.Post <| UpdateState2 (false, ctsNew)
         
         #if ANDROID
-        let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only        
+        let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only    
+        KeepScreenOnManager.keepScreenOn >> runIO <| true
+
         #else
         let permissionGranted = true
         #endif       
@@ -439,6 +442,11 @@ module App =
             #if WINDOWS
             runIO <| Api.Logging.saveJsonToFile () |> ignore<Result<unit, string>>
             #endif
+
+            #if ANDROID
+            runIO <| KeepScreenOnManager.keepScreenOn false
+            #endif
+
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, Cmd.none
 
@@ -464,12 +472,6 @@ module App =
              
         | Kodis 
             ->  
-            //DeviceDisplay.KeepScreenOn <- true //throws an exception
-
-            #if ANDROID
-            runIO <| KeepScreenOnManager.keepScreenOn true
-            #endif
-
             cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
@@ -587,10 +589,6 @@ module App =
 
         | Kodis4  
             ->
-            #if ANDROID
-            runIO <| KeepScreenOnManager.keepScreenOn true
-            #endif
-
             cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
@@ -677,10 +675,6 @@ module App =
           
         | Dpo 
             -> 
-            #if ANDROID
-            runIO <| KeepScreenOnManager.keepScreenOn true
-            #endif
-
             cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 
@@ -772,11 +766,7 @@ module App =
                     m, Cmd.none
 
         | Mdpo //pridano network_security_config.xml, ale zda se, ze to nepomohlo
-            ->   
-            #if ANDROID
-            runIO <| KeepScreenOnManager.keepScreenOn true
-            #endif
-
+            ->  
             cancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
             |> function
                 | Some token 

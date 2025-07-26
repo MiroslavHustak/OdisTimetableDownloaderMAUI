@@ -173,7 +173,7 @@ module KODIS_BL_Record4 =
                                                                         http
                                                                             {
                                                                                 GET uri
-                                                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                //config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                                 config_cancellationToken token 
                                                                                 header "User-Agent" "FsHttp/Android7.1"
                                                                                 header headerContent1 headerContent2
@@ -182,7 +182,7 @@ module KODIS_BL_Record4 =
                                                                         http
                                                                             {
                                                                                 GET uri
-                                                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                //config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                                 config_cancellationToken token 
                                                                                 header "User-Agent" "FsHttp/Android7.1"
                                                                             }

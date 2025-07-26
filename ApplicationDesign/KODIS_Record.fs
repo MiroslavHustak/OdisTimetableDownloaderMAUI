@@ -102,10 +102,6 @@ module WebScraping_KODISFMRecord =
                     
                     try
                         try
-                            #if ANDROID
-                            KeepScreenOnManager.keepScreenOn >> runIO <| true
-                            #endif
-
                             let downloadTask () = 
                                 async
                                     {
@@ -134,9 +130,6 @@ module WebScraping_KODISFMRecord =
                             |> Array.head
                           
                         finally
-                            #if ANDROID
-                            KeepScreenOnManager.keepScreenOn >> runIO <| false
-                            #endif
                             ()              
                     with
                     | ex

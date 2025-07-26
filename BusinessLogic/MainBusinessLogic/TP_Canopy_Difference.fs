@@ -8,6 +8,7 @@ open Thoth.Json.Net
 
 open Helpers.Builders
 open Helpers.Serialization
+open Helpers.DirFileHelper
 
 open Api.Logging
 open Settings.SettingsGeneral
@@ -30,9 +31,17 @@ module TP_Canopy_Difference =
         IO (fun () 
                 ->
                 try
-                    Directory.EnumerateFiles path
-                    |> Seq.map Path.GetFileName
-                    |> Set.ofSeq
+                    match runIO <| checkFileCondition path (fun fileInfo -> fileInfo.Exists) with
+                    | Some _ 
+                        ->
+                        Directory.EnumerateFiles path
+                        |> Seq.map Path.GetFileName
+                        |> Set.ofSeq                         
+                            
+                    | None 
+                        -> 
+                        Set.empty<string>                   
+                  
                 with
                 | ex 
                     ->
@@ -45,7 +54,17 @@ module TP_Canopy_Difference =
         IO (fun () 
                 ->
                 try
-                    Directory.EnumerateDirectories pathToDir 
+                    match runIO <| checkDirectoryCondition pathToDir (fun dirInfo -> dirInfo.Exists) with
+                    | Some _ 
+                        ->
+                        Directory.EnumerateDirectories pathToDir
+                        |> Seq.map Path.GetFullPath
+                        |> Seq.distinct                          
+                            
+                    | None 
+                        -> 
+                        Seq.empty<string>                   
+                  
                 with
                 | ex 
                     ->

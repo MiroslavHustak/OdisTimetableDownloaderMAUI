@@ -24,8 +24,8 @@ module Messages =
     let internal fileDeleteError = "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
     let internal folderCopyingError = "Chyba při zálohování starých souborů, restartuj aplikaci." 
     let internal folderMovingError = "Chyba při zálohování starých souborů, restartuj aplikaci." 
-    let internal createFolderError = "Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy."
-    let internal createFolderError2 = "Chyba při tvorbě adresáře pro TP_Canopy_Difference." 
+    let internal createFolderError = String.Empty //"Chyba při tvorbě adresářů, JŘ ODIS nebyly úspěšně staženy."
+    let internal createFolderError2 = String.Empty //"Chyba při tvorbě adresáře pro TP_Canopy_Difference." 
     let internal noFolderError = "Nejsou vytvořeny adresáře pro příslušné soubory, JŘ ODIS nebyly úspěšně staženy."
 
     #if ANDROID
@@ -40,7 +40,7 @@ module Messages =
     let internal canopyError = "REST API error." 
 
     let internal dispatchMsg1 = "Dokončeno stahování JSON souborů." 
-    let internal dispatchMsg2 = "Chvíli strpení, prosím, CPU se snaží, co může ..."
+    let internal dispatchMsg2 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
     let internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
     
     let internal dispatchMsg0 = "Došlo k chybě, JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil."  
@@ -92,7 +92,7 @@ module Messages =
     let internal yesNetConnPlus = "Vyčkej na objevení se tlačítka \"Restart\"."
    
     let internal ctsMsg = "Pokud se objevilo tlačítko \"Spustit Nastavení/AppInfo\", klepni na něj a povol manipulaci se soubory (pokud se nespustí systémové nastavení, je třeba povolení nastavit ručně). Vypni a zapni aplikaci. V případě opakování problému kontaktuj programátora." 
-    let internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
+    let internal ctsMsg2 = String.Empty //"Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
     
     let internal cancelMsg1 = "Kvůli přerušení připojení k internetu se činnost aplikace ukončuje, může to chvíli trvat ..."
     let internal cancelMsg1NoConn = "Po obnovení připojení k internetu se činnost aplikace ukončí, může to chvíli trvat ..."

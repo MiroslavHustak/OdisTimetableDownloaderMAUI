@@ -160,20 +160,19 @@ module MDPO_BL = //FsHttp
                                                         | true  -> 
                                                                 http
                                                                     {
-                                                                        GET uri        
-                                                        
+                                                                        GET uri  
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
-
+                                                                        header "User-Agent" "FsHttp/Android7.1"
                                                                         header headerContent1 headerContent2
                                                                     }
                                                         | false ->
                                                                 http
                                                                     {
                                                                         GET uri
-
                                                                         config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token //uz zbytecne, ale ponechavam jako template
+                                                                        header "User-Agent" "FsHttp/Android7.1"
                                                                     }     
 
                                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
@@ -470,6 +469,7 @@ module MDPO_BL = //FsHttp
                                                                                 unsafeClient
                                                                             )
 
+                                                                        header "User-Agent" "FsHttp/Android7.1"
                                                                         header headerContent1 headerContent2
                                                                     }
                                                         | false ->
@@ -489,6 +489,8 @@ module MDPO_BL = //FsHttp
                                                                                 let unsafeClient = new HttpClient(unsafeHandler)
                                                                                 unsafeClient
                                                                             )
+
+                                                                        header "User-Agent" "FsHttp/Android7.1"
                                                                     }                                          
 
                                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty

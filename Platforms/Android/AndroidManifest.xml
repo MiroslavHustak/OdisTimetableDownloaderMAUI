@@ -31,6 +31,6 @@
 
 	<!-- SDK Version Compatibility -->
 	<uses-sdk
-        android:minSdkVersion="31"
+        android:minSdkVersion="25"
         android:targetSdkVersion="34"/>
 </manifest>
