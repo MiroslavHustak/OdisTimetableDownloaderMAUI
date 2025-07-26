@@ -11,3 +11,139 @@ Prosím, neděste se toho, že kód je v Fabulous/Elmish/MVU (to je to, co vidí
 Chtělo by to danou appku "zmobilnit" do slušně vypadající podoby ve Fabulous (fabulous.dev), kontrolky nejlépe Avalonia nebo alespoň .NET MAUI. Našel by se někdo ochotný? 
 
 Já osobně nemám talent pro UX/UI a z tohoto důvodu ani žádné velké nadšení pro FE. A ani jsem nic "mobilního" ještě nevyvíjel. Ale s Elmishem pomohu, co budu moci, už jsem v tom programoval. A samozřejme pomohu s F# obecně.
+
+************************************************************
+Solution structure (without Rust code and without Rust dll):
+
+CppHelpers (Project)
+├── CppHelpers.vcxproj
+├── Header Files/
+│   ├── framework.h
+│   └── pch.h
+├── Source Files/
+│   ├── dllmain.cpp
+│   └── pch.cpp
+├── Utilities/
+│   ├── copyingDirectories.h
+│   └── copyingDirectories.cpp
+
+EmbeddedTP (Project)
+├── EmbeddedTP.fsproj
+├── EmbeddedTP.fs
+├── KODISJson/
+│   ├── kodisMHDTotal.json
+│   └── kodisMHDTotal2_0.json
+
+OdisTimetableDownloaderMAUI (Solution)
+├── OdisTimetableDownloaderMAUI.fsproj
+├── AssemblyInfo/
+│   └── AssemblyInfo.fs
+├── NativeCode/
+│   └── NativeCode.fs
+├── Types/
+│   ├── TDD.fs
+│   ├── Types.fs
+│   └── ErrorTypes.fs
+├── Settings/
+│   ├── Messages.fs
+│   ├── SettingsGeneral.fs
+│   ├── SettingsDPO.fs
+│   ├── SettingsKODIS.fs
+│   └── SettingsMDPO.fs
+├── ComputationExpressions/
+│   └── CEBuilders.fs
+├── FreeMonadSupport/
+│   └── CmdLineWorkflows.fs
+├── ErrorHandling/
+│   └── ErrorHandlers.fs
+├── Helpers/
+│   ├── Helpers.fs
+│   ├── Serialization.fs
+│   ├── Parsing.fs
+│   ├── HardRestart.fs
+│   ├── ListParallel.fs
+│   └── AndroidSpecificCode.fs
+├── Connectivity/
+│   └── Connectivity.fs
+├── DataModelling/
+│   ├── DataModels.fs
+│   ├── DataTransferModels.fs
+│   └── TransformationLayers.fs
+├── Logging/
+│   ├── LogEntries.fs
+│   └── Logging.fs
+├── BusinessLogic/
+│   ├── DataManipulation/
+│   │   ├── PureFunctions/
+│   │   │   └── SortRecordData.fs
+│   │   └── ImpureFunctions/
+│   │       ├── SortJsonDataFull.fs
+│   │       ├── SortJsonData.fs
+│   │       └── FilterTimetableLinks.fs
+│   └── IO_Operations/
+│       ├── PureFunctions/
+│       │   └── CreatePathsAndNames.fs
+│       └── ImpureFunctions/
+│           ├── FutureLinks.fs
+│           └── IO_Operations.fs
+│   ├── MainBusinessLogic/
+│   │   ├── DPO_BL.fs
+│   │   ├── MDPO_BL.fs
+│   │   ├── KODIS_BL_Record.fs
+│   │   ├── KODIS_BL_Record4.fs
+│   │   └── TP_Canopy_Difference.fs
+├── ApplicationDesign/
+│   ├── DPO.fs
+│   ├── MDPO.fs
+│   ├── KODIS_Record.fs
+│   └── KODIS_Record4.fs
+├── XElmish/
+│   ├── ProgressCircle.fs
+│   ├── Counters.fs
+│   └── App.fs
+├── Resources/
+│   ├── AppIcon/
+│   │   └── appicon.svg
+│   ├── Fonts/
+│   │   └── * (all font files)
+│   ├── Images/
+│   │   ├── dotnet_bot.svg
+│   │   └── * (other image files)
+│   ├── Raw/
+│   │   └── * (raw assets)
+│   └── Splash/
+│       └── splash.svg
+├── Platforms/
+│   ├── Android/
+│   │   ├── Resources/
+│   │   │   ├── xml/
+│   │   │   │   └── network_security_config.xml
+│   │   │   ├── values/
+│   │   │   │   └── colors.xml
+│   │   ├── Assets/
+│   │   │   └── **/* (all asset files, excluding hidden folders)
+│   │   └── AndroidManifest.xml
+│   ├── iOS/
+│   │   └── Info.plist
+│   ├── macCatalyst/
+│   │   └── Info.plist
+│   └── Windows/
+│       ├── app.manifest
+│       └── Package.appxmanifest
+├── logs/ (empty folder)
+├── bin/
+│   └── Release/
+│       └── net8.0-windows10.0.19041.0/
+│           └── win10-x64/ (empty folder)
+├── Monadic_function_composition.txt
+├── TODO_list.txt
+├── CppHelpers.dll (external, copied to output)
+├── MauiProgram.fs
+├── MainActivity.fs (Android-specific)
+├── MainApplication.fs (Android-specific)
+├── AppDelegate.fs (iOS and macCatalyst-specific)
+├── Program.fs (iOS and macCatalyst-specific)
+├── App.fs (Windows-specific)
+├── Main.fs (Windows-specific)
+└── Project References/
+    └── EmbeddedTP.fsproj
