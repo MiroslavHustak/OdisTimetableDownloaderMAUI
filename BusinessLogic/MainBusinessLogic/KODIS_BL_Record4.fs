@@ -292,12 +292,10 @@ module KODIS_BL_Record4 =
                                             match runIO <| deleteAllODISDirectories pathToDir with
                                             | Ok _   
                                                 -> 
-                                                runIO (postToLog <| ex.Message <| "#191")
                                                 runIO (postToLog <| FileDownloadError <| "#191")
                                                 Error FileDownloadError 
                                             | Error _ 
                                                 -> 
-                                                runIO (postToLog <| ex.Message <| "#192")
                                                 runIO (postToLog <| FileDeleteError <| "#192")
                                                 Error FileDeleteError  
                     }
