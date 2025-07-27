@@ -67,6 +67,7 @@ module Builders =
             | _          -> err  
         member _.Return x : 'a = x   
         member _.ReturnFrom x : 'a = x 
+        (*
         member _.TryFinally(body, compensation) =
             try body()
             finally compensation()
@@ -77,6 +78,7 @@ module Builders =
         member _.TryWith(body, catch) =
             try body()
             with ex -> catch ex   
+        *)
       
     let internal pyramidOfDoom = Builder2
     

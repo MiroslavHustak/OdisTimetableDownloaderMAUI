@@ -139,6 +139,7 @@
     <Compile Include="ComputationExpressions\CEBuilders.fs" />
     <Compile Include="FreeMonadSupport\CmdLineWorkflows.fs" />
     <Compile Include="ErrorHandling\ErrorHandlers.fs" />
+    <Compile Include="Helpers\CopyOrMoveDir.fs" />
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Serialization.fs" />
     <Compile Include="Helpers\Parsing.fs" />
@@ -240,7 +241,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EmbeddedTP\EmbeddedTP.fsproj" />
-    <ProjectReference Include="..\FSharpHelpers\FSharpHelpers.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

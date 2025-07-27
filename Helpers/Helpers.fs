@@ -19,9 +19,8 @@ open NativeHelpers
 open NativeHelpers.Native
 #endif
 
-open FSharpHelpers
-open FSharpHelpers.MoveDir
-open FSharpHelpers.CopyDir
+open CopyDir
+open MoveDir
 
 open FreeMonad
 open FsToolkit.ErrorHandling
@@ -50,6 +49,7 @@ module CopyOrMoveDirectories =
             | Ok s, Ok d 
                 ->
                 try
+                    (*
                     #if WINDOWS
                     match io_operation with
                     | Copy
@@ -65,10 +65,11 @@ module CopyOrMoveDirectories =
                         | _ -> Error <| sprintf "Chyba při přemístění adresáře %s do %s #310" s d 
 
                     #else
+                    *)
                     match io_operation with
-                    | Copy -> CopyDir.runIO <| copyDirectory s d 0 0                       
-                    | Move -> MoveDir.runIO <| moveDirectory s d 0                        
-                    #endif
+                    | Copy -> runIO <| copyDirectory s d 0 0                       
+                    | Move -> runIO <| moveDirectory s d 0                        
+                    //#endif
                 with
                 | ex -> Error <| string ex.Message
 

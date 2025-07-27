@@ -3,7 +3,8 @@
 open System.Threading
 
 module Haskell_IO_Monad_Simulation =
-
+    
+    [<Struct>]
     type internal IO<'a> = IO of (unit -> 'a) // wrapping custom type simulating Haskell's IO Monad (without the monad, of course)
 
     let internal runIO (IO action) = action ()
@@ -16,7 +17,8 @@ module Haskell_IO_Monad_Simulation =
     let internal mapIO f io = bindIO io (f >> returnIO)
 
 module FreeMonad =
-
+    
+    [<Struct>]
     type internal FreeMonad<'a> = FreeMonad of (unit -> 'a) 
 
     let internal runFreeMonad (FreeMonad action) = action ()

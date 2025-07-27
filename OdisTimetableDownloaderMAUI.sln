@@ -9,8 +9,6 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "EmbeddedTP", "..\EmbeddedTP
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppHelpers", "..\CppHelpers\CppHelpers.vcxproj", "{BFC84007-C6BA-477D-B0C3-F9FB37A9DCD8}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpHelpers", "..\FSharpHelpers\FSharpHelpers.fsproj", "{B23205C7-AB7F-406F-8FAD-59B5980F8F26}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RustHelpers", "RustHelpers", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
 		lib.rs = lib.rs
@@ -69,18 +67,6 @@ Global
 		{BFC84007-C6BA-477D-B0C3-F9FB37A9DCD8}.Release|x64.Build.0 = Release|x64
 		{BFC84007-C6BA-477D-B0C3-F9FB37A9DCD8}.Release|x86.ActiveCfg = Release|Win32
 		{BFC84007-C6BA-477D-B0C3-F9FB37A9DCD8}.Release|x86.Build.0 = Release|Win32
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Debug|x64.Build.0 = Debug|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Debug|x86.Build.0 = Debug|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Release|x64.ActiveCfg = Release|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Release|x64.Build.0 = Release|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Release|x86.ActiveCfg = Release|Any CPU
-		{B23205C7-AB7F-406F-8FAD-59B5980F8F26}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
