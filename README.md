@@ -1,4 +1,4 @@
-Bulk downloader of ODIS timetables (preliminary code for an Android app)
+**Bulk downloader of ODIS timetables (preliminary code for an Android app)**
 
 Nenašel by se někdo, kdo se vyzná v UI/UX/FE mobilních aplikací (nejlépe Avalonia nebo .NET MAUI) a je zároveň fanda do veřejné dopravy (aby měl motivaci)?
 
@@ -13,7 +13,7 @@ Chtělo by to danou appku "zmobilnit" do slušně vypadající podoby ve Fabulou
 Já osobně nemám talent pro UX/UI a z tohoto důvodu ani žádné velké nadšení pro FE. A ani jsem nic "mobilního" ještě nevyvíjel. Ale s Elmishem pomohu, co budu moci, už jsem v tom programoval. A samozřejme pomohu s F# obecně.
 
 ************************************************************
-Solution structure (without Rust code and without Rust dll):
+**Solution Structure (Rust code and DLL excluded, showing unidirectional F# project dependencies):**
 <pre lang="markdown"> ```
 CppHelpers (Project)
 ├── CppHelpers.vcxproj
