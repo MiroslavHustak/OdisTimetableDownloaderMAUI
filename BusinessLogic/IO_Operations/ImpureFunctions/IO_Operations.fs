@@ -210,27 +210,27 @@ module IO_Operations =
                         
                         let! _ =
                             Directory.Exists destination |> Result.fromBool () err2,
-                                fun err 
+                                fun _ 
                                     ->
                                     try
                                         pyramidOfInferno 
                                             {
                                                 let! _ =    
                                                     let dirInfo = Directory.CreateDirectory destination
-                                                    Thread.Sleep 300 //wait for the directory to be created  
+                                                    Thread.Sleep 1000 //wait for the directory to be created  
     
                                                     dirInfo.Exists |> Result.fromBool () err2,
-                                                        fun err
+                                                        fun _
                                                             ->
-                                                            runIO (postToLog <| err <| "#444-1")
+                                                            runIO (postToLog <| err2 <| "#444-1")
                                                             Error err2
                                                 let! _ =
                                                     runFreeMonad
                                                     <|
                                                     copyOrMoveFiles { source = source; destination = destination } Move,
-                                                        fun err 
+                                                        fun _ 
                                                             ->
-                                                            runIO (postToLog <| err <| "#444-2")
+                                                            runIO (postToLog <| err2 <| "#444-2")
                                                             Error err2
                                 
                                                 return Ok ()
@@ -239,15 +239,15 @@ module IO_Operations =
                                     | ex 
                                         ->
                                         runIO (postToLog <| ex.Message <| "#444-3")
-                                        Error err                       
+                                        Error err2                       
                
                         let! _ = 
                             runFreeMonad 
                             <| 
                             copyOrMoveFiles { source = source; destination = destination } Move,   
-                                fun err
+                                fun _
                                     ->
-                                    runIO (postToLog <| err <| "#444-4")
+                                    runIO (postToLog <| err2 <| "#444-4")
                                     Error err2
                              
                         return Ok ()
