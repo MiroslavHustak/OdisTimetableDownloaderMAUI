@@ -15,6 +15,10 @@ Já osobně nemám talent pro UX/UI a z tohoto důvodu ani žádné velké nadš
 ************************************************************
 **Solution Structure (Rust code and DLL excluded, showing unidirectional F# project dependencies):**
 <pre lang="markdown"> ```
+RustHelpers (DLL)
+├── lib.rs
+├── string_combine_dll.h
+
 CppHelpers (Project)
 ├── CppHelpers.vcxproj
 ├── Header Files/
@@ -57,6 +61,7 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── ErrorHandling/
 │   └── ErrorHandlers.fs
 ├── Helpers/
+│   ├── CopyOrMoveDir.fs
 │   ├── Helpers.fs
 │   ├── Serialization.fs
 │   ├── Parsing.fs
@@ -138,6 +143,7 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Monadic_function_composition.txt
 ├── TODO_list.txt
 ├── CppHelpers.dll (external, copied to output)
+├── string_combine_dll.dll (external, copied to output)
 ├── MauiProgram.fs
 ├── MainActivity.fs (Android-specific)
 ├── MainApplication.fs (Android-specific)
