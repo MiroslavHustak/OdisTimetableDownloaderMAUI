@@ -85,12 +85,12 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │       ├── SortJsonDataFull.fs
 │   │       ├── SortJsonData.fs
 │   │       └── FilterTimetableLinks.fs
-│   └── IO_Operations/
-│       ├── PureFunctions/
-│       │   └── CreatePathsAndNames.fs
-│       └── ImpureFunctions/
-│           ├── FutureLinks.fs
-│           └── IO_Operations.fs
+│   ├── IO_Operations/
+│   │   ├── PureFunctions/
+│   │   │   └── CreatePathsAndNames.fs
+│   │   └── ImpureFunctions/
+│   │       ├── FutureLinks.fs
+│   │       └── IO_Operations.fs
 │   ├── MainBusinessLogic/
 │   │   ├── DPO_BL.fs
 │   │   ├── MDPO_BL.fs
