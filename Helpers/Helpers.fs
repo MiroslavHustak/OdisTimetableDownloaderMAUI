@@ -49,7 +49,6 @@ module CopyOrMoveDirectories =
             | Ok s, Ok d 
                 ->
                 try
-                    (*
                     #if WINDOWS
                     match io_operation with
                     | Copy
@@ -63,13 +62,11 @@ module CopyOrMoveDirectories =
                         match Native.MoveDirContent64(s, d, 0) with  //exn se musi chytat uz v C++
                         | 0 -> Ok ()
                         | _ -> Error <| sprintf "Chyba při přemístění adresáře %s do %s #310" s d 
-
-                    #else
-                    *)
+                    #else                   
                     match io_operation with
                     | Copy -> runIO <| copyDirectory s d 0 0                       
-                    | Move -> runIO <| moveDirectory s d 0                        
-                    //#endif
+                    | Move -> runIO <| moveDirectory s d 0     
+                    #endif
                 with
                 | ex -> Error <| string ex.Message
 

@@ -129,12 +129,12 @@ module MoveDir =
                             |> Seq.toList
                             |> List.choose (function Error e -> Some e | _ -> None)
                             |> function
-                                | [] ->
+                                | [] 
+                                    ->
                                     match mode with
                                     | 0 ->
                                         try
-                                            Directory.Delete(preparedSource, true)
-                                            Ok ()
+                                            Ok <| Directory.Delete(preparedSource, true)
                                         with
                                         | ex -> Error ex.Message
                                     | _ ->
@@ -144,65 +144,118 @@ module MoveDir =
                     }
         )
 
-module CopyDir =  //TODO: predelat a vyzkusat
+module CopyDir =
 
     let private prepareMoveEntireFolder source =
-        try Ok(Path.GetFullPath source)
-        with ex -> Error ex.Message
 
+        try
+            Path.GetFullPath source
+            |> Option.ofNullEmpty
+            |> Result.fromOption
+        with
+        | ex -> Error ex.Message
+           
     let private prepareMoveContentOnly source =
-        try
-            let full = Path.GetFullPath source
-            match full.EndsWith(string Path.DirectorySeparatorChar) with
-            | true -> Ok full
-            | false -> Ok(full + string Path.DirectorySeparatorChar)
-        with ex -> Error ex.Message
 
-    let private copyFile source (destination : string) overwrite =
         try
-            match Path.GetDirectoryName destination with
-            | null -> Error "Invalid destination path"
-            | dir ->
-                Directory.CreateDirectory dir |> ignore<DirectoryInfo>
-                match File.Exists destination, overwrite with
-                | true, true -> File.Copy(source, destination, true)
-                | false, _ -> File.Copy(source, destination, false)
-                | _ -> ()
-                Ok ()
-        with ex -> Error ex.Message
+            pyramidOfInferno
+                {
+                    let! fullPath = 
+                        Path.GetFullPath source
+                        |> Option.ofNullEmpty
+                        |> Result.fromOption, fun _ -> Error "Invalid path"
+                    
+                    let cond = fullPath.EndsWith(string Path.DirectorySeparatorChar) |> Result.fromBool fullPath String.Empty 
+                    let! fullPath = cond, fun _ -> Ok (fullPath + string Path.DirectorySeparatorChar)
+
+                    return Ok fullPath
+                }
+        with 
+        | ex -> Error ex.Message
+    
+    let private copyFile source (destination : string) overwrite =
+
+        try
+            Path.GetDirectoryName destination
+            |> Option.ofNullEmpty
+            |> Result.fromOption
+            |> Result.bind 
+                (fun dir 
+                    -> 
+                    do Directory.CreateDirectory dir |> ignore<DirectoryInfo>
+                    
+                    match File.Exists destination, overwrite with
+                    | true, true
+                        -> Ok <| File.Copy(source, destination, true)
+                    | false, _   
+                        -> Ok <| File.Copy(source, destination, false)
+                    | _ 
+                        -> Ok ()
+                )           
+        with 
+        | ex -> Error ex.Message
 
     let internal copyDirectory source targetParent mode overwriteOption =
-        IO (fun () ->
-            let getPath =
-                match mode with
-                | 0 -> prepareMoveEntireFolder
-                | 1 -> prepareMoveContentOnly
-                | _ -> fun _ -> Error "Invalid mode"
+    
+        IO (fun ()
+                ->
+                pyramidOfInferno
+                    {
+                        let resolvePath =
+                            match mode with
+                            | 0 -> prepareMoveEntireFolder
+                            | 1 -> prepareMoveContentOnly
+                            | _ -> fun _ -> Error "Invalid mode"
 
-            let overwrite =
-                match overwriteOption with
-                | 0 | 1 -> true
-                | _ -> false
+                        let! preparedSource = resolvePath source, fun _ -> Error "Invalid path"
 
-            getPath source
-            |> Result.bind (fun preparedSource ->
-                let target =
-                    match mode with
-                    | 0 -> Path.Combine(targetParent, Path.GetFileName(preparedSource.TrimEnd(Path.DirectorySeparatorChar)))
-                    | 1 -> targetParent
-                    | _ -> targetParent
+                        let overwrite =
+                            match overwriteOption with
+                            | 0 | 1 -> true
+                            | _     -> false
 
-                Directory.CreateDirectory target |> ignore<DirectoryInfo>
+                        let! pathCombine1 = 
+                            Path.Combine(targetParent, Path.GetFileName(preparedSource.TrimEnd(Path.DirectorySeparatorChar)))
+                            |> Option.ofNullEmpty
+                            |> Result.fromOption, fun _ -> Error "Invalid path"
 
-                Directory.EnumerateFiles(preparedSource, "*", SearchOption.AllDirectories)
-                |> Seq.map (fun file ->
-                    let relative = Path.GetRelativePath(preparedSource, file)
-                    let dest = Path.Combine(target, relative)
-                    copyFile file dest overwrite)
-                |> Seq.toList
-                |> List.choose (function Error e -> Some e | _ -> None)
-                |> function
-                    | [] -> Ok ()
-                    | errors -> Error(String.concat "; " errors)))
+                        let target =
+                            match mode with
+                            | 0 -> pathCombine1
+                            | 1 -> targetParent
+                            | _ -> targetParent  
 
+                        let relativePath file = 
+                            Path.GetRelativePath(preparedSource, file)
+                            |> Option.ofNullEmpty
+                            |> Result.fromOption 
 
+                        let pathCombine2 relative = 
+                            Path.Combine(target, relative)
+                            |> Option.ofNullEmpty
+                            |> Result.fromOption    
+
+                        do Directory.CreateDirectory target |> ignore<DirectoryInfo>
+
+                        return 
+                            Directory.EnumerateFiles(preparedSource, "*", SearchOption.AllDirectories)
+                            |> Seq.map
+                                (fun file
+                                    ->
+                                    pyramidOfInferno
+                                        {
+                                            let! relative = relativePath file, fun _ -> Error "Invalid path"
+                                            let! dest = pathCombine2 relative, fun _ -> Error "Invalid path"
+
+                                            return copyFile file dest overwrite
+                                        }
+                                )
+                            |> Seq.toList
+                            |> List.choose (function Error e -> Some e | _ -> None)
+                            |> function
+                                | [] 
+                                    -> Ok ()
+                                | errors 
+                                    -> Error(String.concat "; " errors)
+                    }
+            )

@@ -67,14 +67,14 @@ module Builders =
             | _          -> err  
         member _.Return x : 'a = x   
         member _.ReturnFrom x : 'a = x 
+        member _.Using(resource, binder) =
+            use r = resource
+            binder r
         (*
         member _.TryFinally(body, compensation) =
             try body()
             finally compensation()
-        member _.Zero () = ()
-        member _.Using(resource, binder) =
-            use r = resource
-            binder r
+        member _.Zero () = ()        
         member _.TryWith(body, catch) =
             try body()
             with ex -> catch ex   
