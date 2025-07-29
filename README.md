@@ -13,7 +13,7 @@ Chtělo by to danou appku "zmobilnit" do slušně vypadající podoby ve Fabulou
 Já osobně nemám talent pro UX/UI a z tohoto důvodu ani žádné velké nadšení pro FE. A ani jsem nic "mobilního" ještě nevyvíjel. Ale s Elmishem pomohu, co budu moci, už jsem v tom programoval. A samozřejme pomohu s F# obecně.
 
 ************************************************************
-**Solution Structure (Rust code and DLL excluded, showing unidirectional F# project dependencies):**
+**Solution Structure (showing unidirectional F# project dependencies):**
 <pre lang="markdown"> ```
 RustHelpers (DLL)
 ├── lib.rs
