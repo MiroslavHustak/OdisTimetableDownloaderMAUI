@@ -12,6 +12,7 @@ Licensed under the Apache License, Version 2.0 (the "License")
 namespace OdisTimetableDownloaderMAUI
 
 open System
+open System.IO
 open System.Threading
 
 open FSharp.Control
@@ -92,7 +93,8 @@ module App =
             NetConnMsg : string
             CloudProgressMsg : string
             ProgressIndicator : ProgressIndicator
-            Progress : float 
+            Progress : float
+            ClearingVisible : bool
             KodisVisible : bool
             DpoVisible : bool
             MdpoVisible : bool
@@ -107,6 +109,7 @@ module App =
     type Msg =
         | RequestPermission
         | PermissionResult of bool
+        | Clearing
         | Kodis  
         | Kodis4  
         | Dpo
@@ -223,6 +226,7 @@ module App =
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
+                ClearingVisible = permissionGranted
                 KodisVisible = permissionGranted
                 DpoVisible = permissionGranted
                 MdpoVisible = permissionGranted
@@ -242,6 +246,7 @@ module App =
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
+                ClearingVisible = false
                 KodisVisible = false
                 DpoVisible = false
                 MdpoVisible = false
@@ -297,6 +302,7 @@ module App =
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
+                ClearingVisible = permissionGranted
                 KodisVisible = permissionGranted
                 DpoVisible = permissionGranted
                 MdpoVisible = permissionGranted
@@ -316,6 +322,7 @@ module App =
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
+                ClearingVisible = false
                 KodisVisible = false
                 DpoVisible = false
                 MdpoVisible = false
@@ -391,6 +398,7 @@ module App =
                 m with 
                     ProgressIndicator = InProgress (progressValue, totalProgress)
                     Progress = progress 
+                    ClearingVisible = false
                     KodisVisible = false
                     ProgressCircleVisible = isVisible
                     CancelVisible = isVisible
@@ -408,6 +416,7 @@ module App =
                     NetConnMsg = String.Empty
                     ProgressIndicator = Idle
                     Progress = 0.0
+                    ClearingVisible = false
                     KodisVisible = false
                     DpoVisible = false
                     MdpoVisible = false
@@ -422,6 +431,7 @@ module App =
             {
                 m with                    
                     NetConnMsg = message
+                    ClearingVisible = false
                     KodisVisible = false
                     DpoVisible = false
                     MdpoVisible = false
@@ -468,7 +478,28 @@ module App =
              
         | NetConnMessage message
             ->
-            { m with NetConnMsg = message; LabelVisible = true; Label2Visible = true }, Cmd.none           
+            { m with NetConnMsg = message; LabelVisible = true; Label2Visible = true }, Cmd.none    
+            
+        | Clearing 
+            ->
+            //TODO - zatim jen to jen uvodni overovani
+            let pathToDir = @"g:\Users\User\DataOld\"
+            (runIO <| deleteAllODISDirectories pathToDir) |> ignore
+         
+            let dirInfo = DirectoryInfo pathToDir   
+                in 
+                dirInfo.Delete()
+
+            let pathToDir = @"g:\Users\User\DataOld4\"
+            (runIO <| deleteAllODISDirectories pathToDir) |> ignore
+            (runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir) |> ignore
+            (runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir) |> ignore
+
+            let dirInfo = DirectoryInfo pathToDir   
+                in 
+                dirInfo.Delete()
+
+            m, Cmd.none    
              
         | Kodis 
             ->  
@@ -563,6 +594,7 @@ module App =
                             m with                               
                                 ProgressMsg = progressMsgKodis 
                                 ProgressIndicator = InProgress (0.0, 0.0)
+                                ClearingVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
@@ -576,6 +608,7 @@ module App =
                             m with                               
                                 NetConnMsg = noNetConn1
                                 ProgressIndicator = InProgress (0.0, 0.0)
+                                ClearingVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
@@ -649,6 +682,7 @@ module App =
                                 ProgressMsg = progressMsgKodis1 
                                 //NetConnMsg = yesNetConn
                                 ProgressIndicator = InProgress (0.0, 0.0)
+                                ClearingVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
@@ -662,6 +696,7 @@ module App =
                             m with                               
                                 NetConnMsg = noNetConn1
                                 ProgressIndicator = InProgress (0.0, 0.0)
+                                ClearingVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
@@ -741,6 +776,7 @@ module App =
                                 ProgressMsg = progressMsgDpo //progressMsgMdpo
                                 NetConnMsg = String.Empty
                                 ProgressIndicator = InProgress (0.0, 0.0)
+                                ClearingVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
@@ -754,6 +790,7 @@ module App =
                             m with                               
                                 NetConnMsg = noNetConn1
                                 ProgressIndicator = InProgress (0.0, 0.0)
+                                ClearingVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false 
@@ -833,6 +870,7 @@ module App =
                                 ProgressMsg = progressMsgMdpo
                                 NetConnMsg = String.Empty
                                 ProgressIndicator = InProgress (0.0, 0.0)
+                                ClearingVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
@@ -846,6 +884,7 @@ module App =
                             m with                               
                                 NetConnMsg = noNetConn1
                                 ProgressIndicator = InProgress (0.0, 0.0)
+                                ClearingVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
@@ -929,6 +968,11 @@ module App =
                                     .padding(10.)
                                     .isVisible(not m.PermissionGranted)
                             #endif
+
+                            Button(buttonClearing, Clearing)
+                                .semantics(hint = hintClearing)
+                                .centerHorizontal()
+                                .isVisible(m.ClearingVisible && m.PermissionGranted && not m.ProgressCircleVisible)
                                                              
                             Button(buttonKodis, Kodis)
                                 .semantics(hint = hintOdis)

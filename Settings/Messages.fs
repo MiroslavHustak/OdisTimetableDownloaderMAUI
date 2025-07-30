@@ -68,6 +68,8 @@ module Messages =
 
     let internal labelOdis = "Stahování JŘ ODIS"
 
+    let internal buttonClearing = "Odstranit předchozí JŘ"  
+    let internal hintClearing = "Odstranění předchozích JŘ"
     let internal buttonKodis = "Kompletní JŘ ODIS (Json TP)"   
     let internal buttonKodis4 = "Kompletní JŘ ODIS (Canopy)"   
     let internal hintOdis = "Stahování kompletních JŘ ODIS všech dopravců"
