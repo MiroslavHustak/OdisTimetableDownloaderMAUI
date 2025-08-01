@@ -54,7 +54,7 @@ module LogEntries =
                                 return Ok <| transformLogEntriesApiResponse response
                        
                             | _ -> 
-                                return Error <| ApiResponseError (sprintf "Request failed with status code %d" (int response.statusCode))
+                                return Error <| ApiResponseError (sprintf "Request #147 failed with status code %d" (int response.statusCode))
                         with
                         | ex 
                             ->

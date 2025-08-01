@@ -17,6 +17,8 @@ open System.Threading
 
 open FSharp.Control
 
+open FsToolkit.ErrorHandling
+
 open Fabulous
 open Fabulous.Maui
 
@@ -47,6 +49,7 @@ open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
 open Counters
+open Types.ErrorTypes
 
 open Api.Logging
 
@@ -110,6 +113,8 @@ module App =
         | RequestPermission
         | PermissionResult of bool
         | Clearing
+        | AllowClearing
+        | CancelClearing
         | Kodis  
         | Kodis4  
         | Dpo
@@ -479,27 +484,56 @@ module App =
         | NetConnMessage message
             ->
             { m with NetConnMsg = message; LabelVisible = true; Label2Visible = true }, Cmd.none    
+
+        | Clearing
+            ->  
+            { 
+                m with
+                    CloudVisible = true
+                    LabelVisible = false
+                    Label2Visible = false  
+                    ProgressCircleVisible = false
+            }, Cmd.none 
             
-        | Clearing 
+        | AllowClearing 
             ->
-            //TODO - zatim jen to jen uvodni overovani
-            let pathToDir = @"g:\Users\User\DataOld\"
-            (runIO <| deleteAllODISDirectories pathToDir) |> ignore
-         
-            let dirInfo = DirectoryInfo pathToDir   
-                in 
-                dirInfo.Delete()
+            let result = 
+                { 
+                    m with
+                        CloudVisible = false
+                        LabelVisible = true
+                        Label2Visible = true  
+                }, Cmd.none 
+                
+                in          
+                [
+                    async { return runIO <| deleteOld () }
+                    async { return runIO <| deleteOld4 () }
+                ]         
+                |> Async.Parallel 
+                |> Async.Catch
+                |> Async.RunSynchronously
+                |> Result.ofChoice                      
+                |> function
+                    | Ok [|a; b|] -> result
+                    | Ok _        -> result
+                    | Error _     -> result
 
-            let pathToDir = @"g:\Users\User\DataOld4\"
-            (runIO <| deleteAllODISDirectories pathToDir) |> ignore
-            (runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir) |> ignore
-            (runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 pathToDir) |> ignore
-
-            let dirInfo = DirectoryInfo pathToDir   
-                in 
-                dirInfo.Delete()
-
-            m, Cmd.none    
+        | CancelClearing
+            ->
+            { 
+                m with                               
+                    ProgressIndicator = InProgress (0.0, 0.0)
+                    ClearingVisible = true
+                    KodisVisible = true
+                    DpoVisible = true
+                    MdpoVisible = true  
+                    CloudVisible = false
+                    LabelVisible = true
+                    Label2Visible = true  
+                    ProgressCircleVisible = false
+            }, 
+            Cmd.none
              
         | Kodis 
             ->  
@@ -595,6 +629,7 @@ module App =
                                 ProgressMsg = progressMsgKodis 
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 ClearingVisible = false
+                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
@@ -609,6 +644,7 @@ module App =
                                 NetConnMsg = noNetConn1
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 ClearingVisible = false
+                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
@@ -683,6 +719,7 @@ module App =
                                 //NetConnMsg = yesNetConn
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 ClearingVisible = false
+                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
@@ -697,6 +734,7 @@ module App =
                                 NetConnMsg = noNetConn1
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 ClearingVisible = false
+                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
@@ -777,6 +815,7 @@ module App =
                                 NetConnMsg = String.Empty
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 ClearingVisible = false
+                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
@@ -791,6 +830,7 @@ module App =
                                 NetConnMsg = noNetConn1
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 ClearingVisible = false
+                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false 
@@ -871,6 +911,7 @@ module App =
                                 NetConnMsg = String.Empty
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 ClearingVisible = false
+                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false
@@ -885,6 +926,7 @@ module App =
                                 NetConnMsg = noNetConn1
                                 ProgressIndicator = InProgress (0.0, 0.0)
                                 ClearingVisible = false
+                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
                                 MdpoVisible = false  
@@ -926,12 +968,13 @@ module App =
                                 .centerTextHorizontal()
                                 .isVisible(m.Label2Visible)
 
-                            (VStack(spacing = 15.) //zatim nepouzivano
+                            (VStack(spacing = 15.) 
                                 {    
                                     Border(ContentView
                                                 (
                                                     HStack(spacing = 10.)
                                                         {
+                                                            (*
                                                             Label(m.CloudProgressMsg)
                                                                 .font(size = 14.)
                                                                 .centerTextHorizontal()
@@ -939,25 +982,32 @@ module App =
                                                                 .height(30.)
                                                                 .width(200.)
                                                                 .horizontalOptions(LayoutOptions.Start)
-
-                                                            Button("x", Home)
-                                                                .font(size = 20., attributes = FontAttributes.Bold)
-                                                                .padding(2.5,-5.5,2.5,2.5)
-                                                                .width(25.)
-                                                                .height(25.)
-                                                                .cornerRadius(2) 
-                                                                .horizontalOptions(LayoutOptions.End)
+                                                            *)
+                                                            HStack(spacing = 12.) {
+                                                                Button("Ano, pryč s nimi", AllowClearing)
+                                                                    .font(size = 14., attributes = FontAttributes.Bold)
+                                                                    .padding(2.5, -5.5, 2.5, 2.5)
+                                                                    .cornerRadius(2)                                                                    
+                                                                    .height(25.)
+                                                            
+                                                                Button("Storno", CancelClearing)
+                                                                    .font(size = 14., attributes = FontAttributes.Bold)
+                                                                    .padding(2.5, -5.5, 2.5, 2.5)
+                                                                    .cornerRadius(2)
+                                                                    .height(25.)
+                                                            }
                                                         }
                                                 ) 
                                           )
                                               .stroke(SolidColorBrush(Colors.Gray)) // Border color
-                                              .strokeShape(RoundRectangle(cornerRadius = 15.))  // Rounded corners
+                                              .strokeShape(RoundRectangle(cornerRadius = 5.))  // Rounded corners
                                               .background(SolidColorBrush(Colors.Gainsboro))  
-                                              .strokeThickness(1.)
+                                              .strokeThickness(0.5)
                                               .padding(5.)   
                                 }
-                            )
-                                .width(250.)
+                             )
+                                //.width(190.)
+                                .centerHorizontal()
                                 .centerVertical()
                                 .isVisible(m.CloudVisible)
 
@@ -973,6 +1023,7 @@ module App =
                                 .semantics(hint = hintClearing)
                                 .centerHorizontal()
                                 .isVisible(m.ClearingVisible && m.PermissionGranted && not m.ProgressCircleVisible)
+                                .background(SolidColorBrush(Colors.DarkRed))
                                                              
                             Button(buttonKodis, Kodis)
                                 .semantics(hint = hintOdis)

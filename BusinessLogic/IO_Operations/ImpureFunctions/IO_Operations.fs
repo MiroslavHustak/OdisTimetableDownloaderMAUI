@@ -121,7 +121,43 @@ module IO_Operations =
                     ()
                     //runIO (postToLog <| pathToDir <| "#40-1")
                     //proste se nic nestane, tak se nesmazou, no...
-        )          
+        )  
+        
+    let internal deleteOld () = //Async.Catch is in App.fs
+
+        IO (fun () 
+                ->  
+                let dirInfo = DirectoryInfo oldTimetablesPath
+
+                match dirInfo.Exists with
+                | true
+                    -> 
+                    deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, PdfDownloadErrors>>
+                    dirInfo.Delete()
+                | false 
+                    ->
+                    ()    
+        )
+                          
+    let internal deleteOld4 () = //Async.Catch is in App.fs
+
+        IO (fun () 
+                ->  
+                let dirInfo = DirectoryInfo oldTimetablesPath4
+
+                match dirInfo.Exists with
+                | true
+                    -> 
+                    deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, PdfDownloadErrors>>
+
+                    runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
+                    runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
+
+                    dirInfo.Delete()
+                | false 
+                    ->
+                    ()             
+        )
       
     let internal createFolders dirList =  
         IO (fun () 

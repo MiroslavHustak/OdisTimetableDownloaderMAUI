@@ -81,7 +81,7 @@ module Logging =
                                         | Ok value  -> value   
                                         | Error err -> { Message1 = String.Empty; Message2 = err }      
                             | _ -> 
-                                return { Message1 = String.Empty; Message2 = sprintf "Request failed with status code %d" (int response.statusCode) }    
+                                return { Message1 = String.Empty; Message2 = sprintf "Request #247 failed with status code %d" (int response.statusCode) }    
                 
                         //Result type nema smysl u log files pro errors
                         with
