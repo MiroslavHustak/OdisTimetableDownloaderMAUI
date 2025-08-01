@@ -507,8 +507,8 @@ module App =
                 
                 in          
                 [
-                    async { return runIO <| deleteOld () }
-                    async { return runIO <| deleteOld4 () }
+                    async { return deleteOld >> runIO <| () }
+                    async { return deleteOld4 >> runIO <| () }
                 ]         
                 |> Async.Parallel 
                 |> Async.Catch
