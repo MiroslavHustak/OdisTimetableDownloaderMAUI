@@ -171,14 +171,16 @@ module KODIS_BL_Record =
                                 try 
                                     //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                                     let removeDuplicatePathPairs uri pathToFile =
-                                        List.zip uri pathToFile
+                                        (uri, pathToFile)
+                                        ||> List.zip 
                                         |> List.distinctBy snd
                             
                                     let uri, pathToFile =
                                         context.list
                                         |> List.distinct
                                         |> List.unzip
-                                        |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile |> List.unzip
+                                        |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
+                                        |> List.unzip
 
                                     (token, uri, pathToFile)
                                     |||> List.Parallel.map2_IO_Token //context.listMappingFunction                            

@@ -83,11 +83,10 @@ module SortJsonDataFull =
                                                 with 
                                                 | _ -> return JsonProvider1.Parse tempJson1
                                             }
-                                        |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator
-                                
+                                        |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator                                
                                         |> Option.ofNull
                                         |> Option.map (Seq.map _.Timetable)
-                                        |> Option.defaultValue  Seq.empty
+                                        |> Option.defaultValue Seq.empty
                                     )
                         }
             

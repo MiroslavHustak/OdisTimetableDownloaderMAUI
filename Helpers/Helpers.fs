@@ -264,16 +264,16 @@ module DirFileHelper =
 
     let internal checkDirectoryCondition pathToDir condition =
     
-            IO (fun () 
-                    -> 
-                    option
-                        {
-                            let! dirpath = pathToDir |> Path.GetFullPath |> Option.ofNullEmpty                     
-                            let dInfodat : DirectoryInfo = DirectoryInfo dirpath
+        IO (fun () 
+                -> 
+                option
+                    {
+                        let! dirpath = pathToDir |> Path.GetFullPath |> Option.ofNullEmpty                     
+                        let dInfodat : DirectoryInfo = DirectoryInfo dirpath
     
-                            return! condition dInfodat |> Option.ofBool  
-                        }     
-            )
+                        return! condition dInfodat |> Option.ofBool  
+                    }     
+        )
 
 module MyString = 
             

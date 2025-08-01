@@ -136,7 +136,8 @@ module KODIS_BL_Record4 =
                                         context.list
                                         |> List.distinct
                                         |> List.unzip
-                                        |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile |> List.unzip
+                                        |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile 
+                                        |> List.unzip
                             
                                     (token, uri, pathToFile)     
                                     |||> List.Parallel.map2_IO_Token //context.listMappingFunction    
