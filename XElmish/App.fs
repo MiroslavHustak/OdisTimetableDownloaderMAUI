@@ -197,15 +197,15 @@ module App =
                                             #if WINDOWS  
                                             match isConnected with
                                             | true  ->
-                                                    () 
+                                                    return () 
                                             | false -> 
                                                     NetConnMessage >> dispatch <| noNetConn 
                                                     do! Async.Sleep 2000
-                                                    runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                                    return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                             #else                                            
                                             match isConnected with
-                                            | true  -> NetConnMessage >> dispatch <| yesNetConn 
-                                            | false -> NetConnMessage >> dispatch <| noNetConn                                                   
+                                            | true  -> return NetConnMessage >> dispatch <| yesNetConn 
+                                            | false -> return NetConnMessage >> dispatch <| noNetConn                                                   
                                             #endif                                           
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
@@ -497,27 +497,43 @@ module App =
             
         | AllowClearing 
             ->
-            let result = 
-                { 
-                    m with
-                        CloudVisible = false
-                        LabelVisible = true
-                        Label2Visible = true  
-                }, Cmd.none 
-                
-                in          
-                [
-                    async { return deleteOld >> runIO <| () }
-                    async { return deleteOld4 >> runIO <| () }
-                ]         
-                |> Async.Parallel 
-                |> Async.Catch
-                |> Async.RunSynchronously
-                |> Result.ofChoice                      
-                |> function
-                    | Ok [|a; b|] -> result
-                    | Ok _        -> result
-                    | Error _     -> result
+            let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
+
+                async
+                    {                                                                                 
+                        let! hardWork =                            
+                            async 
+                                {
+                                    [
+                                        async { return deleteOld >> runIO <| () }
+                                        async { return deleteOld4 >> runIO <| () }
+                                    ]         
+                                    |> Async.Parallel 
+                                    |> Async.Catch
+                                    |> Async.RunSynchronously
+                                    |> Result.ofChoice                      
+                                    |> function
+                                        | Ok [|a; b|] -> IterationMessage >> dispatch <| deleteOldTimetablesMsg2
+                                        | Ok _        -> IterationMessage >> dispatch <| deleteOldTimetablesMsg3
+                                        | Error _     -> IterationMessage >> dispatch <| deleteOldTimetablesMsg3                                   
+                                }
+                            |> Async.StartChild 
+                               
+                        let! result = hardWork 
+                        do! Async.Sleep 1000
+                              
+                        return result   
+                    }  
+                     
+            let execute dispatch = async { return! delayedCmd dispatch } |> Async.StartImmediate         
+
+            { 
+                m with
+                    ProgressMsg = deleteOldTimetablesMsg1
+                    CloudVisible = false
+                    LabelVisible = true
+                    Label2Visible = true  
+            }, Cmd.ofSub execute
 
         | CancelClearing
             ->
@@ -529,8 +545,8 @@ module App =
                     DpoVisible = true
                     MdpoVisible = true  
                     CloudVisible = false
-                    LabelVisible = true
-                    Label2Visible = true  
+                    LabelVisible = false
+                    Label2Visible = false  
                     ProgressCircleVisible = false
             }, 
             Cmd.none
@@ -564,11 +580,11 @@ module App =
                                 match token.IsCancellationRequested with
                                 | false ->
                                         match result with
-                                        | Ok result -> WorkIsComplete >> dispatch <| (result, false)  
-                                        | Error err -> WorkIsComplete >> dispatch <| (err, false)     
+                                        | Ok result -> return WorkIsComplete >> dispatch <| (result, false)  
+                                        | Error err -> return WorkIsComplete >> dispatch <| (err, false)     
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        dispatch Home                                    
+                                        return dispatch Home                                    
                             }  
 
                     let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
@@ -601,10 +617,10 @@ module App =
                           
                                 match token.IsCancellationRequested with
                                 | false ->
-                                        WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                        return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        dispatch Home       
+                                        return dispatch Home       
                             }     
 
                     let executeSequentially dispatch =
@@ -616,8 +632,8 @@ module App =
                                 do! delayedCmd1 token dispatch 
                                 
                                 match token.IsCancellationRequested with 
-                                | true  -> ()
-                                | false -> do! delayedCmd2 token dispatch
+                                | true  -> return ()
+                                | false -> return! delayedCmd2 token dispatch
                             }
                         |> Async.StartImmediate
 
@@ -694,10 +710,10 @@ module App =
 
                                 match token.IsCancellationRequested with
                                 | false ->
-                                        WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                        return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        dispatch Home  
+                                        return dispatch Home  
                             }  
                    
                     let executeSequentially dispatch =   
@@ -706,7 +722,7 @@ module App =
                             {  
                                RestartVisible >> dispatch <| false
 
-                               do! delayedCmd2 token dispatch                            
+                               return! delayedCmd2 token dispatch                            
                             }
                         |> Async.StartImmediate  
 
@@ -784,10 +800,10 @@ module App =
                               
                                 match token.IsCancellationRequested with
                                 | false ->
-                                        WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                        return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
-                                        dispatch Home         
+                                        return dispatch Home         
                             }  
                      
                     let execute dispatch = 
@@ -798,11 +814,11 @@ module App =
 
                                 match token.IsCancellationRequested with
                                 | true  ->
-                                        UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                        return UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                 | false ->                                                               
                                         match token.IsCancellationRequested with
-                                        | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false -> do! delayedCmd token dispatch  
+                                        | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                        | false -> return! delayedCmd token dispatch  
                             } 
                         |> Async.StartImmediate
 
@@ -880,10 +896,10 @@ module App =
                            
                                 match token.IsCancellationRequested with
                                 | false ->
-                                        WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                        return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
-                                        dispatch Home  
+                                        return dispatch Home  
                             }  
                      
                     let execute dispatch = 
@@ -894,11 +910,11 @@ module App =
 
                                 match token.IsCancellationRequested with
                                 | true  ->
-                                        UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                        return UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                 | false ->                                                               
                                         match token.IsCancellationRequested with
-                                        | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false -> do! delayedCmd token dispatch  
+                                        | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                        | false -> return! delayedCmd token dispatch  
                             } 
                         |> Async.StartImmediate
 
@@ -985,23 +1001,25 @@ module App =
                                                             *)
                                                             HStack(spacing = 12.) {
                                                                 Button("Ano, pryč s nimi", AllowClearing)
-                                                                    .font(size = 14., attributes = FontAttributes.Bold)
+                                                                    .font(size = 14., attributes = FontAttributes.None)
                                                                     .padding(2.5, -5.5, 2.5, 2.5)
                                                                     .cornerRadius(2)                                                                    
                                                                     .height(25.)
+                                                                    .background(SolidColorBrush(Colors.DarkRed))
                                                             
-                                                                Button("Storno", CancelClearing)
-                                                                    .font(size = 14., attributes = FontAttributes.Bold)
+                                                                Button("Ponechat", CancelClearing)
+                                                                    .font(size = 14., attributes = FontAttributes.None)
                                                                     .padding(2.5, -5.5, 2.5, 2.5)
                                                                     .cornerRadius(2)
                                                                     .height(25.)
+                                                                    .background(SolidColorBrush(Colors.DarkRed))
                                                             }
                                                         }
                                                 ) 
                                           )
                                               .stroke(SolidColorBrush(Colors.Gray)) // Border color
                                               .strokeShape(RoundRectangle(cornerRadius = 5.))  // Rounded corners
-                                              .background(SolidColorBrush(Colors.Gainsboro))  
+                                              .background(SolidColorBrush(Colors.White))  
                                               .strokeThickness(0.5)
                                               .padding(5.)   
                                 }

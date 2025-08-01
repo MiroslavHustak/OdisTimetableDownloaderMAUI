@@ -39,6 +39,10 @@ module Messages =
 
     let internal canopyError = "REST API error." 
 
+    let internal deleteOldTimetablesMsg1 = "Odstraňuji zálohované předchozí JŘ."  
+    let internal deleteOldTimetablesMsg2 = "Odstranění zálohovaných předchozích JŘ úspěšně provedeno."
+    let internal deleteOldTimetablesMsg3 = "Při odstraňování zálohovaných předchozích JŘ došlo k problému, ověř, že nemáš otevřen předchozí JŘ."
+
     let internal dispatchMsg1 = "Dokončeno stahování JSON souborů." 
     let internal dispatchMsg2 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
     let internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
