@@ -39,7 +39,7 @@ module Messages =
 
     let internal canopyError = "REST API error." 
 
-    let internal deleteOldTimetablesMsg1 = "Odstraňuji zálohované předchozí JŘ."  
+    let internal deleteOldTimetablesMsg1 = "Chvíli strpení, usilovně odstraňuji zálohované předchozí JŘ ..."  
     let internal deleteOldTimetablesMsg2 = "Odstranění zálohovaných předchozích JŘ úspěšně provedeno."
     let internal deleteOldTimetablesMsg3 = "Při odstraňování zálohovaných předchozích JŘ došlo k problému, ověř, že nemáš otevřen předchozí JŘ."
 

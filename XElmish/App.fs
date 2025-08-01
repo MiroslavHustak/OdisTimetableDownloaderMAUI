@@ -112,9 +112,10 @@ module App =
     type Msg =
         | RequestPermission
         | PermissionResult of bool
-        | Clearing
-        | AllowClearing
-        | CancelClearing
+        | DataClearing
+        | DataClearingMessage of string
+        | AllowDataClearing
+        | CancelDataClearing
         | Kodis  
         | Kodis4  
         | Dpo
@@ -314,7 +315,7 @@ module App =
                 ProgressCircleVisible = false
                 RestartVisible = false
                 CancelVisible = false
-                CloudVisible = false  //nechej to false, zatim nebudu pouzivat
+                CloudVisible = false  
                 LabelVisible = true
                 Label2Visible = true
             } 
@@ -452,6 +453,10 @@ module App =
             ->
             { m with ProgressMsg = message }, Cmd.none   
 
+        | DataClearingMessage message 
+            ->
+            { m with ProgressMsg = message; ClearingVisible = true }, Cmd.none   
+
         | Quit  
             -> 
             #if WINDOWS
@@ -485,17 +490,18 @@ module App =
             ->
             { m with NetConnMsg = message; LabelVisible = true; Label2Visible = true }, Cmd.none    
 
-        | Clearing
+        | DataClearing
             ->  
             { 
                 m with
+                    ClearingVisible = true
                     CloudVisible = true
                     LabelVisible = false
                     Label2Visible = false  
                     ProgressCircleVisible = false
             }, Cmd.none 
             
-        | AllowClearing 
+        | AllowDataClearing 
             ->
             let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
 
@@ -513,9 +519,9 @@ module App =
                                     |> Async.RunSynchronously
                                     |> Result.ofChoice                      
                                     |> function
-                                        | Ok [|a; b|] -> IterationMessage >> dispatch <| deleteOldTimetablesMsg2
-                                        | Ok _        -> IterationMessage >> dispatch <| deleteOldTimetablesMsg3
-                                        | Error _     -> IterationMessage >> dispatch <| deleteOldTimetablesMsg3                                   
+                                        | Ok [|a; b|] -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg2
+                                        | Ok _        -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3
+                                        | Error _     -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3                                   
                                 }
                             |> Async.StartChild 
                                
@@ -530,12 +536,13 @@ module App =
             { 
                 m with
                     ProgressMsg = deleteOldTimetablesMsg1
+                    ClearingVisible = false
                     CloudVisible = false
                     LabelVisible = true
                     Label2Visible = true  
             }, Cmd.ofSub execute
 
-        | CancelClearing
+        | CancelDataClearing
             ->
             { 
                 m with                               
@@ -1000,14 +1007,14 @@ module App =
                                                                 .horizontalOptions(LayoutOptions.Start)
                                                             *)
                                                             HStack(spacing = 12.) {
-                                                                Button("Ano, pryč s nimi", AllowClearing)
+                                                                Button("Ano, pryč s nimi", AllowDataClearing)
                                                                     .font(size = 14., attributes = FontAttributes.None)
                                                                     .padding(2.5, -5.5, 2.5, 2.5)
                                                                     .cornerRadius(2)                                                                    
                                                                     .height(25.)
                                                                     .background(SolidColorBrush(Colors.DarkRed))
                                                             
-                                                                Button("Ponechat", CancelClearing)
+                                                                Button("Ponechat", CancelDataClearing)
                                                                     .font(size = 14., attributes = FontAttributes.None)
                                                                     .padding(2.5, -5.5, 2.5, 2.5)
                                                                     .cornerRadius(2)
@@ -1037,7 +1044,7 @@ module App =
                                     .isVisible(not m.PermissionGranted)
                             #endif
 
-                            Button(buttonClearing, Clearing)
+                            Button(buttonClearing, DataClearing)
                                 .semantics(hint = hintClearing)
                                 .centerHorizontal()
                                 .isVisible(m.ClearingVisible && m.PermissionGranted && not m.ProgressCircleVisible)

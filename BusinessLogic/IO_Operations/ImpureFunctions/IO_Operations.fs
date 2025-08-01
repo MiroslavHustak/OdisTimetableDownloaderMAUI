@@ -143,6 +143,7 @@ module IO_Operations =
 
         IO (fun () 
                 ->  
+                System.Threading.Thread.Sleep 2000
                 let dirInfo = DirectoryInfo oldTimetablesPath4
 
                 match dirInfo.Exists with
@@ -160,7 +161,6 @@ module IO_Operations =
         )
       
     let internal createFolders dirList =  
-
         IO (fun () 
                 ->  
                 try
