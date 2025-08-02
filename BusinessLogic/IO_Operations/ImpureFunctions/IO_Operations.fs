@@ -74,7 +74,8 @@ module IO_Operations =
                                         in
                                         dirInfo.EnumerateDirectories()
                                         |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
-                                        |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
+                                        |> Seq.toList
+                                        |> List.Parallel.iter_IO (fun item -> item.Delete true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
                                         |> Ok               
                                     
                                 with 
@@ -97,7 +98,8 @@ module IO_Operations =
                         in 
                         dirInfo.EnumerateDirectories()
                         |> Seq.filter (fun item -> item.Name = dirName) 
-                        |> Seq.iter _.Delete(true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
+                        |> Seq.toList
+                        |> List.Parallel.iter_IO (fun item -> item.Delete true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
                         |> Ok
                 with
                 | _ 
