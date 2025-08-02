@@ -41,7 +41,8 @@ module IO_Operations =
                                         dirInfo.EnumerateDirectories() 
                                         |> Seq.filter (fun item -> getDefaultRecordValues |> List.contains item.Name) //prunik dvou kolekci (plus jeste Seq.distinct pro unique items)
                                         |> Seq.distinct 
-                                        |> Seq.iter _.Delete(true)  
+                                        |> Seq.toList
+                                        |> List.Parallel.iter_IO (fun item -> item.Delete true)
                                         |> Ok
                                         //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
                                 with 
@@ -114,7 +115,8 @@ module IO_Operations =
                     let dirInfo = DirectoryInfo pathToDir   
                         in 
                         dirInfo.EnumerateFiles()
-                        |> Seq.iter _.Delete()                       
+                        |> Seq.toList
+                        |> List.Parallel.iter_IO (fun item -> item.Delete())                     
                 with
                 | _ 
                     ->
