@@ -279,12 +279,12 @@ module App =
             | ex 
                 ->
                 runIO (postToLog <| ex.Message <| "#1")
-                { initialModel with ProgressMsg = ctsMsg }, Cmd.none
+                { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none
 
         | Error err 
             ->  
             runIO (postToLog <| err <| "#2")
-            { initialModel with ProgressMsg = ctsMsg2; NetConnMsg = ctsMsg }, Cmd.none  
+            { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
 
     let init2 () = 
 

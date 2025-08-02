@@ -114,18 +114,17 @@ module AndroidUIHelpers =
 
         IO (fun () 
                 ->
-                async
+                async 
                     {
-                        let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-
-                        match status with
-                        | PermissionStatus.Granted
-                            -> 
-                            return true
-                        | _ -> 
-                            return false
-                    }   
-           )
+                        // Check if running on Android 11+ and use Environment.IsExternalStorageManager
+                        match Build.VERSION.SdkInt >= BuildVersionCodes.R with
+                        | true  -> 
+                                return Environment.IsExternalStorageManager
+                        | false ->
+                                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                                return status = PermissionStatus.Granted
+                    }
+        )
 
     //Not used yet
     let internal bringAppToForeground () =
@@ -188,43 +187,49 @@ module AndroidUIHelpers =
 
     let internal openAppSettings () =
 
-        IO (fun () 
+        IO (fun ()
                 ->
                 try
                     Thread.Sleep 500 
-                    
+                                       
                     pyramidOfDoom
                         {
-                            use! intent = new Intent(Android.Provider.Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
-                            do!  
+                            let! intentAction =
+                                match Build.VERSION.SdkInt >= BuildVersionCodes.R with
+                                | true  -> Settings.ActionManageAppAllFilesAccessPermission // Android 11+ for "Manage all files"
+                                | false -> Settings.ActionApplicationDetailsSettings // Fallback for older versions
+                                
+                                |> Option.ofNull, None
+
+                            //use! intent = new Intent(Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
+                            use! intent = new Intent(intentAction : string) |> Option.ofNull, None
+                            do!
                                 intent.AddFlags
                                     (
-                                        ActivityFlags.NewTask ||| 
-                                        ActivityFlags.ClearTop ||| 
-                                        ActivityFlags.ClearTask ||| 
-                                        ActivityFlags.BroughtToFront ||| 
+                                        ActivityFlags.NewTask |||
+                                        ActivityFlags.ClearTop |||
+                                        ActivityFlags.ClearTask |||
+                                        ActivityFlags.BroughtToFront |||
                                         ActivityFlags.SingleTop
                                     )
-                                    |> Option.ofNull
-                                    |> Option.map (fun _ -> ()), None
-
-                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
-                            do! 
-                                intent.SetData(uri)
-                                |> Option.ofNull 
+                                |> Option.ofNull
                                 |> Option.map (fun _ -> ()), None
-
+    
+                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
+                            do!
+                                intent.SetData(uri)
+                                |> Option.ofNull
+                                |> Option.map (fun _ -> ()), None
+    
                             return! Some <| Application.Context.StartActivity(intent)
                         }
-
-                    |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
-                    
+                        |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                 with
-                | ex
+                | ex 
                     ->
                     string ex.Message |> ignore<string> // Log error
                     ()
-            )
+        )
 
 #endif
 

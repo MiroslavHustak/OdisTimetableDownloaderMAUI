@@ -97,8 +97,8 @@ module Messages =
     let internal yesNetConn = "Přípojení k internetu funguje." 
     let internal yesNetConnPlus = "Vyčkej na objevení se tlačítka \"Restart\"."
    
-    let internal ctsMsg = "Pokud se objevilo tlačítko \"Spustit Nastavení/AppInfo\", klepni na něj a povol manipulaci se soubory (pokud se nespustí systémové nastavení, je třeba povolení nastavit ručně). Vypni a zapni aplikaci. V případě opakování problému kontaktuj programátora." 
-    let internal ctsMsg2 = String.Empty //"Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
+    let internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
+    let internal ctsMsg = "Problém s detekcí internetového připojení."
     
     let internal cancelMsg1 = "Kvůli přerušení připojení k internetu se činnost aplikace ukončuje, může to chvíli trvat ..."
     let internal cancelMsg1NoConn = "Po obnovení připojení k internetu se činnost aplikace ukončí, může to chvíli trvat ..."
@@ -116,9 +116,9 @@ module Messages =
 
     let internal appInfoInvoker = 
         sprintf "%s %s %s"
-        <| "V systémové aplikaci \"Nastavení/AppInfo\" je třeba povolit manipulaci se soubory pro tuto aplikaci." 
-        <| "Pokud po stisknutí tlačítka Spustit \"Nastavení/AppInfo\" nedojde k jejímu spuštění, je potřeba toto udělat ručně." 
-        <| "Po nastavení povolení vypni tuto aplikaci a spusť znovu."
+        <| "Objevilo se tlačítko \"Spustit Nastavení / AppInfo\"?" 
+        <| "Klepni na něj, povol manipulaci se soubory a poté vypni a znovu spusť aplikaci." 
+        <| "U verzí Androidu < 11 se k tomu možná budeš muset proklikat."
 
     let (|Second|Seconds|SecondPlural|) = function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural
 
