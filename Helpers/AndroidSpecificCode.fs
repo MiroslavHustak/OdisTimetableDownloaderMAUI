@@ -147,8 +147,8 @@ module AndroidUIHelpers =
                                         ActivityFlags.BroughtToFront |||
                                         ActivityFlags.SingleTop
                                     )
-                                    |> Option.ofNull
-                                    |> Option.map (fun _ -> ()), None
+                                |> Option.ofNull
+                                |> Option.map (fun _ -> ()), None
             
                             do context.StartActivity(intent) 
                             return Some () // Return unit option
@@ -199,7 +199,7 @@ module AndroidUIHelpers =
                                 | true  -> Settings.ActionManageAppAllFilesAccessPermission // Android 11+ for "Manage all files"
                                 | false -> Settings.ActionApplicationDetailsSettings // Fallback for older versions
                                 
-                                |> Option.ofNull, None
+                                |> Option.ofNullEmpty, None
 
                             //use! intent = new Intent(Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
                             use! intent = new Intent(intentAction : string) |> Option.ofNull, None
