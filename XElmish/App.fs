@@ -545,16 +545,15 @@ module App =
         | CancelDataClearing
             ->
             { 
-                m with                               
-                    ProgressIndicator = InProgress (0.0, 0.0)
+                m with   
+                    ProgressMsg = String.Empty
                     ClearingVisible = true
                     KodisVisible = true
                     DpoVisible = true
                     MdpoVisible = true  
                     CloudVisible = false
-                    LabelVisible = false
-                    Label2Visible = false  
-                    ProgressCircleVisible = false
+                    LabelVisible = true
+                    Label2Visible = true
             }, 
             Cmd.none
              
