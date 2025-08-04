@@ -171,9 +171,7 @@ module App =
     
                     loop false (new CancellationTokenSource()) //whatever to initialise    
                       
-    let init () =  
-    
-        let ensureMainDirectoriesExist = ensureMainDirectoriesExist ()
+    let init () =         
             
         let ctsInitial = new CancellationTokenSource()
             in
@@ -222,7 +220,9 @@ module App =
 
         #else
         let permissionGranted = true
-        #endif        
+        #endif     
+        
+        let ensureMainDirectoriesExist = ensureMainDirectoriesExist permissionGranted
              
         let initialModel = 
             {         
@@ -264,7 +264,7 @@ module App =
                 Label2Visible = true
             } 
             
-        match runIO <| ensureMainDirectoriesExist with
+        match runIO <| ensureMainDirectoriesExist with 
         | Ok _ 
             -> 
             try          
@@ -278,13 +278,18 @@ module App =
             with
             | ex 
                 ->
-                runIO (postToLog <| ex.Message <| "#1")
-                { initialModel with ProgressMsg = noNetConnInitial }, Cmd.none
+                #if WINDOWS
+                runIO (postToLog <| ex.Message <| "#3-1") 
+                #endif
+                { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
         | Error err 
             ->  
-            runIO (postToLog <| err <| "#2")
-            { initialModel with ProgressMsg = noNetConnInitial }, Cmd.none  
+            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#2") | false -> ()  
+            
+            match initialModel.PermissionGranted with
+            | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
+            | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none 
 
     let init2 () = 
 
@@ -299,6 +304,8 @@ module App =
         #else
         let permissionGranted = true
         #endif       
+
+        let ensureMainDirectoriesExist = ensureMainDirectoriesExist permissionGranted
         
         let initialModel = 
             {       
@@ -338,21 +345,32 @@ module App =
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
                 Label2Visible = true
-            }     
-       
-        try          
-            pyramidOfDoom  
-                {
-                    //Po zruseni kodu zbylo jednoradkove CE, zatim ponechavam 
-                    let! _ = connectivityListener >> runIO >> Option.ofBool <| (), (initialModelNoConn, Cmd.none)
+            }   
+            
+        match runIO <| ensureMainDirectoriesExist with
+        | Ok _ 
+            -> 
+            try          
+               pyramidOfDoom  
+                   {
+                       //Po zruseni kodu zbylo jednoradkove CE, zatim ponechavam 
+                       let! _ = connectivityListener >> runIO >> Option.ofBool <| (), (initialModelNoConn, Cmd.none)
 
-                    return (initialModel, Cmd.none)
-                }  
-        with
-        | ex 
-            ->
-            runIO (postToLog <| ex.Message <| "#3")
-            { initialModel with ProgressMsg = ctsMsg }, Cmd.none
+                       return (initialModel, Cmd.none)
+                   }  
+            with
+            | ex 
+                ->
+                #if WINDOWS
+                runIO (postToLog <| ex.Message <| "#1") 
+                #endif
+                { initialModel with NetConnMsg = ctsMsg }, Cmd.none
+
+        | Error err 
+            ->  
+            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#3") | false -> ()
+            { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
+          
 
     let update msg m =
 

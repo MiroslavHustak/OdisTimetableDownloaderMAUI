@@ -35,6 +35,7 @@ module ErrorTypes =
         | FolderMovingError4
         | CreateFolderError4
         | CreateFolderError2
+        | NoPermissionError
         | FileDownloadError
         | NoFolderError
         | CanopyError

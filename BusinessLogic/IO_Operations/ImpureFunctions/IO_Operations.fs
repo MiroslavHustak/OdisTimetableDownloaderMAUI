@@ -192,34 +192,40 @@ module IO_Operations =
                     Error CreateFolderError4   
         )
         
-    let internal ensureMainDirectoriesExist () =
+    let internal ensureMainDirectoriesExist permissionGranted =
 
         IO (fun () 
                 ->  
-                try
-                    [
-                        partialPathJsonTemp 
-                        kodisPathTemp 
-                        kodisPathTemp4 
-                        dpoPathTemp 
-                        mdpoPathTemp
-                        oldTimetablesPath
-                        oldTimetablesPath4
-                    ]        
-                    |> List.iter
-                        (fun pathDir 
-                            ->
-                            match Directory.Exists pathDir with
-                            | true  -> () 
-                            | false -> Directory.CreateDirectory pathDir |> ignore<DirectoryInfo> 
-                        )
-                    |> Ok  
-                with 
-                | ex
+                match permissionGranted with
+                | true 
                     ->
-                    runIO (postToLog <| ex.Message <| "#42")
-                    Error CreateFolderError4   
-        )
+                    try
+                        [
+                            partialPathJsonTemp 
+                            kodisPathTemp 
+                            kodisPathTemp4 
+                            dpoPathTemp 
+                            mdpoPathTemp
+                            oldTimetablesPath
+                            oldTimetablesPath4
+                        ]        
+                        |> List.iter
+                            (fun pathDir 
+                                ->
+                                match Directory.Exists pathDir with
+                                | true  -> () 
+                                | false -> Directory.CreateDirectory pathDir |> ignore<DirectoryInfo> 
+                            )
+                        |> Ok  
+                    with 
+                    | ex
+                        ->
+                        runIO (postToLog <| ex.Message <| "#42")
+                        Error CreateFolderError4   
+                | false 
+                    -> 
+                    Error NoPermissionError //jen quli dodrzeni typu, neni tra robit vubec nic
+    )
 
     let internal createTP_Canopy_Folder pathDir = 
 
