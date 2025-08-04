@@ -378,7 +378,6 @@ module App =
         | RequestPermission 
             ->
             #if ANDROID
-
             let permissionStatus = 
                 async
                     {
