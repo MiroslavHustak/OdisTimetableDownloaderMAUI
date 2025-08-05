@@ -89,6 +89,7 @@ module WebScraping_KODISFMRecord4 =
             | NetConnPdfError err  -> err
             | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
             | LetItBeKodis4        -> String.Empty
+            | NoPermissionError    -> String.Empty
 
         let result (context2 : Context2) =   
 

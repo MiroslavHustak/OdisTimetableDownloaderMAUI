@@ -167,6 +167,7 @@ module WebScraping_KODISFMRecord =
                     | NetConnPdfError err  -> err
                     | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
                     | LetItBeKodis4        -> String.Empty
+                    | NoPermissionError    -> String.Empty
                                                              
                 let result (lazyList : Lazy<Result<string list, PdfDownloadErrors>>) (context2 : Context2) =  
                

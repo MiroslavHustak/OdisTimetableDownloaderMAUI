@@ -267,14 +267,11 @@ module App =
         match runIO <| ensureMainDirectoriesExist with 
         | Ok _ 
             -> 
-            try          
-                pyramidOfDoom   
-                    {
-                        //Po zruseni kodu zbylo jednoradkove CE, zatim ponechavam 
-                        let! _ = connectivityListener >> runIO >> Option.ofBool <| (), (initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch))
-
-                        return initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch)
-                    }  
+            try  
+                runIO <| connectivityListener ()
+                |> Option.ofBool 
+                |> Option.map (fun _ -> initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch))
+                |> Option.defaultWith (fun _ -> initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch))              
             with
             | ex 
                 ->
@@ -350,14 +347,11 @@ module App =
         match runIO <| ensureMainDirectoriesExist with
         | Ok _ 
             -> 
-            try          
-               pyramidOfDoom  
-                   {
-                       //Po zruseni kodu zbylo jednoradkove CE, zatim ponechavam 
-                       let! _ = connectivityListener >> runIO >> Option.ofBool <| (), (initialModelNoConn, Cmd.none)
-
-                       return (initialModel, Cmd.none)
-                   }  
+            try        
+                runIO <| connectivityListener ()
+                |> Option.ofBool 
+                |> Option.map (fun _ -> initialModel, Cmd.none)
+                |> Option.defaultWith (fun _ -> initialModelNoConn, Cmd.none)   
             with
             | ex 
                 ->
@@ -369,8 +363,7 @@ module App =
         | Error err 
             ->  
             match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#3") | false -> ()
-            { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
-          
+            { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none            
 
     let update msg m =
 
