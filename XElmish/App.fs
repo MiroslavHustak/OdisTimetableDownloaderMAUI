@@ -268,7 +268,7 @@ module App =
         | Ok _ 
             -> 
             try  
-                runIO <| connectivityListener ()
+                runIO <| connectivityListener () //jen si zvykam na FsToolkit.ErrorHandling, pattern matching ma samozrejme o 1 radek mene :-)
                 |> Option.ofBool 
                 |> Option.map (fun _ -> initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch))
                 |> Option.defaultWith (fun _ -> initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch))              
@@ -348,7 +348,7 @@ module App =
         | Ok _ 
             -> 
             try        
-                runIO <| connectivityListener ()
+                runIO <| connectivityListener () //jen si zvykam na FsToolkit.ErrorHandling, pattern matching ma samozrejme o 1 radek mene :-)
                 |> Option.ofBool 
                 |> Option.map (fun _ -> initialModel, Cmd.none)
                 |> Option.defaultWith (fun _ -> initialModelNoConn, Cmd.none)   
