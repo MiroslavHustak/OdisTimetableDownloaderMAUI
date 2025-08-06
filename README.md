@@ -30,6 +30,9 @@ CppHelpers (Project)
 ├── Utilities/
 │   ├── copyingDirectories.h
 │   └── copyingDirectories.cpp
+├── Utilities/
+│   ├── movingDirectories.h
+│   └── movingDirectories.cpp
 
 EmbeddedTP (Project)
 ├── EmbeddedTP.fsproj
