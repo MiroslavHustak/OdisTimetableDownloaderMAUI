@@ -97,11 +97,12 @@ module App =
             CloudProgressMsg : string
             ProgressIndicator : ProgressIndicator
             Progress : float
+            RestartVisible : bool
             ClearingVisible : bool
             KodisVisible : bool
             DpoVisible : bool
             MdpoVisible : bool
-            RestartVisible : bool
+            BackHomeVisible : bool
             ProgressCircleVisible : bool
             CancelVisible : bool
             CloudVisible : bool
@@ -122,6 +123,7 @@ module App =
         | Mdpo
         | Cancel
         | Home
+        | Home2
         | RestartVisible of bool
         | Quit
         | QuitCountdown of string
@@ -213,14 +215,12 @@ module App =
                         }
                 )
             |> Async.StartImmediate  
-
-        #if ANDROID        
+       
+        #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
-        KeepScreenOnManager.keepScreenOn >> runIO <| true
-
         #else
         let permissionGranted = true
-        #endif     
+        #endif
         
         let ensureMainDirectoriesExist = ensureMainDirectoriesExist permissionGranted
              
@@ -231,13 +231,14 @@ module App =
                 NetConnMsg = String.Empty
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
-                Progress = 0.0 
+                Progress = 0.0   
+                RestartVisible = false
                 ClearingVisible = permissionGranted
                 KodisVisible = permissionGranted
                 DpoVisible = permissionGranted
                 MdpoVisible = permissionGranted
                 ProgressCircleVisible = false
-                RestartVisible = false
+                BackHomeVisible = false
                 CancelVisible = false
                 CloudVisible = false  //nechej to false, zatim nebudu pouzivat
                 LabelVisible = true
@@ -252,14 +253,15 @@ module App =
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
+                RestartVisible = false
                 ClearingVisible = false
                 KodisVisible = false
                 DpoVisible = false
                 MdpoVisible = false
                 ProgressCircleVisible = false
-                RestartVisible = false
+                BackHomeVisible = false
                 CancelVisible = false
-                CloudVisible = false  //nechej to false, zatim nebudu pouzivat
+                CloudVisible = false  
                 LabelVisible = true
                 Label2Visible = true
             } 
@@ -295,12 +297,10 @@ module App =
             cancellationActor.Post <| UpdateState2 (false, ctsNew)
         
         #if ANDROID
-        let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only    
-        KeepScreenOnManager.keepScreenOn >> runIO <| true
-
+        let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
         #else
         let permissionGranted = true
-        #endif       
+        #endif
 
         let ensureMainDirectoriesExist = ensureMainDirectoriesExist permissionGranted
         
@@ -312,12 +312,13 @@ module App =
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
+                RestartVisible = false
                 ClearingVisible = permissionGranted
                 KodisVisible = permissionGranted
                 DpoVisible = permissionGranted
                 MdpoVisible = permissionGranted
                 ProgressCircleVisible = false
-                RestartVisible = false
+                BackHomeVisible = false
                 CancelVisible = false
                 CloudVisible = false  
                 LabelVisible = true
@@ -326,20 +327,21 @@ module App =
 
         let initialModelNoConn = 
             {    
-                PermissionGranted = true  //aby se button RequestPermission nezobrazoval
+                PermissionGranted = true //aby se button RequestPermission nezobrazoval
                 ProgressMsg = String.Empty
                 NetConnMsg = noNetConnInitial
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
+                RestartVisible = false
                 ClearingVisible = false
                 KodisVisible = false
                 DpoVisible = false
                 MdpoVisible = false
                 ProgressCircleVisible = false
-                RestartVisible = false
+                BackHomeVisible = false
                 CancelVisible = false
-                CloudVisible = false  //nechej to false, zatim nebudu pouzivat
+                CloudVisible = false  
                 LabelVisible = true
                 Label2Visible = true
             }   
@@ -379,7 +381,7 @@ module App =
                     }
                 |> Async.RunSynchronously //available API employed by status is async-only
 
-            let cmd =
+            let cmd1 =
                 Cmd.ofMsg
                     (                        
                         match permissionStatus with
@@ -388,19 +390,23 @@ module App =
                             PermissionResult true
                         | false
                             -> 
-                            //PermissionGranted je tady false
-                            openAppSettings >> runIO <| ()
-                            PermissionResult true  //po settings nastavime PermissionGranted na true
+                            //PermissionGranted je v tomto okamziku false
+                            openAppSettings >> runIO <| ()                            
+                            Thread.Sleep 1000
+                            Home
                     )
 
-            m, cmd
+            let cmd2 = Cmd.ofMsg <| PermissionResult true    //po nastaveni povoleni nastavime PermissionGranted na true    
+
+            m, Cmd.batch [cmd1; cmd2]
+          
             #else
             m, Cmd.none
             #endif
 
         | PermissionResult granted 
             ->
-            { m with PermissionGranted = granted }, Cmd.none
+            { m with PermissionGranted = granted; RestartVisible = true }, Cmd.none
 
         | UpdateStatus (progressValue, totalProgress, isVisible)
             ->
@@ -420,7 +426,7 @@ module App =
                     CancelVisible = isVisible
                     DpoVisible = false
                     MdpoVisible = false
-                    RestartVisible = false
+                    BackHomeVisible = false
             }, 
             Cmd.none
 
@@ -438,7 +444,7 @@ module App =
                     MdpoVisible = false
                     ProgressCircleVisible = false
                     CancelVisible = false
-                    RestartVisible = isVisible
+                    BackHomeVisible = isVisible
             }, 
             Cmd.none
                    
@@ -480,9 +486,13 @@ module App =
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, Cmd.none
 
-        | Home  
+        | Home2  
             -> 
             init2 ()
+
+        | Home  
+            -> 
+            init ()
 
         | Cancel 
             ->
@@ -494,7 +504,7 @@ module App =
 
         | RestartVisible isVisible 
             -> 
-            { m with RestartVisible = isVisible; CancelVisible = not isVisible }, Cmd.none                   
+            { m with BackHomeVisible = isVisible; CancelVisible = not isVisible }, Cmd.none                   
              
         | NetConnMessage message
             ->
@@ -600,7 +610,7 @@ module App =
                                         | Error err -> return WorkIsComplete >> dispatch <| (err, false)     
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home                                    
+                                        return dispatch Home2                                    
                             }  
 
                     let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
@@ -636,7 +646,7 @@ module App =
                                         return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home       
+                                        return dispatch Home2       
                             }     
 
                     let executeSequentially dispatch =
@@ -729,7 +739,7 @@ module App =
                                         return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home  
+                                        return dispatch Home2  
                             }  
                    
                     let executeSequentially dispatch =   
@@ -819,7 +829,7 @@ module App =
                                         return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home         
+                                        return dispatch Home2         
                             }  
                      
                     let execute dispatch = 
@@ -915,7 +925,7 @@ module App =
                                         return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
                                 | true  ->
                                         WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home  
+                                        return dispatch Home2  
                             }  
                      
                     let execute dispatch = 
@@ -1046,11 +1056,17 @@ module App =
                                 .isVisible(m.CloudVisible)
 
                             #if ANDROID
+                            Button(buttonRestart, Home)
+                                .centerHorizontal()
+                                .semantics(hint = hintRestart)
+                                .padding(10.)
+                                .isVisible(m.PermissionGranted && m.RestartVisible)
+
                             Button(buttonRequestPermission, RequestPermission)
-                                    .centerHorizontal()
-                                    .semantics(hint = "Grant permission to access storage")
-                                    .padding(10.)
-                                    .isVisible(not m.PermissionGranted)
+                                .centerHorizontal()
+                                .semantics(hint = "Grant permission to access storage")
+                                .padding(10.)
+                                .isVisible(not m.PermissionGranted)
                             #endif
 
                             Button(buttonClearing, DataClearing)
@@ -1084,9 +1100,9 @@ module App =
                                 .isVisible(m.CancelVisible && m.PermissionGranted)
                                 .centerHorizontal() 
 
-                            Button(buttonHome, Home)
+                            Button(buttonHome, Home2)
                                 .semantics(hint = String.Empty)
-                                .isVisible(m.RestartVisible && m.PermissionGranted)
+                                .isVisible(m.BackHomeVisible && m.PermissionGranted)
                                 .centerHorizontal()
 
                             Button(buttonQuit, Quit)

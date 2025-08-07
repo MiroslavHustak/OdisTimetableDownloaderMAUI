@@ -13,6 +13,7 @@ open Helpers.Builders
 open Types.Haskell_IO_Monad_Simulation
 
 #if ANDROID
+
 open Android.OS
 open Android.App
 open Android.Net
@@ -72,7 +73,8 @@ module WakeLockHelper = //pouze pro Android API 33 a Android API 34
         IO (fun () 
                 ->
                 match lock with
-                | lock when lock.IsHeld ->
+                | lock when lock.IsHeld 
+                    ->
                     // WakeLock is already held, no need to acquire it again
                     ()
                 | _ ->
@@ -116,13 +118,20 @@ module AndroidUIHelpers =
                 ->
                 async 
                     {
-                        // Check if running on Android 11+ and use Environment.IsExternalStorageManager
-                        match Build.VERSION.SdkInt >= BuildVersionCodes.R with
-                        | true  -> 
-                                return Environment.IsExternalStorageManager
-                        | false ->
-                                let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                                return status = PermissionStatus.Granted
+                        try
+                            // Check if running on Android 11+ and use Environment.IsExternalStorageManager
+                            match Build.VERSION.SdkInt >= BuildVersionCodes.R with
+                            | true  -> 
+                                    return Environment.IsExternalStorageManager
+                            | false ->
+                                    let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                                    return status = PermissionStatus.Granted
+                                    
+                        with
+                        | ex 
+                            -> 
+                            string ex.Message |> ignore<string> // TODO: logfile
+                            return false  
                     }
         )
 

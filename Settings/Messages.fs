@@ -82,10 +82,11 @@ module Messages =
     let internal buttonMdpo = "JŘ dopravce MDPO"
     let internal hintMdpo = "Stahování zastávkových JŘ dopravce MDPO"
     let internal hintCancel = "Zrušení práce aplikace"
-    let internal buttonCancel = "Zrušit stahování"     
+    let internal buttonCancel = "Zrušit stahování"   
+    let internal buttonRestart = "Restart"
     let internal hintRestart = "Zpět na úvod anebo restart aplikace"    
     let internal buttonHome = "Zpět na úvod"  
-    let internal buttonRequestPermission = "Spustit \"Nastavení/AppInfo\""  
+    let internal buttonRequestPermission = "Spustit AppInfo"  
    
     let internal noNetConn = "Není přístup k internetu." 
     let internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena, vyčkej na Restart." 
@@ -95,7 +96,6 @@ module Messages =
     let internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se k internetu a spusť ji znovu."  
    
     let internal yesNetConn = "Přípojení k internetu funguje." 
-    let internal yesNetConnPlus = "Vyčkej na objevení se tlačítka \"Restart\"."
    
     let internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
     let internal ctsMsg = "Problém s detekcí internetového připojení."
@@ -116,9 +116,9 @@ module Messages =
 
     let internal appInfoInvoker = 
         sprintf "%s %s %s"
-        <| "Objevilo se tlačítko \"Spustit Nastavení / AppInfo\"?" 
-        <| "Klepni na něj, povol manipulaci se soubory a poté vypni a znovu spusť aplikaci." 
-        <| "U verzí Androidu < 11 se k tomu možná budeš muset proklikat."
+        <| "Objevilo se tlačítko \"Spustit AppInfo\"?" 
+        <| "Klepni na něj, povol manipulaci se soubory a restartuj aplikaci." 
+        <| "U Androidu 10- se k tomu povolení asi budeš muset proklepat."
 
     let (|Second|Seconds|SecondPlural|) = function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural
 
