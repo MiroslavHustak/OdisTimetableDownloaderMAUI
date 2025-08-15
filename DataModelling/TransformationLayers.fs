@@ -26,8 +26,8 @@ module ApiTransformLayer =
                                 fun err 
                                     -> 
                                     runIO <| postToLogFile () (sprintf "%s Error%s" <| string ApiResponseError <| "#1001")
-                                    |> Async.RunSynchronously
-                                    |> ignore<'a>
+                                    |> Async.Ignore<'a>
+                                    |> Async.StartImmediate
                         
                                     Error <| ApiResponseError err  
 
@@ -38,8 +38,8 @@ module ApiTransformLayer =
                                 fun _
                                     -> 
                                     runIO <| postToLogFile () (sprintf "%s Error%s" <| string ApiDecodingError <| "#100")
-                                    |> Async.RunSynchronously
-                                    |> ignore<'a>
+                                    |> Async.Ignore<'a>
+                                    |> Async.StartImmediate
                             
                                     Error ApiDecodingError  
 

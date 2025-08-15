@@ -200,8 +200,8 @@ module KODIS_BL_Record4 =
                                                             | HttpStatusCode.Forbidden 
                                                                 ->
                                                                 runIO <| postToLogFile () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#1711") 
-                                                                |> Async.RunSynchronously 
-                                                                |> ignore<ResponsePost> 
+                                                                |> Async.Ignore<ResponsePost>
+                                                                |> Async.StartImmediate 
                                                             | _ ->
                                                                 runIO (postToLog <| statusCode <| "#1712")
 

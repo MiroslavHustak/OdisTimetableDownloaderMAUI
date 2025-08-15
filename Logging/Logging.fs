@@ -94,8 +94,8 @@ module Logging =
         IO (fun () 
                 ->     
                 runIO <| postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
-                |> Async.RunSynchronously
-                |> ignore<ResponsePost>  
+                |> Async.Ignore<ResponsePost>
+                |> Async.StartImmediate
         )
 
     //*************************************************************************** 

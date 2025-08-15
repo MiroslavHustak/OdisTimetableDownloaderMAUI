@@ -57,8 +57,8 @@ module FutureLinks =
                        
                             | _ -> 
                                 runIO <| postToLogFile () (sprintf "Request #347 failed with status code %d" (int response.statusCode))
-                                |> Async.RunSynchronously 
-                                |> ignore<ResponsePost>   
+                                |> Async.Ignore<ResponsePost>
+                                |> Async.StartImmediate   
                        
                                 return Error <| ApiResponseError (sprintf "Request #447 failed with status code %d" (int response.statusCode))
                         with
