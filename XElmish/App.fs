@@ -395,7 +395,8 @@ module App =
                             Thread.Sleep 1000
                             Home
                     )
-
+            
+            //TODO: event- based solution
             let cmd2 = Cmd.ofMsg <| PermissionResult true    //po nastaveni povoleni nastavime PermissionGranted na true    
 
             m, Cmd.batch [cmd1; cmd2]
@@ -536,7 +537,7 @@ module App =
                                     ]         
                                     |> Async.Parallel 
                                     |> Async.Catch
-                                    |> Async.RunSynchronously
+                                    |> Async.RunSynchronously //obecne neni dobre pouzivat Async.RunSynchronously uvnitr async, ale tady to jinak nefunguje
                                     |> Result.ofChoice                      
                                     |> function
                                         | Ok [|a; b|] -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg2

@@ -16,7 +16,7 @@ module Messages =
     let internal msg2WithoutReplacementService = "Momentálně nejsou dostupné odkazy na dlouhodobě platné JŘ ODIS. Chvíli strpení, prosím."
     let internal msg3WithoutReplacementService = "Dlouhodobě platné JŘ ODIS nebyly k dispozici pro stažení."
 
-    let internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy." 
+    let internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
     let internal jsonCancel = "Stahování JSON souborů předčasně ukončeno." 
     let internal rcError = "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
     let internal jsonFilteringError = "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
