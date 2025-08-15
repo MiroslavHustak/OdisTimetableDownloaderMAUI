@@ -1,0 +1,10 @@
+﻿  pch.cpp
+  copyingDirectories.cpp
+  dllmain.cpp
+  movingDirectories.cpp
+     Creating library E:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.lib and object E:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 794 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  CppHelpers.vcxproj -> E:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.dll

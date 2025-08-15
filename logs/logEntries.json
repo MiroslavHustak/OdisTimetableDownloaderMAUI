@@ -1,0 +1,25 @@
+
+{ "list": [] }
+{ "list": [] }
+{ "list": ["NoPermissionError Error#2","08/10/2025 13:00:51 +00:00"] }
+{ "list": ["NoPermissionError Error#2","08/10/2025 13:01:03 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#25","08/10/2025 13:01:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#8","08/10/2025 13:01:21 +00:00"] }
+
+{ "list": ["NoPermissionError Error#2","08/10/2025 13:00:51 +00:00"] }
+{ "list": ["NoPermissionError Error#2","08/10/2025 13:01:03 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#25","08/10/2025 13:01:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#8","08/10/2025 13:01:21 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","08/10/2025 13:56:42 +00:00"] }
+
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#25","08/14/2025 21:24:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#25","08/14/2025 21:42:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#25","08/14/2025 21:42:59 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#8","08/14/2025 21:43:00 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#8","08/14/2025 21:44:31 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-20","08/14/2025 22:02:17 +00:00"] }
+{ "list": ["One or more errors occurred. (The process cannot access the file 'e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\kodisRegion5002_0.json' because it is being used by another process.) Error#20","08/14/2025 22:09:30 +00:00"] }
+{ "list": ["NoPermissionError Error#2","08/14/2025 22:23:11 +00:00"] }
+{ "list": ["NoPermissionError Error#2","08/14/2025 22:23:18 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","08/15/2025 09:22:27 +00:00"] }
+

@@ -1,0 +1,269 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<!-- ^(?!\s*$)(?!\s*//)(?!\s*\(\*) -->  
+	<TargetFrameworks>net8.0-android</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
+	
+    <OutputType>Exe</OutputType>
+    <RootNamespace>OdisTimetableDownloaderMAUI</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+
+    <Nullable>enable</Nullable> 
+
+    <!-- Display name -->
+    <ApplicationTitle>OdisTimetableDownloaderMAUI</ApplicationTitle>
+
+    <!-- The warning XA4211 appears because the .NET MAUI build tools default to the latest available API level for compiling Android applications, which in this case is API 34 (Android 14). This discrepancy doesn't prevent your app from targeting Android 12; however, the tooling will still use API 34 for some aspects of the compilation. -->
+	<!-- <NoWarn>XA4211</NoWarn> -->
+	<NoWarn>FS3261</NoWarn>  
+
+    <!-- App Identifier -->
+    <ApplicationId>com.companyname.OdisTimetableDownloaderMAUI</ApplicationId>
+    <ApplicationIdGuid>BF9B061E-21D2-4A72-9166-3B97928F3802</ApplicationIdGuid>
+
+    <!-- Versions -->
+    <ApplicationDisplayVersion>2.0</ApplicationDisplayVersion>
+	<PackageVersion>2.0.0</PackageVersion>
+	  <!-- Explicitly set PackageVersion -->
+    <ApplicationVersion>2</ApplicationVersion>
+
+    <TargetPlatformIdentifier Condition=" $(TargetPlatformIdentifier) == '' ">$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatformIdentifier>
+
+    <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'ios'">14.2</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'android'">25.0</SupportedOSPlatformVersion>
+    <AndroidTargetSdkVersion>34</AndroidTargetSdkVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'windows'">10.0.19041.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$(TargetPlatformIdentifier) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion Condition="$(TargetPlatformIdentifier) == 'tizen'">6.5</SupportedOSPlatformVersion>
+    <AndroidSigningKeyStore>AndroidKey.keystore</AndroidSigningKeyStore>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">25.0</SupportedOSPlatformVersion>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+        <!-- Ensure WINDOWS symbol only for Windows target -->
+    <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'windows'">
+        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    </PropertyGroup>
+
+    <!-- Ensure ANDROID symbol only for Android target -->
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+        <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
+    </PropertyGroup>
+
+    <!-- Android Release-specific settings -->
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-android|AnyCPU'">
+        <AndroidPackageFormat>apk</AndroidPackageFormat>
+        <AndroidKeyStore>True</AndroidKeyStore>
+        <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
+        <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
+        <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+    </PropertyGroup>
+
+    <!-- Android Debug-specific settings -->
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-android|AnyCPU'">
+        <AndroidKeyStore>True</AndroidKeyStore>
+        <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
+        <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
+        <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+    </PropertyGroup>
+
+    <!-- iOS Debug-specific settings -->
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-ios|AnyCPU'">
+        <DefineConstants>$(DefineConstants);IOS</DefineConstants>
+    </PropertyGroup>
+
+    <!-- macCatalyst Debug-specific settings -->
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-maccatalyst|AnyCPU'">
+        <DefineConstants>$(DefineConstants);MACCATALYST</DefineConstants>
+    </PropertyGroup>
+
+    <!-- iOS Release-specific settings -->
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-ios|AnyCPU'">
+        <DefineConstants>$(DefineConstants);IOS</DefineConstants>
+    </PropertyGroup>
+
+    <!-- macCatalyst Release-specific settings -->
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-maccatalyst|AnyCPU'">
+        <DefineConstants>$(DefineConstants);MACCATALYST</DefineConstants>
+        <!-- Ensure compatibility between RuntimeIdentifier and PlatformTarget -->
+        <RuntimeIdentifier>maccatalyst-arm64</RuntimeIdentifier>
+        <PlatformTarget>arm64</PlatformTarget>
+    </PropertyGroup>
+
+	<!-- Windows Debug-specific settings -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-windows10.0.19041.0|AnyCPU'">
+		<DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+		<WindowsPackageType>MSIX</WindowsPackageType>
+		<DeployOnBuild>True</DeployOnBuild>
+		<IsPublishable>True</IsPublishable>
+	</PropertyGroup>
+
+	<!-- Windows Release-specific settings -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-windows10.0.19041.0|AnyCPU'">
+		<DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+		<WindowsPackageType>MSIX</WindowsPackageType>
+		<DeployOnBuild>True</DeployOnBuild>
+		<IsPublishable>True</IsPublishable>
+	</PropertyGroup>
+	
+  <ItemGroup>
+	  <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+  </ItemGroup>
+
+	<ItemGroup>
+		<None Include="e:\source\Rust\string_combine_dll\target\release\string_combine_dll.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+  <ItemGroup>
+    <!-- App Icon -->
+    <None Include="Monadic_function_composition.txt" />
+    <None Include="TODO_list.txt" />
+    <Resource Include="Platforms\Android\Resources\xml\network_security_config.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+	<Resource Include="Platforms\Android\Resources\values\colors.xml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Resource>
+    <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
+    <Compile Include="NativeCode\NativeCode.fs" />
+    <Compile Include="Types\TDD.fs" />
+    <Compile Include="Types\Types.fs" />
+    <Compile Include="Types\ErrorTypes.fs" />
+    <Compile Include="Settings\Messages.fs" />
+    <Compile Include="Settings\SettingsGeneral.fs" />
+    <Compile Include="Settings\SettingsDPO.fs" />
+    <Compile Include="Settings\SettingsKODIS.fs" />
+    <Compile Include="Settings\SettingsMDPO.fs" />
+    <Compile Include="ComputationExpressions\CEBuilders.fs" />
+    <Compile Include="ErrorHandling\ErrorHandlers.fs" />
+    <Compile Include="Helpers\CopyOrMoveDir.fs" />
+    <Compile Include="Helpers\Helpers.fs" />
+    <Compile Include="Helpers\Serialization.fs" />
+    <Compile Include="Helpers\Parsing.fs" />
+    <Compile Include="Helpers\HardRestart.fs" />
+    <Compile Include="Helpers\ListParallel.fs" />
+    <Compile Include="Helpers\AndroidSpecificCode.fs" />
+    <Compile Include="FreeMonads\CmdLineWorkflows.fs" />
+    <Compile Include="FreeMonads\FreeMonad.fs" />
+    <Compile Include="Connectivity\Connectivity.fs" />
+    <Compile Include="DataModelling\DataModels.fs" />
+    <Compile Include="DataModelling\DataTransferModels.fs" />
+    <Compile Include="DataModelling\TransformationLayers.fs" />
+    <Compile Include="Logging\LogEntries.fs" />
+    <Compile Include="Logging\Logging.fs" />
+    <Compile Include="BusinessLogic\DataManipulation\PureFunctions\SortRecordData.fs" />
+    <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\SortJsonDataFull.fs" />
+    <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\SortJsonData.fs" />
+    <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\FilterTimetableLinks.fs" />
+	<Compile Include="BusinessLogic\IO_Operations\PureFunctions\CreatePathsAndNames.fs" />
+    <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\FutureLinks.fs" />
+    <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\IO_Operations.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic\DPO_BL.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic\MDPO_BL.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic\KODIS_BL_Record.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic\KODIS_BL_Record4.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic\TP_Canopy_Difference.fs" />
+    <Compile Include="ApplicationDesign\DPO.fs" />
+    <Compile Include="ApplicationDesign\MDPO.fs" />
+    <Compile Include="ApplicationDesign\KODIS_Record.fs" />
+    <Compile Include="ApplicationDesign\KODIS_Record4.fs" />
+    <Compile Include="XElmish\ProgressCircle.fs" />
+    <Compile Include="XElmish\Counters.fs" />
+    <Compile Include="XElmish\App.fs" />
+    <Compile Include="MauiProgram.fs" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+
+    <!-- Custom Fonts -->
+    <MauiFont Include="Resources\Fonts\*" />
+
+    <!-- Images -->
+    <MauiImage Include="Resources\Images\*" />
+    <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+
+    <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+    <MauiAsset Include="Resources\Raw\*" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	  
+    <!-- Splash Screen -->
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'android'">	
+	<AndroidResource Include="$(AndroidProjectFolder)Resources/*/*" />
+    <AndroidResource Remove="$(AndroidProjectFolder)Resources/raw/.*" />
+    <AndroidResource Update="$(AndroidProjectFolder)Resources/raw/*" />
+    <AndroidAsset Include="$(AndroidProjectFolder)Assets/**/*" Exclude="$(AndroidProjectFolder)Assets/**/.*/**" />
+    <AndroidManifest Include="$(AndroidProjectFolder)AndroidManifest.xml" />
+    <Compile Include="$(AndroidProjectFolder)MainActivity.fs" />
+    <Compile Include="$(AndroidProjectFolder)MainApplication.fs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'ios'">
+    <None Include="$(iOSProjectFolder)Info.plist" LogicalName="Info.plist" />
+    <Compile Include="$(iOSProjectFolder)AppDelegate.fs" />
+    <Compile Include="$(iOSProjectFolder)Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'maccatalyst'">
+    <None Include="$(MacCatalystProjectFolder)Info.plist" LogicalName="Info.plist" />
+    <Compile Include="$(MacCatalystProjectFolder)AppDelegate.fs" />
+    <Compile Include="$(MacCatalystProjectFolder)Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
+    <Manifest Include="$(WindowsProjectFolder)app.manifest" />
+    <AppxManifest Include="$(WindowsProjectFolder)Package.appxmanifest" />
+    <Compile Include="$(WindowsProjectFolder)App.fs" />
+    <Compile Include="$(WindowsProjectFolder)Main.fs" />
+
+    <PackageReference Include="FSharp.Maui.WinUICompat" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'tizen'">
+    <TizenManifestFile Include="$(TizenProjectFolder)tizen-manifest.xml" />
+    <Compile Include="$(TizenProjectFolder)Main.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fabulous" Version="2.4.1" />
+    <PackageReference Include="Fabulous.MauiControls" Version="8.0.5" />
+    <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
+    <PackageReference Include="FSharp.Core" Version="8.0.403" />
+    <PackageReference Include="FSharp.Data" Version="6.4.0" />
+    <PackageReference Include="FSharp.Quotations.Evaluator" Version="2.1.0" />
+    <PackageReference Include="FsHttp" Version="14.5.1" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.92" />
+    <PackageReference Include="Thoth.Json.Net" Version="12.0.0" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.8.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EmbeddedTP\EmbeddedTP.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Maui.Controls" Version="8.0.92" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.92" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="8.0.92" />
+	<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.92" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="logs\" />
+    <Folder Include="bin\Release\net8.0-windows10.0.19041.0\win10-x64\" />
+  </ItemGroup>
+
+</Project>

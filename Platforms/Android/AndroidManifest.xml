@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.companyname.OdisTimetableDownloaderMAUI">
+
+	<!-- Application Information -->
+	<!-- android:requestLegacyExternalStorage="true" for Android 10 only -->
+	<application
+        android:allowBackup="true"
+        android:icon="@mipmap/appicon"
+        android:roundIcon="@mipmap/appicon_round"
+        android:supportsRtl="true"
+		android:requestLegacyExternalStorage="true"
+        android:networkSecurityConfig="@xml/network_security_config">
+	</application>
+
+	<!-- Network Permissions -->
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+	<!-- External Storage Permissions (Deprecated for Android 11 and later) -->
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+	<!-- Manage External Storage Permission (For Android 12 and later) -->
+	<uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:targetApi="34"/>
+
+	<!-- SDK Version Compatibility -->
+	<uses-sdk
+        android:minSdkVersion="25"
+        android:targetSdkVersion="34"/>
+</manifest>

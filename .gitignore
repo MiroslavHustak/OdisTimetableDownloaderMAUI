@@ -1,0 +1,6 @@
+bin/
+obj/
+KODISJson2/*.json
+*.user
+*.suo
+.vs/
