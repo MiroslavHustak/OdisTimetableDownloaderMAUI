@@ -47,18 +47,18 @@ module Messages =
     let internal dispatchMsg2 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
     let internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
     
-    let internal dispatchMsg0 = "Došlo k chybě, JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil."  
-    let internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy."  
+    let internal dispatchMsg0 = "Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
+    let internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
 
-    let internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil."  
-    let internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy."
-    let internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy." 
+    let internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
+    let internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."
+    let internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
     let internal mdpoCancelMsg = "Stahování JŘ MDPO předčasně ukončeno."
     let internal mdpoCancelMsg1 = "Stahování JŘ MDPO předčasně ukončeno, úklid se nepodařil."
 
-    let internal dpoMsg0 = "Došlo k chybě, JŘ DPO nebyly staženy, navíc ani úklid se nepodařil."  
-    let internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy."  
-    let internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy." 
+    let internal dpoMsg0 = "Došlo k chybě, JŘ DPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
+    let internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
+    let internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
     let internal dpoCancelMsg = "Stahování JŘ DPO předčasně ukončeno."
     let internal dpoCancelMsg1 = "Stahování JŘ DPO předčasně ukončeno, úklid se nepodařil."
   
@@ -89,7 +89,7 @@ module Messages =
     let internal buttonRequestPermission = "Spustit AppInfo"  
    
     let internal noNetConn = "Není přístup k internetu." 
-    let internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena, vyčkej na Restart." 
+    let internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena." 
     let internal noNetConnPlusPlus = "Není přístup k internetu, počkám zhruba dvě minuty." 
     let internal noNetConn1 = "Operace nebyla provedena, není přístup k internetu." 
     let internal noNetConn2 = "Není přístup k internetu, nutno vyčkat, až bude." 
@@ -112,6 +112,7 @@ module Messages =
     let internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
 
     let internal buttonQuit = "Vypnout aplikaci" 
+    let internal buttonQuit2 = "Vypnout odpočítávání a aplikaci" 
     let internal quitError = "Nepodařilo se vypnout aplikaci, zkus znovu" 
 
     let internal appInfoInvoker = 
@@ -130,7 +131,7 @@ module Messages =
         | Seconds      -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny, pokud nedojde k obnovení připojení." param
         | SecondPlural -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin, pokud nedojde k obnovení připojení." param
 
-    let internal continueDownload = "Stahovací operace se po přerušení pokusí automaticky obnovit, vznik chyby je možný."
+    let internal continueDownload = "Pokusím se po přerušení obnovit činnost (vznik chyby je možný), v případě neúspěchu vypni a znovu spusť aplikaci."
     #else           
     let internal quitMsg param =
         match param with
