@@ -44,8 +44,8 @@ module SettingsKODIS =
             "vlakové linky S"; "vlakové linky R"; "linky X, NAD, P, AE"
         ]
     
-    let private interval = 12 //menit dle json struktury
-    let private lastCode = 132 //menit dle json struktury
+    let [<Literal>] private interval = 12 //menit dle json struktury
+    let [<Literal>] private lastCode = 132 //menit dle json struktury
 
     let private codes = [ 0 .. interval .. lastCode ] |> List.map string //(fun x -> string x) 
         

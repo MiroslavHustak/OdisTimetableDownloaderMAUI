@@ -79,8 +79,7 @@ module WakeLockHelper = //pouze pro Android API 33 a Android API 34
                     ()
                 | _ ->
                     lock.Acquire() // Acquire the WakeLock if not already held
-           )
-     
+           )     
        
     let internal releaseWakeLock (lock : PowerManager.WakeLock) =  
 
@@ -194,7 +193,7 @@ module AndroidUIHelpers =
                     None    
            )
     
-    //Pouzivana misto Xamarin.Essentials.AppInfo.ShowSettingsUI()
+    //Tato funkce je pouzivana misto Xamarin.Essentials.AppInfo.ShowSettingsUI() quli moznosti Android 11+ pro "Manage all files" 
     let internal openAppSettings () =
 
         IO (fun ()

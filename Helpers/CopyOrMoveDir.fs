@@ -27,9 +27,7 @@ module private PathHelpers =
             try
                 Ok (Path.GetFullPath p)
             with 
-            | ex 
-                ->
-                Error <| sprintf "%s path is invalid: %s" what (string ex.Message)
+            | ex -> Error <| sprintf "%s path is invalid: %s" what (string ex.Message)
  
     let detectPathKind (fullPath : string) : Result<PathKind, string> =
        

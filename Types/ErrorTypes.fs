@@ -18,6 +18,7 @@ module ErrorTypes =
         | LetItBeMHD
         | TestDuCase of string
    
+    [<Struct>] 
     type internal JsonDownloadErrors = 
         | JsonTimeoutError
         | JsonDownloadError     
@@ -27,6 +28,7 @@ module ErrorTypes =
         | FolderMovingError
         | LetItBeKodis
            
+    [<Struct>] 
     type internal PdfDownloadErrors =
         | RcError         
         | DataFilteringError
