@@ -370,8 +370,9 @@ module App =
     let update msg m =
 
         match msg with   
-        | RequestPermission ->
-        #if ANDROID
+        | RequestPermission
+            ->
+            #if ANDROID
             let cmd : Cmd<Msg> =
                 Cmd.ofSub
                     (fun _
@@ -398,9 +399,9 @@ module App =
                         |> Async.StartImmediate
                     )
             m, cmd
-        #else
+            #else
             m, Cmd.none
-        #endif
+            #endif
 
         | PermissionResult granted 
             ->
