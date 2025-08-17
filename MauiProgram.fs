@@ -80,7 +80,7 @@ type MauiProgram =
                                                                         Permissions.CheckStatusAsync<Permissions.StorageRead>()
                                                                         |> Async.AwaitTask
                                                                     return status = PermissionStatus.Granted
-                                                                }
+                                                              }
         
                                                     match granted with
                                                     | true 

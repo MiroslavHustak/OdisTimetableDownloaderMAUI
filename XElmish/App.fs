@@ -372,32 +372,31 @@ module App =
         match msg with   
         | RequestPermission ->
         #if ANDROID
-            let cmd: Cmd<Msg> =
-                Cmd.ofSub (fun (dispatch: Dispatch<Msg>) ->
-                    let wf: Async<unit> =
-                        async {
-                            try
-                                let! status =
-                                    Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-
-                                let granted =
-                                    if Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R then
-                                        Android.OS.Environment.IsExternalStorageManager
-                                    else                                        
-                                        status = PermissionStatus.Granted
+            let cmd : Cmd<Msg> =
+                Cmd.ofSub
+                    (fun _
+                        ->                        
+                        async   
+                            {
+                                try
+                                    let! status =
+                                        Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
+                                                                            
+                                    match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
+                                    | true  -> Android.OS.Environment.IsExternalStorageManager
+                                    | false -> status = PermissionStatus.Granted
         
-                                if granted then ()
-                                    //(dispatch: Dispatch<Msg>) (PermissionResult true)
-                                    //(dispatch: Dispatch<Msg>) Home2
-                                else
-                                    // Send user to settings; OnResume will re-check
-                                    openAppSettings >> runIO <| ()
-                            with 
-                            | _ -> ()
-                                
-                        }
-                    Async.StartImmediate(wf)
-                )
+                                    |> function
+                                        | true  -> ()
+                                        | false -> openAppSettings >> runIO <| ()
+
+                                    return ()
+
+                                with 
+                                | _ -> return ()                                
+                            }
+                        |> Async.StartImmediate
+                    )
             m, cmd
         #else
             m, Cmd.none
