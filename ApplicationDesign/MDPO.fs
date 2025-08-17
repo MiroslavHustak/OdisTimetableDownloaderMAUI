@@ -89,7 +89,7 @@ module WebScraping_MDPO =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| ex.Message <| "#7")
+                            runIO (postToLog <| ex.Message <| "#007")
                             Error FileDownloadErrorMHD //dpoMsg1
            
                     | FilterDownloadSave   //Quli problemum s certifikatem www.mdpo.cz zatim try with bloky vsade, kaj se da
@@ -102,7 +102,7 @@ module WebScraping_MDPO =
                                 in
                                 match pathToSubdir |> Directory.Exists with 
                                 | false ->
-                                        runIO (postToLog <| FileDeleteErrorMHD <| "#8-1")
+                                        runIO (postToLog <| FileDeleteErrorMHD <| "#008-1")
                                         Error FileDeleteErrorMHD                             
                                 | true  -> 
                                         let filterTmtb = environment.SafeFilterTimetables pathToSubdir token
@@ -110,7 +110,7 @@ module WebScraping_MDPO =
                         with
                         | ex 
                             ->
-                            runIO (postToLog <| ex.Message <| "#8") //net_http_ssl_connection_failed
+                            runIO (postToLog <| ex.Message <| "#008") //net_http_ssl_connection_failed
 
                             try
                                 let pathToSubdir =
@@ -120,7 +120,7 @@ module WebScraping_MDPO =
                                     in
                                     match pathToSubdir |> Directory.Exists with 
                                     | false ->
-                                            runIO (postToLog <| FileDeleteErrorMHD <| "#9-1") 
+                                            runIO (postToLog <| FileDeleteErrorMHD <| "#009-1") 
                                             Error FileDeleteErrorMHD                             
                                     | true  ->                                             
                                             let filterTmtb = environment.UnsafeFilterTimetables pathToSubdir token  
@@ -130,13 +130,13 @@ module WebScraping_MDPO =
                                                 | Ok _      -> 
                                                             Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
                                                 | Error err ->
-                                                            runIO (postToLog <| err <| "#9-2") 
+                                                            runIO (postToLog <| err <| "#009-2") 
                                                             Error err       
                                             //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
                             with
                             | ex 
                                 ->
-                                runIO (postToLog <| ex.Message <| "#9")
+                                runIO (postToLog <| ex.Message <| "#009")
                                 Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
                                                                   
                 pyramidOfInferno

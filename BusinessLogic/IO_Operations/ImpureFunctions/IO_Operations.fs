@@ -48,7 +48,7 @@ module IO_Operations =
                                 with 
                                 | ex 
                                     ->
-                                    runIO (postToLog <| ex.Message <| "#38")
+                                    runIO (postToLog <| ex.Message <| "#038")
                                     Error FileDeleteError
                         }
     
@@ -81,7 +81,7 @@ module IO_Operations =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| ex.Message <| "#39")
+                                    runIO (postToLog <| ex.Message <| "#039")
                                     Error FileDeleteError                       
                         }
     
@@ -104,7 +104,7 @@ module IO_Operations =
                 with
                 | _ 
                     ->
-                    runIO (postToLog <| pathToDir <| "#40")
+                    runIO (postToLog <| pathToDir <| "#040")
                     Error FileDownloadErrorMHD //dpoMsg1  
         )   
     
@@ -188,7 +188,7 @@ module IO_Operations =
                 with 
                 | ex
                     ->
-                    runIO (postToLog <| ex.Message <| "#41")
+                    runIO (postToLog <| ex.Message <| "#041")
                     Error CreateFolderError4   
         )
         
@@ -220,7 +220,7 @@ module IO_Operations =
                     with 
                     | ex
                         ->
-                        runIO (postToLog <| ex.Message <| "#42")
+                        runIO (postToLog <| ex.Message <| "#042")
                         Error CreateFolderError4   
                 | false 
                     -> 

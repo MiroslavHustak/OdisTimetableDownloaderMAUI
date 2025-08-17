@@ -60,7 +60,7 @@ module MDPO_BL = //FsHttp
                                     with
                                     | ex 
                                         -> 
-                                        runIO (postToLog <| ex.Message <| "#25")
+                                        runIO (postToLog <| ex.Message <| "#025")
                        
                                         return None
                                 }  
@@ -207,14 +207,14 @@ module MDPO_BL = //FsHttp
                                                                  
                                         | Error err 
                                             -> 
-                                            runIO (postToLog <| err <| "#26")
+                                            runIO (postToLog <| err <| "#026")
                            
                                             return Error ConnectionError   
                            
                                     with                                                         
                                     | ex
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#27")
+                                        runIO (postToLog <| ex.Message <| "#027")
                        
                                         return Error FileDownloadErrorMHD  
                                 } 
@@ -267,7 +267,7 @@ module MDPO_BL = //FsHttp
 
                                         | Error ex 
                                             ->
-                                            runIO (postToLog <| ex.Message <| "#28")
+                                            runIO (postToLog <| ex.Message <| "#028")
                                             Some <| Error FileDownloadErrorMHD
                                     )
 
@@ -341,7 +341,7 @@ module MDPO_BL = //FsHttp
                                     with
                                     | ex 
                                         -> 
-                                        runIO (postToLog <| ex.Message <| "#29")
+                                        runIO (postToLog <| ex.Message <| "#029")
                        
                                         return None
                   
@@ -514,14 +514,14 @@ module MDPO_BL = //FsHttp
                                                                  
                                         | Error err 
                                             -> 
-                                            runIO (postToLog <| err <| "#30")
+                                            runIO (postToLog <| err <| "#030")
                            
                                             return Error ConnectionError   
                            
                                     with                                                         
                                     | ex
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#31")
+                                        runIO (postToLog <| ex.Message <| "#031")
                       
                                         return Error FileDownloadErrorMHD  
                                 } 
@@ -574,7 +574,7 @@ module MDPO_BL = //FsHttp
 
                                         | Error ex
                                             ->
-                                            runIO (postToLog <| ex.Message <| "#32")
+                                            runIO (postToLog <| ex.Message <| "#032")
                                             Some <| Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X01")) // FileDownloadErrorMHD
                                     )
                                 |> Option.defaultValue (Ok ()) 
@@ -588,7 +588,7 @@ module MDPO_BL = //FsHttp
                                             (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
                                                 fun _ -> Ok ()
                                         
-                                        runIO (postToLog <| ex.Message <| "#33")
+                                        runIO (postToLog <| ex.Message <| "#033")
                                         
                                         let!_ = runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 mdpoPathTemp, 
                                                     (fun _

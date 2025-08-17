@@ -77,22 +77,22 @@ module KODIS_BL_Record4 =
 
                                 | [ Error err; _ ]    
                                     -> 
-                                    runIO (postToLog <| err <| "#13")
+                                    runIO (postToLog <| err <| "#013")
                                     Error err
 
                                 | [ _; Error err ] 
                                     ->
-                                    runIO (postToLog <| err <| "#14")
+                                    runIO (postToLog <| err <| "#014")
                                     Error err
 
                                 | _                   
                                     ->
-                                    runIO (postToLog <| DataFilteringError <| "#15")
+                                    runIO (postToLog <| DataFilteringError <| "#015")
                                     Error DataFilteringError
 
                         | Choice2Of2 ex
                             -> 
-                            runIO (postToLog <| ex.Message <| "#16")
+                            runIO (postToLog <| ex.Message <| "#016")
                     
                             return Error DataFilteringError  
                     }
@@ -281,7 +281,7 @@ module KODIS_BL_Record4 =
                                             
                                             | Error err 
                                                 ->
-                                                runIO (postToLog <| err <| "#18")
+                                                runIO (postToLog <| err <| "#018")
                                             
                                                 match runIO <| deleteAllODISDirectories kodisPathTemp4 with
                                                 | Ok _ 
@@ -303,7 +303,7 @@ module KODIS_BL_Record4 =
                                                     (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
                                                         fun _ -> Ok String.Empty
                                         
-                                                runIO (postToLog <| ex.Message <| "#19")
+                                                runIO (postToLog <| ex.Message <| "#019")
                                         
                                                 let!_ = runIO <| deleteAllODISDirectories kodisPathTemp4, 
                                                             (fun _

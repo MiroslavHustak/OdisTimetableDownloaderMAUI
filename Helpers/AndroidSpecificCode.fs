@@ -135,7 +135,7 @@ module AndroidUIHelpers =
                     }
         )
 
-    //Not used yet
+    //Not used yet - asi nebude fungovat u Android 11+
     let internal bringAppToForeground () =
 
         IO (fun () 
@@ -193,7 +193,8 @@ module AndroidUIHelpers =
                     string ex.Message |> ignore<string> // TODO: logfile
                     None    
            )
-
+    
+    //Pouzivana misto Xamarin.Essentials.AppInfo.ShowSettingsUI()
     let internal openAppSettings () =
 
         IO (fun ()

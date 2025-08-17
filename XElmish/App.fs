@@ -284,7 +284,7 @@ module App =
 
         | Error err 
             ->  
-            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#2") | false -> ()  
+            // match connectivityListener >> runIO <| () with true -> () | false ->  runIO (postToLog <| err <| "#002")  
             
             match initialModel.PermissionGranted with
             | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
@@ -364,46 +364,44 @@ module App =
 
         | Error err 
             ->  
-            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#3") | false -> ()
+            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#003") | false -> ()
             { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none            
 
     let update msg m =
 
         match msg with   
-        | RequestPermission 
-            ->
-            #if ANDROID
-            let permissionStatus = 
-                async
-                    {
-                        let! status = Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                        return status = PermissionStatus.Granted
-                    }
-                |> Async.RunSynchronously //available API employed by status is async-only
+        | RequestPermission ->
+        #if ANDROID
+            let cmd: Cmd<Msg> =
+                Cmd.ofSub (fun (dispatch: Dispatch<Msg>) ->
+                    let wf: Async<unit> =
+                        async {
+                            try
+                                let! status =
+                                    Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
 
-            let cmd1 =
-                Cmd.ofMsg
-                    (                        
-                        match permissionStatus with
-                        | true  
-                            ->                                         
-                            PermissionResult true
-                        | false
-                            -> 
-                            //PermissionGranted je v tomto okamziku false
-                            openAppSettings >> runIO <| ()                            
-                            Thread.Sleep 1000
-                            Home
-                    )
-            
-            //TODO: event- based solution
-            let cmd2 = Cmd.ofMsg <| PermissionResult true    //po nastaveni povoleni nastavime PermissionGranted na true    
-
-            m, Cmd.batch [cmd1; cmd2]
-          
-            #else
+                                let granted =
+                                    if Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R then
+                                        Android.OS.Environment.IsExternalStorageManager
+                                    else                                        
+                                        status = PermissionStatus.Granted
+        
+                                if granted then ()
+                                    //(dispatch: Dispatch<Msg>) (PermissionResult true)
+                                    //(dispatch: Dispatch<Msg>) Home2
+                                else
+                                    // Send user to settings; OnResume will re-check
+                                    openAppSettings >> runIO <| ()
+                            with 
+                            | _ -> ()
+                                
+                        }
+                    Async.StartImmediate(wf)
+                )
+            m, cmd
+        #else
             m, Cmd.none
-            #endif
+        #endif
 
         | PermissionResult granted 
             ->
@@ -1116,6 +1114,32 @@ module App =
                         .centerVertical()
                 )
             )
-        )
+        ) 
+        
+    (*
+        
+    Fabulous / Elmish World
+        ↕
+    MAUI World
+
+    *)
+
+    // MAUI lifecycle events fire completely outside the Elmish/Fabulous world.
+    // That’s why the static holder trick is often chosen: it avoids the ordering problem.
+    // Lifecycle events -> OnResume, OnStart, OnSleep,...
+
+    type DispatchHolder = static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
+
+    // A subscription that captures the dispatch
+    let captureDispatchSub (_: Model) : Cmd<Msg> =
+
+        Cmd.ofSub 
+            (fun (dispatch : Dispatch<Msg>)
+                ->
+                DispatchHolder.DispatchRef <- Some <| System.WeakReference<Dispatch<Msg>>(dispatch)
+            )
     
-    let program = Program.statefulWithCmd init update view
+    let program : Program<unit, Model, Msg, IFabApplication> = 
+    
+        Program.statefulWithCmd init update view 
+        |> Program.withSubscription captureDispatchSub

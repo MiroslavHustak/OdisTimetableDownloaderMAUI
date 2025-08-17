@@ -64,7 +64,7 @@ module FutureLinks =
                         with
                         | ex 
                             ->
-                            runIO (postToLog <| ex.Message <| "#44")
+                            runIO (postToLog <| ex.Message <| "#044")
 
                             return Error <| ApiResponseError (string ex.Message)
                     }

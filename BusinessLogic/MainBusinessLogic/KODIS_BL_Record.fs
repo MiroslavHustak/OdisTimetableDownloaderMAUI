@@ -133,7 +133,7 @@ module KODIS_BL_Record =
 
                             | Error ex 
                                 ->
-                                runIO (postToLog <| ex.Message <| "#20")
+                                runIO (postToLog <| ex.Message <| "#020")
                                 Some <| Error JsonDownloadError
                         )
                     |> Option.defaultValue (Ok ())
@@ -147,7 +147,7 @@ module KODIS_BL_Record =
                         Error StopJsonDownloading
                     | false
                         -> 
-                        runIO (postToLog <| ex.Message <| "#21")
+                        runIO (postToLog <| ex.Message <| "#021")
                         Error JsonDownloadError  
             )
             
@@ -285,7 +285,7 @@ module KODIS_BL_Record =
 
                                             | Error ex 
                                                 ->
-                                                runIO (postToLog <| ex.Message <| "#23")
+                                                runIO (postToLog <| ex.Message <| "#023")
                                                 Some <| Error FileDownloadError
                                         )
                                     |> Option.defaultValue (Ok ())
@@ -299,7 +299,7 @@ module KODIS_BL_Record =
                                         Error StopDownloading
                                     | false
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#24")
+                                        runIO (postToLog <| ex.Message <| "#024")
                                         Error FileDownloadError  
                         } 
         
@@ -331,7 +331,7 @@ module KODIS_BL_Record =
                                              
                                              | Error err 
                                                  ->
-                                                 runIO (postToLog <| err <| "#25")
+                                                 runIO (postToLog <| err <| "#025")
                                              
                                                  match runIO <| deleteAllODISDirectories kodisPathTemp with
                                                  | Ok _ 
@@ -353,7 +353,7 @@ module KODIS_BL_Record =
                                                     (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
                                                         fun _ -> Ok String.Empty
                                         
-                                                runIO (postToLog <| ex.Message <| "#26")
+                                                runIO (postToLog <| ex.Message <| "#026")
                                         
                                                 let!_ = runIO <| deleteAllODISDirectories kodisPathTemp, 
                                                             (fun _

@@ -128,7 +128,7 @@ module WebScraping_KODISFMRecord4 =
 
             | Error err 
                 ->
-                 runIO (postToLog <| err <| "#4")
+                 runIO (postToLog <| err <| "#004")
                  Error err  
             
         //try with blok zrusen

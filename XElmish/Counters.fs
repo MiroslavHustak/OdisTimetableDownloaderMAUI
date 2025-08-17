@@ -1,9 +1,10 @@
 ﻿namespace OdisTimetableDownloaderMAUI
 
-open FSharp.Control
-
 open Fabulous
 open Fabulous.Maui
+open FSharp.Control
+
+//********************************
 
 open Helpers.Connectivity
 

@@ -134,7 +134,7 @@ module WebScraping_KODISFMRecord =
                     with
                     | ex
                         -> 
-                        runIO (postToLog <| ex.Message <| "#5") 
+                        runIO (postToLog <| ex.Message <| "#005") 
                         Error JsonDownloadError 
             
                     |> Result.map (fun _ -> dispatchMsg1) 

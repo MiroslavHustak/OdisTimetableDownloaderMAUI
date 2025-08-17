@@ -208,13 +208,13 @@ module DPO_BL =
                            
                                         | Error err 
                                             -> 
-                                            runIO (postToLog <| err <| "#34")
+                                            runIO (postToLog <| err <| "#034")
                                             return Error ConnectionError   
                            
                                     with                                                         
                                     | ex
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#35")
+                                        runIO (postToLog <| ex.Message <| "#035")
                                         return Error FileDownloadErrorMHD 
                                 } 
                     )
@@ -269,7 +269,7 @@ module DPO_BL =
 
                                         | Error ex 
                                             ->
-                                            runIO (postToLog <| ex.Message <| "#36")
+                                            runIO (postToLog <| ex.Message <| "#036")
                                             Some <| Error FileDownloadErrorMHD
                                     )
                                 |> Option.defaultValue (Ok ()) 
@@ -283,7 +283,7 @@ module DPO_BL =
                                             (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
                                                 fun _ -> Ok ()
                                         
-                                        runIO (postToLog <| ex.Message <| "#37")
+                                        runIO (postToLog <| ex.Message <| "#037")
                                         
                                         let!_ = runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 mdpoPathTemp, 
                                                     (fun _
