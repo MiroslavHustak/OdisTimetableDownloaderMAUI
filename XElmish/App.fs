@@ -720,7 +720,6 @@ module App =
                         async 
                             {   
                                 RestartVisible >> dispatch <| false
-
                                 do! delayedCmd1 token dispatch 
                                 
                                 match token.IsCancellationRequested with 
@@ -813,7 +812,6 @@ module App =
                         async 
                             {  
                                RestartVisible >> dispatch <| false
-
                                return! delayedCmd2 token dispatch                            
                             }
                         |> Async.StartImmediate  
@@ -1205,21 +1203,17 @@ module App =
             )
         )
         
-    (*
-        
+    (*        
     Fabulous / Elmish World
         ↕
     MAUI World
-
     *)
 
     // MAUI lifecycle events fire completely outside the Elmish/Fabulous world.
-    // That’s why the static holder trick is often chosen: it avoids the ordering problem.
     // Lifecycle events -> OnResume, OnStart, OnSleep,...
 
     type DispatchHolder = static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
 
-    // A subscription that captures the dispatch
     let captureDispatchSub (_: Model) : Cmd<Msg> =
 
         Cmd.ofSub 
