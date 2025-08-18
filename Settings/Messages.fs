@@ -87,6 +87,9 @@ module Messages =
     let [<Literal>] internal hintRestart = "Zpět na úvod anebo restart aplikace"    
     let [<Literal>] internal buttonHome = "Zpět na úvod"  
     let [<Literal>] internal buttonRequestPermission = "Spustit AppInfo"  
+
+    let [<Literal>] internal buttonClearingConfirmation = "Ano, pryč s nimi"
+    let [<Literal>] internal buttonClearingCancel = "Ponechat"
    
     let [<Literal>] internal noNetConn = "Není přístup k internetu." 
     let [<Literal>] internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena." 

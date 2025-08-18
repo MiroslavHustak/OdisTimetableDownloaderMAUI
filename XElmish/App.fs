@@ -91,23 +91,24 @@ module App =
 
     type Model = 
         {
-            PermissionGranted : bool
-            ProgressMsg : string
-            NetConnMsg : string
-            CloudProgressMsg : string
-            ProgressIndicator : ProgressIndicator
-            Progress : float
-            RestartVisible : bool
-            ClearingVisible : bool
-            KodisVisible : bool
-            DpoVisible : bool
-            MdpoVisible : bool
-            BackHomeVisible : bool
-            ProgressCircleVisible : bool
-            CancelVisible : bool
-            CloudVisible : bool
-            LabelVisible : bool
-            Label2Visible : bool      
+            PermissionGranted: bool
+            ProgressMsg: string
+            NetConnMsg: string
+            CloudProgressMsg: string
+            ProgressIndicator: ProgressIndicator
+            Progress: float
+            RestartVisible: bool
+            ClearingVisible: bool
+            KodisVisible: bool
+            DpoVisible: bool
+            MdpoVisible: bool
+            BackHomeVisible: bool
+            ProgressCircleVisible: bool
+            CancelVisible: bool
+            CloudVisible: bool
+            LabelVisible: bool
+            Label2Visible: bool
+            AnimatedButton: string option // Tracks animated button
         }
 
     type Msg =
@@ -131,6 +132,19 @@ module App =
         | IterationMessage of string    
         | UpdateStatus of float * float * bool 
         | WorkIsComplete of string * bool  
+        | ClickClearingConfirmation
+        | ClickClearingCancel
+        | ClickRestart
+        | ClickRequestPermission
+        | ClickClearing
+        | ClickKodis
+        | ClickKodis4
+        | ClickDpo
+        | ClickMdpo
+        | ClickCancel
+        | ClickHome
+        | ClickQuit
+        | ClearAnimation
 
     let private cancellationActor =  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
 
@@ -240,30 +254,23 @@ module App =
                 ProgressCircleVisible = false
                 BackHomeVisible = false
                 CancelVisible = false
-                CloudVisible = false  //nechej to false, zatim nebudu pouzivat
+                CloudVisible = false
                 LabelVisible = true
                 Label2Visible = true
+                AnimatedButton = None
             } 
 
         let initialModelNoConn = 
             {       
-                PermissionGranted = true //aby se button RequestPermission nezobrazoval
-                ProgressMsg = String.Empty
-                NetConnMsg = noNetConnInitial
-                CloudProgressMsg = String.Empty
-                ProgressIndicator = Idle
-                Progress = 0.0 
-                RestartVisible = false
-                ClearingVisible = false
-                KodisVisible = false
-                DpoVisible = false
-                MdpoVisible = false
-                ProgressCircleVisible = false
-                BackHomeVisible = false
-                CancelVisible = false
-                CloudVisible = false  
-                LabelVisible = true
-                Label2Visible = true
+                initialModel with
+                    PermissionGranted = true
+                    ProgressMsg = String.Empty
+                    NetConnMsg = noNetConnInitial
+                    ClearingVisible = false
+                    KodisVisible = false
+                    DpoVisible = false
+                    MdpoVisible = false
+                    AnimatedButton = None
             } 
             
         match runIO <| ensureMainDirectoriesExist with 
@@ -320,30 +327,23 @@ module App =
                 ProgressCircleVisible = false
                 BackHomeVisible = false
                 CancelVisible = false
-                CloudVisible = false  
+                CloudVisible = false
                 LabelVisible = true
                 Label2Visible = true
+                AnimatedButton = None
             } 
 
         let initialModelNoConn = 
             {    
-                PermissionGranted = true //aby se button RequestPermission nezobrazoval
-                ProgressMsg = String.Empty
-                NetConnMsg = noNetConnInitial
-                CloudProgressMsg = String.Empty
-                ProgressIndicator = Idle
-                Progress = 0.0 
-                RestartVisible = false
-                ClearingVisible = false
-                KodisVisible = false
-                DpoVisible = false
-                MdpoVisible = false
-                ProgressCircleVisible = false
-                BackHomeVisible = false
-                CancelVisible = false
-                CloudVisible = false  
-                LabelVisible = true
-                Label2Visible = true
+                initialModel with
+                    PermissionGranted = true
+                    ProgressMsg = String.Empty
+                    NetConnMsg = noNetConnInitial
+                    ClearingVisible = false
+                    KodisVisible = false
+                    DpoVisible = false
+                    MdpoVisible = false
+                    AnimatedButton = None
             }   
             
         match runIO <| ensureMainDirectoriesExist with
@@ -369,7 +369,74 @@ module App =
 
     let update msg m =
 
+        let cmdOnClickAnimation msg = 
+
+            Cmd.batch
+                [
+                    Cmd.ofAsyncMsg
+                        (
+                            async
+                                {
+                                    do! Async.Sleep 300
+                                    return ClearAnimation
+                                }
+                        )
+                    Cmd.ofSub (fun dispatch -> dispatch msg)
+                ]            
+
         match msg with   
+        | ClickClearingConfirmation
+            ->
+            { m with AnimatedButton = Some buttonClearingConfirmation }, cmdOnClickAnimation AllowDataClearing            
+
+        | ClickClearingCancel 
+            ->
+            { m with AnimatedButton = Some buttonClearingCancel }, cmdOnClickAnimation CancelDataClearing
+           
+        | ClickRestart 
+            ->
+            { m with AnimatedButton = Some buttonRestart }, cmdOnClickAnimation Home
+            
+        | ClickRequestPermission
+            ->
+            { m with AnimatedButton = Some buttonRequestPermission }, cmdOnClickAnimation RequestPermission
+           
+        | ClickClearing 
+            ->
+            { m with AnimatedButton = Some buttonClearing }, cmdOnClickAnimation DataClearing
+            
+        | ClickKodis 
+            ->
+            { m with AnimatedButton = Some buttonKodis }, cmdOnClickAnimation Kodis
+           
+        | ClickKodis4 
+            ->
+            { m with AnimatedButton = Some buttonKodis4 }, cmdOnClickAnimation Kodis4
+            
+        | ClickDpo 
+            ->
+            { m with AnimatedButton = Some buttonDpo }, cmdOnClickAnimation Dpo
+           
+        | ClickMdpo 
+            ->
+            { m with AnimatedButton = Some buttonMdpo }, cmdOnClickAnimation Mdpo
+          
+        | ClickCancel 
+            ->
+            { m with AnimatedButton = Some buttonCancel }, cmdOnClickAnimation Cancel
+         
+        | ClickHome 
+            ->
+            { m with AnimatedButton = Some buttonHome }, cmdOnClickAnimation Home2
+          
+        | ClickQuit
+            ->
+            { m with AnimatedButton = Some buttonQuit }, cmdOnClickAnimation Quit
+           
+        | ClearAnimation 
+            ->
+            { m with AnimatedButton = None }, Cmd.none  
+            
         | RequestPermission
             ->
             #if ANDROID
@@ -979,142 +1046,164 @@ module App =
                     -> 
                     m, Cmd.none
 
-    let view (m : Model) =
-    
+    let view (m: Model) =
+
+        let animate buttonLabel animatedButton = 
+            animatedButton 
+            |> function 
+                | Some label 
+                   when label = buttonLabel
+                    -> 1.2 
+                | _ 
+                    -> 1.0
+                       
         Application(
             ContentPage(
                 ScrollView(
-                    (VStack(spacing = 25.) 
-                        {       
-                            // Progress circle
+                    (VStack(spacing = 25.)
+                        {
                             GraphicsView(runIO <| progressCircle m.Progress)
                                 .height(130.)
-                                .width(130.)  
+                                .width(130.)
                                 .isVisible(not m.KodisVisible || m.ProgressCircleVisible)
-
+    
                             Label(labelOdis)
                                 .semantics(SemanticHeadingLevel.Level1)
                                 .font(size = 24.)
-                                .centerTextHorizontal()    
-                           
+                                .centerTextHorizontal()
+    
                             Label(m.ProgressMsg)
                                 .semantics(SemanticHeadingLevel.Level2, "Welcome to dot.net multi platform app UI powered by Fabulous")
                                 .font(size = 14.)
                                 .centerTextHorizontal()
                                 .isVisible(m.LabelVisible)
-
+    
                             Label(m.NetConnMsg)
                                 .semantics(SemanticHeadingLevel.Level2, String.Empty)
                                 .font(size = 14.)
                                 .centerTextHorizontal()
                                 .isVisible(m.Label2Visible)
-
-                            (VStack(spacing = 15.) 
-                                {    
+    
+                            (VStack(spacing = 15.)
+                                {
                                     Border(ContentView
-                                                (
-                                                    HStack(spacing = 10.)
-                                                        {
-                                                            (*
-                                                            Label(m.CloudProgressMsg)
-                                                                .font(size = 14.)
-                                                                .centerTextHorizontal()
-                                                                .padding(5.)
-                                                                .height(30.)
-                                                                .width(200.)
-                                                                .horizontalOptions(LayoutOptions.Start)
-                                                            *)
-                                                            HStack(spacing = 12.) {
-                                                                Button("Ano, pryč s nimi", AllowDataClearing)
-                                                                    .font(size = 14., attributes = FontAttributes.None)
-                                                                    .padding(2.5, -5.5, 2.5, 2.5)
-                                                                    .cornerRadius(2)                                                                    
-                                                                    .height(25.)
-                                                                    .background(SolidColorBrush(Colors.DarkRed))
-                                                            
-                                                                Button("Ponechat", CancelDataClearing)
-                                                                    .font(size = 14., attributes = FontAttributes.None)
-                                                                    .padding(2.5, -5.5, 2.5, 2.5)
-                                                                    .cornerRadius(2)
-                                                                    .height(25.)
-                                                                    .background(SolidColorBrush(Colors.DarkRed))
-                                                            }
-                                                        }
-                                                ) 
-                                          )
-                                              .stroke(SolidColorBrush(Colors.Gray)) // Border color
-                                              .strokeShape(RoundRectangle(cornerRadius = 5.))  // Rounded corners
-                                              .background(SolidColorBrush(Colors.White))  
-                                              .strokeThickness(0.5)
-                                              .padding(5.)   
+                                        (
+                                            HStack(spacing = 10.)
+                                                {
+                                                    HStack(spacing = 12.) {
+                                                        Button(buttonClearingConfirmation, ClickClearingConfirmation)
+                                                            .font(size = 14., attributes = FontAttributes.None)
+                                                            .padding(2.5, -5.5, 2.5, 2.5)
+                                                            .cornerRadius(2)
+                                                            .height(25.)
+                                                            .background(SolidColorBrush(Colors.DarkRed))
+                                                            .scaleX(animate buttonClearingConfirmation m.AnimatedButton)
+                                                            .scaleY(animate buttonClearingConfirmation m.AnimatedButton)
+    
+                                                        Button(buttonClearingCancel, ClickClearingCancel)
+                                                            .font(size = 14., attributes = FontAttributes.None)
+                                                            .padding(2.5, -5.5, 2.5, 2.5)
+                                                            .cornerRadius(2)
+                                                            .height(25.)
+                                                            .background(SolidColorBrush(Colors.DarkRed))
+                                                            .scaleX(animate buttonClearingCancel m.AnimatedButton)
+                                                            .scaleY(animate buttonClearingCancel m.AnimatedButton)
+                                                    }
+                                                }
+                                        )
+                                    )
+                                        .stroke(SolidColorBrush(Colors.Gray))
+                                        .strokeShape(RoundRectangle(cornerRadius = 5.))
+                                        .background(SolidColorBrush(Colors.White))
+                                        .strokeThickness(0.5)
+                                        .padding(5.)
                                 }
-                             )
-                                //.width(190.)
+                            )
                                 .centerHorizontal()
                                 .centerVertical()
                                 .isVisible(m.CloudVisible)
-
+    
                             #if ANDROID
-                            Button(buttonRestart, Home)
+                            Button(buttonRestart, ClickRestart)
                                 .centerHorizontal()
                                 .semantics(hint = hintRestart)
                                 .padding(10.)
                                 .isVisible(m.PermissionGranted && m.RestartVisible)
+                                .scaleX(animate buttonRestart m.AnimatedButton)
+                                .scaleY(animate buttonRestart m.AnimatedButton)
 
-                            Button(buttonRequestPermission, RequestPermission)
+                            Button(buttonRequestPermission, ClickRequestPermission)
                                 .centerHorizontal()
                                 .semantics(hint = "Grant permission to access storage")
                                 .padding(10.)
                                 .isVisible(not m.PermissionGranted)
+                                .scaleX(animate buttonRequestPermission m.AnimatedButton)
+                                .scaleY(animate buttonRequestPermission m.AnimatedButton)
                             #endif
 
-                            Button(buttonClearing, DataClearing)
+                            Button(buttonClearing, ClickClearing)
                                 .semantics(hint = hintClearing)
                                 .centerHorizontal()
                                 .isVisible(m.ClearingVisible && m.PermissionGranted && not m.ProgressCircleVisible)
                                 .background(SolidColorBrush(Colors.DarkRed))
-                                                             
-                            Button(buttonKodis, Kodis)
+                                .scaleX(animate buttonClearing m.AnimatedButton)
+                                .scaleY(animate buttonClearing m.AnimatedButton)
+
+                            Button(buttonKodis, ClickKodis)
                                 .semantics(hint = hintOdis)
                                 .centerHorizontal()
                                 .isVisible(m.KodisVisible && m.PermissionGranted)
+                                .scaleX(animate buttonKodis m.AnimatedButton)
+                                .scaleY(animate buttonKodis m.AnimatedButton)
 
-                            Button(buttonKodis4, Kodis4)
+                            Button(buttonKodis4, ClickKodis4)
                                 .semantics(hint = hintOdis)
                                 .centerHorizontal()
-                                .isVisible(m.KodisVisible && m.PermissionGranted)   
-    
-                            Button(buttonDpo, Dpo)
+                                .isVisible(m.KodisVisible && m.PermissionGranted)
+                                .scaleX(animate buttonKodis4 m.AnimatedButton)
+                                .scaleY(animate buttonKodis4 m.AnimatedButton)
+
+                            Button(buttonDpo, ClickDpo)
                                 .semantics(hint = hintDpo)
                                 .centerHorizontal()
                                 .isVisible(m.DpoVisible && m.PermissionGranted)
-    
-                            Button(buttonMdpo, Mdpo)
+                                .scaleX(animate buttonDpo m.AnimatedButton)
+                                .scaleY(animate buttonDpo m.AnimatedButton)
+
+                            Button(buttonMdpo, ClickMdpo)
                                 .semantics(hint = hintMdpo)
                                 .centerHorizontal()
                                 .isVisible(m.MdpoVisible && m.PermissionGranted)
+                                .scaleX(animate buttonMdpo m.AnimatedButton)
+                                .scaleY(animate buttonMdpo m.AnimatedButton)
 
-                            Button(buttonCancel, Cancel)
+                            Button(buttonCancel, ClickCancel)
                                 .semantics(hint = String.Empty)
                                 .isVisible(m.CancelVisible && m.PermissionGranted)
-                                .centerHorizontal() 
+                                .centerHorizontal()
+                                .scaleX(animate buttonCancel m.AnimatedButton)
+                                .scaleY(animate buttonCancel m.AnimatedButton)
 
-                            Button(buttonHome, Home2)
+                            Button(buttonHome, ClickHome)
                                 .semantics(hint = String.Empty)
                                 .isVisible(m.BackHomeVisible && m.PermissionGranted)
                                 .centerHorizontal()
+                                .scaleX(animate buttonHome m.AnimatedButton)
+                                .scaleY(animate buttonHome m.AnimatedButton)
 
-                            Button(buttonQuit, Quit)
+                            Button(buttonQuit, ClickQuit)
                                 .semantics(hint = String.Empty)
                                 .centerHorizontal()
                                 .background(SolidColorBrush(Colors.Green))
+                                .scaleX(animate buttonQuit m.AnimatedButton)
+                                .scaleY(animate buttonQuit m.AnimatedButton)
                         }
                     )
                         .padding(30., 0., 30., 0.)
                         .centerVertical()
                 )
             )
-        ) 
+        )
         
     (*
         

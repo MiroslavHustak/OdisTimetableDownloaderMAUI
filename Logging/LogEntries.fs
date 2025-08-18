@@ -56,8 +56,6 @@ module LogEntries =
                             | _ -> 
                                 return Error <| ApiResponseError (sprintf "Request #147 failed with status code %d" (int response.statusCode))
                         with
-                        | ex 
-                            ->
-                            return Error <| ApiResponseError (string ex.Message)
+                        | ex -> return Error <| ApiResponseError (string ex.Message)
                     }
            )
