@@ -3,6 +3,8 @@
 open System
 open System.Text.RegularExpressions
 
+open FsToolkit.ErrorHandling
+
 //************************************************************
 
 open Types
@@ -37,7 +39,7 @@ module FilterTimetableLinks =
                         | true  -> Ok input 
                         | false -> Ok String.Empty 
                     with 
-                    | ex -> Error <| string ex.Message                  
+                    | ex -> Error <| string ex.Message        
                   
                     |> Result.defaultWith
                         (fun err 
