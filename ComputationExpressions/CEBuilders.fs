@@ -15,10 +15,9 @@ module Builders =
                            let a = runIO m
                            runIO (f a)
                    )
-        member _.Return(x : 'a) : IO<'a> = IO(fun () -> x)
-        member _.ReturnFrom(x : 'a) = x
-       
-        member _.Zero(x : 'a) : IO<'a> = IO(fun () -> x)
+        member _.Zero(x : 'a) : IO<'a> = IO (fun () -> x)
+        member _.Return(x : 'a) : IO<'a> = IO (fun () -> x)
+        member _.ReturnFrom(x : 'a) = x    
 
     let internal io = IOBuilder
 

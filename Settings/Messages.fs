@@ -134,7 +134,7 @@ module Messages =
         | Seconds      -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřiny, pokud nedojde k obnovení připojení." param
         | SecondPlural -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin, pokud nedojde k obnovení připojení." param
 
-    let internal continueDownload = "Pokusím se po přerušení obnovit činnost (vznik chyby je možný), v případě neúspěchu vypni a znovu spusť aplikaci."
+    let [<Literal>] internal continueDownload = "Pokusím se po přerušení obnovit činnost (vznik chyby je možný), v případě neúspěchu vypni a znovu spusť aplikaci."
     #else           
     let internal quitMsg param =
         match param with
