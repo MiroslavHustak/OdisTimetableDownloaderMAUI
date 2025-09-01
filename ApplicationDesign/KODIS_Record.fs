@@ -97,8 +97,8 @@ module WebScraping_KODISFMRecord =
                         | NetConnJsonError err -> err
                         | JsonTimeoutError     -> jsonDownloadError  
                         | StopJsonDownloading  -> jsonCancel
-                        | FolderMovingError   -> folderMovingError
-                        | LetItBeKodis        -> String.Empty
+                        | FolderMovingError    -> folderMovingError
+                        | LetItBeKodis         -> String.Empty
                     
                     try
                         try
