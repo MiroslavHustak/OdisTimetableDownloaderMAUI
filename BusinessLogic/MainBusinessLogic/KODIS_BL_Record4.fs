@@ -305,12 +305,13 @@ module KODIS_BL_Record4 =
                                         
                                                 runIO (postToLog <| ex.Message <| "#019")
                                         
-                                                let!_ = runIO <| deleteAllODISDirectories kodisPathTemp4, 
-                                                            (fun _
-                                                                ->
-                                                                runIO (postToLog <| FileDeleteError <| "#192")                             
-                                                                Error FileDeleteError
-                                                             )
+                                                let!_ =
+                                                    runIO <| deleteAllODISDirectories kodisPathTemp4, 
+                                                        (fun _
+                                                            ->
+                                                            runIO (postToLog <| FileDeleteError <| "#192")                             
+                                                            Error FileDeleteError
+                                                        )
 
                                                 runIO (postToLog <| FileDownloadError <| "#191") 
 
