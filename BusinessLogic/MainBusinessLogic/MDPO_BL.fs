@@ -591,12 +591,13 @@ module MDPO_BL = //FsHttp
                                         
                                         runIO (postToLog <| ex.Message <| "#033")
                                         
-                                        let!_ = runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 mdpoPathTemp, 
-                                                    (fun _
-                                                        ->
-                                                        runIO (postToLog <| FileDeleteErrorMHD <| "#332")                             
-                                                        Error FileDeleteErrorMHD
-                                                     )
+                                        let!_ = 
+                                            runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 mdpoPathTemp, 
+                                                (fun _
+                                                    ->
+                                                    runIO (postToLog <| FileDeleteErrorMHD <| "#332")                             
+                                                    Error FileDeleteErrorMHD
+                                                )
 
                                         runIO (postToLog <| FileDownloadErrorMHD <| "#331") 
 
