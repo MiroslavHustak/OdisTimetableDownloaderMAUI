@@ -8,13 +8,13 @@ module Builders =
 
     open Types.Haskell_IO_Monad_Simulation
         
-    type internal IOBuilder = IOBuilder with  //for testing purposes only, not used in the code from 09-08-2025 onwards
+    type internal IOBuilder = IOBuilder with  //for testing purposes only, not used in the code from Aug 9, 2025 onwards
         member _.Bind(m : IO<'a>, f : 'a -> IO<'b>) : IO<'b> =
-                   IO (fun ()
-                           ->
-                           let a = runIO m
-                           runIO (f a)
-                   )
+            IO (fun ()
+                    ->
+                    let a = runIO m
+                    runIO (f a)
+            )
         member _.Zero(x : 'a) : IO<'a> = IO (fun () -> x)
         member _.Return(x : 'a) : IO<'a> = IO (fun () -> x)
         member _.ReturnFrom(x : 'a) = x    
