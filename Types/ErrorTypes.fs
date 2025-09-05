@@ -1,9 +1,8 @@
 ﻿namespace Types
 
 module ErrorTypes =
-   
-    [<Struct>] 
-    type internal MHDErrors =       
+
+    type [<Struct>] internal MHDErrors =       
         | BadRequest
         | InternalServerError
         | NotImplemented 
@@ -18,8 +17,7 @@ module ErrorTypes =
         | LetItBeMHD
         | TestDuCase of string
    
-    [<Struct>] 
-    type internal JsonDownloadErrors = 
+    type [<Struct>] internal JsonDownloadErrors = 
         | JsonTimeoutError
         | JsonDownloadError     
         | JsonConnectionError       
@@ -28,8 +26,7 @@ module ErrorTypes =
         | FolderMovingError
         | LetItBeKodis
            
-    [<Struct>] 
-    type internal PdfDownloadErrors =
+    type [<Struct>] internal PdfDownloadErrors =
         | RcError         
         | DataFilteringError
         | JsonFilteringError //vyjimecne to musime dat tady

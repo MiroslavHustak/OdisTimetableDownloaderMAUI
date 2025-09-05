@@ -2,10 +2,9 @@
 
 open System.Threading
 
-module Haskell_IO_Monad_Simulation =
+module Haskell_IO_Monad_Simulation =    
     
-    [<Struct>]
-    type internal IO<'a> = IO of (unit -> 'a) // wrapping custom type simulating Haskell's IO Monad (without the monad, of course)
+    type [<Struct>] internal IO<'a> = IO of (unit -> 'a) // wrapping custom type simulating Haskell's IO Monad (without the monad, of course)
 
     let internal runIO (IO action) = action ()
 
@@ -17,16 +16,14 @@ module Haskell_IO_Monad_Simulation =
     let internal mapIO f io = bindIO io (f >> returnIO)
 
 module FreeMonad =
-    
-    [<Struct>]
-    type internal FreeMonad<'a> = FreeMonad of (unit -> 'a) 
+   
+    type [<Struct>] internal FreeMonad<'a> = FreeMonad of (unit -> 'a) 
 
     let internal runFreeMonad (FreeMonad action) = action ()
 
 module Types =
-
-    [<Struct>]   //vhodne pro 16 bytes => 4096 characters
-    type internal ODIS =  
+      
+    type [<Struct>] internal ODIS =  //<Struct>] vhodne pro 16 bytes => 4096 characters
         {        
             OdisDir1 : string
             OdisDir2 : string
@@ -43,9 +40,8 @@ module Types =
             dir : string
             list : (string * string) list
         }
-    
-    [<Struct>]
-    type internal MsgIncrement =
+        
+    type [<Struct>] internal MsgIncrement =
         | Inc of int  
            
     type ConnectivityMessage =
@@ -56,21 +52,18 @@ module Types =
         | UpdateState2 of bool * CancellationTokenSource
         | CheckState2 of AsyncReplyChannel<CancellationToken option>    
 
-    [<Struct>]
-    type internal Validity =
+    type [<Struct>] internal Validity =
         | CurrentValidity 
         | FutureValidity 
         | WithoutReplacementService  
 
-    [<Struct>]
-    type internal ConfigMHD =
+    type [<Struct>] internal ConfigMHD =
         {
             source : string
             destination : string
         }
 
-    [<Struct>]
-    type internal ConfigKodis =
+    type [<Struct>] internal ConfigKodis =
         {
             source1 : string
             source2 : string
