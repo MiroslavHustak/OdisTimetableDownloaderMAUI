@@ -117,10 +117,12 @@ module MoveDir =
                     Error (sprintf "Invalid path (does not exist): %s" fullSource)
 
                 | Error e 
-                    -> Error e
+                    ->
+                    Error e
 
             | Error e 
-                -> Error e
+                -> 
+                Error e
 
         with
         | ex -> Error ex.Message
@@ -185,6 +187,20 @@ module MoveDir =
                 try
                     tryMove ()
                 with 
+                | ex -> Error ex.Message
+        )
+
+module MoveDir2 =
+                
+    let internal moveDirectory2 source targetParent : IO<Result<unit, string>> =
+
+        IO (fun () 
+                ->    
+                try
+                    match NativeHelpers.Native.rust_move_c(source, targetParent) with
+                    | 0 -> Ok ()
+                    | n -> Error (sprintf "Native move operation failed with code %d" n)
+                with
                 | ex -> Error ex.Message
         )
 
@@ -317,6 +333,20 @@ module CopyDir =
                                     | []     -> Ok ()
                                     | errors -> Error (String.concat "; " errors)
                         }
+                with
+                | ex -> Error ex.Message
+        )
+
+module CopyDir2 =
+
+    let internal copyDirectory2 source targetParent =
+
+        IO (fun ()
+                ->
+                try
+                    match NativeHelpers.Native.rust_copy_c(source, targetParent) with
+                    | 0 -> Ok ()
+                    | n -> Error (sprintf "Native move operation failed with code %d" n)
                 with
                 | ex -> Error ex.Message
         )

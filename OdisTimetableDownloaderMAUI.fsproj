@@ -111,17 +111,23 @@
 		<IsPublishable>True</IsPublishable>
 	</PropertyGroup>
 	
-  <ItemGroup>
-	  <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.dll">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-  </ItemGroup>
+   <ItemGroup>
+	   <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.dll">
+		   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+       </None>
+   </ItemGroup>
 
 	<ItemGroup>
-		<None Include="e:\source\Rust\string_combine_dll\target\release\string_combine_dll.dll">
+		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\string_combine_dll.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup> 	
 
   <ItemGroup>
     <!-- App Icon -->
@@ -262,8 +268,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="logs\" />
+    <Folder Include="bin\Release\net8.0-android\" />
     <Folder Include="bin\Release\net8.0-windows10.0.19041.0\win10-x64\" />
+    <Folder Include="logs\" />
   </ItemGroup>
 
 </Project>

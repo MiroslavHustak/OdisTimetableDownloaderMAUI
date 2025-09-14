@@ -48,8 +48,24 @@ module Native =
     (*
     Pridat do fsproj
     <ItemGroup>
-	      <None Include="e:\source\Rust\string_combine_dll\target\release\string_combine_dll.dll">
+          <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\string_combine_dll.dll">
 		      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         </None>
+     </ItemGroup>
+    *)
+
+    // Adjust "rust_copy_move.dll" to match your DLL file name and location
+    [<DllImport("rust_copy_move.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
+    extern int rust_copy_c(string src, string dst)
+
+    [<DllImport("rust_copy_move.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
+    extern int rust_move_c(string src, string dst)
+
+    (*
+    Pridat do fsproj
+    <ItemGroup>
+              <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
+		          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
          </None>
      </ItemGroup>
     *)

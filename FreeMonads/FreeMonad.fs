@@ -15,6 +15,9 @@ open Haskell_IO_Monad_Simulation
 open Helpers.CopyDir
 open Helpers.MoveDir
 
+open Helpers.CopyDir2
+open Helpers.MoveDir2
+
 open Helpers
 open Helpers.Builders  
 open Helpers.CommandLineWorkflow
@@ -50,15 +53,18 @@ module FreeMonadInterpret =
                         match Native.MoveDirContent64(s, d, 0) with  //exn se musi chytat uz v C++
                         | 0 -> Ok ()
                         | _ -> Error <| sprintf "Chyba při přemístění adresáře %s do %s #310" s d 
+                 
+                    //| Copy -> runIO <| copyDirectory2 s d     //Rust       
+                    //| Move -> runIO <| moveDirectory2 s d     //Rust
                     #else
                     match io_operation with
-                    | Copy -> runIO <| copyDirectory s d 0 true                       
-                    | Move -> runIO <| moveDirectory s d  
+                    | Copy -> runIO <| copyDirectory s d 0 true //F#                      
+                    | Move -> runIO <| moveDirectory s d        //F#                     
                     #endif
                 with
                 | ex                    
                     ->                  
-                    Error <| string ex.Message
+                    Error <| string ex.Message               
 
             | Error e, _ | _, Error e
                 ->                

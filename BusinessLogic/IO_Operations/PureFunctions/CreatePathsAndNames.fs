@@ -37,7 +37,7 @@ module CreatingPathsAndNames =
           [ sprintf"%s\%s"pathToDir dirName ] //lomitko !!!
     *)
 
-    let internal createOneNewDirectoryPath pathToDir dirName = 
+    let internal createOneNewDirectoryPath pathToDir dirName = //zatim nepouzivano
 
         #if WINDOWS
         let str = 
