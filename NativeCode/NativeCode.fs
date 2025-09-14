@@ -54,7 +54,6 @@ module Native =
      </ItemGroup>
     *)
 
-    // Adjust "rust_copy_move.dll" to match your DLL file name and location
     [<DllImport("rust_copy_move.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
     extern int rust_copy_c(string src, string dst)
 
