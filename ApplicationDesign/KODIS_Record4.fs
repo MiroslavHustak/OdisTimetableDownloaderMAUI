@@ -205,7 +205,7 @@ module WebScraping_KODISFMRecord4 =
         ]
         |> Async.Parallel  
         |> Async.Catch   //silently ignoring failed move operations //// becomes Async<Result<Result<_,_>[], exn>>
-        |> Async.Ignore  //silently ignoring failed move operations
+        |> Async.Ignore<Choice<Result<unit, string> array, exn>>  //silently ignoring failed move operations
         |> Async.RunSynchronously
         
        // runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel end")                                           

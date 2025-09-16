@@ -40,12 +40,12 @@ type MauiProgram =
                 .CreateBuilder()
                 .UseFabulousApp(App.program)
                 .ConfigureFonts(
-                    fun (fonts: IFontCollection)
+                    fun (fonts : IFontCollection)
                         ->
                         fonts
                             .AddFont("OpenSans-Regular.ttf", "OpenSansRegular")
                             .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
-                        |> ignore
+                        |> ignore<IFontCollection>
                 )
 
         #if ANDROID

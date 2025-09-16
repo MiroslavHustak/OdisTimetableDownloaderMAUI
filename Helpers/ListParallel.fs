@@ -117,7 +117,7 @@ let iter_IO (action : 'a -> unit) (list : 'a list) =
             list
             |> List.map (fun item -> async { return action item })
             |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
-            |> Async.Ignore
+            |> Async.Ignore<unit array> 
             |> Async.RunSynchronously //Async.Parallel doesn't block any threads while waiting for IO operations to complete.
 
 // Using Array.Parallel.map //Array.Parallel.map is designed for CPU-bound work.  //TODO otestovat rychlost ve srovnani s Async.Parallel
@@ -185,7 +185,7 @@ let iter2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b 
             ||> List.zip
             |> List.map (fun pair -> async { return listToParallel pair })
             |> Async.Parallel
-            |> Async.Ignore
+            |> Async.Ignore<unit list array> 
             |> Async.RunSynchronously
 
     | true 
@@ -279,7 +279,7 @@ let iter' (action : 'a -> unit) (list : 'a list) =
                      |> List.init (List.length myList)
                      |> List.map _.Compile()      
                      |> Async.Parallel  
-                     |> Async.Ignore
+                     |> Async.Ignore<unit array> 
                      |> Async.RunSynchronously 
 
 //code quotations
@@ -301,7 +301,7 @@ let iter2'<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) 
                     |> List.init (List.length myList)
                     |> List.map _.Compile()       
                     |> Async.Parallel  
-                    |> Async.Ignore
+                    |> Async.Ignore<unit array> 
                     |> Async.RunSynchronously
 
     | true  ->
