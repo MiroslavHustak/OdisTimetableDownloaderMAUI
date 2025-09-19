@@ -149,6 +149,8 @@ module WebScraping_KODISFMRecord =
                 ->    
                 let errFn err =  
 
+                    let neco = environment.DeleteAllODISDirectories >> runIO
+
                     match err with
                     | RcError              -> rcError
                     | NoFolderError        -> noFolderError
@@ -157,7 +159,7 @@ module WebScraping_KODISFMRecord =
                     | FileDeleteError      -> fileDeleteError 
                     | CreateFolderError4   -> createFolderError   
                     | CreateFolderError2   -> createFolderError2
-                    | FileDownloadError    -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+                    | FileDownloadError    -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
                     | FolderMovingError4   -> folderMovingError 
                     | CanopyError          -> canopyError
                     | TimeoutError         -> "timeout"
@@ -165,7 +167,7 @@ module WebScraping_KODISFMRecord =
                     | ApiResponseError err -> err
                     | ApiDecodingError     -> canopyError
                     | NetConnPdfError err  -> err
-                    | StopDownloading      -> match runIO <| environment.DeleteAllODISDirectories path with Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+                    | StopDownloading      -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
                     | LetItBeKodis4        -> String.Empty
                     | NoPermissionError    -> String.Empty
                                                              
