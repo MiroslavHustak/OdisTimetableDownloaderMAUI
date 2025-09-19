@@ -149,8 +149,6 @@ module WebScraping_KODISFMRecord =
                 ->    
                 let errFn err =  
 
-                    let neco = environment.DeleteAllODISDirectories >> runIO
-
                     match err with
                     | RcError              -> rcError
                     | NoFolderError        -> noFolderError
