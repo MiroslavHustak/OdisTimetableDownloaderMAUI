@@ -5,8 +5,11 @@
 **Solution Structure (showing unidirectional F# project dependencies):**
 <pre lang="markdown"> ```
 RustHelpers (DLL)
-├── lib.rs
-├── string_combine_dll.h
+├── CombiningStrings/
+│   └── lib.rs
+├── CopyingAndMoving/
+│   ├── copy_move.rs
+│   └── lib.rs
 
 CppHelpers (Project)
 ├── CppHelpers.vcxproj
@@ -39,6 +42,7 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Types/
 │   ├── TDD.fs
 │   ├── Types.fs
+    ├── TypeAlgebra.fs
 │   └── ErrorTypes.fs
 ├── Settings/
 │   ├── Messages.fs
@@ -48,8 +52,9 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── SettingsMDPO.fs
 ├── ComputationExpressions/
 │   └── CEBuilders.fs
-├── FreeMonadSupport/
-│   └── CmdLineWorkflows.fs
+├── FreeMonads/
+    ├── CmdLineWorkflows.fs
+│   └── FreeMonad.fs
 ├── ErrorHandling/
 │   └── ErrorHandlers.fs
 ├── Helpers/
