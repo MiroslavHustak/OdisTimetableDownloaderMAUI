@@ -21,6 +21,7 @@ open Api.Logging
 
 open Types.Types
 open Types.ErrorTypes  
+open Types.TypeAlgebra
 
 open Settings.SettingsDPO
 open Settings.SettingsGeneral

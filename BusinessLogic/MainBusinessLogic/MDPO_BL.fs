@@ -22,6 +22,7 @@ open Api.Logging
 
 open Types.Types
 open Types.ErrorTypes
+open Types.TypeAlgebra
 
 open Settings.SettingsMDPO
 open Settings.SettingsGeneral    
