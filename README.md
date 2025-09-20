@@ -5,8 +5,11 @@
 **Solution Structure (showing unidirectional F# project dependencies):**
 <pre lang="markdown"> ```
 RustHelpers (DLL)
-├── lib.rs
-├── string_combine_dll.h
+├── CombiningStrings/
+│   └── lib.rs
+├── CopyingAndMoving/
+│   ├── copy_move.rs
+│   └── lib.rs
 
 CppHelpers (Project)
 ├── CppHelpers.vcxproj
