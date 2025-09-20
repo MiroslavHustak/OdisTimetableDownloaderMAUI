@@ -42,13 +42,13 @@ module FreeMonadInterpret =
                 try                    
                     #if WINDOWS
                     match io_operation with
-                    | Copy
+                    | Copy //C++
                         ->                        
                         match Native.CopyDirContent64(s, d, 0, 0) with  //exn se musi chytat uz v C++
                         | 0 -> Ok ()
                         | _ -> Error <| sprintf "Chyba při kopírování adresáře %s do %s #300" s d
                        
-                    | Move 
+                    | Move //C++
                         ->
                         match Native.MoveDirContent64(s, d, 0) with  //exn se musi chytat uz v C++
                         | 0 -> Ok ()
