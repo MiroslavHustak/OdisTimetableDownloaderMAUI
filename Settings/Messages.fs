@@ -37,7 +37,7 @@ module Messages =
     let [<Literal>] internal fileDownloadError = "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
     #endif
 
-    let[<Literal>]  internal canopyError = "REST API error." 
+    let [<Literal>] internal canopyError = "REST API error." 
 
     let [<Literal>] internal deleteOldTimetablesMsg1 = "Chvíli strpení, usilovně odstraňuji zálohované předchozí JŘ ..."  
     let [<Literal>] internal deleteOldTimetablesMsg2 = "Odstranění zálohovaných předchozích JŘ úspěšně provedeno."

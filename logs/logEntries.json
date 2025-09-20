@@ -572,3 +572,56 @@ Chyba při čtení logEntries z API
 { "list": ["Timeout exceeded while getting response Error#008","09/15/2025 09:15:24 +00:00"] }
 { "list": ["Error Error#3001","09/15/2025 10:52:24 +00:00"] }
 
+
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","08/20/2025 12:35:04 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","08/20/2025 12:35:05 +00:00"] }
+{ "list": ["FileDownloadError Error#018","08/22/2025 16:17:24 +00:00"] }
+{ "list": ["FileDownloadError Error#182","08/22/2025 16:17:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (Connection failure) Error#035","08/29/2025 12:11:48 +00:00"] }
+{ "list": ["Error Error#3001","08/29/2025 12:13:30 +00:00"] }
+{ "list": ["Error Error#3001","08/29/2025 12:14:06 +00:00"] }
+{ "list": ["Error Error#3001","08/29/2025 12:24:33 +00:00"] }
+{ "list": ["Error Error#3001","08/29/2025 12:29:25 +00:00"] }
+{ "list": ["Error Error#3001","08/29/2025 12:29:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#1722","08/29/2025 12:36:12 +00:00"] }
+{ "list": ["FileDownloadError Error#182","08/29/2025 12:36:12 +00:00"] }
+{ "list": ["FileDownloadError Error#018","08/29/2025 12:36:12 +00:00"] }
+{ "list": ["Error Error#3001","08/29/2025 12:37:06 +00:00"] }
+{ "list": ["Error Error#3001","08/29/2025 14:31:14 +00:00"] }
+{ "list": ["Error Error#3001","08/29/2025 14:35:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","08/29/2025 14:38:07 +00:00"] }
+{ "list": ["FileDownloadError Error#018","08/29/2025 14:38:07 +00:00"] }
+{ "list": ["FileDownloadError Error#182","08/29/2025 14:38:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","08/30/2025 12:48:23 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","08/30/2025 12:50:03 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The requested name is valid, but no data of the requested type was found. (kodis-files.s3.eu-central-1.amazonaws.com:443))) Error#1722","08/31/2025 17:54:08 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","09/03/2025 03:25:08 +00:00"] }
+{ "list": ["FileDownloadError Error#018","09/03/2025 03:25:08 +00:00"] }
+{ "list": ["FileDownloadError Error#182","09/03/2025 03:25:09 +00:00"] }
+{ "list": ["Error Error#3001","09/03/2025 03:26:35 +00:00"] }
+{ "list": ["Error Error#3001","09/03/2025 03:34:14 +00:00"] }
+{ "list": ["Error Error#3001","09/03/2025 17:08:37 +00:00"] }
+{ "list": ["Error Error#3001","09/03/2025 17:08:48 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","09/03/2025 21:56:50 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","09/03/2025 21:58:30 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","09/08/2025 13:42:31 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","09/08/2025 13:44:12 +00:00"] }
+{ "list": ["Connection timed out (www.dpo.cz:443) Error#011","09/08/2025 13:46:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","09/08/2025 13:49:41 +00:00"] }
+{ "list": ["FileDownloadError Error#018","09/08/2025 13:49:42 +00:00"] }
+{ "list": ["FileDownloadError Error#182","09/08/2025 13:49:43 +00:00"] }
+{ "list": ["FileDownloadError Error#018","09/08/2025 13:54:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","09/08/2025 13:54:01 +00:00"] }
+{ "list": ["FileDownloadError Error#182","09/08/2025 13:54:02 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","09/08/2025 14:14:06 +00:00"] }
+{ "list": ["FileDownloadError Error#018","09/08/2025 14:14:06 +00:00"] }
+{ "list": ["FileDownloadError Error#182","09/08/2025 14:14:07 +00:00"] }
+{ "list": ["FileDownloadError Error#018","09/08/2025 14:41:30 +00:00"] }
+{ "list": ["FileDownloadError Error#182","09/08/2025 14:41:30 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","09/08/2025 14:49:48 +00:00"] }
+{ "list": ["FileDownloadError Error#018","09/08/2025 14:49:48 +00:00"] }
+{ "list": ["FileDownloadError Error#182","09/08/2025 14:49:48 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","09/15/2025 09:13:44 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","09/15/2025 09:15:24 +00:00"] }
+{ "list": ["Error Error#3001","09/15/2025 10:52:24 +00:00"] }
+
