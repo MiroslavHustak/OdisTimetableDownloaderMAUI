@@ -143,6 +143,7 @@
     <Compile Include="NativeCode\NativeCode.fs" />
     <Compile Include="Types\TDD.fs" />
     <Compile Include="Types\Types.fs" />
+    <Compile Include="Types\TypeAlgebra.fs" />
     <Compile Include="Types\ErrorTypes.fs" />
     <Compile Include="Settings\Messages.fs" />
     <Compile Include="Settings\SettingsGeneral.fs" />

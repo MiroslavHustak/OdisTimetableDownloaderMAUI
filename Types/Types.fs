@@ -1,9 +1,5 @@
 ﻿namespace Types
 
-open System
-
-//*******************
-
 open System.Threading
 
 module Haskell_IO_Monad_Simulation =    
@@ -25,18 +21,7 @@ module FreeMonad =
 
     let internal runFreeMonad (FreeMonad action) = action ()
 
-module Types =
-
-    type internal Index = | I1 | I2 | I3   //3 x 3 = 9   
-    
-    type internal GridFunction<'a> = { board : Index -> Index -> 'a }         
-
-    let internal defaultGridFunction (defaultValue : 'a) : GridFunction<'a> =
-        {
-            board = fun _ _ -> defaultValue
-        }     
-    
-    type [<Struct>] internal ODIS = { board : GridFunction<string> }    
+module Types =     
    
     type internal Context<'a, 'b, 'c> = 
         {

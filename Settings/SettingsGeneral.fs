@@ -4,7 +4,7 @@ open System
 
 //*******************
 
-open Types.Types
+open Types.TypeAlgebra
 
 module SettingsGeneral =  
 
@@ -13,6 +13,7 @@ module SettingsGeneral =
     let [<Literal>] internal logFileNameAndroid = @"/storage/emulated/0/Logs/tp_canopy_difference.txt"
     let [<Literal>] internal logDirTP_Canopy = @"/storage/emulated/0/Logs"
    
+    //CARDINALITY AND ISOMORPHISM
     let internal ODIS_Variants =  
         {          
             board = 
@@ -58,13 +59,13 @@ module SettingsGeneral =
     let [<Literal>] internal urlApi = "http://kodis.somee.com/api/"  // Trailing slash preserved
     let [<Literal>] internal urlJson = "http://kodis.somee.com/api/jsonLinks"
     #if ANDROID
-    let internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
-    let internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
-    let internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" 
-    let internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
-    let internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/" 
-    let internal oldTimetablesPath = @"/storage/emulated/0/FabulousTimetablesOld/"
-    let internal oldTimetablesPath4 = @"/storage/emulated/0/FabulousTimetablesOld4/"
+    let [<Literal>] internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
+    let [<Literal>] internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
+    let [<Literal>] internal kodisPathTemp4 = @"/storage/emulated/0/FabulousTimetables4/" 
+    let [<Literal>] internal dpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/"
+    let [<Literal>] internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/" 
+    let [<Literal>] internal oldTimetablesPath = @"/storage/emulated/0/FabulousTimetablesOld/"
+    let [<Literal>] internal oldTimetablesPath4 = @"/storage/emulated/0/FabulousTimetablesOld4/"
     let path0 = sprintf "%s%s/" kodisPathTemp 
     let path4 = sprintf "%s%s/" kodisPathTemp4 
     #else
