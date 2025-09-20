@@ -49,8 +49,9 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── SettingsMDPO.fs
 ├── ComputationExpressions/
 │   └── CEBuilders.fs
-├── FreeMonadSupport/
-│   └── CmdLineWorkflows.fs
+├── FreeMonads/
+    ├── CmdLineWorkflows.fs
+│   └── FreeMonad.fs
 ├── ErrorHandling/
 │   └── ErrorHandlers.fs
 ├── Helpers/
