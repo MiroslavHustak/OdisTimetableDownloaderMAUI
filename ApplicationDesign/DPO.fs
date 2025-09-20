@@ -59,7 +59,7 @@ module WebScraping_DPO =
                 ->           
                 let stateReducer token (state : State) (action : Actions) (environment : Environment) =
             
-                    let dirList pathToDir = [ sprintf"%s/%s"pathToDir ODISDefault.OdisDir5 ] //Android jen forward slash %s/%s  //list used due to uniformity
+                    let dirList pathToDir = [ sprintf"%s/%s"pathToDir (ODIS_Variants.board.board I2 I2) ] //Android jen forward slash %s/%s  //list used due to uniformity
                     
                     let configMHD =
                         {
@@ -74,7 +74,7 @@ module WebScraping_DPO =
 
                     | DeleteOneODISDirectory 
                         ->    
-                        runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir                                    
+                        runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir                                    
                                     
                     | CreateFolders         
                         -> 
@@ -121,11 +121,11 @@ module WebScraping_DPO =
                             | ServiceUnavailable       -> "503 Service Unavailable"        
                             | NotFound                 -> "404 Page Not Found"
                             | CofeeMakerUnavailable    -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-                            | FileDownloadErrorMHD     -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoMsg1 | Error _ -> dpoMsg0 
+                            | FileDownloadErrorMHD     -> match runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir with Ok _ -> dpoMsg1 | Error _ -> dpoMsg0 
                             | FolderCopyOrMoveErrorMHD -> folderCopyingError
                             | ConnectionError          -> noNetConn
                             | FileDeleteErrorMHD       -> fileDeleteError
-                            | StopDownloadingMHD       -> match runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
+                            | StopDownloadingMHD       -> match runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
                             | LetItBeMHD               -> String.Empty
                             | TestDuCase ex            -> ex
                         

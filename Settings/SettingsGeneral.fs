@@ -1,5 +1,9 @@
 ﻿namespace Settings
 
+open System
+
+//*******************
+
 open Types.Types
 
 module SettingsGeneral =  
@@ -8,23 +12,33 @@ module SettingsGeneral =
     let [<Literal>] internal logFileNameWindows = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\tp_canopy_difference.txt"
     let [<Literal>] internal logFileNameAndroid = @"/storage/emulated/0/Logs/tp_canopy_difference.txt"
     let [<Literal>] internal logDirTP_Canopy = @"/storage/emulated/0/Logs"
-
-    let internal ODISDefault =  
+   
+    let internal ODIS_Variants =  
         {          
-            OdisDir1 = "JR_ODIS_aktualni_vcetne_vyluk"
-            OdisDir2 = "JR_ODIS_pouze_budouci_platnost"
-            //odisDir3 = "JR_ODIS_pouze_aktualni_vyluky"
-            OdisDir4 = "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk" 
-            OdisDir5 = "JR_ODIS_pouze_linky_dopravce_DPO" 
-            OdisDir6 = "JR_ODIS_pouze_linky_dopravce_MDPO" 
-        }   
+            board = 
+                { 
+                    board = 
+                        fun row col
+                            ->
+                            match (row, col) with
+                            | (I1, I1) -> "JR_ODIS_aktualni_vcetne_vyluk"
+                            | (I1, I2) -> "JR_ODIS_pouze_budouci_platnost"
+                            | (I1, I3) -> String.Empty
+                            | (I2, I1) -> "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk"
+                            | (I2, I2) -> "JR_ODIS_pouze_linky_dopravce_DPO"
+                            | (I2, I3) -> "JR_ODIS_pouze_linky_dopravce_MDPO"
+                            | _        -> String.Empty
+                }
+        }
 
-    let internal listODISDefault4 = 
+    //Pokud bych chtel vsude String.Empty v default record, pak staci toto:
+    let internal ODIS_Variants2 = { board = defaultGridFunction String.Empty }
+
+    let internal listOfODISVariants = 
         [ 
-            ODISDefault.OdisDir1
-            ODISDefault.OdisDir2
-            //ODISDefault.odisDir3
-            ODISDefault.OdisDir4 
+            ODIS_Variants.board.board I1 I1
+            ODIS_Variants.board.board I1 I2
+            ODIS_Variants.board.board I2 I1 
         ]    
         
     let [<Literal>] internal timeOutInSeconds = 10 
@@ -65,14 +79,14 @@ module SettingsGeneral =
     let path4 = sprintf "%s%s/" kodisPathTemp4      
     #endif
 
-    let internal pathTP_CurrentValidity = path0 ODISDefault.OdisDir1 
-    let internal pathCanopy_CurrentValidity = path4 ODISDefault.OdisDir1
+    let internal pathTP_CurrentValidity = path0 <| ODIS_Variants.board.board I1 I1
+    let internal pathCanopy_CurrentValidity = path4 <| ODIS_Variants.board.board I1 I1
 
-    let internal pathTP_FutureValidity = path0 ODISDefault.OdisDir2   
-    let internal pathCanopy_FutureValidity = path4 ODISDefault.OdisDir2
+    let internal pathTP_FutureValidity = path0 <| ODIS_Variants.board.board I1 I2   
+    let internal pathCanopy_FutureValidity = path4 <| ODIS_Variants.board.board I1 I2
 
-    let internal pathTP_WithoutReplacementService = path0 ODISDefault.OdisDir4  
-    let internal pathCanopy_WithoutReplacementService = path4 ODISDefault.OdisDir4 
+    let internal pathTP_WithoutReplacementService = path0 <| ODIS_Variants.board.board I2 I1 
+    let internal pathCanopy_WithoutReplacementService = path4 <| ODIS_Variants.board.board I2 I1  
 
     (*
     Right-click g:\Users\User\... (vsechny adresare anebo adresar nad tim), select Properties > Security, and grant full control.

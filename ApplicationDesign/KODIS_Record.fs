@@ -80,9 +80,9 @@ module WebScraping_KODISFMRecord =
 
         let configKodis =
             {
-                source1 = path0 ODISDefault.OdisDir1 
-                source2 = path0 ODISDefault.OdisDir2 
-                source3 = path0 ODISDefault.OdisDir4 
+                source1 = path0 <| ODIS_Variants.board.board I1 I1
+                source2 = path0 <| ODIS_Variants.board.board I1 I2
+                source3 = path0 <| ODIS_Variants.board.board I2 I1 
                 destination = oldTimetablesPath 
             }          
     
@@ -221,7 +221,7 @@ module WebScraping_KODISFMRecord =
                                  
                 //try with blok zrusen   
                     
-                let dirList = createNewDirectoryPaths path listODISDefault4
+                let dirList = createNewDirectoryPaths path listOfODISVariants
                     in
                     let contextCurrentValidity = 
                         {

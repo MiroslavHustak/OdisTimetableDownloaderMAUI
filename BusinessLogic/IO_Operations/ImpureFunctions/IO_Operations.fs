@@ -6,6 +6,7 @@ open System.Threading
 //************************************************************
 
 open Types
+open Types.Types
 open Types.FreeMonad
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
@@ -52,7 +53,7 @@ module IO_Operations =
                                     Error FileDeleteError
                         }
     
-                deleteIt listODISDefault4  
+                deleteIt listOfODISVariants  
         )
 
     let internal deleteOneODISDirectory variant pathToDir =
@@ -85,7 +86,7 @@ module IO_Operations =
                                     Error FileDeleteError                       
                         }
     
-                deleteIt listODISDefault4   
+                deleteIt listOfODISVariants   
         )
         
     let internal deleteOneODISDirectoryMHD dirName pathToDir = 
@@ -154,8 +155,8 @@ module IO_Operations =
                     -> 
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, PdfDownloadErrors>>
 
-                    runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
-                    runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir6 oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
+                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
+                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
 
                     dirInfo.Delete()
                 | false 

@@ -286,7 +286,7 @@ module DPO_BL =
                                         runIO (postToLog <| ex.Message <| "#037")
                                         
                                         let!_ = 
-                                            runIO <| deleteOneODISDirectoryMHD ODISDefault.OdisDir5 mdpoPathTemp, 
+                                            runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) mdpoPathTemp, 
                                                 (fun _
                                                     ->
                                                     runIO (postToLog <| FileDeleteErrorMHD <| "#372")                             

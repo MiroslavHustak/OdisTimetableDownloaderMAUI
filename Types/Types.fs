@@ -1,5 +1,9 @@
 ﻿namespace Types
 
+open System
+
+//*******************
+
 open System.Threading
 
 module Haskell_IO_Monad_Simulation =    
@@ -22,16 +26,17 @@ module FreeMonad =
     let internal runFreeMonad (FreeMonad action) = action ()
 
 module Types =
-      
-    type [<Struct>] internal ODIS =  //<Struct>] vhodne pro 16 bytes => 4096 characters
-        {        
-            OdisDir1 : string
-            OdisDir2 : string
-            //OdisDir3 : string
-            OdisDir4 : string
-            OdisDir5 : string
-            OdisDir6 : string
-        }               
+
+    type internal Index = | I1 | I2 | I3   //3 x 3 = 9   
+    
+    type internal GridFunction<'a> = { board : Index -> Index -> 'a }         
+
+    let internal defaultGridFunction (defaultValue : 'a) : GridFunction<'a> =
+        {
+            board = fun _ _ -> defaultValue
+        }     
+    
+    type [<Struct>] internal ODIS = { board : GridFunction<string> }    
    
     type internal Context<'a, 'b, 'c> = 
         {
@@ -40,7 +45,7 @@ module Types =
             dir : string
             list : (string * string) list
         }
-        
+                    
     type [<Struct>] internal MsgIncrement =
         | Inc of int  
            
@@ -57,13 +62,13 @@ module Types =
         | FutureValidity 
         | WithoutReplacementService  
 
-    type [<Struct>] internal ConfigMHD =
+    type [<Struct>] internal ConfigMHD = 
         {
             source : string
             destination : string
         }
 
-    type [<Struct>] internal ConfigKodis =
+    type [<Struct>] internal ConfigKodis = 
         {
             source1 : string
             source2 : string
