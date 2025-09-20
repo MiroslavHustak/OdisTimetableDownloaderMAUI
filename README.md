@@ -39,6 +39,7 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Types/
 │   ├── TDD.fs
 │   ├── Types.fs
+    ├── TypeAlgebra.fs
 │   └── ErrorTypes.fs
 ├── Settings/
 │   ├── Messages.fs
