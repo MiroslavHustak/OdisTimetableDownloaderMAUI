@@ -14,4 +14,3 @@ module TypeAlgebra =
         {
             board = fun _ _ -> defaultValue
         } 
-
