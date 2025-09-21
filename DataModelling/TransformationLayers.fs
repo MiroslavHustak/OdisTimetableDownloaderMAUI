@@ -52,5 +52,3 @@ module ApiTransformLayer =
         function
         | Ok value -> value.GetLogEntries
         | Error _  -> String.Empty
-
-      

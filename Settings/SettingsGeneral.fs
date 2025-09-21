@@ -66,8 +66,8 @@ module SettingsGeneral =
     let [<Literal>] internal mdpoPathTemp = @"/storage/emulated/0/FabulousTimetables4/" 
     let [<Literal>] internal oldTimetablesPath = @"/storage/emulated/0/FabulousTimetablesOld/"
     let [<Literal>] internal oldTimetablesPath4 = @"/storage/emulated/0/FabulousTimetablesOld4/"
-    let path0 = sprintf "%s%s/" kodisPathTemp 
-    let path4 = sprintf "%s%s/" kodisPathTemp4 
+    let internal path0 = sprintf "%s%s/" kodisPathTemp 
+    let internal path4 = sprintf "%s%s/" kodisPathTemp4 
     #else
     let [<Literal>] internal partialPathJsonTemp = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\" //@"KODISJson2/" //v binu //tohle je pro stahovane json, ne pro type provider
     let [<Literal>] internal kodisPathTemp = @"g:\Users\User\Data\"
@@ -76,8 +76,8 @@ module SettingsGeneral =
     let [<Literal>] internal mdpoPathTemp = @"g:\Users\User\Data4\"
     let [<Literal>] internal oldTimetablesPath = @"g:\Users\User\DataOld\"
     let [<Literal>] internal oldTimetablesPath4 = @"g:\Users\User\DataOld4\"
-    let path0 = sprintf "%s%s/" kodisPathTemp 
-    let path4 = sprintf "%s%s/" kodisPathTemp4      
+    let internal path0 = sprintf "%s%s/" kodisPathTemp 
+    let internal path4 = sprintf "%s%s/" kodisPathTemp4      
     #endif
 
     let internal pathTP_CurrentValidity = path0 <| ODIS_Variants.board.board I1 I1
