@@ -77,6 +77,7 @@ let private maxDegreeOfParallelismAdapted =
         | length
             when length >= myIdeaOfASmallList && length <= myIdeaOfALargelList 
             -> Medium
+
         | _ 
             -> Large
     
