@@ -112,16 +112,16 @@ module Logging =
                                 let url = urlLogging
                                             
                                 //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
-                                let filePath = Path.GetFullPath logFileName
-                                let! filepath = filePath |> Option.ofNullEmpty, Error String.Empty
+                                let filepath = Path.GetFullPath logFileName
+                                let! filepath = filepath |> Option.ofNullEmpty, Error String.Empty
 
-                                let filePath =  
+                                let filepath =  
                                     match File.Exists filepath with
-                                        | true  -> 
-                                                filePath
-                                        | false ->
-                                                File.WriteAllText(filepath, jsonEmpty)
-                                                filePath
+                                    | true  -> 
+                                            filepath
+                                    | false ->
+                                            File.WriteAllText(filepath, jsonEmpty)
+                                            filepath
                        
                                 let logEntries = 
                                     async { return! getLogEntriesFromRestApi >> runIO <| url } 
