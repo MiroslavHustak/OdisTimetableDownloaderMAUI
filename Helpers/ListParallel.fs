@@ -66,7 +66,7 @@ let private numberOfThreads l =
     | false -> 
             1
 
-let private maxDegreeOfParallelismAdapted =
+let private maxDegreeOfParallelismAdapted = 
 
     let (|Small|Medium|Large|) length = //active pattern
         match length with
@@ -135,7 +135,7 @@ let map_CPU (action : 'a -> 'b) (list : 'a list) : 'b list =
                 in
                 splitListIntoEqualParts numberOfThreads list        
                 |> List.toArray
-                |> (List.map >> Array.Parallel.map <| action)  
+                |> (List.map >> Array.Parallel.map <| action)  //Pools of threads by mel dat optimalni number of threads, zpravidla umerny CPU cores (ale i mene - 5,6 versus mych natvrdo 8 u code quotations) 
                 |> List.ofArray
                 |> List.concat
 

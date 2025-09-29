@@ -136,14 +136,7 @@ module App =
         | ClickClearingCancel
         | ClickRestart
         | ClickRequestPermission
-        | ClickClearing
-        | ClickKodis
-        | ClickKodis4
-        | ClickDpo
-        | ClickMdpo
-        | ClickCancel
-        | ClickHome
-        | ClickQuit
+        | ClickClearing  
         | ClearAnimation
 
     let private cancellationActor =  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
@@ -403,35 +396,7 @@ module App =
            
         | ClickClearing 
             ->
-            { m with AnimatedButton = Some buttonClearing }, cmdOnClickAnimation DataClearing
-            
-        | ClickKodis 
-            ->
-            { m with AnimatedButton = Some buttonKodis }, cmdOnClickAnimation Kodis
-           
-        | ClickKodis4 
-            ->
-            { m with AnimatedButton = Some buttonKodis4 }, cmdOnClickAnimation Kodis4
-            
-        | ClickDpo 
-            ->
-            { m with AnimatedButton = Some buttonDpo }, cmdOnClickAnimation Dpo
-           
-        | ClickMdpo 
-            ->
-            { m with AnimatedButton = Some buttonMdpo }, cmdOnClickAnimation Mdpo
-          
-        | ClickCancel 
-            ->
-            { m with AnimatedButton = Some buttonCancel }, cmdOnClickAnimation Cancel
-         
-        | ClickHome 
-            ->
-            { m with AnimatedButton = Some buttonHome }, cmdOnClickAnimation Home2
-          
-        | ClickQuit
-            ->
-            { m with AnimatedButton = Some buttonQuit }, cmdOnClickAnimation Quit
+            { m with AnimatedButton = Some buttonClearing }, cmdOnClickAnimation DataClearing          
            
         | ClearAnimation 
             ->
@@ -1147,54 +1112,40 @@ module App =
                                 .scaleX(animate buttonClearing m.AnimatedButton)
                                 .scaleY(animate buttonClearing m.AnimatedButton)
 
-                            Button(buttonKodis, ClickKodis)
+                            Button(buttonKodis, Kodis)
                                 .semantics(hint = hintOdis)
                                 .centerHorizontal()
                                 .isVisible(m.KodisVisible && m.PermissionGranted)
-                                .scaleX(animate buttonKodis m.AnimatedButton)
-                                .scaleY(animate buttonKodis m.AnimatedButton)
 
-                            Button(buttonKodis4, ClickKodis4)
+                            Button(buttonKodis4, Kodis4)
                                 .semantics(hint = hintOdis)
                                 .centerHorizontal()
                                 .isVisible(m.KodisVisible && m.PermissionGranted)
-                                .scaleX(animate buttonKodis4 m.AnimatedButton)
-                                .scaleY(animate buttonKodis4 m.AnimatedButton)
 
-                            Button(buttonDpo, ClickDpo)
+                            Button(buttonDpo, Dpo)
                                 .semantics(hint = hintDpo)
                                 .centerHorizontal()
                                 .isVisible(m.DpoVisible && m.PermissionGranted)
-                                .scaleX(animate buttonDpo m.AnimatedButton)
-                                .scaleY(animate buttonDpo m.AnimatedButton)
 
-                            Button(buttonMdpo, ClickMdpo)
+                            Button(buttonMdpo, Mdpo)
                                 .semantics(hint = hintMdpo)
                                 .centerHorizontal()
                                 .isVisible(m.MdpoVisible && m.PermissionGranted)
-                                .scaleX(animate buttonMdpo m.AnimatedButton)
-                                .scaleY(animate buttonMdpo m.AnimatedButton)
 
-                            Button(buttonCancel, ClickCancel)
+                            Button(buttonCancel, Cancel)
                                 .semantics(hint = String.Empty)
                                 .isVisible(m.CancelVisible && m.PermissionGranted)
                                 .centerHorizontal()
-                                .scaleX(animate buttonCancel m.AnimatedButton)
-                                .scaleY(animate buttonCancel m.AnimatedButton)
 
-                            Button(buttonHome, ClickHome)
+                            Button(buttonHome, Home2)
                                 .semantics(hint = String.Empty)
                                 .isVisible(m.BackHomeVisible && m.PermissionGranted)
                                 .centerHorizontal()
-                                .scaleX(animate buttonHome m.AnimatedButton)
-                                .scaleY(animate buttonHome m.AnimatedButton)
 
-                            Button(buttonQuit, ClickQuit)
+                            Button(buttonQuit, Quit)
                                 .semantics(hint = String.Empty)
                                 .centerHorizontal()
                                 .background(SolidColorBrush(Colors.Green))
-                                .scaleX(animate buttonQuit m.AnimatedButton)
-                                .scaleY(animate buttonQuit m.AnimatedButton)
                         }
                     )
                         .padding(30., 0., 30., 0.)
