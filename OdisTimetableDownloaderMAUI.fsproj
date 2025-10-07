@@ -161,6 +161,7 @@
     <Compile Include="Helpers\AndroidSpecificCode.fs" />
     <Compile Include="FreeMonads\CmdLineWorkflows.fs" />
     <Compile Include="FreeMonads\FreeMonad.fs" />
+    <Compile Include="StateMonads\StateMonad.fs" />
     <Compile Include="Connectivity\Connectivity.fs" />
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\DataTransferModels.fs" />

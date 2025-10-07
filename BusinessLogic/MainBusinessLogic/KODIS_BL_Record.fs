@@ -23,13 +23,14 @@ open Api.Logging
 
 open Helpers
 open Helpers.Builders
+open Helpers.StateMonad
 open Helpers.DirFileHelper
 
 open JsonData.SortJsonData
 open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
 
-module KODIS_BL_Record =   
+module KODIS_BL_Record =       
            
     //************************ Main code **********************************
 
@@ -187,6 +188,51 @@ module KODIS_BL_Record =
                                         |> List.unzip
                                         |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
                                         |> List.unzip
+                                                                    
+                                    // State monad implementation test
+                                    //**************************************************************************************
+                                    
+                                    let removeDuplicatePathPairsState2 (uriList : string list) (pathList : string list) =
+
+                                        let pairs = List.zip uriList pathList
+                                    
+                                        let processPair (uri, path) =
+
+                                            State
+                                                (fun seen
+                                                    ->
+                                                    match Set.contains path seen with
+                                                    | true  -> (None, seen)
+                                                    | false -> (Some (uri, path), Set.add path seen)
+                                                )
+                                    
+                                        let computation =
+
+                                            state
+                                                {
+                                                    let! results =
+                                                        pairs
+                                                        |> List.fold 
+                                                            (fun acc pair
+                                                                ->
+                                                                state
+                                                                    {
+                                                                        let! collected = acc
+                                                                        match! processPair pair with
+                                                                        | Some x -> return x :: collected
+                                                                        | None   -> return collected
+                                                                    }
+                                                            )
+                                                            (returnState [])
+
+                                                    return List.rev results
+                                                }
+                                    
+                                        fst (runState computation Set.empty)                                   
+
+                                    let uri2, pathToFile2 = removeDuplicatePathPairsState2 uri pathToFile |> List.unzip
+
+                                    //**************************************************************************************
 
                                     (token, uri, pathToFile)
                                     |||> List.Parallel.map2_IO_Token //context.listMappingFunction                            

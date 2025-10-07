@@ -112,4 +112,3 @@ type MauiProgram =
         #endif        
        
         builder.Build()
-       

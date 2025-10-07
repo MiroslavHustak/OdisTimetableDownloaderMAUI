@@ -299,5 +299,6 @@ module DPO_BL =
                                         return Error FileDownloadErrorMHD                                            
                                     }                              
                     )
+
                 runIO <| downloadTimetables reportProgress token   
         )
