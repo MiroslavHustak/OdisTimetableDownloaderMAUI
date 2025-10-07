@@ -297,7 +297,8 @@ module FilterTimetableLinks =
           
                     filteredList
                     |> List.Parallel.map_CPU 
-                        (fun item -> fst item |> function CompleteLink value -> value, snd item |> function FileToBeSaved value -> value)
+                        //(fun item -> fst item |> function CompleteLink value -> value, snd item |> function FileToBeSaved value -> value)
+                        (fun (CompleteLink linkVal, FileToBeSaved fileVal) -> linkVal, fileVal)
                     |> List.Parallel.map_CPU
                         (fun (link, file) 
                             -> 
