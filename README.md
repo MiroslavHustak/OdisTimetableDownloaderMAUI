@@ -10,7 +10,7 @@ RustHelpers (DLL)
 ├── CopyingAndMoving/
 │   ├── copy_move.rs
 │   └── lib.rs
-
+│
 CppHelpers (Project)
 ├── CppHelpers.vcxproj
 ├── Header Files/
@@ -25,14 +25,14 @@ CppHelpers (Project)
 ├── Utilities/
 │   ├── movingDirectories.h
 │   └── movingDirectories.cpp
-
+│
 EmbeddedTP (Project)
 ├── EmbeddedTP.fsproj
 ├── EmbeddedTP.fs
 ├── KODISJson/
 │   ├── kodisMHDTotal.json
 │   └── kodisMHDTotal2_0.json
-
+│
 OdisTimetableDownloaderMAUI (Solution)
 ├── OdisTimetableDownloaderMAUI.fsproj
 ├── AssemblyInfo/
@@ -42,7 +42,7 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Types/
 │   ├── TDD.fs
 │   ├── Types.fs
-    ├── TypeAlgebra.fs
+│   ├── TypeAlgebra.fs
 │   └── ErrorTypes.fs
 ├── Settings/
 │   ├── Messages.fs
@@ -52,8 +52,10 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── SettingsMDPO.fs
 ├── ComputationExpressions/
 │   └── CEBuilders.fs
+├── StateMonads/
+│   └── StateMonad.fs
 ├── FreeMonads/
-    ├── CmdLineWorkflows.fs
+│   ├── CmdLineWorkflows.fs
 │   └── FreeMonad.fs
 ├── ErrorHandling/
 │   └── ErrorHandlers.fs
