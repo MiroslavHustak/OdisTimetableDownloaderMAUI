@@ -15,86 +15,86 @@ open Settings.SettingsGeneral
 
 open Types.Haskell_IO_Monad_Simulation
 
-module TP_Canopy_Difference =    
+module TP_Canopy_Difference = 
 
-    let private showResults uniqueFileNamesTP uniqueFileNamesCanopy = 
+    let internal calculate_TP_Canopy_Difference () =
+
+        let showResults uniqueFileNamesTP uniqueFileNamesCanopy = 
             
-        seq
-            {
-                sprintf "Je v TP, ale chybi v Canopy %A" uniqueFileNamesTP                  
-                sprintf "Je v Canopy, ale chybi v TP %A" uniqueFileNamesCanopy
-                String.replicate 48 "*"
-            }
+            seq
+                {
+                    sprintf "Je v TP, ale chybi v Canopy %A" uniqueFileNamesTP                  
+                    sprintf "Je v Canopy, ale chybi v TP %A" uniqueFileNamesCanopy
+                    String.replicate 48 "*"
+                }
 
-    let private fileNames pathToFile =
+        let fileNames pathToFile =
 
-        IO (fun () 
-                ->
-                try
-                    //nelze checkFileCondition
-                    (*
-                        •	If checkFileCondition returns None (e.g., the file does not exist or the condition fails), then fileNames always returns Set.empty<string>.
-                        •	This means your results will be empty if the condition is not met, even if the directory exists and contains files.
-                    *)
-                    runIO <| checkDirectoryCondition pathToFile (fun dirInfo -> dirInfo.Exists)
-                    |> Option.map 
-                        (fun _
-                            ->
-                            Directory.EnumerateFiles pathToFile
-                            |> Seq.map Path.GetFileName
-                            |> Set.ofSeq
-                        )
-                    |> Option.defaultValue Set.empty<string>
-                with
-                | ex 
+            IO (fun () 
                     ->
-                    runIO (postToLog <| ex.Message <| "#Canopy01")
-                    Set.empty<string>
-        )
-
-    let private getDirNames pathToDir =
-
-        IO (fun () 
-                ->
-                try
-                    runIO <| checkDirectoryCondition pathToDir (fun dirInfo -> dirInfo.Exists)
-                    |> Option.map (fun _ -> Directory.EnumerateDirectories pathToDir)
-                    |> Option.defaultValue Set.empty<string>
-                with
-                | ex 
-                    ->
-                    runIO (postToLog <| ex.Message <| "#Canopy02")
-                    Seq.empty<string>
-        )
-          
-    let private getUniqueFileNames folderPathTP folderPathCanopy =
-        
-        IO (fun () 
-                ->
-                let fileNamesTP = runIO <| fileNames folderPathTP                    
-                let fileNamesCanopy = runIO <| fileNames folderPathCanopy        
-        
-                Set.difference fileNamesTP fileNamesCanopy |> Set.toList, Set.difference fileNamesCanopy fileNamesTP |> Set.toList
-        )
-                
-    let private result folderPathTP folderPathCanopy =
-
-        IO (fun () 
-                ->       
-                match folderPathTP = pathTP_FutureValidity && folderPathCanopy = pathCanopy_FutureValidity with
-                | true  -> (seq { folderPathTP }, seq { folderPathCanopy })
-                | false -> (runIO <| getDirNames folderPathTP, runIO <| getDirNames folderPathCanopy)
-
-                ||> Seq.map2
-                    (fun pathTP pathCanopy
+                    try
+                        //nelze checkFileCondition
+                        (*
+                            •	If checkFileCondition returns None (e.g., the file does not exist or the condition fails), then fileNames always returns Set.empty<string>.
+                            •	This means your results will be empty if the condition is not met, even if the directory exists and contains files.
+                        *)
+                        runIO <| checkDirectoryCondition pathToFile (fun dirInfo -> dirInfo.Exists)
+                        |> Option.map 
+                            (fun _
+                                ->
+                                Directory.EnumerateFiles pathToFile
+                                |> Seq.map Path.GetFileName
+                                |> Set.ofSeq
+                            )
+                        |> Option.defaultValue Set.empty<string>
+                    with
+                    | ex 
                         ->
-                        let uniqueFileNamesTP, uniqueFileNamesCanopy = runIO <| getUniqueFileNames pathTP pathCanopy 
-                        showResults uniqueFileNamesTP uniqueFileNamesCanopy
-                    )
-                |> Seq.collect id       
-        )
+                        runIO (postToLog <| ex.Message <| "#Canopy01")
+                        Set.empty<string>
+            )
 
-    let internal calculate_TP_Canopy_Difference () = 
+        let getDirNames pathToDir =
+
+            IO (fun () 
+                    ->
+                    try
+                        runIO <| checkDirectoryCondition pathToDir (fun dirInfo -> dirInfo.Exists)
+                        |> Option.map (fun _ -> Directory.EnumerateDirectories pathToDir)
+                        |> Option.defaultValue Set.empty<string>
+                    with
+                    | ex 
+                        ->
+                        runIO (postToLog <| ex.Message <| "#Canopy02")
+                        Seq.empty<string>
+            )
+          
+        let getUniqueFileNames folderPathTP folderPathCanopy =
+        
+            IO (fun () 
+                    ->
+                    let fileNamesTP = runIO <| fileNames folderPathTP                    
+                    let fileNamesCanopy = runIO <| fileNames folderPathCanopy        
+        
+                    Set.difference fileNamesTP fileNamesCanopy |> Set.toList, Set.difference fileNamesCanopy fileNamesTP |> Set.toList
+            )
+                
+        let result folderPathTP folderPathCanopy =
+
+            IO (fun () 
+                    ->       
+                    match folderPathTP = pathTP_FutureValidity && folderPathCanopy = pathCanopy_FutureValidity with
+                    | true  -> (seq { folderPathTP }, seq { folderPathCanopy })
+                    | false -> (runIO <| getDirNames folderPathTP, runIO <| getDirNames folderPathCanopy)
+
+                    ||> Seq.map2
+                        (fun pathTP pathCanopy
+                            ->
+                            let uniqueFileNamesTP, uniqueFileNamesCanopy = runIO <| getUniqueFileNames pathTP pathCanopy 
+                            showResults uniqueFileNamesTP uniqueFileNamesCanopy
+                        )
+                    |> Seq.collect id       
+            )     
 
         IO (fun () 
                 ->
