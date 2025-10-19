@@ -91,24 +91,24 @@ module App =
 
     type Model = 
         {
-            PermissionGranted: bool
-            ProgressMsg: string
-            NetConnMsg: string
-            CloudProgressMsg: string
-            ProgressIndicator: ProgressIndicator
-            Progress: float
-            RestartVisible: bool
-            ClearingVisible: bool
-            KodisVisible: bool
-            DpoVisible: bool
-            MdpoVisible: bool
-            BackHomeVisible: bool
-            ProgressCircleVisible: bool
-            CancelVisible: bool
-            CloudVisible: bool
-            LabelVisible: bool
-            Label2Visible: bool
-            AnimatedButton: string option // Tracks animated button
+            PermissionGranted : bool
+            ProgressMsg : string
+            NetConnMsg : string
+            CloudProgressMsg : string
+            ProgressIndicator : ProgressIndicator
+            Progress : float
+            RestartVisible : bool
+            ClearingVisible : bool
+            KodisVisible : bool
+            DpoVisible : bool
+            MdpoVisible : bool
+            BackHomeVisible : bool
+            ProgressCircleVisible : bool
+            CancelVisible : bool
+            CloudVisible : bool
+            LabelVisible : bool
+            Label2Visible : bool
+            AnimatedButton : string option // Tracks animated button
         }
 
     type Msg =
@@ -1165,7 +1165,7 @@ module App =
 
     type DispatchHolder = static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
 
-    let captureDispatchSub (_: Model) : Cmd<Msg> =
+    let captureDispatchSub (_ : Model) : Cmd<Msg> =
 
         Cmd.ofSub 
             (fun (dispatch : Dispatch<Msg>)
