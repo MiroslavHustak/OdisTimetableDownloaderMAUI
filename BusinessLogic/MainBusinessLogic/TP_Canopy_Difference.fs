@@ -102,16 +102,16 @@ module TP_Canopy_Difference =
                     let json =  
                         seq
                             {
-                                "JR_ODIS_aktualni_vcetne_vyluk"
+                                currentValidity
                                 String.Empty
                                 String.replicate 48 "*"
                                 yield! runIO <| result pathTP_CurrentValidity pathCanopy_CurrentValidity
                                 String.Empty
-                                "JR_ODIS_pouze_budouci_platnost"
+                                futureValidity
                                 String.replicate 48 "*"
                                 yield! runIO <| result pathTP_FutureValidity pathCanopy_FutureValidity
                                 String.Empty
-                                "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk"
+                                withoutReplacementService
                                 String.replicate 48 "*"
                                 yield! runIO <| result pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
                             }                

@@ -8,6 +8,13 @@ open Types.TypeAlgebra
 
 module SettingsGeneral =  
 
+    let [<Literal>] internal currentValidity = "JR_ODIS_aktualni_vcetne_vyluk"
+    let [<Literal>] internal futureValidity = "JR_ODIS_pouze_budouci_platnost"
+    let [<Literal>] internal withoutReplacementService = "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk"
+
+    let [<Literal>] internal dpo = "JR_ODIS_pouze_linky_dopravce_DPO"
+    let [<Literal>] internal mdpo = "JR_ODIS_pouze_linky_dopravce_MDPO"
+
     let [<Literal>] internal logFileName = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\logEntries.json"
     let [<Literal>] internal logFileNameWindows = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\tp_canopy_difference.txt"
     let [<Literal>] internal logFileNameAndroid = @"/storage/emulated/0/Logs/tp_canopy_difference.txt"
@@ -22,12 +29,12 @@ module SettingsGeneral =
                         fun row col
                             ->
                             match (row, col) with
-                            | (I1, I1) -> "JR_ODIS_aktualni_vcetne_vyluk"
-                            | (I1, I2) -> "JR_ODIS_pouze_budouci_platnost"
+                            | (I1, I1) -> currentValidity
+                            | (I1, I2) -> futureValidity
                             | (I1, I3) -> String.Empty
-                            | (I2, I1) -> "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk"
-                            | (I2, I2) -> "JR_ODIS_pouze_linky_dopravce_DPO"
-                            | (I2, I3) -> "JR_ODIS_pouze_linky_dopravce_MDPO"
+                            | (I2, I1) -> withoutReplacementService
+                            | (I2, I2) -> dpo
+                            | (I2, I3) -> mdpo
                             | _        -> String.Empty
                 }
         }
@@ -88,7 +95,7 @@ module SettingsGeneral =
 
     let internal pathTP_WithoutReplacementService = path0 <| ODIS_Variants.board.board I2 I1 
     let internal pathCanopy_WithoutReplacementService = path4 <| ODIS_Variants.board.board I2 I1  
-
+        
     (*
     Right-click g:\Users\User\... (vsechny adresare anebo adresar nad tim), select Properties > Security, and grant full control.
         

@@ -15,8 +15,10 @@ open Types.Haskell_IO_Monad_Simulation
 open Helpers
 open Helpers.MyString
 
-open Api.Logging
 open Settings.SettingsKODIS
+open Settings.SettingsGeneral
+
+open Api.Logging
 open DataModelling.DataModel
 
 module FilterTimetableLinks =  
@@ -312,7 +314,7 @@ module FilterTimetableLinks =
                                 //let pathToDir = sprintf "%s\\%s" pathToDir file //pro ostatni
                                 let pathToDir = sprintf "%s/%s" pathToDir file //pro ostatni
 
-                                match pathToDir.Contains "JR_ODIS_aktualni_vcetne_vyluk" || pathToDir.Contains "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk" with 
+                                match pathToDir.Contains currentValidity || pathToDir.Contains withoutReplacementService with 
                                 | true  ->   
                                         true //pro aktualni a dlouhodobe platne
                                         |> function

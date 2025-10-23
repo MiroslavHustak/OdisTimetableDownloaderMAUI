@@ -196,7 +196,6 @@ module KODIS_BL_Record4 =
                                                             | HttpStatusCode.PartialContent | HttpStatusCode.OK  // 206 // 200
                                                                 ->  
                                                                 do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
-
                                                             | HttpStatusCode.Forbidden 
                                                                 ->
                                                                 runIO <| postToLogFile () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#1711") 
