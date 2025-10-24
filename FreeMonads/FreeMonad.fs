@@ -40,6 +40,7 @@ module FreeMonadInterpret =
             | Ok s, Ok d 
                 ->
                 try                    
+                    (*
                     #if WINDOWS
                     match io_operation with
                     | Copy //C++
@@ -56,11 +57,12 @@ module FreeMonadInterpret =
                  
                     //| Copy -> runIO <| copyDirectory2 s d     //Rust       
                     //| Move -> runIO <| moveDirectory2 s d     //Rust
-                    #else
+                    #endif
+                    *)
                     match io_operation with
                     | Copy -> runIO <| copyDirectory s d 0 true //F#                      
                     | Move -> runIO <| moveDirectory s d        //F#                     
-                    #endif
+                   
                 with
                 | ex                    
                     ->                  

@@ -110,12 +110,6 @@
 		<DeployOnBuild>True</DeployOnBuild>
 		<IsPublishable>True</IsPublishable>
 	</PropertyGroup>
-	
-   <ItemGroup>
-	   <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.dll">
-		   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-       </None>
-   </ItemGroup>
 
 	<ItemGroup>
 		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
