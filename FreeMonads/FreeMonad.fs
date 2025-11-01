@@ -59,6 +59,7 @@ module FreeMonadInterpret =
                     //| Move -> runIO <| moveDirectory2 s d     //Rust
                     #endif
                     *)
+
                     match io_operation with
                     | Copy -> runIO <| copyDirectory s d 0 true //F#                      
                     | Move -> runIO <| moveDirectory s d        //F#                     
@@ -106,7 +107,7 @@ module FreeMonadInterpret =
                             let! value = Path.GetFullPath destination |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s #304" destination                        
                             let! value = 
                                 (
-                                    let dInfodat: DirectoryInfo = DirectoryInfo value   
+                                    let dInfodat : DirectoryInfo = DirectoryInfo value   
                                     Option.fromBool value dInfodat.Exists
                                 ), Error <| sprintf "Chyba při čtení cesty k %s #305" value
                         
