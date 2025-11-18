@@ -2,7 +2,7 @@
 
 ************************************************************
 
-**Solution Structure (showing unidirectional F# project dependencies):**
+**The actual solution structure, revealing unidirectional F# project dependencies (as GitHub distorts the reality by displaying only an alphabetical order), is shown in the chart below:**
 <pre lang="markdown"> ```
 RustHelpers (DLL)
 ├── CombiningStrings/
