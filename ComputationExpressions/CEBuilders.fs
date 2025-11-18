@@ -93,14 +93,14 @@ module Builders =
         member _.Bind(m, nextFunc) =
             match m with
             | Ok v 
-                -> nextFunc v
+                -> nextFunc v  
             | Error e
                 -> Error e
            
-        member _.Return x = x   
+        member _.Return x = x   //oproti result CE nema OK
         member _.ReturnFrom x : 'a = x
         
-    let internal pyramidOfAbbys = MyBuilder4  
+    let internal pyramidOfAbbys = MyBuilder4  //nepouzivano, nahrazeno result CE z FsToolkit.ErrorHandling s return!
       
     //**************************************************************************************
 

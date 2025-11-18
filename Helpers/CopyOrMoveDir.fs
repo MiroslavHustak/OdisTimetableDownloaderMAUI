@@ -3,8 +3,11 @@
 open System
 open System.IO
 
+open FsToolkit.ErrorHandling
+
 open Builders
 open Types.Haskell_IO_Monad_Simulation
+
 
 // In this solution, source and destination values are null-checked and validated in the free monad.
 // Ensure proper checking and validation when used elsewhere.
@@ -98,7 +101,7 @@ module MoveDir =
 
                 | Ok PathHelpers.File
                     ->
-                    pyramidOfAbbys
+                    result
                         {
                             let! dir =
                                 Path.GetDirectoryName target
@@ -109,7 +112,7 @@ module MoveDir =
                             
                             let! _ = moveFile fullSource target
                             
-                            return Ok ()
+                            return ()
                         }
 
                 | Ok PathHelpers.Missing 
@@ -144,14 +147,15 @@ module MoveDir =
             |> Seq.map 
                 (fun entry 
                     ->
-                    pyramidOfAbbys
+                    result
                         {
                             let! relative = relativePath preparedSource entry
                             let! dest =
                                 Path.Combine(target, relative)
                                 |> Option.ofNullEmpty
                                 |> Result.fromOption
-                            return moveEntry entry dest 
+                            
+                            return! moveEntry entry dest 
                         }
                 )
             |> Seq.toList
@@ -160,7 +164,7 @@ module MoveDir =
                 ->
                 let tryMove () =
 
-                    pyramidOfAbbys
+                    result
                         {
                             let! preparedSource = prepareMoveFolder source
 
@@ -180,8 +184,8 @@ module MoveDir =
                                 |> List.choose (function Error e -> Some e | _ -> None)
 
                             match errors with
-                            | []   -> return safeDeleteDirectory preparedSource // Delete source directory after successful move
-                            | errs -> return Error (String.concat "; " errs)
+                            | []   -> return! safeDeleteDirectory preparedSource // Delete source directory after successful move
+                            | errs -> return! Error (String.concat "; " errs)
                         }
 
                 try
@@ -319,12 +323,12 @@ module CopyDir =
                                 |> Seq.map 
                                     (fun entry 
                                         ->
-                                        pyramidOfAbbys 
+                                        result 
                                             {
                                                 let! relative = relativePath preparedSource entry
                                                 let! dest = pathCombine2 relative
 
-                                                return copyEntry entry dest overwriteOption
+                                                return! copyEntry entry dest overwriteOption
                                             }
                                     )
                                 |> Seq.toList

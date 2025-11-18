@@ -9,22 +9,30 @@ module Haskell_IO_Monad_Simulation =
     let internal runIO (IO action) = action () 
     let internal runIOAsync (IO action) : Async<'a> = async { return action () }
 
-    let private bind (IO action) (f : 'a -> IO<'b>) : IO<'b> =
+    let private bind (IO action) (f : 'a -> IO<'b>) : IO<'b> = //educational code
         IO (fun () 
                 ->
                 let a = action ()
                 let (IO action2) = f a
                 action2 ()
         )
+
+    let internal impureFn = 
+           IO ( (fun () -> printfn "Impure function executed")) //educational code
+
+    let private result_test = runIO impureFn //educational code
+
+    //*****************************************
     
     // Simulating Haskell's RealWorld token for better purity representation 
+    // Educational code
     type RealWorld = RealWorld 
     type IO2<'a> = IO2 of (RealWorld -> RealWorld * 'a)
      
     let runIO2 (IO2 f) =
         let (RealWorld, value) = f RealWorld
         value
-
+            
     let private bind2 (IO2 fa) f =
         IO2 (fun w0 
                 ->
@@ -33,15 +41,12 @@ module Haskell_IO_Monad_Simulation =
                 fb w1
         )  
 
+    //*****************************************
+
     //not used yet
     let internal returnIO x = IO (fun () -> x)
     let internal bindIO (IO f) g = IO (fun () -> (runIO (g (f ()))))
     let internal mapIO f io = bindIO io (f >> returnIO)
-
-    let internal impureFn = 
-        IO ( (fun () -> printfn "Impure function executed"))
-
-    let result = runIO impureFn
 
 module FreeMonad =
    
