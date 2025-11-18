@@ -8,9 +8,10 @@ open FsToolkit.ErrorHandling
 open Builders
 open Types.Haskell_IO_Monad_Simulation
 
-
 // In this solution, source and destination values are null-checked and validated in the free monad.
-// Ensure proper checking and validation when used elsewhere.
+// !!!!!!!!!!!!!!!! Ensure proper checking and validation when used elsewhere !!!!!!!!!!!!!!!!!!!
+
+// Nebylo kontrolovano, pri publishing vse overit, copy i move
 
 module private PathHelpers =
 

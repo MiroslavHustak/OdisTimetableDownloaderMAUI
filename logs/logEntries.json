@@ -542,3 +542,11 @@
 { "list": ["Timeout exceeded while getting response Error#008","11/13/2025 23:14:21 +00:00"] }
 { "list": ["Error Error#3001","11/13/2025 23:55:35 +00:00"] }
 
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The requested name is valid, but no data of the requested type was found. (kodis-backend-staging-85d01eccf627.herokuapp.com:443))) Error#020","10/31/2025 12:40:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","11/07/2025 12:56:57 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","11/07/2025 12:58:38 +00:00"] }
+{ "list": ["Error Error#3001","11/07/2025 13:04:43 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","11/13/2025 23:12:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","11/13/2025 23:14:21 +00:00"] }
+{ "list": ["Error Error#3001","11/13/2025 23:55:35 +00:00"] }
+
