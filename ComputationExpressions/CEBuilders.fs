@@ -33,15 +33,13 @@ module Builders =
     //**************************************************************************************
      
     [<Struct>]
-    type internal MyBuilder = MyBuilder with  
-    
+    type internal MyBuilder = MyBuilder with 
         member _.Bind(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
             match m with
             | (false, handleFalse)
                 -> handleFalse()
             | (true, _)
-                -> nextFunc()
-    
+                -> nextFunc()    
         member _.Return x : 'a = x   
         member _.ReturnFrom x : 'a = x 
         member _.Using(x : 'a, _body: 'a -> 'b) : 'b = _body x    
@@ -57,8 +55,7 @@ module Builders =
         member _.Bind((m, recovery), nextFunc) =
             match m with
             | Some v -> nextFunc v
-            | None   -> recovery
-    
+            | None   -> recovery    
         member _.Return x : 'a = x   
         member _.ReturnFrom x : 'a = x
         member _.Using(resource, binder) =
@@ -77,9 +74,7 @@ module Builders =
                 -> nextFunc v 
             | (Error err, handler) 
                 -> handler err
-
-        member inline this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion
-        
+        member inline this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion        
         member _.Zero () = ()       
         member _.Return x = x
         member _.ReturnFrom x = x     
@@ -95,8 +90,7 @@ module Builders =
             | Ok v 
                 -> nextFunc v  
             | Error e
-                -> Error e
-           
+                -> Error e           
         member _.Return x = x   //oproti result CE nema OK
         member _.ReturnFrom x : 'a = x
         
