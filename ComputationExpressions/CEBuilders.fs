@@ -31,61 +31,77 @@ module Builders =
     *)
 
     //**************************************************************************************
-                     
-    [<Struct>]
-    type internal MyBuilder3 = MyBuilder3 with       
-        member _.Bind(resultExpr, nextFunc) = 
-            match fst resultExpr with
-            | Ok value  -> nextFunc value 
-            | Error err -> (snd resultExpr) err
-        member _.Zero () = ()       
-        member _.Return x = x  
-        member _.ReturnFrom x : 'a = x 
-        member _.TryWith(body, catch) =
-            try body()
-            with ex -> catch ex   
      
-    let internal pyramidOfInferno = MyBuilder3    
-    
-    //**************************************************************************************
-
     [<Struct>]
-    type internal MyBuilder = MyBuilder with    
-        member _.Bind(condition, nextFunc) =
-            match fst condition with
-            | false -> snd condition
-            | true  -> nextFunc()  
-        member _.Return x = x
+    type internal MyBuilder = MyBuilder with  
+    
+        member _.Bind(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
+            match m with
+            | (false, handleFalse)
+                -> handleFalse()
+            | (true, _)
+                -> nextFunc()
+    
+        member _.Return x : 'a = x   
         member _.ReturnFrom x : 'a = x 
-        member _.Using x = x
-
+        member _.Using(x : 'a, _body: 'a -> 'b) : 'b = _body x    
+        member _.Delay(f : unit -> 'a) = f()
+        member _.Zero() = ()    
+      
     let internal pyramidOfHell = MyBuilder
 
     //**************************************************************************************
-
+   
     [<Struct>]
-    type internal Builder2 = Builder2 with    
-        member _.Bind((optionExpr, err), nextFunc) =
-            match optionExpr with
-            | Some value -> nextFunc value 
-            | _          -> err  
+    type Builder2 = Builder2 with    
+        member _.Bind((m, recovery), nextFunc) =
+            match m with
+            | Some v -> nextFunc v
+            | None   -> recovery
+    
         member _.Return x : 'a = x   
-        member _.ReturnFrom x : 'a = x 
+        member _.ReturnFrom x : 'a = x
         member _.Using(resource, binder) =
             use r = resource
             binder r
-        (*
-        member _.TryFinally(body, compensation) =
-            try body()
-            finally compensation()
-        member _.Zero () = ()        
-        member _.TryWith(body, catch) =
-            try body()
-            with ex -> catch ex   
-        *)
-      
+        
     let internal pyramidOfDoom = Builder2
     
+    //**************************************************************************************
+       
+    [<Struct>]
+    type internal MyBuilder3 = MyBuilder3 with   
+        member _.Recover(m, nextFunc) = //neni monada, nesplnuje vsechny 3 monadicke zakony   
+            match m with
+            | (Ok v, _)           
+                -> nextFunc v 
+            | (Error err, handler) 
+                -> handler err
+
+        member inline this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion
+        
+        member _.Zero () = ()       
+        member _.Return x = x
+        member _.ReturnFrom x = x     
+        
+    let internal pyramidOfInferno = MyBuilder3  
+    
+    //**************************************************************************************
+       
+    [<Struct>]
+    type internal MyBuilder4 = MyBuilder4 with 
+        member _.Bind(m, nextFunc) =
+            match m with
+            | Ok v 
+                -> nextFunc v
+            | Error e
+                -> Error e
+           
+        member _.Return x = x   
+        member _.ReturnFrom x : 'a = x
+        
+    let internal pyramidOfAbbys = MyBuilder4  
+      
     //**************************************************************************************
 
     type internal Reader<'e, 'a> = 'e -> 'a
@@ -132,3 +148,35 @@ module Builders =
         member _.Zero() = []
 
     let internal xor = XorBuilder
+    
+    (*
+    ╔══════════════════════════════════════════════════════════════════════════╗
+    ║                   MONADIC COMPUTATION EXPRESSIONS IN F#                  ║
+    ║                     Two completely valid styles exist:                   ║
+    ╚══════════════════════════════════════════════════════════════════════════╝
+       
+    ┌─────────────────────────────┬───────────────────────────────┬─────────────────────┬───────────────────┬─────────┐
+    │ Kind                        │ Examples in F# stdlib         │ Type of yield / let!│ Must preserve     │ Lawful? │
+    │                             │                               │                     │ wrapper?          │         │
+    ├─────────────────────────────┼───────────────────────────────┼─────────────────────┼───────────────────┼─────────┤
+    │ Wrapped / Container style   │ option { }, async { },        │ option<'a>          │ Yes               │ YES     │
+    │                             │ Choice<'a,'b> { }, Result { } │ Async<'a>, etc.     │                   │         │
+    ├─────────────────────────────┼───────────────────────────────┼─────────────────────┼───────────────────┼─────────┤
+    │ Kleisli / Continuation      │ seq { }, list { },            │ plain 'a            │ No (only          │ YES     │
+    │ style (collapse-to-value)   │ array { }, task { },          │                     │ observable        │         │
+    │                             │ your recover / conditional    │                     │ behaviour matters)│         │
+    │                             │ builders                      │                     │                   │         │
+    └─────────────────────────────┴───────────────────────────────┴─────────────────────┴───────────────────┴─────────┘
+       
+    Key insight:
+        • In the Kleisli/continuation style (seq, list, your recover builder, etc.)
+            the monad laws are judged ONLY by observable results, NOT by internal
+            representation or hidden metadata that does not affect future behaviour.
+       
+        • Right identity holds if  m >>= return   produces the same values/effects
+            as m — even if internal thunks, enumerators, or recovery values differ.
+       
+        • This is exactly how the F# standard library implements seq { }, list { },
+            array { } and task { } — all are 100% lawful monads despite returning
+            plain values from Return and Bind.  
+    *)   

@@ -603,6 +603,7 @@ module MDPO_BL = //FsHttp
 
                                         return Error FileDownloadErrorMHD                                            
                                     }
-                    )                     
+                    )   
+                    
                 runIO <| downloadTimetables reportProgress token
         )

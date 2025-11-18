@@ -98,16 +98,16 @@ module MoveDir =
 
                 | Ok PathHelpers.File
                     ->
-                    pyramidOfInferno
+                    pyramidOfAbbys
                         {
                             let! dir =
                                 Path.GetDirectoryName target
                                 |> Option.ofNullEmpty
-                                |> Result.fromOption, fun err -> Error err
+                                |> Result.fromOption
                             
                             Directory.CreateDirectory dir |> ignore<DirectoryInfo>
                             
-                            let! _ = moveFile fullSource target, fun err -> Error err
+                            let! _ = moveFile fullSource target
                             
                             return Ok ()
                         }
@@ -144,13 +144,13 @@ module MoveDir =
             |> Seq.map 
                 (fun entry 
                     ->
-                    pyramidOfInferno
+                    pyramidOfAbbys
                         {
-                            let! relative = relativePath preparedSource entry, fun err -> Error err
+                            let! relative = relativePath preparedSource entry
                             let! dest =
                                 Path.Combine(target, relative)
                                 |> Option.ofNullEmpty
-                                |> Result.fromOption, fun err -> Error err
+                                |> Result.fromOption
                             return moveEntry entry dest 
                         }
                 )
@@ -160,14 +160,14 @@ module MoveDir =
                 ->
                 let tryMove () =
 
-                    pyramidOfInferno
+                    pyramidOfAbbys
                         {
-                            let! preparedSource = prepareMoveFolder source, fun err -> Error err
+                            let! preparedSource = prepareMoveFolder source
 
                             let! targetDirName =
                                 Path.GetFileName(preparedSource.TrimEnd(Path.DirectorySeparatorChar))
                                 |> Option.ofNullEmpty
-                                |> Result.fromOption, fun err -> Error err
+                                |> Result.fromOption
 
                             let target = Path.Combine(targetParent, targetDirName)
 
@@ -319,10 +319,10 @@ module CopyDir =
                                 |> Seq.map 
                                     (fun entry 
                                         ->
-                                        pyramidOfInferno 
+                                        pyramidOfAbbys 
                                             {
-                                                let! relative = relativePath preparedSource entry, fun err -> Error err
-                                                let! dest = pathCombine2 relative, fun err -> Error err
+                                                let! relative = relativePath preparedSource entry
+                                                let! dest = pathCombine2 relative
 
                                                 return copyEntry entry dest overwriteOption
                                             }

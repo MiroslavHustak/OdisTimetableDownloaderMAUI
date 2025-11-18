@@ -2,6 +2,8 @@
 
 open System
 
+open FsToolkit.ErrorHandling
+
 //***********************************
 
 open Helpers.Builders
@@ -99,11 +101,11 @@ module Option =
                     -> Some value          
                                   
     let internal ofNullEmpty (value : 'nullableValue) = //NullOrEmpty
-        pyramidOfHell
+        pyramidOfDoom //nelze option {}
             {
-                let!_ = not <| System.Object.ReferenceEquals(value, null), None 
+                let!_ = (not <| System.Object.ReferenceEquals(value, null)) |> fromBool Some, None 
                 let value = string value 
-                let! _ = not <| String.IsNullOrEmpty(value), None 
+                let! _ = (not <| String.IsNullOrEmpty value) |> fromBool Some, None 
 
                 return Some value
             }
@@ -156,11 +158,11 @@ module Option =
     *)
 
     let internal ofNullEmptySpace (value : 'nullableValue) = //NullOrEmpty, NullOrWhiteSpace
-        pyramidOfHell
+        pyramidOfDoom //nelze option {}
             {
-                let!_ = not <| System.Object.ReferenceEquals(value, null), None 
+                let!_ = (not <| System.Object.ReferenceEquals(value, null)) |> fromBool Some, None 
                 let value = string value 
-                let! _ = not <| String.IsNullOrWhiteSpace(value), None
+                let! _ = (not <| String.IsNullOrWhiteSpace(value)) |> fromBool Some, None
     
                 return Some value
             }
@@ -172,7 +174,7 @@ module Option =
 
     (*
     //FsToolkit
-    let internal toResult (error: 'error) (opt: 'value option) : Result<'value, 'error> =
+    let internal toResult (error : 'error) (opt : 'value option) : Result<'value, 'error> =
 
         match opt with
         | Some value -> Result.Ok value
