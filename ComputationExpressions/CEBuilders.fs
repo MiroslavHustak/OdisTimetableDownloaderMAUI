@@ -143,12 +143,7 @@ module Builders =
 
     let internal xor = XorBuilder
     
-    (*
-    ╔══════════════════════════════════════════════════════════════════════════╗
-    ║                   MONADIC COMPUTATION EXPRESSIONS IN F#                  ║
-    ║                     Two completely valid styles exist:                   ║
-    ╚══════════════════════════════════════════════════════════════════════════╝
-       
+    (*         
     ┌─────────────────────────────┬───────────────────────────────┬─────────────────────┬───────────────────┬─────────┐
     │ Kind                        │ Examples in F# stdlib         │ Type of yield / let!│ Must preserve     │ Lawful? │
     │                             │                               │                     │ wrapper?          │         │
@@ -173,4 +168,6 @@ module Builders =
         • This is exactly how the F# standard library implements seq { }, list { },
             array { } and task { } — all are 100% lawful monads despite returning
             plain values from Return and Bind.  
+
+     //Thunks are primarily used to delay a calculation until its result is needed, or to insert operations at the beginning or end of the other subroutine. 
     *)   
