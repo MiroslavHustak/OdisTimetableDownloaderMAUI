@@ -153,9 +153,9 @@
     <Compile Include="Helpers\HardRestart.fs" />
     <Compile Include="Helpers\ListParallel.fs" />
     <Compile Include="Helpers\AndroidSpecificCode.fs" />
-    <Compile Include="FreeMonads\CmdLineWorkflows.fs" />
-    <Compile Include="FreeMonads\FreeMonad.fs" />
-    <Compile Include="StateMonads\StateMonad.fs" />
+    <Compile Include="Monads\FreeMonads\CmdLineWorkflows.fs" />
+    <Compile Include="Monads\FreeMonads\FreeMonad.fs" />
+    <Compile Include="Monads\StateMonads\StateMonad.fs" />
     <Compile Include="Connectivity\Connectivity.fs" />
     <Compile Include="DataModelling\DataModels.fs" />
     <Compile Include="DataModelling\DataTransferModels.fs" />
