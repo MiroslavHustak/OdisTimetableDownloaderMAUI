@@ -67,8 +67,14 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── HardRestart.fs
 │   ├── ListParallel.fs
 │   └── AndroidSpecificCode.fs
+├── Monads/   
+│   ├── FreeMonads/       
+│   │   ├── CmdLineWorkflows.fs
+│   │   └── FreeMonad.fs
+│   └── StateMonads/
+│       └── StateMonad.fs
 ├── Connectivity/
-│   └── Connectivity.fs
+│   └── Connectivity.fs    
 ├── DataModelling/
 │   ├── DataModels.fs
 │   ├── DataTransferModels.fs
