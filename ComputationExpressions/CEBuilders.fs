@@ -74,7 +74,7 @@ module Builders =
                 -> nextFunc v 
             | (Error err, handler) 
                 -> handler err
-        member inline this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion        
+        member this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion        
         member _.Zero () = ()       
         member _.Return x = x
         member _.ReturnFrom x = x     

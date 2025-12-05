@@ -171,7 +171,7 @@ module IO_Operations =
                 try
                     dirList
                     |> List.iter
-                        (fun (dir: string) 
+                        (fun (dir : string) 
                             ->                
                             match dir.Contains currentValidity || dir.Contains withoutReplacementService with 
                             | true  ->    

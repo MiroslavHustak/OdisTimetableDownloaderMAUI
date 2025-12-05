@@ -158,7 +158,7 @@ module AndroidUIHelpers =
                                 |> Option.ofNull
                                 |> Option.map (fun _ -> ()), None
             
-                            do context.StartActivity(intent) 
+                            do context.StartActivity intent 
                             return Some () // Return unit option
                         }
                 with
@@ -184,7 +184,7 @@ module AndroidUIHelpers =
                                           |> Option.ofNull 
                                           |> Option.map (fun _ -> ()), None
 
-                            return! Some <| context.StartActivity(homeIntent) 
+                            return! Some <| context.StartActivity homeIntent 
                         }
                 with
                 | ex 
@@ -226,11 +226,11 @@ module AndroidUIHelpers =
     
                             use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
                             do!
-                                intent.SetData(uri)
+                                intent.SetData uri
                                 |> Option.ofNull
                                 |> Option.map (fun _ -> ()), None
     
-                            return! Some <| Application.Context.StartActivity(intent)
+                            return! Some <| Application.Context.StartActivity intent
                         }
                         |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                 with
