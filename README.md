@@ -52,11 +52,6 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── SettingsMDPO.fs
 ├── ComputationExpressions/
 │   └── CEBuilders.fs
-├── StateMonads/
-│   └── StateMonad.fs
-├── FreeMonads/
-│   ├── CmdLineWorkflows.fs
-│   └── FreeMonad.fs
 ├── ErrorHandling/
 │   └── ErrorHandlers.fs
 ├── Helpers/
@@ -67,8 +62,14 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── HardRestart.fs
 │   ├── ListParallel.fs
 │   └── AndroidSpecificCode.fs
+├── Monads/   
+│   ├── FreeMonads/       
+│   │   ├── CmdLineWorkflows.fs
+│   │   └── FreeMonad.fs
+│   └── StateMonads/
+│       └── StateMonad.fs
 ├── Connectivity/
-│   └── Connectivity.fs
+│   └── Connectivity.fs    
 ├── DataModelling/
 │   ├── DataModels.fs
 │   ├── DataTransferModels.fs
