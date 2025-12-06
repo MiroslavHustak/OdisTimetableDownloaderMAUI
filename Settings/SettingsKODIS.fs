@@ -24,8 +24,8 @@ module SettingsKODIS =
 
     let internal context2 =  
         {
-            summerHolidayEnd1 = DateTime (2025, 8, 31)
-            summerHolidayEnd2 = DateTime (2025, 8, 31) //(2025, 9, 1)
+            summerHolidayEnd1 = DateTime (2026, 8, 31)
+            summerHolidayEnd2 = DateTime (2026, 8, 31) //(2026, 9, 1)
             currentTime = DateTime.Now.Date  //try with is overkill, as the system clock is a trusted dependency, and failures are too rare to justify catching.     
             dateTimeMinValue = DateTime.MinValue  
         }

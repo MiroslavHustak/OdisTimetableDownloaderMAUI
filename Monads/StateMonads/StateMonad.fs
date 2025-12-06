@@ -9,6 +9,7 @@ module StateMonad =
     let internal returnState x = State (fun s -> (x, s))
 
     let private bindState (m : State<'S, 'T>) (f : 'T -> State<'S, 'U>) : State<'S, 'U> =
+
         State
             (fun s
                 ->
