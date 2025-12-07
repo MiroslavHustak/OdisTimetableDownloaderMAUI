@@ -140,7 +140,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── Release/
 │       └── net8.0-windows10.0.19041.0/
 │           └── win10-x64/ (empty folder)
-├── Monadic_function_composition.txt
+├── Monadic_composition.txt
 ├── TODO_list.txt
 ├── CppHelpers.dll (external, copied to output)
 ├── string_combine_dll.dll (external, copied to output)
