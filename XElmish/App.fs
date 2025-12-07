@@ -210,12 +210,15 @@ module App =
                                                     return () 
                                             | false -> 
                                                     NetConnMessage >> dispatch <| noNetConn 
-                                                    //do! Async.Sleep 2000
-                                                    return dispatch EmergencyQuit //runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                                    do! Async.Sleep 2000
+                                                    return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                             #else                                            
                                             match isConnected with
-                                            | true  -> return NetConnMessage >> dispatch <| yesNetConn 
-                                            | false -> return dispatch EmergencyQuit//NetConnMessage >> dispatch <| noNetConn                                                   
+                                            | true  -> 
+                                                    return NetConnMessage >> dispatch <| yesNetConn 
+                                            | false -> 
+                                                    dispatch Home2
+                                                    return dispatch EmergencyQuit//NetConnMessage >> dispatch <| noNetConn                                                   
                                             #endif                                           
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
@@ -529,7 +532,7 @@ module App =
                 async
                     {
                         do! Async.Sleep 60000 //za hodinu mu to vypneme automaticky
-                        //do! Async.AwaitTask (System.Threading.Tasks.Task.Delay(System.Threading.Timeout.InfiniteTimeSpan))
+                        //do! Async.AwaitTask (System.Threading.Tasks.Task.Delay(System.Threading.Timeout.InfiniteTimeSpan))                        
                         return dispatch IntermediateQuitCase
                     }
             
