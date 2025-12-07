@@ -73,8 +73,6 @@ module Connectivity =
                 Connectivity.ConnectivityChanged.Add connectivityChangedHandler
         )
 
-//******************** Zatim se nepouziva ********************************************
-
 module CheckNetConnection =  
     
     open FSharp.Control

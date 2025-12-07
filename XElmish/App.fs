@@ -127,6 +127,8 @@ module App =
         | Home2
         | RestartVisible of bool
         | Quit
+        | EmergencyQuit
+        | IntermediateQuitCase
         | QuitCountdown of string
         | NetConnMessage of string
         | IterationMessage of string    
@@ -208,17 +210,17 @@ module App =
                                                     return () 
                                             | false -> 
                                                     NetConnMessage >> dispatch <| noNetConn 
-                                                    do! Async.Sleep 2000
-                                                    return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                                    //do! Async.Sleep 2000
+                                                    return dispatch EmergencyQuit //runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                             #else                                            
                                             match isConnected with
                                             | true  -> return NetConnMessage >> dispatch <| yesNetConn 
-                                            | false -> return NetConnMessage >> dispatch <| noNetConn                                                   
+                                            | false -> return dispatch EmergencyQuit//NetConnMessage >> dispatch <| noNetConn                                                   
                                             #endif                                           
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 
-                            do! Async.Sleep 5000   
+                            do! Async.Sleep 100   
                         }
                 )
             |> Async.StartImmediate  
@@ -516,6 +518,51 @@ module App =
 
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, Cmd.none
+
+        | IntermediateQuitCase  //nepouzivano, ponechano pro pripadne pristi pouziti
+            -> 
+            m, Cmd.ofMsg Quit
+
+        | EmergencyQuit 
+            ->
+            let delayedQuit (dispatch : Msg -> unit) = 
+                async
+                    {
+                        do! Async.Sleep 60000 //za hodinu mu to vypneme automaticky
+                        //do! Async.AwaitTask (System.Threading.Tasks.Task.Delay(System.Threading.Timeout.InfiniteTimeSpan))
+                        return dispatch IntermediateQuitCase
+                    }
+            
+            let executeQuit (dispatch : Msg -> unit) = 
+                async
+                    {
+                        return! delayedQuit dispatch
+                    }
+                |> Async.StartImmediate
+           
+            #if WINDOWS
+            m, Cmd.none          
+            #endif
+
+            #if ANDROID
+            { 
+                m with 
+                    ProgressMsg = String.Empty
+                    NetConnMsg = noNetConn4
+                    ProgressIndicator = Idle
+                    Progress = 0.0   
+                    RestartVisible = false
+                    ClearingVisible = false
+                    KodisVisible = false
+                    DpoVisible = false
+                    MdpoVisible = false
+                    CloudVisible = false  
+                    ProgressCircleVisible = false
+                    CancelVisible = false
+                    LabelVisible = true
+                    Label2Visible = true                    
+            }, Cmd.ofSub executeQuit
+            #endif
 
         | Home2  
             -> 

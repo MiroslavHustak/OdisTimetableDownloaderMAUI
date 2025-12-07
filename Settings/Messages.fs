@@ -97,6 +97,7 @@ module Messages =
     let [<Literal>] internal noNetConn1 = "Operace nebyla provedena, není přístup k internetu." 
     let [<Literal>] internal noNetConn2 = "Není přístup k internetu, nutno vyčkat, až bude." 
     let [<Literal>] internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se k internetu a spusť ji znovu."  
+    let [<Literal>] internal noNetConn4 = "Není přístup k internetu, Vypni aplikaci, připoj se k internetu a spusť ji znovu." 
    
     let [<Literal>] internal yesNetConn = "Přípojení k internetu funguje." 
    
@@ -113,6 +114,7 @@ module Messages =
 
     let [<Literal>] internal netConnError = "Přerušené internetové připojení způsobilo přerušení stahování souborů. Stahuj vše znova."
     let [<Literal>] internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
+    let [<Literal>] internal apiResponseError = "www.kodis.somee.com je mimo provoz, nelze se dostat k odkazům na JŘ."
 
     let [<Literal>] internal buttonQuit = "Vypnout aplikaci" 
     let [<Literal>] internal buttonQuit2 = "Vypnout odpočítávání a aplikaci" 

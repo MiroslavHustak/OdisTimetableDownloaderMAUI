@@ -43,17 +43,22 @@ module KODIS_BL_Record4 =
                 let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
                     async
                         {
-                            let! getFromRestApi = getFutureLinksFromRestApi >> runIO <| urlApi
-                            return runIO <| filterTimetableLinks variant dir getFromRestApi
+                            match! getFutureLinksFromRestApi >> runIO <| urlApi with
+                            | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
+                            | Error err -> return Error err
                         }
     
                 let result2 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
                     async
                         {
-                            let! getFromRestApi = getFutureLinksFromRestApi >> runIO <| urlJson
                             match variant with
-                            | FutureValidity -> return runIO <| filterTimetableLinks variant dir getFromRestApi
-                            | _              -> return Ok []
+                            | FutureValidity 
+                                ->
+                                match! getFutureLinksFromRestApi >> runIO <| urlJson with
+                                | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
+                                | Error err -> return Error err
+                            | _              
+                                -> return Ok []
                         }
        
                 async 
@@ -77,23 +82,22 @@ module KODIS_BL_Record4 =
 
                                 | [ Error err; _ ]    
                                     -> 
-                                    runIO (postToLog <| err <| "#013")
+                                    runIO (postToLog <| err <| "#013")                                     
                                     Error err
 
                                 | [ _; Error err ] 
-                                    ->
-                                    runIO (postToLog <| err <| "#014")
+                                    ->                                    
+                                    runIO (postToLog <| err <| "#014")   
                                     Error err
 
                                 | _                   
                                     ->
-                                    runIO (postToLog <| DataFilteringError <| "#015")
+                                    runIO (postToLog <| DataFilteringError <| "#015")                                    
                                     Error DataFilteringError
 
                         | Choice2Of2 ex
                             -> 
-                            runIO (postToLog <| ex.Message <| "#016")
-                    
+                            runIO (postToLog <| ex.Message <| "#016")                      
                             return Error DataFilteringError  
                     }
                 |> Async.RunSynchronously //priprava na pripadne pouziti cancellation token, zabal to pak to try-with

@@ -85,7 +85,7 @@ module WebScraping_KODISFMRecord4 =
             | CanopyError          -> canopyError
             | TimeoutError         -> "timeout"
             | PdfConnectionError   -> cancelMsg2 
-            | ApiResponseError err -> err
+            | ApiResponseError err -> apiResponseError //err je strasne dluha hlaska
             | ApiDecodingError     -> canopyError
             | NetConnPdfError err  -> err
             | StopDownloading      -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5

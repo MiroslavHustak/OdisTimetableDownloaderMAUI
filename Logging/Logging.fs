@@ -48,7 +48,7 @@ module Logging =
     let internal postToLogFile () errorMessage = 
 
         IO (fun () 
-                ->
+                ->               
                 //direct transformation to a json string (without records / serialization / Thoth encoders )
                 let s1 = "{ \"list\": ["
                 let s2 = [ errorMessage; string DateTimeOffset.UtcNow ] |> List.map (sprintf "\"%s\"") |> String.concat ","
@@ -91,10 +91,13 @@ module Logging =
     let internal postToLog (msg: 'a) errCode =   
 
         IO (fun () 
-                ->     
-                runIO <| postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
-                |> Async.Ignore<ResponsePost>
-                |> Async.StartImmediate
+                ->    
+                try
+                    runIO <| postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
+                    |> Async.Ignore<ResponsePost>
+                    |> Async.StartImmediate        
+                with
+                |_ -> () //kdyz nefunguje KODIS API, zhavaruje aji logfile, ktery z endpoints bere / uklada na nej message
         )
 
     //*************************************************************************** 
@@ -126,7 +129,7 @@ module Logging =
                                 let logEntries = 
                                     async { return! getLogEntriesFromRestApi >> runIO <| url } 
                                     |> Async.RunSynchronously
-                                    |> function Ok logEntries -> logEntries | Error _ -> "Chyba při čtení logEntries z API"   
+                                    |> function Ok logEntries -> logEntries | Error _ -> "Chyba při čtení logEntries z KODIS API (kodis.somee)"   
                    
                                 let writer = new StreamWriter(filepath, true) // Append mode
                                 let! _ = writer |> Option.ofNull, Error String.Empty
