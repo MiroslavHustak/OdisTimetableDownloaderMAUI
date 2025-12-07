@@ -217,8 +217,7 @@ module App =
                                             | true  -> 
                                                     return NetConnMessage >> dispatch <| yesNetConn 
                                             | false -> 
-                                                    dispatch Home2
-                                                    return dispatch EmergencyQuit//NetConnMessage >> dispatch <| noNetConn                                                   
+                                                    return dispatch EmergencyQuit //NetConnMessage >> dispatch <| noNetConn                                                   
                                             #endif                                           
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
@@ -522,12 +521,16 @@ module App =
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, Cmd.none
 
-        | IntermediateQuitCase  //nepouzivano, ponechano pro pripadne pristi pouziti
+        | IntermediateQuitCase 
             -> 
             m, Cmd.ofMsg Quit
 
         | EmergencyQuit 
             ->
+            let ctsNew = new CancellationTokenSource() 
+                in
+                cancellationActor.Post <| UpdateState2 (true, ctsNew)    
+
             let delayedQuit (dispatch : Msg -> unit) = 
                 async
                     {
