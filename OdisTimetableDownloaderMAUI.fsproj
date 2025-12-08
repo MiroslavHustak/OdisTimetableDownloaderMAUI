@@ -135,10 +135,11 @@
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</Resource>
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
+    <Compile Include="JavaInteroperabilityCode\JavaInteroperabilityCode.fs" />
     <Compile Include="NativeCode\NativeCode.fs" />
     <Compile Include="Types\TDD.fs" />
     <Compile Include="Types\Types.fs" />
-    <Compile Include="Types\TypeAlgebra.fs" />
+    <Compile Include="Types\Grid3Algebra.fs" />
     <Compile Include="Types\ErrorTypes.fs" />
     <Compile Include="Settings\Messages.fs" />
     <Compile Include="Settings\SettingsGeneral.fs" />
@@ -151,9 +152,7 @@
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Serialization.fs" />
     <Compile Include="Helpers\Parsing.fs" />
-    <Compile Include="Helpers\HardRestart.fs" />
     <Compile Include="Helpers\ListParallel.fs" />
-    <Compile Include="Helpers\AndroidSpecificCode.fs" />
     <Compile Include="Monads\FreeMonads\CmdLineWorkflows.fs" />
     <Compile Include="Monads\FreeMonads\FreeMonad.fs" />
     <Compile Include="Monads\StateMonads\StateMonad.fs" />
@@ -179,6 +178,8 @@
     <Compile Include="ApplicationDesign\MDPO.fs" />
     <Compile Include="ApplicationDesign\KODIS_Record.fs" />
     <Compile Include="ApplicationDesign\KODIS_Record4.fs" />
+    <Compile Include="XElmish\HardRestart.fs" />
+    <Compile Include="XElmish\AndroidSpecificCode.fs" />
     <Compile Include="XElmish\ProgressCircle.fs" />
     <Compile Include="XElmish\Counters.fs" />
     <Compile Include="XElmish\App.fs" />

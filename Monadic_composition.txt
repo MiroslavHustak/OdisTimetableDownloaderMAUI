@@ -24,6 +24,70 @@ let bind f res =
     match res with
     | Ok value  -> f value
     | Error err -> Error err
+
+type ResultBuilder() =
+    member _.Return(value) = Ok value
+    
+    member _.ReturnFrom(m: Result<_,_>) = m
+    
+    member _.Bind(m: Result<'T,'E>, binder: 'T -> Result<'U,'E>) : Result<'U,'E> =
+        match m with
+        | Ok v -> binder v
+        | Error e -> Error e
+    
+    member _.Zero() = Ok ()
+    
+    member _.Combine(m: Result<unit,'E>, binder: unit -> Result<'T,'E>) =
+        match m with
+        | Ok () -> binder()
+        | Error e -> Error e
+    
+    member _.Delay(f: unit -> _) = f
+    
+    member _.Run(f) = f()
+    
+    member _.TryWith(body: unit -> Result<'T,'E>, catchHandler: exn -> Result<'T,'E>) =
+        try
+            body()
+        with ex -> catchHandler ex
+    
+    member _.TryFinally(body: unit -> Result<'T,'E>, compensation: unit -> unit) =
+        try
+            body()
+        finally
+            compensation()
+    
+    member _.Using(resource: 'T :> IDisposable, binder: 'T -> Result<'U,'E>) =
+        use res = resource
+        binder res
+    
+    member _.While(guard: unit -> bool, body: unit -> Result<unit,'E>) : Result<unit,'E> =
+        if not (guard()) then Ok () else
+        match body() with
+        | Ok () -> _.While(guard, body)
+        | Error e -> Error e
+    
+    member _.For(sequence: seq<'T>, binder: 'T -> Result<unit,'E>) : Result<unit,'E> =
+        use e = sequence.GetEnumerator()
+        let rec loop() =
+            if e.MoveNext() then
+                match binder e.Current with
+                | Ok () -> loop()
+                | Error e -> Error e
+            else Ok ()
+        loop()
+
+// The instance everyone uses
+let result = ResultBuilder()
+
+let saveUser user =
+    result
+        {
+            do! validateUser user
+            do! UserRepository.save user
+            return user.Id
+        }
+    |> Result.mapError (fun err -> DomainError.Validation err)  
 *)
 
 Option

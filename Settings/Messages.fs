@@ -145,4 +145,4 @@ module Messages =
         | SecondPlural -> sprintf "Není připojení k internetu, aplikace bude vypnuta za %i vteřin ..." param 
 
     let internal continueDownload = String.Empty
-     #endif
+    #endif

@@ -1,6 +1,6 @@
 ﻿namespace Types
 
-module TypeAlgebra =
+module Grid3Algebra =
 
     //CARDINALITY AND ISOMORPHISM
 

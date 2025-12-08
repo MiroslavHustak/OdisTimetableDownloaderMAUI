@@ -1,11 +1,10 @@
-﻿namespace Helpers
+﻿namespace OdisTimetableDownloaderMAUI
 
 open System
-
 open Microsoft.Maui.Controls
 
 //**************************************
-
+open Helpers
 open Settings.Messages
 open Types.Haskell_IO_Monad_Simulation
 

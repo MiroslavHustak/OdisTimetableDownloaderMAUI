@@ -9,7 +9,7 @@ open System.Threading
 open Types
 open Types.Types
 open Types.ErrorTypes
-open Types.TypeAlgebra
+open Types.Grid3Algebra
 open Types.Haskell_IO_Monad_Simulation
 
 open FsToolkit.ErrorHandling

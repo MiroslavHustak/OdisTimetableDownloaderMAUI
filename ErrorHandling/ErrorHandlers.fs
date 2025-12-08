@@ -132,7 +132,7 @@ module Option =
     *) 
 
     (*
-        monadic function composition (>>=) in Haskell
+        monadic composition (>>=) in Haskell
 
         import Control.Monad (guard)
 

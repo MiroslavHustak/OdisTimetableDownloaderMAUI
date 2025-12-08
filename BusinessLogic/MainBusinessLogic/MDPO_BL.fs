@@ -22,7 +22,7 @@ open Api.Logging
 
 open Types.Types
 open Types.ErrorTypes
-open Types.TypeAlgebra
+open Types.Grid3Algebra
 
 open Settings.SettingsMDPO
 open Settings.SettingsGeneral    
@@ -323,7 +323,7 @@ module MDPO_BL = //FsHttp
                                                         (fun unsafeClient
                                                             ->
                                                             #if ANDROID
-                                                            let unsafeHandler = new UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                                            let unsafeHandler = new JavaInteroperabilityCode.UnsafeAndroidClientHandler()  //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
                                                             #else
                                                             let unsafeHandler = new HttpClientHandler() //nelze use
                                                             unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)                                                

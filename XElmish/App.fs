@@ -60,7 +60,7 @@ open Helpers.Builders
 open Helpers.Connectivity
 
 #if ANDROID
-open Helpers.AndroidUIHelpers    
+open AndroidUIHelpers    
 #endif
 
 open ApplicationDesign.WebScraping_DPO

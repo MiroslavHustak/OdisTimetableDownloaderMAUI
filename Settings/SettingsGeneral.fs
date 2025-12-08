@@ -4,7 +4,7 @@ open System
 
 //*******************
 
-open Types.TypeAlgebra
+open Types.Grid3Algebra
 
 module SettingsGeneral =  
 
