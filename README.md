@@ -37,6 +37,8 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── OdisTimetableDownloaderMAUI.fsproj
 ├── AssemblyInfo/
 │   └── AssemblyInfo.fs
+├── JavaInteroperabilityCode/
+│   └── JavaInteroperabilityCode.fs
 ├── NativeCode/
 │   └── NativeCode.fs
 ├── Types/
@@ -58,10 +60,8 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── CopyOrMoveDir.fs
 │   ├── Helpers.fs
 │   ├── Serialization.fs
-│   ├── Parsing.fs
-│   ├── HardRestart.fs
-│   ├── ListParallel.fs
-│   └── AndroidSpecificCode.fs
+│   ├── Parsing.fs│   
+│   └── ListParallel.fs
 ├── Monads/   
 │   ├── FreeMonads/       
 │   │   ├── CmdLineWorkflows.fs
@@ -103,6 +103,8 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── KODIS_Record.fs
 │   └── KODIS_Record4.fs
 ├── XElmish/
+    ├── HardRestart.fs
+    ├── AndroidSpecificCode.fs
 │   ├── ProgressCircle.fs
 │   ├── Counters.fs
 │   └── App.fs
