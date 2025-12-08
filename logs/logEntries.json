@@ -611,3 +611,22 @@ Chyba při čtení logEntries z KODIS API (kodis.somee)
   "list": []
 }{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/07/2025 00:42:33 +00:00"] }
 
+{
+  "list": []
+}{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/07/2025 00:42:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 00:54:37 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 00:54:38 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 01:02:42 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:04:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:17:58 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:17:59 +00:00"] }
+{ "list": ["OperationCanceled Error#171","12/07/2025 01:22:12 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:22:22 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:48:55 +00:00"] }
+{ "list": ["OperationCanceled Error#021","12/07/2025 01:52:13 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:52:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:52:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 02:39:09 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/07/2025 02:43:22 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/07/2025 02:45:03 +00:00"] }
+

@@ -112,6 +112,26 @@
 		<IsPublishable>True</IsPublishable>
 	</PropertyGroup>
 
+	<!-- Rust educational code – source files only, never copied to output -->
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<!-- Keep the .rs files visible in Solution Explorer in Debug only (optional) -->
+		<None Include="..\RustHelpers\**.rs" Link="RustEducational\%(RecursiveDir)%(Filename)%(Extension)" />
+		<None Include="..\RustHelpers\Cargo.toml" Link="RustEducational\Cargo.toml" />
+	</ItemGroup>
+
+	<!-- The pre-built DLLs are intentionally NOT copied in any build -->
+	<!-- They are kept only for reference in the RustHelpers project folder -->
+	<ItemGroup Condition="false">
+		<!-- This ItemGroup is never evaluated → DLLs are never copied -->
+		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\string_combine_dll.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	
+	<!--
 	<ItemGroup>
 		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -123,6 +143,7 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup> 	
+	-->
 
   <ItemGroup>
     <!-- App Icon -->
