@@ -128,11 +128,13 @@ module WebScraping_MDPO =
                                     
                                             (runIO <| environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb)
                                             |> function
-                                                | Ok _      -> 
-                                                            Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
-                                                | Error err ->
-                                                            runIO (postToLog <| err <| "#009-2") 
-                                                            Error err       
+                                                | Ok _     
+                                                    -> 
+                                                    Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
+                                                | Error err
+                                                    ->
+                                                    runIO (postToLog <| err <| "#009-2") 
+                                                    Error err       
                                             //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
                             with
                             | ex 

@@ -172,8 +172,8 @@ module Logging =
                                 sizeKb
                             )
             
-                            with
-                            | _ -> None
+                    with
+                    | _ -> None
     
                 async
                     {
