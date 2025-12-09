@@ -506,7 +506,18 @@ module App =
 
         | DataClearingMessage message 
             ->
-            { m with ProgressMsg = message; ClearingVisible = true }, Cmd.none   
+            { 
+                m with 
+                    ProgressMsg = message
+                    ClearingVisible = false
+                    KodisVisible = true
+                    DpoVisible = true
+                    MdpoVisible = true  
+                    CloudVisible = false
+                    LabelVisible = true
+                    Label2Visible = true
+            },
+            Cmd.none   
 
         | Quit  
             -> 
@@ -598,11 +609,14 @@ module App =
             ->  
             { 
                 m with
+                    RestartVisible = false
+                    KodisVisible = false
+                    DpoVisible = false
+                    MdpoVisible = false
                     ClearingVisible = true
                     CloudVisible = true
-                    LabelVisible = false
-                    Label2Visible = false  
-                    ProgressCircleVisible = false
+                    LabelVisible = true
+                    Label2Visible = true  
             }, Cmd.none 
             
         | AllowDataClearing 
@@ -610,8 +624,8 @@ module App =
             let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
 
                 async
-                    {                                                                                 
-                        let! hardWork =                            
+                    {   
+                        let! hardWork =   
                             async 
                                 {
                                     [
@@ -639,12 +653,13 @@ module App =
 
             { 
                 m with
-                    ProgressMsg = deleteOldTimetablesMsg1
+                    ProgressMsg = deleteOldTimetablesMsg1  
                     ClearingVisible = false
                     CloudVisible = false
                     LabelVisible = true
-                    Label2Visible = true  
-            }, Cmd.ofSub execute
+                    Label2Visible = true
+            }, 
+            Cmd.ofSub execute
 
         | CancelDataClearing
             ->
