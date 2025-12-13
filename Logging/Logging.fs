@@ -26,7 +26,7 @@ open Helpers.DirFileHelper
 
 module Logging = 
     
-    type [<Struct>] internal ResponsePost = 
+    type internal ResponsePost = 
         {
             Message1 : string
             Message2 : string

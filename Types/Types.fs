@@ -80,13 +80,13 @@ module Types =
         | FutureValidity 
         | WithoutReplacementService  
 
-    type [<Struct>] internal ConfigMHD = 
+    type internal ConfigMHD = 
         {
             source : string
             destination : string
         }
 
-    type [<Struct>] internal ConfigKodis = 
+    type internal ConfigKodis = 
         {
             source1 : string
             source2 : string

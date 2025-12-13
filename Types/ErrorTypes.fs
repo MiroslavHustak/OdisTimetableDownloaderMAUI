@@ -21,7 +21,7 @@ module ErrorTypes =
         | JsonTimeoutError
         | JsonDownloadError     
         | JsonConnectionError       
-        | NetConnJsonError of string
+        | NetConnJsonError of string //string is still heap-allocated, ale tady by to nemelo vadit
         | StopJsonDownloading
         | FolderMovingError
         | LetItBeKodis

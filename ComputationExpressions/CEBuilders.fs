@@ -32,7 +32,7 @@ module Builders =
 
     //**************************************************************************************
      
-    [<Struct>]
+    //[<Struct>] does not help
     type internal MyBuilder = MyBuilder with 
         member _.Bind(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
             match m with
@@ -50,7 +50,6 @@ module Builders =
 
     //**************************************************************************************
    
-    [<Struct>]
     type Builder2 = Builder2 with    
         member _.Bind((m, recovery), nextFunc) =
             match m with
@@ -66,7 +65,6 @@ module Builders =
     
     //**************************************************************************************
        
-    [<Struct>]
     type internal MyBuilder3 = MyBuilder3 with   
         member _.Recover(m, nextFunc) = //neni monada, nesplnuje vsechny 3 monadicke zakony   
             match m with
@@ -80,10 +78,9 @@ module Builders =
         member _.ReturnFrom x = x     
         
     let internal pyramidOfInferno = MyBuilder3  
-    
+
     //**************************************************************************************
        
-    [<Struct>]
     type internal MyBuilder4 = MyBuilder4 with 
         member _.Bind(m, nextFunc) =
             match m with
@@ -100,7 +97,6 @@ module Builders =
 
     type internal Reader<'e, 'a> = 'e -> 'a
     
-    [<Struct>] 
     type internal ReaderBuilder = ReaderBuilder with
         member __.Bind(m, f) = fun env -> f (m env) env      
         member __.Return x = fun _ -> x

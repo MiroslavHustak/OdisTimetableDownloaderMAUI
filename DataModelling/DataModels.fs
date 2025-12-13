@@ -4,7 +4,6 @@ open Types
 
 module DataModel = 
 
-    [<Struct>]
     type internal RcData = //Type-driven development
         {
             OldPrefixRc : OldPrefix 
