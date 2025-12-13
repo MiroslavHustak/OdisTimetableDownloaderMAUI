@@ -11,7 +11,7 @@ RustHelpers (DLL)
 │   ├── copy_move.rs
 │   └── lib.rs
 │
-CppHelpers (Project)
+CppHelpers (DLL and disabled project)
 ├── CppHelpers.vcxproj
 ├── Header Files/
 │   ├── framework.h
