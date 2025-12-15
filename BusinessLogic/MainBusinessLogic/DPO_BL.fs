@@ -264,6 +264,15 @@ module DPO_BL =
                                             None
 
                                         | Error ex
+                                            when 
+                                                (string ex.Message).Contains "SSL connection could not be established"
+                                                ||
+                                                (string ex.Message).Contains "No such host is known"
+                                            ->
+                                            runIO (postToLog <| ex.Message <| "#74764-036")
+                                            None
+
+                                        | Error ex
                                             when (string ex.Message).Contains "The operation was canceled" 
                                             ->
                                             Some <| Error StopDownloadingMHD

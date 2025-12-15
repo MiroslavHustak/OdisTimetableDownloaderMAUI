@@ -177,3 +177,18 @@ module Xor =
     //jen priklad pouziti, v realnem pripade pouzij primo xor { a; b } nebo xor { a; b; c }    
     let internal xor2 (a : bool) (b : bool) = xor { a; b }
     let internal xor3 (a : bool) (b : bool) (c : bool) = xor { a; b; c }   
+
+module Validation = 
+
+    let internal isValidHttps (s : string) =   //This code rejects IP-based URLs         
+
+       try 
+           match Uri.TryCreate(s, UriKind.Absolute) with
+           | true, uri
+               ->
+               uri.Scheme = Uri.UriSchemeHttps && uri.Host.Contains(".") && not (uri.Host.Contains("://"))
+           | _ ->
+               false    
+        with
+        | _ -> false
+       

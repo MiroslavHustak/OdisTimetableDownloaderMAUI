@@ -319,7 +319,10 @@ module KODIS_BL_Record =
                                                 None
 
                                             | Error ex
-                                                when (string ex.Message).Contains "SSL connection could not be established" 
+                                                when 
+                                                    (string ex.Message).Contains "SSL connection could not be established" 
+                                                    ||
+                                                    (string ex.Message).Contains "No such host is known"
                                                 ->
                                                 runIO (postToLog <| ex.Message <| "#74764-23")
                                                 None

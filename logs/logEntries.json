@@ -1131,3 +1131,215 @@ Chyba při čtení logEntries z KODIS API (kodis.somee)
 { "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:35 +00:00"] }
 { "list": ["AggregateException_ctor_DefaultMessage (Connection failure) Error#035","12/09/2025 04:12:03 +00:00"] }
 
+{
+  "list": []
+}{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/07/2025 00:42:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 00:54:37 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 00:54:38 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 01:02:42 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:04:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:17:58 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:17:59 +00:00"] }
+{ "list": ["OperationCanceled Error#171","12/07/2025 01:22:12 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:22:22 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:48:55 +00:00"] }
+{ "list": ["OperationCanceled Error#021","12/07/2025 01:52:13 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:52:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:52:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 02:39:09 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/07/2025 02:43:22 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/07/2025 02:45:03 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#020","12/08/2025 23:41:55 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/08/2025 23:46:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/09/2025 00:17:13 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/09/2025 00:18:53 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 00:25:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 00:32:02 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:08:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:23:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:33:49 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 01:40:43 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:40:51 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 01:40:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 01:53:30 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 01:53:31 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 02:13:45 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 02:39:40 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld4/JR_ODIS_pouze_budouci_platnost Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/vlakové linky S/S32_2024_12_15_2025_12_13.pdf Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_aktualni_vcetne_vyluk/linky X, NAD, P, AE/NAD_2025_08_01_2025_12_13_v.pdf Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["/storage/emulated/0/FabulousTimetablesOld4/ Error#040","12/09/2025 02:40:12 +00:00"] }
+{ "list": ["/storage/emulated/0/FabulousTimetablesOld4/ Error#040","12/09/2025 02:40:13 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/linky 600-699 Error#038","12/09/2025 03:17:16 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/linky 300-399/357_2025_03_02_2025_12_13.pdf Error#038","12/09/2025 03:17:16 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 03:49:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 04:02:29 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:30 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/09/2025 04:02:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 04:02:35 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (Connection failure) Error#035","12/09/2025 04:12:03 +00:00"] }
+
+{
+  "list": []
+}{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/07/2025 00:42:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 00:54:37 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 00:54:38 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 01:02:42 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:04:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:17:58 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:17:59 +00:00"] }
+{ "list": ["OperationCanceled Error#171","12/07/2025 01:22:12 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:22:22 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:48:55 +00:00"] }
+{ "list": ["OperationCanceled Error#021","12/07/2025 01:52:13 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:52:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:52:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 02:39:09 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/07/2025 02:43:22 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/07/2025 02:45:03 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#020","12/08/2025 23:41:55 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/08/2025 23:46:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/09/2025 00:17:13 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/09/2025 00:18:53 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 00:25:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 00:32:02 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:08:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:23:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:33:49 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 01:40:43 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:40:51 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 01:40:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 01:53:30 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 01:53:31 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 02:13:45 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 02:39:40 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld4/JR_ODIS_pouze_budouci_platnost Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/vlakové linky S/S32_2024_12_15_2025_12_13.pdf Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_aktualni_vcetne_vyluk/linky X, NAD, P, AE/NAD_2025_08_01_2025_12_13_v.pdf Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["/storage/emulated/0/FabulousTimetablesOld4/ Error#040","12/09/2025 02:40:12 +00:00"] }
+{ "list": ["/storage/emulated/0/FabulousTimetablesOld4/ Error#040","12/09/2025 02:40:13 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/linky 600-699 Error#038","12/09/2025 03:17:16 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/linky 300-399/357_2025_03_02_2025_12_13.pdf Error#038","12/09/2025 03:17:16 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 03:49:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 04:02:29 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:30 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/09/2025 04:02:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 04:02:35 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (Connection failure) Error#035","12/09/2025 04:12:03 +00:00"] }
+
+{
+  "list": []
+}{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/07/2025 00:42:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 00:54:37 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 00:54:38 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 01:02:42 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:04:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:17:58 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:17:59 +00:00"] }
+{ "list": ["OperationCanceled Error#171","12/07/2025 01:22:12 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:22:22 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:48:55 +00:00"] }
+{ "list": ["OperationCanceled Error#021","12/07/2025 01:52:13 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:52:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:52:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 02:39:09 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/07/2025 02:43:22 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/07/2025 02:45:03 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#020","12/08/2025 23:41:55 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/08/2025 23:46:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/09/2025 00:17:13 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/09/2025 00:18:53 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 00:25:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 00:32:02 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:08:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:23:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:33:49 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 01:40:43 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:40:51 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 01:40:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 01:53:30 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 01:53:31 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 02:13:45 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 02:39:40 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld4/JR_ODIS_pouze_budouci_platnost Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/vlakové linky S/S32_2024_12_15_2025_12_13.pdf Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_aktualni_vcetne_vyluk/linky X, NAD, P, AE/NAD_2025_08_01_2025_12_13_v.pdf Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["/storage/emulated/0/FabulousTimetablesOld4/ Error#040","12/09/2025 02:40:12 +00:00"] }
+{ "list": ["/storage/emulated/0/FabulousTimetablesOld4/ Error#040","12/09/2025 02:40:13 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/linky 600-699 Error#038","12/09/2025 03:17:16 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/linky 300-399/357_2025_03_02_2025_12_13.pdf Error#038","12/09/2025 03:17:16 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 03:49:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 04:02:29 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:30 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/09/2025 04:02:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 04:02:35 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (Connection failure) Error#035","12/09/2025 04:12:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/15/2025 15:36:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:43:23 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:48:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:53:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:57:20 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:59:57 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/15/2025 15:59:57 +00:00"] }
+
+{
+  "list": []
+}{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/07/2025 00:42:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 00:54:37 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 00:54:38 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 01:02:42 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:04:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:17:58 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:17:59 +00:00"] }
+{ "list": ["OperationCanceled Error#171","12/07/2025 01:22:12 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/07/2025 01:22:22 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:48:55 +00:00"] }
+{ "list": ["OperationCanceled Error#021","12/07/2025 01:52:13 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/07/2025 01:52:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/07/2025 01:52:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/07/2025 02:39:09 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/07/2025 02:43:22 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/07/2025 02:45:03 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#020","12/08/2025 23:41:55 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/08/2025 23:46:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/09/2025 00:17:13 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/09/2025 00:18:53 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 00:25:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 00:32:02 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:08:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:23:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:33:49 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 01:40:43 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/09/2025 01:40:51 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 01:40:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 01:53:30 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 01:53:31 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 02:13:45 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 02:39:40 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld4/JR_ODIS_pouze_budouci_platnost Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/vlakové linky S/S32_2024_12_15_2025_12_13.pdf Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_aktualni_vcetne_vyluk/linky X, NAD, P, AE/NAD_2025_08_01_2025_12_13_v.pdf Error#038","12/09/2025 02:40:10 +00:00"] }
+{ "list": ["/storage/emulated/0/FabulousTimetablesOld4/ Error#040","12/09/2025 02:40:12 +00:00"] }
+{ "list": ["/storage/emulated/0/FabulousTimetablesOld4/ Error#040","12/09/2025 02:40:13 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/linky 600-699 Error#038","12/09/2025 03:17:16 +00:00"] }
+{ "list": ["IO_PathNotFound_Path, /storage/emulated/0/FabulousTimetablesOld/JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk/linky 300-399/357_2025_03_02_2025_12_13.pdf Error#038","12/09/2025 03:17:16 +00:00"] }
+{ "list": ["For testing purposes Error#3001","12/09/2025 03:49:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 04:02:29 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:30 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/09/2025 04:02:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/09/2025 04:02:35 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/09/2025 04:02:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (Connection failure) Error#035","12/09/2025 04:12:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/15/2025 15:36:31 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:43:23 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:48:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:53:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:57:20 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-files.s3.eu-https:443))) Error#1722","12/15/2025 15:59:57 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/15/2025 15:59:57 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-files.s3.eu-https:443))) Error#74764-171","12/15/2025 21:02:27 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-files.s3.eu-https:443))) Error#74764-171","12/15/2025 21:02:50 +00:00"] }
+

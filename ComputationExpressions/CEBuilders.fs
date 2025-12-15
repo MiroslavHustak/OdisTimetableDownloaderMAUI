@@ -31,7 +31,7 @@ module Builders =
     *)
 
     //**************************************************************************************
-     
+        
     //[<Struct>] does not help
     type internal MyBuilder = MyBuilder with 
         member _.Bind(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
@@ -92,6 +92,23 @@ module Builders =
         member _.ReturnFrom x : 'a = x
         
     let internal pyramidOfAbbys = MyBuilder4  //nepouzivano, nahrazeno result CE z FsToolkit.ErrorHandling s return!
+
+    //**************************************************************************************
+
+    type internal MyBuilder5 = MyBuilder5 with    
+         member _.Bind(m : bool * 'a, nextFunc : unit -> 'a) : 'a =
+             match m with
+             | (false, value)
+                 -> value
+             | (true, _)
+                 -> nextFunc()    
+         member _.Return x : 'a = x   
+         member _.ReturnFrom x : 'a = x 
+         member _.Using(x : 'a, _body: 'a -> 'b) : 'b = _body x    
+         member _.Delay(f : unit -> 'a) = f()
+         member _.Zero() = ()    
+
+    let internal pyramidOfDamnation = MyBuilder5
       
     //**************************************************************************************
 

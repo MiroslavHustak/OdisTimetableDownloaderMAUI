@@ -262,6 +262,15 @@ module MDPO_BL = //FsHttp
                                             None
 
                                         | Error ex
+                                            when 
+                                                (string ex.Message).Contains "SSL connection could not be established"
+                                                ||
+                                                (string ex.Message).Contains "No such host is known"
+                                            ->
+                                            runIO (postToLog <| ex.Message <| "#74764-036")
+                                            None
+
+                                        | Error ex
                                             when (string ex.Message).Contains "The operation was canceled" 
                                             ->
                                             Some <| Error StopDownloadingMHD
@@ -566,6 +575,15 @@ module MDPO_BL = //FsHttp
                                     (function
                                         | Ok _
                                             -> 
+                                            None
+
+                                        | Error ex
+                                            when 
+                                                (string ex.Message).Contains "SSL connection could not be established"
+                                                ||
+                                                (string ex.Message).Contains "No such host is known"
+                                            ->
+                                            runIO (postToLog <| ex.Message <| "#74764-032")
                                             None
 
                                         | Error ex

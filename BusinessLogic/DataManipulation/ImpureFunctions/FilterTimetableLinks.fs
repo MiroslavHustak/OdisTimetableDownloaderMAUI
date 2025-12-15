@@ -14,6 +14,8 @@ open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.MyString
+open Helpers.Builders
+open Helpers.Validation
 
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
@@ -279,9 +281,14 @@ module FilterTimetableLinks =
                                     -> 
                                     let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
                            
-                                    match item.Contains @"timetables/" with
-                                    | true  -> item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
-                                    | false -> item                                       
+                                    pyramidOfDamnation
+                                        {
+                                            let!_ = not (item.Split("https://", StringSplitOptions.None).Length > 2), String.Empty //abych nezahlcoval log file chybovyma hlaskama, jinak je to chycene #74764-...
+                                            let!_ = extractSubstring >> isValidHttps <| item, String.Empty
+                                            let!_ = item.Contains @"timetables/", item
+
+                                            return item.Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
+                                        }                                                  
                                 )  
                             //|> List.sort //jen quli testovani
                             |> List.filter
