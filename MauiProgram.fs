@@ -100,11 +100,11 @@ type MauiProgram =
 
                                     | false, _ 
                                         ->
-                                        runIO (postToLog "For testing purposes" "#3001")
+                                        () //runIO (postToLog "For testing purposes" "#3001")
 
                                 | None 
                                     ->
-                                    runIO (postToLog "For testing purposes" "#3000")
+                                    () //runIO (postToLog "For testing purposes" "#3000")
 
                             ) |> ignore<ILifecycleBuilder>
                     ) |> ignore<ILifecycleBuilder>
