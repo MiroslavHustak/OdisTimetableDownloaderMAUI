@@ -90,6 +90,7 @@ module DPO_BL =
                                 (fun (_ , item2) 
                                     ->  
                                     let linkToPdf = sprintf"%s%s" pathDpoWeb item2  //https://www.dpo.cz // /jr/2023-04-01/024.pdf 
+                                    //chybne odkazy jsou pozdeji tise eliminovany
 
                                     let adaptedLineName =
                                         let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
@@ -142,9 +143,8 @@ module DPO_BL =
                             -> 
                             async
                                 {                      
-                                    try   
-                                        let client = 
-                            
+                                    try         
+                                        let client =                             
                                             pyramidOfDoom
                                                 {
                                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty

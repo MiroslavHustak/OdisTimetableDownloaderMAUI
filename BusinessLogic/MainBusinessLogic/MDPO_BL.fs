@@ -44,7 +44,7 @@ module MDPO_BL = //FsHttp
                             -> 
                             async
                                 {
-                                    try
+                                    try   
                                         use! response =  
                                             http
                                                 {
@@ -119,6 +119,7 @@ module MDPO_BL = //FsHttp
                             (fun (_ , item2) 
                                 ->                                                                 
                                 let linkToPdf = sprintf "%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
+                                //chybne odkazy jsou pozdeji tise eliminovany
                                 let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
                                 let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
                                 linkToPdf, (pathToFile << lineName) item2
@@ -413,6 +414,7 @@ module MDPO_BL = //FsHttp
                             (fun (_ , item2) 
                                 ->                                                                 
                                 let linkToPdf = sprintf "%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
+                                //chybne odkazy jsou pozdeji tise eliminovany
                                 let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
                                 let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
                                 linkToPdf, (pathToFile << lineName) item2
