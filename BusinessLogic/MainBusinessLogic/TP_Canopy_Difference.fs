@@ -93,7 +93,8 @@ module TP_Canopy_Difference =
                             let uniqueFileNamesTP, uniqueFileNamesCanopy = runIO <| getUniqueFileNames pathTP pathCanopy 
                             showResults uniqueFileNamesTP uniqueFileNamesCanopy
                         )
-                    |> Seq.collect id       
+                    |> Seq.collect id   
+                    |> Seq.filter (not << isNull) //just in case
             )     
 
         IO (fun () 

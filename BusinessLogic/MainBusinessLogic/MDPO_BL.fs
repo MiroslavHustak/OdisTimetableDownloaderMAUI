@@ -124,7 +124,8 @@ module MDPO_BL = //FsHttp
                                 let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
                                 linkToPdf, (pathToFile << lineName) item2
                             )                          
-                        |> Seq.distinct                 
+                        |> Seq.distinct   
+                        |> Seq.filter (fun (item1, item2) -> not (isNull item1 || isNull item2)) //just in case
                     )  
                 |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
         )
@@ -281,7 +282,6 @@ module MDPO_BL = //FsHttp
                                             runIO (postToLog <| ex.Message <| "#028")
                                             Some <| Error FileDownloadErrorMHD
                                     )
-
                                 |> Option.defaultValue (Ok ()) 
 
                             with
@@ -418,8 +418,9 @@ module MDPO_BL = //FsHttp
                                 let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
                                 let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
                                 linkToPdf, (pathToFile << lineName) item2
-                            )                          
-                        |> Seq.distinct                 
+                            ) 
+                        |> Seq.distinct    
+                        |> Seq.filter (fun (item1, item2) -> not (isNull item1 || isNull item2)) //just in case                                         
                     )  
                 |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
         )

@@ -129,6 +129,7 @@ module DPO_BL =
                                     linkToPdf, pathToFile
                                 )
                             |> Seq.toList
+                            |> List.filter (fun (item1, item2) -> not (isNull item1 || isNull item2)) //just in case
                             |> List.distinct
                     ) 
         )
