@@ -73,8 +73,8 @@ module TP_Canopy_Difference =
         
             IO (fun () 
                     ->
-                    let fileNamesTP = runIO <| fileNames folderPathTP                    
-                    let fileNamesCanopy = runIO <| fileNames folderPathCanopy        
+                    let fileNamesTP = fileNames >> runIO <| folderPathTP                    
+                    let fileNamesCanopy = fileNames >> runIO <| folderPathCanopy        
         
                     Set.difference fileNamesTP fileNamesCanopy |> Set.toList, Set.difference fileNamesCanopy fileNamesTP |> Set.toList
             )
@@ -84,8 +84,8 @@ module TP_Canopy_Difference =
             IO (fun () 
                     ->       
                     match folderPathTP = pathTP_FutureValidity && folderPathCanopy = pathCanopy_FutureValidity with
-                    | true  -> (seq { folderPathTP }, seq { folderPathCanopy })
-                    | false -> (runIO <| getDirNames folderPathTP, runIO <| getDirNames folderPathCanopy)
+                    | true  -> seq { folderPathTP }, seq { folderPathCanopy }
+                    | false -> getDirNames >> runIO <| folderPathTP, getDirNames >> runIO <| folderPathCanopy
 
                     ||> Seq.map2
                         (fun pathTP pathCanopy

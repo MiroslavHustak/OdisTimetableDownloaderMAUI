@@ -99,7 +99,7 @@ module IO_Operations =
                     let dirInfo = DirectoryInfo pathToDir   
                         in 
                         dirInfo.EnumerateDirectories()
-                        |> Seq.filter (fun item -> item.Name = dirName) 
+                        |> Seq.filter (fun item -> (=) item.Name dirName) 
                         |> Seq.toList
                         |> List.Parallel.iter_IO (fun item -> item.Delete true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
                         |> Ok
