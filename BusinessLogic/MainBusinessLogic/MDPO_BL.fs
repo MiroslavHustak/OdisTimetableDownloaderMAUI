@@ -122,7 +122,7 @@ module MDPO_BL = //FsHttp
                                 //chybne odkazy jsou pozdeji tise eliminovany
                                 let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
                                 let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
-                                linkToPdf, (pathToFile << lineName) item2
+                                linkToPdf, pathToFile << lineName <| item2
                             )                          
                         |> Seq.distinct   
                         |> Seq.filter (fun (item1, item2) -> not (isNull item1 || isNull item2)) //just in case
@@ -227,7 +227,7 @@ module MDPO_BL = //FsHttp
 
                     IO (fun () 
                             -> 
-                            let filterTimetables = runIO <| filterTimetables
+                            let filterTimetables = runIO filterTimetables
 
                             let l = filterTimetables |> Map.count
                                 in
@@ -398,7 +398,7 @@ module MDPO_BL = //FsHttp
                                             {
                                                 let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
                                                 let nodes : string = nodes
-                                                let! attr = attr.Value () |> Option.ofNullEmpty
+                                                let! attr = attr.Value  |> Option.ofNullEmpty
                                                 let attr : string = attr
                                                                
                                                 return (nodes, attr)
@@ -417,7 +417,7 @@ module MDPO_BL = //FsHttp
                                 //chybne odkazy jsou pozdeji tise eliminovany
                                 let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
                                 let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
-                                linkToPdf, (pathToFile << lineName) item2
+                                linkToPdf, pathToFile << lineName <| item2
                             ) 
                         |> Seq.distinct    
                         |> Seq.filter (fun (item1, item2) -> not (isNull item1 || isNull item2)) //just in case                                         
@@ -544,7 +544,7 @@ module MDPO_BL = //FsHttp
 
                     IO (fun () 
                             -> 
-                            let filterTimetables = runIO <| filterTimetables
+                            let filterTimetables = runIO filterTimetables
 
                             let l = filterTimetables |> Map.count
                                 in

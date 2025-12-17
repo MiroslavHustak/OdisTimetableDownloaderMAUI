@@ -105,3 +105,105 @@ Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
 { "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
 { "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
 
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+
