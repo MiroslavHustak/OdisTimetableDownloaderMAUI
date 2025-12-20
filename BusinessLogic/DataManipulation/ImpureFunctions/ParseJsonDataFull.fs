@@ -20,7 +20,7 @@ open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
 
-module SortJsonDataFull =  
+module ParseJsonDataFull =  
 
     //*************************Helpers************************************************************
 

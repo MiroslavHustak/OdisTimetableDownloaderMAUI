@@ -26,14 +26,14 @@ open IO_Operations
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
 
-open JsonData.SortJsonData  
+open JsonData.ParseJsonData  
 open Filtering.FilterTimetableLinks  
 
 open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
 
-open BusinessLogic4.KODIS_BL_Record4
+open BusinessLogic.KODIS_BL_Record
 
 //Vzhledem k pouziti Elmishe priste podumej nad timto designem, mozna bude lepsi pure transformation layer
 
@@ -144,8 +144,25 @@ module WebScraping_KODISFMRecord =
                 downloadAndSaveJson reportProgress token 
         )
 
+    let internal stateReducerCmd2 (token : CancellationToken) reportProgress =
+
+        IO (fun () 
+                ->    
+
+                let errFn err =  
+                    match err with                   
+                    | JsonFilteringError   -> jsonFilteringError
+                    | _   -> dataFilteringError                   
+                                                             
+                let result (lazyList : Lazy<Result<string list, PdfDownloadErrors>>) (context2 : Context2) =  
+               
+                    lazyList.Value //lazyList.Value vraci Result<string list, PdfDownloadErrors>      
+                   
+                dispatchMsg3             
+        )
+
     //TODO: predelat na stateReducerCmd3
-    let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
+    let internal stateReducerCmd3 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
 
         IO (fun () 
                 ->    
@@ -270,8 +287,8 @@ module WebScraping_KODISFMRecord =
                                 ->
                                 runIO (postToLog <| ex.Message <| "#22-1")
                                 Error DataFilteringError 
-                                |> Lazy<Result<string list, PdfDownloadErrors>> 
-    
+                                |> Lazy<Result<string list, PdfDownloadErrors>>                       
+
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn
                         let! msg3 = result lazyList contextWithoutReplacementService, errFn   
@@ -286,12 +303,12 @@ module WebScraping_KODISFMRecord =
                         #endif
 
                         let separator = String.Empty
-    
+                        
                         let combinedMessage = 
                             [ msg1; msg2; msg3; msg4 ] 
                             |> List.choose Option.ofNullEmptySpace
                             |> List.map (fun msg -> sprintf "\n%s" msg)
-                            |> String.concat separator                         
+                            |> String.concat separator   
     
                         return sprintf "%s%s" dispatchMsg3 combinedMessage
                     }

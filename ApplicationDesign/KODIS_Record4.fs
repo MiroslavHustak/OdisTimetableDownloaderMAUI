@@ -11,8 +11,6 @@ open Types.ErrorTypes
 open Types.Grid3Algebra
 open Types.Haskell_IO_Monad_Simulation
 
-open BusinessLogic4.KODIS_BL_Record4
-
 open Helpers
 open Helpers.Builders
 
@@ -24,6 +22,8 @@ open IO_Operations.CreatingPathsAndNames
 
 open Settings.Messages
 open Settings.SettingsGeneral
+
+open BusinessLogic4.KODIS_BL_Record4
 
 //**********************************
 

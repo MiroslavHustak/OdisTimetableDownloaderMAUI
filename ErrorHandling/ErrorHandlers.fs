@@ -183,12 +183,15 @@ module ExceptionHelpers =
 
     let internal isCancellation (ex : exn) =
 
-        match ex with
-        | :? OperationCanceledException
-                        
-        | :? System.Threading.Tasks.TaskCanceledException
-            -> 
-            true
-        | _ 
-            ->
-            (string ex.Message).Contains "The operation was canceled"
+        let rec containsCancellation (e : exn) =
+            match e with
+            | :? OperationCanceledException 
+            | :? System.Threading.Tasks.TaskCanceledException 
+                -> true
+            | _ 
+                when isNull e.InnerException 
+                -> false
+            | _ 
+                -> containsCancellation e.InnerException
+              
+        containsCancellation ex

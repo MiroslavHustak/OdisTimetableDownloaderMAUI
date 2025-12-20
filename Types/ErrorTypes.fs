@@ -22,9 +22,13 @@ module ErrorTypes =
         | JsonDownloadError     
         | JsonConnectionError       
         | NetConnJsonError of string //string is still heap-allocated, ale tady by to nemelo vadit
-        | StopJsonDownloading
+        | StopJsonDownloading //cancellation
         | FolderMovingError
         | LetItBeKodis
+
+    type [<Struct>] internal JsonParsingErrors = 
+        | JsonParsingError
+        | StopParsing //cancellation
            
     type [<Struct>] internal PdfDownloadErrors =
         | RcError         
@@ -43,5 +47,5 @@ module ErrorTypes =
         | ApiResponseError of string
         | ApiDecodingError
         | NetConnPdfError of string
-        | StopDownloading
+        | StopDownloading //cancellation
         | LetItBeKodis4
