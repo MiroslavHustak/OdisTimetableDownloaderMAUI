@@ -144,6 +144,7 @@ module WebScraping_KODISFMRecord =
                 downloadAndSaveJson reportProgress token 
         )
 
+    //TODO: predelat na stateReducerCmd3
     let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
 
         IO (fun () 
@@ -263,7 +264,7 @@ module WebScraping_KODISFMRecord =
                         let lazyList = 
                             //laziness jen jako priprava pro pripadne threadsafe multitasking, zatim zadny rozdil oproti eager + parameterless (krome trochu vetsiho overhead u lazy)
                             try               
-                                runIO <| environment.ParseJsonStructure reportProgress token  
+                                runIO <| environment.ParseJsonStructure reportProgress token  //TODO pri tvorbe profi UI/UX toto dej jako stateReducerCmd2, ostatni jako stateReducerCmd3
                             with
                             | ex
                                 ->
