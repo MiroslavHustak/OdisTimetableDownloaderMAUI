@@ -164,7 +164,7 @@ module MDPO_BL = //FsHttp
                                                                 http
                                                                     {
                                                                         GET uri  
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
                                                                         header "User-Agent" "FsHttp/Android7.1"
                                                                         header headerContent1 headerContent2
@@ -173,7 +173,7 @@ module MDPO_BL = //FsHttp
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token //uz zbytecne, ale ponechavam jako template
                                                                         header "User-Agent" "FsHttp/Android7.1"
                                                                     }     
@@ -286,18 +286,19 @@ module MDPO_BL = //FsHttp
 
                             with
                             | ex    
-                                ->
+                                ->                               
                                 pyramidOfInferno
                                     {                                                                                
                                         let! _ =
-                                            (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
+                                            (not <| Helpers.ExceptionHelpers.isCancellation ex)
+                                            |> Result.fromBool () String.Empty,
                                                 fun _ -> Ok ()
-                                        
+                                 
                                         runIO (postToLog <| ex.Message <| "#281")
-                                        
-                                        let!_ =
+                                 
+                                        let! _ =
                                             runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) mdpoPathTemp, 
-                                                (fun _
+                                                (fun _ 
                                                     ->
                                                     runIO (postToLog <| FileDeleteErrorMHD <| "#283")                             
                                                     Error FileDeleteErrorMHD
@@ -307,6 +308,7 @@ module MDPO_BL = //FsHttp
 
                                         return Error FileDownloadErrorMHD                                            
                                     }
+
                     )                     
                 runIO <| downloadTimetables reportProgress token
         )
@@ -460,7 +462,7 @@ module MDPO_BL = //FsHttp
                                                                     {
                                                                         GET uri        
                                                         
-                                                                        config_timeoutInSeconds 300     //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
 
                                                                         config_transformHttpClient
@@ -481,7 +483,7 @@ module MDPO_BL = //FsHttp
                                                                     {
                                                                         GET uri
 
-                                                                        config_timeoutInSeconds 300     //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
 
                                                                         config_transformHttpClient
@@ -603,16 +605,17 @@ module MDPO_BL = //FsHttp
 
                             with
                             | ex   
-                                ->
+                                ->                             
                                 pyramidOfInferno
                                     {                                                                                
                                         let! _ =
-                                            (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
+                                            (not <| Helpers.ExceptionHelpers.isCancellation ex)
+                                            |> Result.fromBool () String.Empty,
                                                 fun _ -> Ok ()
-                                        
+                                    
                                         runIO (postToLog <| ex.Message <| "#033")
-                                        
-                                        let!_ = 
+                                    
+                                        let! _ = 
                                             runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) mdpoPathTemp, 
                                                 (fun _
                                                     ->

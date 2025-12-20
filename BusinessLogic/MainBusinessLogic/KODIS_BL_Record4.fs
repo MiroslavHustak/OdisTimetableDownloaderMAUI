@@ -58,7 +58,8 @@ module KODIS_BL_Record4 =
                                 | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
                                 | Error err -> return Error err
                             | _              
-                                -> return Ok []
+                                -> 
+                                return Ok []
                         }
        
                 async 
@@ -178,7 +179,7 @@ module KODIS_BL_Record4 =
                                                                         http
                                                                             {
                                                                                 GET uri
-                                                                                //config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                                 config_cancellationToken token 
                                                                                 header "User-Agent" "FsHttp/Android7.1"
                                                                                 header headerContent1 headerContent2
@@ -187,7 +188,7 @@ module KODIS_BL_Record4 =
                                                                         http
                                                                             {
                                                                                 GET uri
-                                                                                //config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                                 config_cancellationToken token 
                                                                                 header "User-Agent" "FsHttp/Android7.1"
                                                                             }
@@ -244,17 +245,16 @@ module KODIS_BL_Record4 =
                                                 Some <| Error FileDownloadError
                                         )
                                     |> Option.defaultValue (Ok ())
+
                                 with
                                 | ex 
                                     ->
-                                    match (string ex.Message).Contains "The operation was canceled" with 
-                                    | true  
-                                        ->
+                                    match Helpers.ExceptionHelpers.isCancellation ex with
+                                    | true  ->
                                         Error StopDownloading
-                                    | false
-                                        ->
+                                    | false ->
                                         runIO (postToLog <| ex.Message <| "#171")
-                                        Error FileDownloadError  
+                                        Error FileDownloadError                                    
                         } 
         
                 reader
@@ -302,18 +302,19 @@ module KODIS_BL_Record4 =
                                             
                                     with
                                     | ex 
-                                        ->
+                                        ->                                        
                                         pyramidOfInferno
                                             {                                                                                
                                                 let! _ =
-                                                    (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
+                                                    (not <| Helpers.ExceptionHelpers.isCancellation ex)
+                                                    |> Result.fromBool () String.Empty,
                                                         fun _ -> Ok String.Empty
-                                        
+
                                                 runIO (postToLog <| ex.Message <| "#019")
-                                        
-                                                let!_ =
+
+                                                let! _ =
                                                     runIO <| deleteAllODISDirectories kodisPathTemp4, 
-                                                        (fun _
+                                                        (fun _ 
                                                             ->
                                                             runIO (postToLog <| FileDeleteError <| "#192")                             
                                                             Error FileDeleteError
@@ -323,5 +324,6 @@ module KODIS_BL_Record4 =
 
                                                 return Error FileDownloadError                                            
                                             }
+
                     }              
         )

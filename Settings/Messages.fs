@@ -82,7 +82,7 @@ module Messages =
     let [<Literal>] internal buttonMdpo = "JŘ dopravce MDPO"
     let [<Literal>] internal hintMdpo = "Stahování zastávkových JŘ dopravce MDPO"
     let [<Literal>] internal hintCancel = "Zrušení práce aplikace"
-    let [<Literal>] internal buttonCancel = "Zrušit stahování"   
+    let [<Literal>] internal buttonCancel = "Zrušit operaci"   
     let [<Literal>] internal buttonRestart = "Restart"
     let [<Literal>] internal hintRestart = "Zpět na úvod anebo restart aplikace"    
     let [<Literal>] internal buttonHome = "Zpět na úvod"  
@@ -107,7 +107,7 @@ module Messages =
     let [<Literal>] internal cancelMsg1 = "Kvůli přerušení připojení k internetu se činnost aplikace ukončuje, může to chvíli trvat ..."
     let [<Literal>] internal cancelMsg1NoConn = "Po obnovení připojení k internetu se činnost aplikace ukončí, může to chvíli trvat ..."
     let [<Literal>] internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
-    let [<Literal>] internal cancelMsg3 = "Chvíli strpení, stahování se ukončuje ..."
+    let [<Literal>] internal cancelMsg3 = "Chvíli strpení, operace se ukončuje ..."
 
     let [<Literal>] internal cancelMsg4 = "Stahování JŘ KODIS předčasně ukončeno."
     let [<Literal>] internal cancelMsg5 = "Stahování JŘ KODIS předčasně ukončeno, úklid se nepodařil."
@@ -119,6 +119,12 @@ module Messages =
     let [<Literal>] internal buttonQuit = "Vypnout aplikaci" 
     let [<Literal>] internal buttonQuit2 = "Vypnout odpočítávání a aplikaci" 
     let [<Literal>] internal quitError = "Nepodařilo se vypnout aplikaci, zkus znovu" 
+
+    let [<Literal>] internal criticalElmishErrorMdpo = "Kritická chyba při stahování JŘ MDPO. Vypni aplikaci a spusť ji znovu."
+    let [<Literal>] internal criticalElmishErrorDpo = "Kritická chyba při stahování JŘ DPO. Vypni aplikaci a spusť ji znovu."
+    let [<Literal>] internal criticalElmishErrorKodis4 = "Kritická chyba při stahování JŘ KODIS. Vypni aplikaci a spusť ji znovu."
+    let [<Literal>] internal criticalElmishErrorKodis = "Kritická chyba při stahování JŘ KODIS. Vypni aplikaci a spusť ji znovu."
+    let [<Literal>] internal criticalElmishErrorKodisJson = "Kritická chyba při stahování JSON souborů pro JŘ KODIS. Vypni aplikaci a spusť ji znovu."
 
     let internal appInfoInvoker = 
         sprintf "%s %s %s"

@@ -107,11 +107,17 @@ module WebScraping_MDPO =
                                         Error FileDeleteErrorMHD                             
                                 | true  -> 
                                         let filterTmtb = environment.SafeFilterTimetables pathToSubdir token
-                                        runIO <| environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb                                       
+                                        runIO <| environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb    
                         with
                         | ex 
+                            when (string ex.Message).Contains "Timeout exceeded while getting response"
                             ->
-                            runIO (postToLog <| ex.Message <| "#008") //net_http_ssl_connection_failed
+                            runIO (postToLog <| string ex.Message <| "#008-X05") 
+                            Error (TestDuCase (sprintf "%s%s" "V časovém limitu jsem neobdržel reakci z www.mdpo.cz. Pokud používáš starou verzi Androidu, asi se k JŘ MDPO takhle nedostaneš." " X05")) 
+
+                        | ex                             
+                            ->
+                            runIO (postToLog <| string ex.Message <| "#008") //net_http_ssl_connection_failed 
 
                             try
                                 let pathToSubdir =
@@ -129,8 +135,20 @@ module WebScraping_MDPO =
                                             (runIO <| environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb)
                                             |> function
                                                 | Ok _     
-                                                    -> 
-                                                    Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
+                                                    ->                                                         
+                                                    try
+                                                        let dirInfo = DirectoryInfo pathToDir                                                       
+                                                            in
+                                                            dirInfo.EnumerateFiles() 
+                                                            |> Seq.length
+                                                            |> function
+                                                                | 0 -> Error <| TestDuCase "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace."
+                                                                | _ -> Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
+                                                    with 
+                                                    | ex 
+                                                        ->
+                                                        Error <| TestDuCase (string ex.Message)    
+                                                    
                                                 | Error err
                                                     ->
                                                     runIO (postToLog <| err <| "#009-2") 
@@ -139,7 +157,7 @@ module WebScraping_MDPO =
                             with
                             | ex 
                                 ->
-                                runIO (postToLog <| ex.Message <| "#009")
+                                runIO (postToLog <| string ex.Message <| "#009")
                                 Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
                                                                   
                 pyramidOfInferno

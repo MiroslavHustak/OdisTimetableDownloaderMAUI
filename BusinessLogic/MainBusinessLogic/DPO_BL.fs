@@ -151,7 +151,7 @@ module DPO_BL =
                                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
                                                     let! client = new HttpClient() |> Option.ofNull, Error String.Empty
 
-                                                    client.Timeout <- TimeSpan.FromSeconds <| float 300 //timeoutInSeconds
+                                                    client.Timeout <- TimeSpan.FromSeconds <| float 30 //timeoutInSeconds
 
                                                     return Ok client        
                                                 }
@@ -192,7 +192,7 @@ module DPO_BL =
 
                                                     //Async varianta musi byt quli cancellation token
                                                     let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
-                                                    do! stream.CopyToAsync fileStream |> Async.AwaitTask                                    
+                                                    do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                     
                                                     return Ok ()
 
@@ -291,12 +291,13 @@ module DPO_BL =
                                 pyramidOfInferno
                                     {                                                                                
                                         let! _ =
-                                            (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
+                                            (not <| Helpers.ExceptionHelpers.isCancellation ex)
+                                            |> Result.fromBool () String.Empty,
                                                 fun _ -> Ok ()
-                                        
+                                  
                                         runIO (postToLog <| ex.Message <| "#037")
-                                        
-                                        let!_ = 
+                                  
+                                        let! _ = 
                                             runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) mdpoPathTemp, 
                                                 (fun _
                                                     ->
@@ -307,7 +308,8 @@ module DPO_BL =
                                         runIO (postToLog <| FileDownloadErrorMHD <| "#371") 
 
                                         return Error FileDownloadErrorMHD                                            
-                                    }                              
+                                    }
+
                     )
 
                 runIO <| downloadTimetables reportProgress token   

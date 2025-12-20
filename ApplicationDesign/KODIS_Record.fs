@@ -127,7 +127,7 @@ module WebScraping_KODISFMRecord =
                                 moveAllTask ()
                             ]
                             |> Async.Parallel  //uz to mame v try with bloku, Async.Catch only if you don’t want one task to cancel all others on failure
-                            |> Async.RunSynchronously
+                            |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)  
                             |> Array.head
                           
                         finally
@@ -219,9 +219,7 @@ module WebScraping_KODISFMRecord =
                         ->
                         runIO (postToLog <| err <| "#6")
                         Error err  
-                                 
-                //try with blok zrusen   
-                    
+                   
                 let dirList = createNewDirectoryPaths path listOfODISVariants
                     in
                     let contextCurrentValidity = 
@@ -265,7 +263,7 @@ module WebScraping_KODISFMRecord =
                         let lazyList = 
                             //laziness jen jako priprava pro pripadne threadsafe multitasking, zatim zadny rozdil oproti eager + parameterless (krome trochu vetsiho overhead u lazy)
                             try               
-                                runIO <| parseJsonStructure reportProgress token  
+                                runIO <| environment.ParseJsonStructure reportProgress token  
                             with
                             | ex
                                 ->

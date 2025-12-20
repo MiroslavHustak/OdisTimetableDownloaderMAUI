@@ -111,6 +111,28 @@ module App =
             AnimatedButton : string option // Tracks animated button
         }
 
+    (* 
+        // TODO pro profika na UI/UX
+
+        | DataClearing
+        | DataClearingMessage of string
+        | AllowDataClearing
+
+        zmenit na:
+
+        type ClearingState =
+        | NotClearing
+        | Clearing
+        | Cleared
+
+        type Model =
+            {
+                ClearingState : ClearingState
+                // ...
+            }  
+        a podobne predelat vse, co ma obdobnou logiku    
+    *)
+
     type Msg =
         | RequestPermission
         | PermissionResult of bool
@@ -595,7 +617,7 @@ module App =
                 in
                 cancellationActor.Post <| UpdateState2 (true, ctsNew)    
            
-            { m with ProgressMsg = cancelMsg3; ProgressCircleVisible = false; CancelVisible = false }, Cmd.none
+            { m with ProgressMsg = cancelMsg3; NetConnMsg = String.Empty; ProgressCircleVisible = false; CancelVisible = false }, Cmd.none
 
         | RestartVisible isVisible 
             -> 
@@ -624,30 +646,31 @@ module App =
             let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
 
                 async
-                    {   
-                        let! hardWork =   
-                            async 
-                                {
-                                    [
-                                        async { return deleteOld >> runIO <| () }
-                                        async { return deleteOld4 >> runIO <| () }
-                                    ]         
-                                    |> Async.Parallel 
-                                    |> Async.Catch
-                                    |> Async.RunSynchronously //obecne neni dobre pouzivat Async.RunSynchronously uvnitr async, ale tady to jinak nefunguje
-                                    |> Result.ofChoice                      
-                                    |> function
-                                        | Ok [|a; b|] -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg2
-                                        | Ok _        -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3
-                                        | Error _     -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3                                   
-                                }
-                            |> Async.StartChild 
-                               
-                        let! result = hardWork 
-                        do! Async.Sleep 1000
-                              
-                        return result   
-                    }  
+                    {
+                        try
+                            let! results =
+                                [
+                                    async { return deleteOld >> runIO <| () }
+                                    async { return deleteOld4 >> runIO <| () }
+                                ]
+                                |> Async.Parallel
+                                |> Async.Catch
+                            
+                            results
+                            |> Result.ofChoice
+                            |> function
+                                | Ok [| _; _ |] -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg2
+                                | Ok _          -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3
+                                | Error _       -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3        
+            
+                            return! Async.Sleep 1000
+
+                        with 
+                        | ex
+                            ->
+                            runIO (postToLog <| ex.Message <| " #XElmish_ClearData")
+                            DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3
+                    }
                      
             let execute dispatch = async { return! delayedCmd dispatch } |> Async.StartImmediate         
 
@@ -686,66 +709,78 @@ module App =
 
                         async
                             {
-                                let! hardWork =                                                              
-                                    async 
-                                        {                                            
-                                            let reportProgress (progressValue, totalProgress) =     
+                                try
+                                    let! hardWork =                                                              
+                                        async 
+                                            {                                            
+                                                let reportProgress (progressValue, totalProgress) =     
 
-                                                match token.IsCancellationRequested with
-                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
-                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                                    match token.IsCancellationRequested with
+                                                    | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                    | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
-                                            return runIO (stateReducerCmd1 token reportProgress)                                                      
-                                        }
-                                    |> Async.StartChild
+                                                return runIO (stateReducerCmd1 token reportProgress)                                                      
+                                            }
+                                        |> Async.StartChild
 
-                                let! result = hardWork 
-                                do! Async.Sleep 1000
+                                    let! result = hardWork 
+                                    do! Async.Sleep 1000
 
-                                match token.IsCancellationRequested with
-                                | false ->
-                                        match result with
-                                        | Ok result -> return WorkIsComplete >> dispatch <| (result, false)  
-                                        | Error err -> return WorkIsComplete >> dispatch <| (err, false)     
-                                | true  ->
-                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home2                                    
+                                    match token.IsCancellationRequested with
+                                    | false ->
+                                            match result with
+                                            | Ok result -> return WorkIsComplete >> dispatch <| (result, false)  
+                                            | Error err -> return WorkIsComplete >> dispatch <| (err, false)     
+                                    | true  ->
+                                            WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
+                                            return dispatch Home2   
+                                with 
+                                | ex
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
+                                    NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
                             }  
 
                     let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
 
                         async 
                             {   
-                                let! hardWork =                             
-                                    async 
-                                        {   
-                                            let reportProgress (progressValue, totalProgress) =     
+                                try
+                                    let! hardWork =                             
+                                        async 
+                                            {   
+                                                let reportProgress (progressValue, totalProgress) =     
 
-                                                match token.IsCancellationRequested with
-                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
-                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                                    match token.IsCancellationRequested with
+                                                    | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                    | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
-                                            let result = 
-                                                stateReducerCmd2 
-                                                <| token
-                                                <| kodisPathTemp
-                                                <| fun message -> WorkIsComplete >> dispatch <| (message, false)
-                                                <| fun message -> IterationMessage >> dispatch <| message 
-                                                <| reportProgress            
+                                                let result = 
+                                                    stateReducerCmd2 
+                                                    <| token
+                                                    <| kodisPathTemp
+                                                    <| fun message -> WorkIsComplete >> dispatch <| (message, false)
+                                                    <| fun message -> IterationMessage >> dispatch <| message 
+                                                    <| reportProgress            
                                        
-                                            return runIO result
-                                        }
-                                    |> Async.StartChild 
+                                                return runIO result
+                                            }
+                                        |> Async.StartChild 
                                
-                                let! result = hardWork 
-                                do! Async.Sleep 1000
+                                    let! result = hardWork 
+                                    do! Async.Sleep 1000
                           
-                                match token.IsCancellationRequested with
-                                | false ->
-                                        return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
-                                | true  ->
-                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home2       
+                                    match token.IsCancellationRequested with
+                                    | false ->
+                                            return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                    | true  ->
+                                            WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
+                                            return dispatch Home2  
+                                with 
+                                | ex
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
+                                    NetConnMessage >> dispatch <| criticalElmishErrorKodis
                             }     
 
                     let executeSequentially dispatch =
@@ -807,37 +842,43 @@ module App =
                     let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =    
 
                         async 
-                            {     
-                                let! hardWork =                             
-                                    async 
-                                        {                                                      
-                                            let reportProgress (progressValue, totalProgress) =     
+                            {    
+                                try
+                                    let! hardWork =                             
+                                        async 
+                                            {                                                      
+                                                let reportProgress (progressValue, totalProgress) =     
 
-                                                match token.IsCancellationRequested with
-                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
-                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
+                                                    match token.IsCancellationRequested with
+                                                    | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                    | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
-                                            let result = 
-                                                stateReducerCmd4
-                                                <| token
-                                                <| kodisPathTemp4
-                                                <| fun message -> WorkIsComplete >> dispatch <| (message, false)
-                                                <| fun message -> IterationMessage >> dispatch <| message 
-                                                <| reportProgress      
+                                                let result = 
+                                                    stateReducerCmd4
+                                                    <| token
+                                                    <| kodisPathTemp4
+                                                    <| fun message -> WorkIsComplete >> dispatch <| (message, false)
+                                                    <| fun message -> IterationMessage >> dispatch <| message 
+                                                    <| reportProgress      
 
-                                            return runIO result  
-                                        }
-                                    |> Async.StartChild 
+                                                return runIO result  
+                                            }
+                                        |> Async.StartChild 
 
-                                let! result = hardWork 
-                                do! Async.Sleep 1000 
+                                    let! result = hardWork 
+                                    do! Async.Sleep 1000 
 
-                                match token.IsCancellationRequested with
-                                | false ->
-                                        return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
-                                | true  ->
-                                        WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home2  
+                                    match token.IsCancellationRequested with
+                                    | false ->
+                                            return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                    | true  ->
+                                            WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
+                                            return dispatch Home2  
+                                with 
+                                | ex
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
+                                    NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
                    
                     let executeSequentially dispatch =   
@@ -895,44 +936,50 @@ module App =
 
                         async
                             {
-                                NetConnMessage >> dispatch <| String.Empty 
+                                try
+                                    NetConnMessage >> dispatch <| String.Empty 
                                                           
-                                let! hardWork =                            
-                                    async 
-                                        {
-                                            let reportProgress (progressValue, totalProgress) =     
+                                    let! hardWork =                            
+                                        async 
+                                            {
+                                                let reportProgress (progressValue, totalProgress) =     
 
-                                                match token.IsCancellationRequested with
-                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
-                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)    
+                                                    match token.IsCancellationRequested with
+                                                    | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                    | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)    
 
-                                            match runIO <| webscraping_DPO reportProgress token dpoPathTemp with  
-                                            | Ok _     
-                                                -> 
-                                                return mauiDpoMsg
+                                                match runIO <| webscraping_DPO reportProgress token dpoPathTemp with  
+                                                | Ok _     
+                                                    -> 
+                                                    return mauiDpoMsg
 
-                                            | Error err 
-                                                ->
-                                                RestartVisible >> dispatch <| true
-                                                return err
-                                        }
-                                    |> Async.StartChild 
+                                                | Error err 
+                                                    ->
+                                                    RestartVisible >> dispatch <| true
+                                                    return err
+                                            }
+                                        |> Async.StartChild 
                                
-                                let! result = hardWork 
-                                do! Async.Sleep 1000
+                                    let! result = hardWork 
+                                    do! Async.Sleep 1000
                               
-                                match token.IsCancellationRequested with
-                                | false ->
-                                        return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
-                                | true  ->
-                                        WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home2         
+                                    match token.IsCancellationRequested with
+                                    | false ->
+                                            return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                    | true  ->
+                                            WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
+                                            return dispatch Home2                                          
+                                with 
+                                | ex
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
+                                    NetConnMessage >> dispatch <| criticalElmishErrorDpo
                             }  
                      
                     let execute dispatch = 
 
                         async 
-                            {     
+                            {   
                                 RestartVisible >> dispatch <| false
 
                                 match token.IsCancellationRequested with
@@ -941,7 +988,7 @@ module App =
                                 | false ->                                                               
                                         match token.IsCancellationRequested with
                                         | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false -> return! delayedCmd token dispatch  
+                                        | false -> return! delayedCmd token dispatch                               
                             } 
                         |> Async.StartImmediate
 
@@ -991,44 +1038,50 @@ module App =
 
                         async
                             {
-                                NetConnMessage >> dispatch <| String.Empty 
+                                try
+                                    NetConnMessage >> dispatch <| String.Empty 
                                                           
-                                let! hardWork =                            
-                                    async 
-                                        {
-                                            let reportProgress (progressValue, totalProgress) =     
+                                    let! hardWork =                            
+                                        async 
+                                            {
+                                                let reportProgress (progressValue, totalProgress) =     
 
-                                                match token.IsCancellationRequested with
-                                                | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
-                                                | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false) 
+                                                    match token.IsCancellationRequested with
+                                                    | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
+                                                    | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false) 
 
-                                            match runIO <| webscraping_MDPO reportProgress token mdpoPathTemp with
-                                            | Ok _     
-                                                ->                                                
-                                                return mauiMdpoMsg //Helpers.StringCombine.runTest() //mauiMdpoMsg
+                                                match runIO <| webscraping_MDPO reportProgress token mdpoPathTemp with
+                                                | Ok _     
+                                                    ->                                                
+                                                    return mauiMdpoMsg //Helpers.StringCombine.runTest() //mauiMdpoMsg
 
-                                            | Error err 
-                                                ->
-                                                RestartVisible >> dispatch <| true
-                                                return err
-                                        }
-                                    |> Async.StartChild 
+                                                | Error err 
+                                                    ->
+                                                    RestartVisible >> dispatch <| true
+                                                    return err
+                                            }
+                                        |> Async.StartChild 
                                
-                                let! result = hardWork 
-                                do! Async.Sleep 1000
+                                    let! result = hardWork 
+                                    do! Async.Sleep 1000
                            
-                                match token.IsCancellationRequested with
-                                | false ->
-                                        return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
-                                | true  ->
-                                        WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
-                                        return dispatch Home2  
+                                    match token.IsCancellationRequested with
+                                    | false ->
+                                            return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                    | true  ->
+                                            WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
+                                            return dispatch Home2  
+                                with 
+                                | ex
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
+                                    NetConnMessage >> dispatch <| criticalElmishErrorMdpo
                             }  
-                     
-                    let execute dispatch = 
+                  
+                    let execute dispatch =
 
                         async 
-                            {         
+                            {                                
                                 RestartVisible >> dispatch <| false
 
                                 match token.IsCancellationRequested with
@@ -1037,8 +1090,8 @@ module App =
                                 | false ->                                                               
                                         match token.IsCancellationRequested with
                                         | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false -> return! delayedCmd token dispatch  
-                            } 
+                                        | false -> return! delayedCmd token dispatch 
+                            }
                         |> Async.StartImmediate
 
                     match connectivityListener >> runIO >> Option.ofBool <| () with

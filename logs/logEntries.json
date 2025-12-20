@@ -259,3 +259,998 @@ Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
 { "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
 { "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
 
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+{ "list": ["Zkusebni chyba Error #XElmish-Mdpo","12/19/2025 23:09:43 +00:00"] }
+{ "list": ["Test exception KODIS Error #XElmish_Kodis_Critical_Error","12/19/2025 23:20:38 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+{ "list": ["Zkusebni chyba Error #XElmish-Mdpo","12/19/2025 23:09:43 +00:00"] }
+{ "list": ["Test exception KODIS Error #XElmish_Kodis_Critical_Error","12/19/2025 23:20:38 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:21:38 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+{ "list": ["Zkusebni chyba Error #XElmish-Mdpo","12/19/2025 23:09:43 +00:00"] }
+{ "list": ["Test exception KODIS Error #XElmish_Kodis_Critical_Error","12/19/2025 23:20:38 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:21:38 +00:00"] }
+{ "list": ["Test exception DPO Error #XElmish_Dpo_Critical_Error","12/19/2025 23:22:05 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+{ "list": ["Zkusebni chyba Error #XElmish-Mdpo","12/19/2025 23:09:43 +00:00"] }
+{ "list": ["Test exception KODIS Error #XElmish_Kodis_Critical_Error","12/19/2025 23:20:38 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:21:38 +00:00"] }
+{ "list": ["Test exception DPO Error #XElmish_Dpo_Critical_Error","12/19/2025 23:22:05 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:22:26 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+{ "list": ["Zkusebni chyba Error #XElmish-Mdpo","12/19/2025 23:09:43 +00:00"] }
+{ "list": ["Test exception KODIS Error #XElmish_Kodis_Critical_Error","12/19/2025 23:20:38 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:21:38 +00:00"] }
+{ "list": ["Test exception DPO Error #XElmish_Dpo_Critical_Error","12/19/2025 23:22:05 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:22:26 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+{ "list": ["Zkusebni chyba Error #XElmish-Mdpo","12/19/2025 23:09:43 +00:00"] }
+{ "list": ["Test exception KODIS Error #XElmish_Kodis_Critical_Error","12/19/2025 23:20:38 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:21:38 +00:00"] }
+{ "list": ["Test exception DPO Error #XElmish_Dpo_Critical_Error","12/19/2025 23:22:05 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:22:26 +00:00"] }
+{ "list": ["The operation was canceled. Error#005","12/20/2025 01:19:49 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+{ "list": ["Zkusebni chyba Error #XElmish-Mdpo","12/19/2025 23:09:43 +00:00"] }
+{ "list": ["Test exception KODIS Error #XElmish_Kodis_Critical_Error","12/19/2025 23:20:38 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:21:38 +00:00"] }
+{ "list": ["Test exception DPO Error #XElmish_Dpo_Critical_Error","12/19/2025 23:22:05 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:22:26 +00:00"] }
+{ "list": ["The operation was canceled. Error#005","12/20/2025 01:19:49 +00:00"] }
+{ "list": ["The operation was canceled. Error#005","12/20/2025 01:54:40 +00:00"] }
+
+{ "list": [] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/15/2025 23:21:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/16/2025 00:04:35 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/16/2025 00:06:15 +00:00"] }
+{ "list": ["The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
+<!DOCTYPE html>
+<html lang="cs-cz" dir="ltr">
+<head>
+	<meta charset="utf-8" />
+	<title>0 - file_exists(): Argument #1 ($filename) must be of type string, array given</title>
+	<link href="/templates/system/css/error.css" rel="stylesheet" />
+			<!--[if lt IE 9]><script src="/media/jui/js/html5.js"></script><![endif]-->
+</head>
+<body>
+	<div class="error">
+		<div id="outline">
+		<div id="errorboxoutline">
+			<div id="errorboxheader">0 - file_exists(): Argument #1 ($filename) must be of type string, array given</div>
+			<div id="errorboxbody">
+			<p><strong>Tuto stránku nemůžete navštívit, protože:</strong></p>
+			<ol>
+				<li><strong>zastaralá záložka/oblíbené</strong></li>
+				<li>vyhledávač, který má <strong>zastaralý index tohoto webu</strong></li>
+				<li><strong>překlep v adrese</strong></li>
+				<li>na tuto stránku <strong>nemáte přístup</strong></li>
+				<li>Požadovaný obsah nebyl nalezen.</li>
+				<li>Při zpracování požadavku došlo k chybě.</li>
+			</ol>
+			<p><strong>Vyzkoušejte prosím některou z těchto stránek:</strong></p>
+			<ul>
+				<li><a href="/index.php" title="Přejít na domovskou stránku">Domovská stránka</a></li>
+			</ul>
+			<p>Pokud problémy přetrvávají, obraťte se na správce tohoto webu a nahlaste mu níže uvedenou chybu.</p>
+			<div id="techinfo">
+			<p>
+				file_exists(): Argument #1 ($filename) must be of type string, array given							</p>
+						</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>
+ Error#011","12/16/2025 17:56:35 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:09 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/16/2025 18:01:11 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 01:42:17 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#74764-171","12/17/2025 03:44:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:20:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:20:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 15:21:23 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 15:21:25 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 17:20:05 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 17:21:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 17:37:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:24:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/18/2025 18:30:50 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 18:48:37 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 18:50:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 18:53:24 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 18:53:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:05:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:06:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 19:11:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 19:11:17 +00:00"] }
+{ "list": ["FileDownloadErrorMHD Error#371","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["OperationCanceled Error#037","12/18/2025 19:14:36 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:17:38 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:19:19 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 19:42:49 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 19:44:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:02:04 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:03:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/18/2025 20:05:48 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/18/2025 20:05:49 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 20:54:18 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 20:55:59 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/18/2025 22:49:40 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008","12/18/2025 22:51:20 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:14 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:40:26 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 02:41:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 02:42:52 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/19/2025 02:44:33 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/19/2025 02:55:01 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:09:34 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:09:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:22:16 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:22:17 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 03:41:03 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 03:41:04 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/19/2025 03:47:41 +00:00"] }
+{ "list": ["net_webstatus_Timeout Error#008","12/19/2025 03:49:21 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:40:29 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 11:50:32 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 11:50:33 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 14:54:07 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 15:47:31 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/19/2025 15:47:32 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/19/2025 17:54:39 +00:00"] }
+{ "list": ["Zkusebni chyba Error #XElmish-Mdpo","12/19/2025 23:09:43 +00:00"] }
+{ "list": ["Test exception KODIS Error #XElmish_Kodis_Critical_Error","12/19/2025 23:20:38 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:21:38 +00:00"] }
+{ "list": ["Test exception DPO Error #XElmish_Dpo_Critical_Error","12/19/2025 23:22:05 +00:00"] }
+{ "list": ["Test exception KODIS4 Error #XElmish_Kodis4_Critical_Error","12/19/2025 23:22:26 +00:00"] }
+{ "list": ["The operation was canceled. Error#005","12/20/2025 01:19:49 +00:00"] }
+{ "list": ["The operation was canceled. Error#005","12/20/2025 01:54:40 +00:00"] }
+{ "list": ["One or more errors occurred. () () Error#107","12/20/2025 01:57:17 +00:00"] }
+{ "list": ["The operation was canceled. Error#005","12/20/2025 01:58:45 +00:00"] }
+

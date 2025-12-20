@@ -78,7 +78,7 @@ module KODIS_BL_Record =
                                                 http
                                                     {
                                                         GET uri
-                                                        //config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                         config_cancellationToken token 
                                                         header "User-Agent" "FsHttp/Android7.1"
                                                         header headerContent1 headerContent2
@@ -87,7 +87,7 @@ module KODIS_BL_Record =
                                                 http
                                                     {
                                                         GET uri
-                                                        //config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                         config_cancellationToken token 
                                                         header "User-Agent" "FsHttp/Android7.1"
                                                     }
@@ -141,15 +141,15 @@ module KODIS_BL_Record =
                              
                 with
                 | ex  
-                    ->                    
-                    match (string ex.Message).Contains "The operation was canceled" with 
-                    | true  
-                        -> 
+                    -> 
+                    match Helpers.ExceptionHelpers.isCancellation ex with
+                    | true
+                        ->
                         Error StopJsonDownloading
-                    | false
-                        -> 
+                    | false 
+                        ->
                         runIO (postToLog <| ex.Message <| "#021")
-                        Error JsonDownloadError  
+                        Error JsonDownloadError
             )
             
     let internal downloadAndSave token = 
@@ -270,7 +270,7 @@ module KODIS_BL_Record =
                                                                         http
                                                                             {
                                                                                 GET uri
-                                                                                //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                                 config_cancellationToken token 
                                                                                 header "User-Agent" "FsHttp/Android7.1"
                                                                                 header headerContent1 headerContent2
@@ -279,7 +279,7 @@ module KODIS_BL_Record =
                                                                         http
                                                                             {
                                                                                 GET uri
-                                                                                //config_timeoutInSeconds 300 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                                 config_cancellationToken token 
                                                                                 header "User-Agent" "FsHttp/Android7.1"
                                                                             }
@@ -342,14 +342,14 @@ module KODIS_BL_Record =
                                 with
                                 | ex                             
                                     -> 
-                                    match (string ex.Message).Contains "The operation was canceled" with 
-                                    | true  
+                                    match Helpers.ExceptionHelpers.isCancellation ex with
+                                    | true
                                         ->
                                         Error StopDownloading
-                                    | false
+                                    | false 
                                         ->
                                         runIO (postToLog <| ex.Message <| "#024")
-                                        Error FileDownloadError  
+                                        Error FileDownloadError
                         } 
         
                 reader
@@ -397,24 +397,25 @@ module KODIS_BL_Record =
                                     | ex 
                                         ->
                                         pyramidOfInferno
-                                            {                                                                                
+                                            {
                                                 let! _ =
-                                                    (not <| (string ex.Message).Contains "The operation was canceled") |> Result.fromBool () String.Empty,
-                                                        fun _ -> Ok String.Empty
-                                        
+                                                    (not <| Helpers.ExceptionHelpers.isCancellation ex)
+                                                    |> Result.fromBool () String.Empty,
+                                                    fun _ -> Ok String.Empty
+
                                                 runIO (postToLog <| ex.Message <| "#026")
-                                        
-                                                let!_ =
-                                                    runIO <| deleteAllODISDirectories kodisPathTemp, 
-                                                        (fun _
-                                                            ->
-                                                            runIO (postToLog <| FileDeleteError <| "#262")                             
-                                                            Error FileDeleteError
-                                                        )
 
-                                                runIO (postToLog <| FileDownloadError <| "#261") 
+                                                let! _ =
+                                                    runIO <| deleteAllODISDirectories kodisPathTemp,
+                                                    (fun _ 
+                                                        ->
+                                                        runIO (postToLog <| FileDeleteError <| "#262")
+                                                        Error FileDeleteError
+                                                    )
 
-                                                return Error FileDownloadError                                            
-                                            }
+                                                runIO (postToLog <| FileDownloadError <| "#261")
+
+                                                return Error FileDownloadError
+                                            } 
                     }       
         )

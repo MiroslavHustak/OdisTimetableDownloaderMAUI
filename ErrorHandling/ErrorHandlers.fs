@@ -178,3 +178,17 @@ module Option =
         | Some value -> Result.Ok value
         | None       -> Result.Error error    
     *)
+
+module ExceptionHelpers = 
+
+    let internal isCancellation (ex : exn) =
+
+        match ex with
+        | :? OperationCanceledException
+                        
+        | :? System.Threading.Tasks.TaskCanceledException
+            -> 
+            true
+        | _ 
+            ->
+            (string ex.Message).Contains "The operation was canceled"
