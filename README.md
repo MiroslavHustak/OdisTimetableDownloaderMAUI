@@ -82,8 +82,8 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │   ├── PureFunctions/
 │   │   │   └── SortRecordData.fs
 │   │   └── ImpureFunctions/
-│   │       ├── SortJsonDataFull.fs
-│   │       ├── SortJsonData.fs
+│   │       ├── ParseJsonDataFull.fs
+│   │       ├── ParseJsonData.fs
 │   │       └── FilterTimetableLinks.fs
 │   ├── IO_Operations/
 │   │   ├── PureFunctions/
