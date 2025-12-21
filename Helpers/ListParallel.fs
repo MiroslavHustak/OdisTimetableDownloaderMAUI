@@ -128,7 +128,7 @@ let private maxDegreeOfParallelismAdaptedAndroid =
 
 //**************************Functions*******************************************
 
-// ALL FUNCTIONS ARE NOT WRAPPED IN TRY..WITH TO AVOID SWALLOWING EXCEPTIONS
+// ALL FUNCTIONS ARE NOT WRAPPED IN TRY..WITH AND THE RECORD TYPE TO AVOID HASSLE
 
 // Although functions using numberOfThreads, async and tasks are technically impure, they are pure in the sense that they do not change any state outside their scope
 
