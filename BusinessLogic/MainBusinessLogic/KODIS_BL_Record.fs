@@ -292,6 +292,7 @@ module KODIS_BL_Record =
     
                                                 | None 
                                                     ->
+                                                    runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2212")
                                                     Error <| PdfError FileDownloadError                                             
                                         )  
     

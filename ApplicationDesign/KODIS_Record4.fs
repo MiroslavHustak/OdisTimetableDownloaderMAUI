@@ -89,8 +89,8 @@ module WebScraping_KODISFMRecord4 =
             | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
             | PdfError LetItBeKodis4           -> String.Empty
             | PdfError NoPermissionError       -> String.Empty
-            | JsonError JsonParsingError       -> jsonParsingError 
-            | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+            | JsonError JsonParsingError       -> jsonParsingError //tady nenastane
+            | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5 //tady nenastane
             | JsonError JsonDataFilteringError -> dataFilteringError 
 
         let result (context2 : Context2) =   
@@ -129,9 +129,14 @@ module WebScraping_KODISFMRecord4 =
                 Ok context2.Msg3 
 
             | Error err 
+                when err <> PdfError StopDownloading
                 ->
-                 runIO (postToLog <| err <| "#004")
-                 Error err  
+                Error err  
+
+            | Error err                    
+                ->
+                runIO (postToLog <| err <| "#006-1")
+                Error err 
             
         //try with blok zrusen
                  

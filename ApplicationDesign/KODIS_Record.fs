@@ -216,10 +216,15 @@ module WebScraping_KODISFMRecord =
                         System.Threading.Thread.Sleep(6000)     
                         Ok context2.Msg3 
         
+                    | Error err 
+                        when err <> JsonError StopJsonParsing || err <> PdfError StopDownloading
+                        ->
+                        Error err  
+
                     | Error err                    
                         ->
-                        runIO (postToLog <| err <| "#6")
-                        Error err  
+                        runIO (postToLog <| err <| "#006")
+                        Error err 
                        
                 let dirList = createNewDirectoryPaths path listOfODISVariants
                     in

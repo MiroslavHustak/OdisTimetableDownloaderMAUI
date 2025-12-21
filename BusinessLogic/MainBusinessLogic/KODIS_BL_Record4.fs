@@ -212,12 +212,13 @@ module KODIS_BL_Record4 =
        
                                                 | status 
                                                     ->
-                                                    runIO (postToLog <| (string status) <| "#2212-4")
+                                                    runIO (postToLog <| (string status) <| "#2212-41")
                                                     Error <| PdfError FileDownloadError
        
                                             | None 
                                                 ->
-                                               Error <| PdfError FileDownloadError                                            
+                                                runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2212-42")
+                                                Error <| PdfError FileDownloadError                                            
                                     )  
        
                                 |> List.tryPick
