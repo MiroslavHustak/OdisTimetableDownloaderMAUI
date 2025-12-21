@@ -2955,3 +2955,10 @@ Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
 { "list": ["The operation was canceled. Error#005","12/20/2025 22:43:52 +00:00"] }
 { "list": ["The operation was canceled. Error#005","12/20/2025 22:46:19 +00:00"] }
 
+{ "list": [] }
+{ "list": ["The operation was canceled. Error#005","12/20/2025 22:43:52 +00:00"] }
+{ "list": ["The operation was canceled. Error#005","12/20/2025 22:46:19 +00:00"] }
+{ "list": ["The operation was canceled. Error#005","12/21/2025 02:18:19 +00:00"] }
+{ "list": ["JsonError StopJsonParsing Error#6","12/21/2025 02:18:36 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024","12/21/2025 02:19:41 +00:00"] }
+

@@ -138,6 +138,7 @@ module KODIS_BL_Record =
             )
     
     let internal downloadAndSave token =  
+
         IO (fun () 
                 ->         
                 let downloadAndSaveTimetables (token : CancellationToken) =  
@@ -282,16 +283,16 @@ module KODIS_BL_Record =
                                                     | HttpStatusCode.Forbidden 
                                                         ->
                                                         runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211") 
-                                                        Error FileDownloadError
+                                                        Error <| PdfError FileDownloadError
     
                                                     | status
                                                         ->
                                                         runIO (postToLog <| (string status) <| "#2212")
-                                                        Error FileDownloadError
+                                                        Error <| PdfError FileDownloadError
     
                                                 | None 
                                                     ->
-                                                    Error FileDownloadError                                             
+                                                    Error <| PdfError FileDownloadError                                             
                                         )  
     
                                     |> List.tryPick
@@ -299,7 +300,7 @@ module KODIS_BL_Record =
                                             | Ok _
                                                 -> None
                                             | Error case
-                                                -> Some <| Error case     
+                                                -> Some (Error case)     
                                         )
                                     |> Option.defaultValue (Ok ())
                                 
@@ -309,11 +310,11 @@ module KODIS_BL_Record =
                                     match Helpers.ExceptionHelpers.isCancellation ex with
                                     | true
                                         ->
-                                        Error StopDownloading
+                                        Error <| PdfError StopDownloading
                                     | false 
                                         ->
                                         runIO (postToLog <| ex.Message <| "#024")
-                                        Error FileDownloadError
+                                        Error <| PdfError FileDownloadError
                          } 
      
                 reader
@@ -324,7 +325,7 @@ module KODIS_BL_Record =
                             match context.dir |> Directory.Exists with 
                             | false ->
                                     runIO (postToLog <| NoFolderError <| "#251")
-                                    Error NoFolderError  
+                                    Error <| PdfError NoFolderError  
                             | true  ->                                   
                                     match context.list with
                                     | [] 

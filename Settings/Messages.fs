@@ -19,7 +19,7 @@ module Messages =
     let [<Literal>] internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
     let [<Literal>] internal jsonCancel = "Stahování JSON souborů předčasně ukončeno." 
     let [<Literal>] internal rcError = "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
-    let [<Literal>] internal jsonFilteringError = "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
+    let [<Literal>] internal jsonParsingError = "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
     let [<Literal>] internal dataFilteringError = "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
     let [<Literal>] internal fileDeleteError = "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
     let [<Literal>] internal folderCopyingError = "Chyba při zálohování starých souborů, restartuj aplikaci." 
@@ -49,6 +49,9 @@ module Messages =
     
     let [<Literal>] internal dispatchMsg0 = "Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
     let [<Literal>] internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
+
+    let [<Literal>] internal dispatchParseMsg = "Došlo k chybě při parsování JSON souborů."  
+    let [<Literal>] internal parseCancelMsg = "Parsování JSON souborů. Stahování JŘ DPO předčasně ukončeno."
 
     let [<Literal>] internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
     let [<Literal>] internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."

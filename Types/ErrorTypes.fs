@@ -28,12 +28,11 @@ module ErrorTypes =
 
     type [<Struct>] internal JsonParsingErrors = 
         | JsonParsingError
-        | StopParsing //cancellation
-           
+        | JsonDataFilteringError
+        | StopJsonParsing //cancellation  
+
     type [<Struct>] internal PdfDownloadErrors =
         | RcError         
-        | DataFilteringError
-        | JsonFilteringError //vyjimecne to musime dat tady
         | FileDeleteError
         | FolderMovingError4
         | CreateFolderError4
@@ -49,3 +48,7 @@ module ErrorTypes =
         | NetConnPdfError of string
         | StopDownloading //cancellation
         | LetItBeKodis4
+
+    type internal JsonParsingAndPdfDownloadErrors =
+        | PdfError of PdfDownloadErrors
+        | JsonError of JsonParsingErrors

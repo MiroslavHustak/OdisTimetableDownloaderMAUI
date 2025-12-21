@@ -40,15 +40,15 @@ module KODIS_BL_Record4 =
     
         IO (fun () 
                 ->
-                let result1 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
+                let result1 : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
                     async
                         {
                             match! getFutureLinksFromRestApi >> runIO <| urlApi with
                             | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                            | Error err -> return Error err
+                            | Error err -> return Error <| PdfError err
                         }
     
-                let result2 : Async<Result<(string * string) list, PdfDownloadErrors>> = 
+                let result2 : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
                     async
                         {
                             match variant with
@@ -56,7 +56,7 @@ module KODIS_BL_Record4 =
                                 ->
                                 match! getFutureLinksFromRestApi >> runIO <| urlJson with
                                 | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                                | Error err -> return Error err
+                                | Error err -> return Error <| PdfError err
                             | _              
                                 -> 
                                 return Ok []
@@ -93,13 +93,13 @@ module KODIS_BL_Record4 =
 
                                 | _                   
                                     ->
-                                    runIO (postToLog <| DataFilteringError <| "#015")                                    
-                                    Error DataFilteringError
+                                    runIO (postToLog <| JsonDataFilteringError <| "#015")                                    
+                                    Error <| JsonError JsonDataFilteringError
 
                         | Choice2Of2 ex
                             -> 
                             runIO (postToLog <| ex.Message <| "#016")                      
-                            return Error DataFilteringError  
+                            return Error <| JsonError JsonDataFilteringError  
                     }
                 |> Async.RunSynchronously //priprava na pripadne pouziti cancellation token, zabal to pak to try-with
                                           //|> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) 
@@ -208,16 +208,16 @@ module KODIS_BL_Record4 =
                                                 | HttpStatusCode.Forbidden 
                                                     ->
                                                     runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-4") 
-                                                    Error FileDownloadError
+                                                    Error <| PdfError FileDownloadError
        
                                                 | status 
                                                     ->
                                                     runIO (postToLog <| (string status) <| "#2212-4")
-                                                    Error FileDownloadError
+                                                    Error <| PdfError FileDownloadError
        
                                             | None 
                                                 ->
-                                                Error FileDownloadError                                             
+                                               Error <| PdfError FileDownloadError                                            
                                     )  
        
                                 |> List.tryPick
@@ -225,7 +225,7 @@ module KODIS_BL_Record4 =
                                         | Ok _
                                             -> None
                                         | Error case
-                                            -> Some <| Error case     
+                                            -> Some (Error case)     
                                     )
                                 |> Option.defaultValue (Ok ())
                                    
@@ -235,11 +235,11 @@ module KODIS_BL_Record4 =
                                 match Helpers.ExceptionHelpers.isCancellation ex with
                                 | true
                                     ->
-                                    Error StopDownloading
+                                    Error <| PdfError StopDownloading
                                 | false 
                                     ->
                                     runIO (postToLog <| ex.Message <| "#024-4")
-                                    Error FileDownloadError
+                                    Error <| PdfError FileDownloadError
                         } 
         
                 reader
@@ -250,7 +250,7 @@ module KODIS_BL_Record4 =
                             match context.dir |> Directory.Exists with 
                             | false ->
                                     runIO (postToLog <| NoFolderError <| "#251-4")
-                                    Error NoFolderError                                
+                                    Error <| PdfError NoFolderError                                
                             | true  ->                                   
                                     match context.list with
                                     | [] 

@@ -62,10 +62,10 @@ module WebScraping_KODISFMRecord =
     type private Environment = 
         {
             DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> IO<Result<unit, JsonDownloadErrors>>
-            DeleteAllODISDirectories : string -> IO<Result<unit, PdfDownloadErrors>>
-            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Lazy<Result<string list, PdfDownloadErrors>>> 
-            FilterTimetableLinks : Validity -> string -> Result<string list, PdfDownloadErrors> -> IO<Result<(string * string) list, PdfDownloadErrors>> 
-            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, PdfDownloadErrors>
+            DeleteAllODISDirectories : string -> IO<Result<unit, JsonParsingAndPdfDownloadErrors>>
+            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>> 
+            FilterTimetableLinks : Validity -> string -> Result<string list, JsonParsingAndPdfDownloadErrors> -> IO<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> 
+            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, JsonParsingAndPdfDownloadErrors>
         }
 
     let private environment : Environment =
@@ -91,7 +91,7 @@ module WebScraping_KODISFMRecord =
                 ->       
                 let downloadAndSaveJson reportProgress (token : CancellationToken) = 
 
-                    let errFn err =  
+                    let errFn err =                     
                         match err with
                         | JsonDownloadError    -> jsonDownloadError
                         | JsonConnectionError  -> cancelMsg2
@@ -144,56 +144,39 @@ module WebScraping_KODISFMRecord =
                 downloadAndSaveJson reportProgress token 
         )
 
-    let internal stateReducerCmd2 (token : CancellationToken) reportProgress =
-
-        IO (fun () 
-                ->    
-
-                let errFn err =  
-                    match err with                   
-                    | JsonFilteringError   -> jsonFilteringError
-                    | _   -> dataFilteringError                   
-                                                             
-                let result (lazyList : Lazy<Result<string list, PdfDownloadErrors>>) (context2 : Context2) =  
-               
-                    lazyList.Value //lazyList.Value vraci Result<string list, PdfDownloadErrors>      
-                   
-                dispatchMsg3             
-        )
-
-    //TODO: predelat na stateReducerCmd3
-    let internal stateReducerCmd3 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
+    let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
 
         IO (fun () 
                 ->    
                 let errFn err =  
 
                     match err with
-                    | RcError              -> rcError
-                    | NoFolderError        -> noFolderError
-                    | JsonFilteringError   -> jsonFilteringError
-                    | DataFilteringError   -> dataFilteringError
-                    | FileDeleteError      -> fileDeleteError 
-                    | CreateFolderError4   -> createFolderError   
-                    | CreateFolderError2   -> createFolderError2
-                    | FileDownloadError    -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
-                    | FolderMovingError4   -> folderMovingError 
-                    | CanopyError          -> canopyError
-                    | TimeoutError         -> "timeout"
-                    | PdfConnectionError   -> cancelMsg2 
-                    | ApiResponseError err -> err
-                    | ApiDecodingError     -> canopyError
-                    | NetConnPdfError err  -> err
-                    | StopDownloading      -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
-                    | LetItBeKodis4        -> String.Empty
-                    | NoPermissionError    -> String.Empty
-                                                             
-                let result (lazyList : Lazy<Result<string list, PdfDownloadErrors>>) (context2 : Context2) =  
-               
+                    | PdfError RcError                 -> rcError
+                    | PdfError NoFolderError           -> noFolderError
+                    | PdfError FileDeleteError         -> fileDeleteError 
+                    | PdfError CreateFolderError4      -> createFolderError   
+                    | PdfError CreateFolderError2      -> createFolderError2
+                    | PdfError FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+                    | PdfError FolderMovingError4      -> folderMovingError 
+                    | PdfError CanopyError             -> canopyError
+                    | PdfError TimeoutError            -> "timeout"
+                    | PdfError PdfConnectionError      -> cancelMsg2 
+                    | PdfError (ApiResponseError err)  -> err
+                    | PdfError ApiDecodingError        -> canopyError
+                    | PdfError (NetConnPdfError err)   -> err
+                    | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+                    | PdfError LetItBeKodis4           -> String.Empty
+                    | PdfError NoPermissionError       -> String.Empty
+                    | JsonError JsonParsingError       -> jsonParsingError 
+                    | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+                    | JsonError JsonDataFilteringError -> dataFilteringError 
+                                                                 
+                let result (lazyList : Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>) (context2 : Context2) =  
+                   
                     dispatchWorkIsComplete dispatchMsg2
 
                     let dir = context2.DirList |> List.item context2.VariantInt 
-                    
+                        
                     let list = 
                         try  
                             runIO <| filterTimetableLinks context2.Variant dir lazyList.Value //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
@@ -201,8 +184,8 @@ module WebScraping_KODISFMRecord =
                         | ex
                             ->
                             runIO (postToLog <| ex.Message <| "#22-2")
-                            Error DataFilteringError 
-                            
+                            Error <| JsonError JsonDataFilteringError 
+                                
                     match list with
                     | Ok list
                         when
@@ -215,29 +198,29 @@ module WebScraping_KODISFMRecord =
                                         dir = dir
                                         list = list
                                     } 
-                           
+                               
                                 dispatchIterationMessage context2.Msg1
-                          
+                              
                                 //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
                                 //**********************************************************************
                                 match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
                                 | true  -> context List.Parallel.map2_IO
                                 | false -> context List.map2  
                                 //**********************************************************************
-                             
+                                 
                                 |> environment.DownloadAndSave token   
-    
+        
                     | Ok _
                         ->  
                         dispatchIterationMessage context2.Msg2    
                         System.Threading.Thread.Sleep(6000)     
                         Ok context2.Msg3 
-    
+        
                     | Error err                    
                         ->
                         runIO (postToLog <| err <| "#6")
                         Error err  
-                   
+                       
                 let dirList = createNewDirectoryPaths path listOfODISVariants
                     in
                     let contextCurrentValidity = 
@@ -249,7 +232,7 @@ module WebScraping_KODISFMRecord =
                             Msg3 = msg3CurrentValidity
                             VariantInt = 0
                         }
-    
+        
                     let contextFutureValidity = 
                         {
                             DirList = dirList
@@ -259,7 +242,7 @@ module WebScraping_KODISFMRecord =
                             Msg3 = msg3FutureValidity
                             VariantInt = 1
                         }
-    
+        
                     let contextWithoutReplacementService = 
                         {
                             DirList = dirList
@@ -269,7 +252,7 @@ module WebScraping_KODISFMRecord =
                             Msg3 = msg3WithoutReplacementService
                             VariantInt = 2
                         }
-                                                       
+                                                           
                 pyramidOfInferno
                     {       
                         #if ANDROID
@@ -286,8 +269,8 @@ module WebScraping_KODISFMRecord =
                             | ex
                                 ->
                                 runIO (postToLog <| ex.Message <| "#22-1")
-                                Error DataFilteringError 
-                                |> Lazy<Result<string list, PdfDownloadErrors>>                       
+                                Error <| JsonError JsonParsingError
+                                |> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>                       
 
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn
@@ -297,19 +280,20 @@ module WebScraping_KODISFMRecord =
                             match calculate_TP_Canopy_Difference >> runIO <| () with
                             | Ok _      -> String.Empty
                             | Error err -> err      
-                            
+                                
                         #if ANDROID     
                         deleteAllJsonFilesInDirectory >> runIO <| partialPathJsonTemp 
                         #endif
 
                         let separator = String.Empty
-                        
+                            
                         let combinedMessage = 
                             [ msg1; msg2; msg3; msg4 ] 
                             |> List.choose Option.ofNullEmptySpace
                             |> List.map (fun msg -> sprintf "\n%s" msg)
                             |> String.concat separator   
-    
+        
                         return sprintf "%s%s" dispatchMsg3 combinedMessage
                     }
         )
+     

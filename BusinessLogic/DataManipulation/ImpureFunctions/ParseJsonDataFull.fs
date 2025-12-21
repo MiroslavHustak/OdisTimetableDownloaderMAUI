@@ -213,10 +213,14 @@ module ParseJsonDataFull =
                         |> Seq.append task
                         |> Seq.distinct
                         |> List.ofSeq
-                        |> Ok            
+                        |> Ok   
                 with
                 | ex
                     ->  
-                    runIO (postToLog <| ex.Message <| "#107")
-                    Error JsonFilteringError     
+                    match Helpers.ExceptionHelpers.isCancellation ex with
+                    | true  ->
+                            Error <| JsonError StopJsonParsing   
+                    | false ->
+                            runIO (postToLog <| ex.Message <| "#107")
+                            Error <| JsonError JsonParsingError
         )

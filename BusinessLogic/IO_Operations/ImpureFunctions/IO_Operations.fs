@@ -29,7 +29,7 @@ module IO_Operations =
 
         IO (fun () 
                 ->  
-                let deleteIt : Reader<string list, Result<unit, PdfDownloadErrors>> = 
+                let deleteIt : Reader<string list, Result<unit, JsonParsingAndPdfDownloadErrors>> = 
         
                     reader //Reader monad for educational purposes only, no real benefit here  
                         {
@@ -51,7 +51,7 @@ module IO_Operations =
                                 | ex 
                                     ->
                                     runIO (postToLog <| ex.Message <| "#038")
-                                    Error FileDeleteError
+                                    Error <| PdfError FileDeleteError
                         }
     
                 deleteIt listOfODISVariants  
@@ -63,7 +63,7 @@ module IO_Operations =
 
         IO (fun () 
                 ->  
-                let deleteIt : Reader<string list, Result<unit, PdfDownloadErrors>> =  
+                let deleteIt : Reader<string list, Result<unit, JsonParsingAndPdfDownloadErrors>> =  
     
                     reader //Reader monad for educational purposes only, no real benefit here  
                         {   
@@ -84,7 +84,7 @@ module IO_Operations =
                                 | ex
                                     ->
                                     runIO (postToLog <| ex.Message <| "#039")
-                                    Error FileDeleteError                       
+                                    Error <| PdfError FileDeleteError                       
                         }
     
                 deleteIt listOfODISVariants   
@@ -138,7 +138,7 @@ module IO_Operations =
                 match dirInfo.Exists with
                 | true
                     -> 
-                    deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, PdfDownloadErrors>>
+                    deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
                     dirInfo.Delete()
                 | false 
                     ->
@@ -154,7 +154,7 @@ module IO_Operations =
                 match dirInfo.Exists with
                 | true
                     -> 
-                    deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, PdfDownloadErrors>>
+                    deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
 
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
@@ -191,7 +191,7 @@ module IO_Operations =
                 | ex
                     ->
                     runIO (postToLog <| ex.Message <| "#041")
-                    Error CreateFolderError4   
+                    Error <| PdfError CreateFolderError4   
         )
         
     let internal ensureMainDirectoriesExist permissionGranted =
@@ -223,10 +223,10 @@ module IO_Operations =
                     | ex
                         ->
                         runIO (postToLog <| ex.Message <| "#042")
-                        Error CreateFolderError4   
+                        Error <| PdfError CreateFolderError4   
                 | false 
                     -> 
-                    Error NoPermissionError //jen quli dodrzeni typu, neni tra robit vubec nic
+                    Error <| PdfError NoPermissionError //jen quli dodrzeni typu, neni tra robit vubec nic
     )
 
     let internal createTP_Canopy_Folder pathDir = 
@@ -243,7 +243,7 @@ module IO_Operations =
                 | ex
                     ->
                     runIO (postToLog <| ex.Message <| "#421")
-                    Error CreateFolderError2   
+                    Error <| PdfError CreateFolderError2   
         )
 
     let internal moveFolders source destination err1 err2 = 

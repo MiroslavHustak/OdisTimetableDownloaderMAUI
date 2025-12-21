@@ -29,7 +29,7 @@ open Helpers.DirFileHelper
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
 module ParseJsonData =  
         
-    let internal parseJsonStructure reportProgress (token : CancellationToken) = //prohrabeme se strukturou json souboru 
+    let internal parseJsonStructure2 reportProgress (token : CancellationToken) = //prohrabeme se strukturou json souboru 
         
         IO (fun () 
                 ->  
@@ -132,11 +132,11 @@ module ParseJsonData =
                         | ex
                             ->  
                             runIO (postToLog <| ex.Message <| "#107")
-                            Error JsonFilteringError   
+                            Error StopJsonParsing   
                     )
         )
 
-    let internal parseJsonStructure2 reportProgress (token : CancellationToken) = //prohrabeme se strukturou json souboru 
+    let internal parseJsonStructure reportProgress (token : CancellationToken) = //prohrabeme se strukturou json souboru 
         
         IO (fun () 
                 ->  
@@ -169,10 +169,12 @@ module ParseJsonData =
                                             (fun pathToJson 
                                                 ->                                               
                                                 token.ThrowIfCancellationRequested()  // Artificial checkpoint 
+                                                
                                                 counterAndProgressBar.Post <| Inc 1
-                                                // byt mam svoji async verzi, nestoji to vytvoreni externiho async bloku, gor kdyz to koliduje s JsonProvider2.Parse tempJson2
-                                                let json = readAllText >> runIO <| pathToJson 
-                                                JsonProvider2.Parse json //The biggest performance drag je sync function                                               
+                                                
+                                                readAllTextAsync >> runIO <| pathToJson                                                
+                                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                                |> JsonProvider2.Parse // The biggest performance drag                                            
                                             )
 
                                     return 
@@ -234,9 +236,9 @@ module ParseJsonData =
                             ->  
                             match Helpers.ExceptionHelpers.isCancellation ex with
                             | true  ->
-                                    Error JsonParsingError
+                                    Error <| JsonError StopJsonParsing   
                             | false ->
                                     runIO (postToLog <| ex.Message <| "#107")
-                                    Error StopParsing   
+                                    Error <| JsonError JsonParsingError
                     )
         )

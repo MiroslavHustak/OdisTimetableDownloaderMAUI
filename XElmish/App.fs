@@ -130,22 +130,6 @@ module App =
                 ClearingState : ClearingState
                 // ...
             }  
-
-        nebo
-
-        type UiMode =
-        | Home
-        | Working of Progress
-        | Clearing
-        | Error of string
-        | Completed
-
-        type Model =
-            {
-                PermissionGranted : bool
-                UiMode : UiMode
-                AnimatedButton : string option
-            }
         a podobne predelat vse, co ma obdobnou logiku    
     *)
 
@@ -772,7 +756,7 @@ module App =
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
                                                 let result = 
-                                                    stateReducerCmd3 
+                                                    stateReducerCmd2 
                                                     <| token
                                                     <| kodisPathTemp
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
