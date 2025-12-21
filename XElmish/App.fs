@@ -709,7 +709,7 @@ module App =
                                         |> Async.StartChild
 
                                     let! result = hardWork 
-                                    do! Async.Sleep 1000
+                                    //do! Async.Sleep 1000
 
                                     match token.IsCancellationRequested with
                                     | false ->
@@ -753,7 +753,7 @@ module App =
                                         |> Async.StartChild 
                                
                                     let! result = hardWork 
-                                    do! Async.Sleep 1000
+                                    //do! Async.Sleep 1000
                           
                                     match token.IsCancellationRequested with
                                     | false ->
@@ -851,7 +851,7 @@ module App =
                                         |> Async.StartChild 
 
                                     let! result = hardWork 
-                                    do! Async.Sleep 1000 
+                                    //do! Async.Sleep 1000 
 
                                     match token.IsCancellationRequested with
                                     | false ->
@@ -946,7 +946,7 @@ module App =
                                         |> Async.StartChild 
                                
                                     let! result = hardWork 
-                                    do! Async.Sleep 1000
+                                    //do! Async.Sleep 1000
                               
                                     match token.IsCancellationRequested with
                                     | false ->
@@ -1048,7 +1048,7 @@ module App =
                                         |> Async.StartChild 
                                
                                     let! result = hardWork 
-                                    do! Async.Sleep 1000
+                                    //do! Async.Sleep 1000
                            
                                     match token.IsCancellationRequested with
                                     | false ->
