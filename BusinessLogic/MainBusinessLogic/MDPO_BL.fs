@@ -361,7 +361,7 @@ module MDPO_BL = //FsHttp
                                     | None
                                         -> return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz
                                 }
-                            |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                            |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                 
                         //Exceptions for FSharp.Data.HtmlDocument.Load url and fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
                         //to be caught in MDPO.fs

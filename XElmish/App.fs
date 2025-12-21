@@ -11,10 +11,10 @@ Licensed under the Apache License, Version 2.0 (the "License")
 
 // NOTE:
 // UI/UX is intentionally minimal (a single view) and serves backend stress testing only.
-// Final UX/UI will be designed and implemented later by a UX professional.
+// Final UX/UI/FE will be designed and implemented later by a UX/UI/FE professional.
 
 // NOTE:
-// Hints for UX/UI professionals not familiar with Elmish (or Elm) are at the foot of this code.
+// Hints for UX/UI/FE professionals not familiar with Elmish (or Elm) are at the foot of this code.
 
 namespace OdisTimetableDownloaderMAUI
 
@@ -96,7 +96,7 @@ module App =
         | Idle 
         | InProgress of float * float
 
-    type Model = //This is exactly how not to do it 
+    type Model = // This is exactly how not to do it for real UI/UX/FE
         {
             PermissionGranted : bool
             ProgressMsg : string
@@ -118,7 +118,7 @@ module App =
             AnimatedButton : string option // Tracks animated button
         }
 
-    type Msg = //This is exactly how not to do it 
+    type Msg = // This is exactly how not to do it for real UI/UX/FE
         | RequestPermission
         | PermissionResult of bool
         | DataClearing
@@ -1285,7 +1285,7 @@ module App =
         |> Program.withSubscription captureDispatchSub
         
         (* 
-            The professional FE code should use these patterns:
+            The professional FE code should include patterns similar to the following ones:
 
             type Screen =
             | Home

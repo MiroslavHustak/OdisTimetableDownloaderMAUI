@@ -30,7 +30,7 @@ open BusinessLogic4.KODIS_BL_Record4
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 // 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
 
-//Vzhledem k pouziti Elmishe priste podumej nad timto designem, mozna bude lepsi pure transformation layer
+//TODO: Po vytvoreni profesionalniho UX/UI/FE podumat nad timto designem (mozna bude lepsi pure transformation layer)
 
 module WebScraping_KODISFMRecord4 = 
 
@@ -89,7 +89,7 @@ module WebScraping_KODISFMRecord4 =
             | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
             | PdfError LetItBeKodis4           -> String.Empty
             | PdfError NoPermissionError       -> String.Empty
-            | JsonError JsonParsingError       -> jsonParsingError //tady nenastane
+            | JsonError JsonParsingError       -> jsonParsingError 
             | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5 //tady nenastane
             | JsonError JsonDataFilteringError -> dataFilteringError 
 

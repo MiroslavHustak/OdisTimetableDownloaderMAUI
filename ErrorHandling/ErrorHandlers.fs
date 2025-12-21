@@ -181,17 +181,16 @@ module Option =
 
 module ExceptionHelpers = 
 
-    let internal isCancellation (ex : exn) =
+    [<TailCall>]
+    let rec private containsCancellation (e : exn) =
+        match e with
+        | :? OperationCanceledException 
+        | :? System.Threading.Tasks.TaskCanceledException 
+            -> true
+        | _ 
+            when isNull e.InnerException 
+            -> false
+        | _ 
+            -> containsCancellation e.InnerException
 
-        let rec containsCancellation (e : exn) =
-            match e with
-            | :? OperationCanceledException 
-            | :? System.Threading.Tasks.TaskCanceledException 
-                -> true
-            | _ 
-                when isNull e.InnerException 
-                -> false
-            | _ 
-                -> containsCancellation e.InnerException
-              
-        containsCancellation ex
+    let internal isCancellation (ex : exn) = containsCancellation ex

@@ -22,7 +22,7 @@ open Settings.SettingsGeneral
 
 module WebScraping_MDPO =
 
-    //Design pattern for WebScraping_MDPO : AbstractApplePlumCherryApricotBrandyProxyDistilleryBean 
+    //TODO: Po vytvoreni profesionalniho UX/UI/FE podumat nad timto designem (mozna bude lepsi pure transformation layer)
 
     //************************Main code*******************************************************************************
 

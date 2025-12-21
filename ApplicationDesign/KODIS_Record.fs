@@ -35,7 +35,7 @@ open Settings.SettingsGeneral
 
 open BusinessLogic.KODIS_BL_Record
 
-//Vzhledem k pouziti Elmishe priste podumej nad timto designem, mozna bude lepsi pure transformation layer
+//TODO: Po vytvoreni profesionalniho UX/UI/FE podumat nad timto designem (mozna bude lepsi pure transformation layer)
 
 module WebScraping_KODISFMRecord = 
 
@@ -301,4 +301,3 @@ module WebScraping_KODISFMRecord =
                         return sprintf "%s%s" dispatchMsg3 combinedMessage
                     }
         )
-     
