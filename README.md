@@ -102,7 +102,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── MDPO.fs
 │   ├── KODIS_Record.fs
 │   └── KODIS_Record4.fs
-├── XElmish/
+├── XElmish/ (minimal design for stress testing only)
     ├── HardRestart.fs
     ├── AndroidSpecificCode.fs
 │   ├── ProgressCircle.fs
