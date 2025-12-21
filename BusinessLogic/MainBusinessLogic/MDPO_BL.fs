@@ -254,64 +254,44 @@ module MDPO_BL = //FsHttp
                                                 return! runIO <| downloadFileTaskAsync token link pathToFile
                                             }
                                         |> Async.Catch
-                                        |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                                         |> Result.ofChoice
                                     )                                 
                                 |> List.tryPick
                                     (function
-                                        | Ok _ 
+                                        | Ok _
                                             -> 
                                             None
-
                                         | Error ex
-                                            when 
-                                                (string ex.Message).Contains "SSL connection could not be established"
-                                                ||
-                                                (string ex.Message).Contains "No such host is known"
-                                            ->
-                                            runIO (postToLog <| ex.Message <| "#74764-036")
-                                            None
+                                            -> 
+                                            match Helpers.ExceptionHelpers.isCancellation ex with
+                                            | true
+                                               ->
+                                               Some (Error StopDownloadingMHD)
+                                            | false 
+                                               ->
+                                               runIO (postToLog <| ex.Message <| "#28")
+                                               Some (Error FileDownloadErrorMHD)  
+                                    )                                    
+                                 |> Option.defaultValue (Ok ()) 
 
-                                        | Error ex
-                                            when (string ex.Message).Contains "The operation was canceled" 
-                                            ->
-                                            Some <| Error StopDownloadingMHD
-
-                                        | Error ex 
-                                            ->
-                                            runIO (postToLog <| ex.Message <| "#028")
-                                            Some <| Error FileDownloadErrorMHD
-                                    )
-                                |> Option.defaultValue (Ok ()) 
-
-                            with
-                            | ex    
-                                ->                               
-                                pyramidOfInferno
-                                    {                                                                                
-                                        let! _ =
-                                            (not <| Helpers.ExceptionHelpers.isCancellation ex)
-                                            |> Result.fromBool () String.Empty,
-                                                fun _ -> Ok ()
-                                 
-                                        runIO (postToLog <| ex.Message <| "#281")
-                                 
-                                        let! _ =
-                                            runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) mdpoPathTemp, 
-                                                (fun _ 
-                                                    ->
-                                                    runIO (postToLog <| FileDeleteErrorMHD <| "#283")                             
-                                                    Error FileDeleteErrorMHD
-                                                )
-
-                                        runIO (postToLog <| FileDownloadErrorMHD <| "#282") 
-
-                                        return Error FileDownloadErrorMHD                                            
-                                    }
-
-                    )                     
+                            with                            
+                            | ex                             
+                                -> 
+                                match Helpers.ExceptionHelpers.isCancellation ex with
+                                | true
+                                   ->
+                                   Error StopDownloadingMHD
+                                | false 
+                                   ->
+                                   runIO (postToLog <| ex.Message <| "#281")
+                                   Error FileDownloadErrorMHD  
+                    )                
+                    
                 runIO <| downloadTimetables reportProgress token
         )
+
+    //**************************************** UNSAFE CODE, NOT FOR PRODUCTION ****************************************
     
     //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)  
     let internal unsafeFilterTimetables pathToDir token = 
@@ -573,7 +553,7 @@ module MDPO_BL = //FsHttp
                                                 return! runIO <| downloadFileTaskAsync token link pathToFile
                                             }
                                         |> Async.Catch
-                                        |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                                         |> Result.ofChoice
                                     )   
                                 |> List.tryPick
@@ -581,52 +561,30 @@ module MDPO_BL = //FsHttp
                                         | Ok _
                                             -> 
                                             None
-
                                         | Error ex
-                                            when 
-                                                (string ex.Message).Contains "SSL connection could not be established"
-                                                ||
-                                                (string ex.Message).Contains "No such host is known"
-                                            ->
-                                            runIO (postToLog <| ex.Message <| "#74764-032")
-                                            None
+                                            -> 
+                                            match Helpers.ExceptionHelpers.isCancellation ex with
+                                            | true
+                                               ->
+                                               Some (Error StopDownloadingMHD)
+                                            | false 
+                                               ->
+                                               runIO (postToLog <| ex.Message <| "#32")
+                                               Some (Error FileDownloadErrorMHD)  
+                                    )                                    
+                                 |> Option.defaultValue (Ok ()) 
 
-                                        | Error ex
-                                            when (string ex.Message).Contains "The operation was canceled"
-                                            ->
-                                            Some <| Error StopDownloadingMHD
-
-                                        | Error ex
-                                            ->
-                                            runIO (postToLog <| ex.Message <| "#032")
-                                            Some <| Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X01")) // FileDownloadErrorMHD
-                                    )
-                                |> Option.defaultValue (Ok ()) 
-
-                            with
-                            | ex   
-                                ->                             
-                                pyramidOfInferno
-                                    {                                                                                
-                                        let! _ =
-                                            (not <| Helpers.ExceptionHelpers.isCancellation ex)
-                                            |> Result.fromBool () String.Empty,
-                                                fun _ -> Ok ()
-                                    
-                                        runIO (postToLog <| ex.Message <| "#033")
-                                    
-                                        let! _ = 
-                                            runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) mdpoPathTemp, 
-                                                (fun _
-                                                    ->
-                                                    runIO (postToLog <| FileDeleteErrorMHD <| "#332")                             
-                                                    Error FileDeleteErrorMHD
-                                                )
-
-                                        runIO (postToLog <| FileDownloadErrorMHD <| "#331") 
-
-                                        return Error FileDownloadErrorMHD                                            
-                                    }
+                            with                            
+                            | ex                             
+                                -> 
+                                match Helpers.ExceptionHelpers.isCancellation ex with
+                                | true
+                                   ->
+                                   Error StopDownloadingMHD
+                                | false 
+                                   ->
+                                   runIO (postToLog <| ex.Message <| "#33")
+                                   Error FileDownloadErrorMHD  
                     )   
                     
                 runIO <| downloadTimetables reportProgress token

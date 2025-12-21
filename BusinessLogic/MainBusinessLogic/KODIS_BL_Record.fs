@@ -120,7 +120,7 @@ module KODIS_BL_Record =
                            | Ok _
                                -> None
                            | Error case
-                               -> Some <| Error case     
+                               -> Some (Error case)       
                        )
                     |> Option.defaultValue (Ok ())
                                 
