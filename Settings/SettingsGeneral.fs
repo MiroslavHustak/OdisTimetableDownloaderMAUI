@@ -52,7 +52,7 @@ module SettingsGeneral =
     let [<Literal>] internal timeOutInSeconds = 10 
     let [<Literal>] internal waitingForNetConn = 30 //vterin
 
-    let [<Literal>] internal maxDegreeOfParallelism = 16
+    let [<Literal>] internal maxDegreeOfParallelism = 20
     let [<Literal>] internal maxDegreeOfParallelismThrottled = 4
     let [<Literal>] internal maxDegreeOfParallelismMedium = 8
 

@@ -172,7 +172,7 @@
     <Compile Include="Helpers\CopyOrMoveDir.fs" />
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Serialization.fs" />
-    <Compile Include="Helpers\Parsing.fs" />
+    <Compile Include="Helpers\Parsers.fs" />
     <Compile Include="Helpers\ListParallel.fs" />
     <Compile Include="Monads\FreeMonads\CmdLineWorkflows.fs" />
     <Compile Include="Monads\FreeMonads\FreeMonad.fs" />

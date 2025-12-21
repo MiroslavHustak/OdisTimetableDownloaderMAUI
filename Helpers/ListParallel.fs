@@ -6,6 +6,16 @@ module List.Parallel
 open System
 open System.Threading
 
+#if ANDROID
+open Android.OS
+open Android.App
+open Android.Net
+open Android.Views
+open Android.Content
+open Android.Runtime
+
+#endif
+
 open FSharp.Control
 open Microsoft.FSharp.Quotations
 open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
@@ -66,7 +76,7 @@ let private numberOfThreads l =
     | false -> 
             1
 
-let private maxDegreeOfParallelismAdapted = 
+let private maxDegreeOfParallelismWM = 
 
     let (|Small|Medium|Large|) length = //active pattern
         match length with
@@ -85,6 +95,36 @@ let private maxDegreeOfParallelismAdapted =
         | Small  -> maxDegreeOfParallelismThrottled
         | Medium -> maxDegreeOfParallelismMedium
         | Large  -> maxDegreeOfParallelism
+
+let private maxDegreeOfParallelismAdaptedAndroid = 
+      
+    #if ANDROID
+    let (|Small|Medium|Large|) length = //active pattern
+
+        match length with
+        | length 
+            when length < myIdeaOfASmallList || Build.VERSION.SdkInt < BuildVersionCodes.R 
+            -> Small
+
+        | length
+            when (length >= myIdeaOfASmallList && length <= myIdeaOfALargelList) && Build.VERSION.SdkInt >= BuildVersionCodes.R 
+            -> Medium
+
+        | length
+            when length >= myIdeaOfALargelList && Build.VERSION.SdkInt >= BuildVersionCodes.R 
+            -> Large
+
+        | _ 
+            -> Medium
+    
+    function
+        | Small  -> maxDegreeOfParallelismThrottled
+        | Medium -> maxDegreeOfParallelismMedium
+        | Large  -> maxDegreeOfParallelism
+
+    #else
+    maxDegreeOfParallelismWM
+    #endif
 
 //**************************Functions*******************************************
 // Although functions using numberOfThreads, async and tasks are technically impure, they are pure in the sense that they do not change any state outside their scope
@@ -113,7 +153,7 @@ let iter_IO (action : 'a -> unit) (list : 'a list) =
         ()
     | _ 
         ->
-        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdapted <| list
+        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list
             in 
             list
             |> List.map (fun item -> async { return action item })
@@ -145,7 +185,7 @@ let map_IO (action : 'a -> 'b) (list : 'a list) =
     | [] -> 
          []
     | _  ->
-         let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdapted <| list  
+         let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
              in 
              list
              |> List.map (fun item -> async { return action item })  
@@ -180,7 +220,7 @@ let iter2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b 
         ->
         let listToParallel (xs1, xs2) = List.map2 mapping xs1 xs2
 
-        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdapted l
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid l
             in
             (splitListIntoEqualParts maxDegreeOfParallelismAdapted xs1, splitListIntoEqualParts maxDegreeOfParallelismAdapted xs2)
             ||> List.zip
@@ -222,7 +262,7 @@ let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b lis
         ->
         let listToParallel (xs1, xs2) = List.map2 mapping xs1 xs2
 
-        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdapted l
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid l
             in
             (splitListIntoEqualParts maxDegreeOfParallelismAdapted xs1, splitListIntoEqualParts maxDegreeOfParallelismAdapted xs2)
             ||> List.zip
@@ -245,7 +285,7 @@ let map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationTo
         ->
         let listToParallel (xs1, xs2) = List.map2 mapping xs1 xs2
 
-        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdapted l
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid l
             in
             (splitListIntoEqualParts maxDegreeOfParallelismAdapted xs1, splitListIntoEqualParts maxDegreeOfParallelismAdapted xs2)
             ||> List.zip
