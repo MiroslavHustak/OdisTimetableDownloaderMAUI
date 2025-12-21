@@ -9,6 +9,13 @@ Copyright 2016-2023 Timothée Larivoir, Edgar Gonzales, and contributors
 Licensed under the Apache License, Version 2.0 (the "License")
 *)
 
+// NOTE:
+// UI/UX is intentionally minimal (a single view) and serves backend stress testing only.
+// Final UX/UI will be designed and implemented later by a UX professional.
+
+// NOTE:
+// Hints for UX/UI professionals not familiar with Elmish (or Elm) are at the foot of this code.
+
 namespace OdisTimetableDownloaderMAUI
 
 open System
@@ -89,7 +96,7 @@ module App =
         | Idle 
         | InProgress of float * float
 
-    type Model = 
+    type Model = //This is exactly how not to do it 
         {
             PermissionGranted : bool
             ProgressMsg : string
@@ -111,29 +118,7 @@ module App =
             AnimatedButton : string option // Tracks animated button
         }
 
-    (* 
-        // TODO pro profika na UI/UX
-
-        | DataClearing
-        | DataClearingMessage of string
-        | AllowDataClearing
-
-        zmenit na:
-
-        type ClearingState =
-        | NotClearing
-        | Clearing
-        | Cleared
-
-        type Model =
-            {
-                ClearingState : ClearingState
-                // ...
-            }  
-        a podobne predelat vse, co ma obdobnou logiku    
-    *)
-
-    type Msg =
+    type Msg = //This is exactly how not to do it 
         | RequestPermission
         | PermissionResult of bool
         | DataClearing
@@ -1298,3 +1283,65 @@ module App =
     
         Program.statefulWithCmd init update view 
         |> Program.withSubscription captureDispatchSub
+        
+        (* 
+            The professional FE code should use these patterns:
+
+            type Screen =
+            | Home
+            | Clearing
+            | Progress of ProgressState
+            | NoConnection
+            | Completed of string
+
+            type ProgressState =
+            | Idle
+            | Running of current:float * total:float
+            | Cancelling
+            | Finished
+
+            type ClearingState =
+            | NotStarted
+            | Confirming
+            | Clearing
+            | Cleared
+
+            type Connectivity =
+            | Connected
+            | Disconnected
+
+            type Model =
+                {
+                    Permission : PermissionState
+                    Connectivity : Connectivity
+                    Screen : Screen
+                    Clearing : ClearingState
+                    Progress : ProgressState
+                    Message : string option
+                    AnimatedButton : ButtonId option
+                }
+
+            match model.Screen with
+            | Home ->
+                homeView()
+            
+            | Clearing ->
+                clearingView()
+            
+            | Progress p ->
+                progressView p
+            
+            | NoConnection ->
+                noConnectionView()
+
+        App/             
+        ├─ MVU/
+        │   ├─ Home.fs
+        │   ├─ Clearing.fs
+        │   ├─ Progress.fs
+        │   └─ NoConnection.fs
+        └─ Commands/
+            ├─ Connectivity.fs
+            ├─ Kodis.fs
+            └─ Clearing.fs 
+        *)
