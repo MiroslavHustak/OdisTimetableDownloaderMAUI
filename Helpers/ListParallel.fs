@@ -8,12 +8,6 @@ open System.Threading
 
 #if ANDROID
 open Android.OS
-open Android.App
-open Android.Net
-open Android.Views
-open Android.Content
-open Android.Runtime
-
 #endif
 
 open FSharp.Control
@@ -76,6 +70,10 @@ let private numberOfThreads l =
     | false -> 
             1
 
+#if ANDROID
+let isAtLeastAndroid11 = int Build.VERSION.SdkInt >= 30
+#endif
+
 let private maxDegreeOfParallelismWM = 
 
     let (|Small|Medium|Large|) length = //active pattern
@@ -103,15 +101,15 @@ let private maxDegreeOfParallelismAdaptedAndroid =
 
         match length with
         | length 
-            when length < myIdeaOfASmallList || Build.VERSION.SdkInt < BuildVersionCodes.R 
+            when length < myIdeaOfASmallList || not isAtLeastAndroid11 //Build.VERSION.SdkInt < BuildVersionCodes.R 
             -> Small
 
         | length
-            when (length >= myIdeaOfASmallList && length <= myIdeaOfALargelList) && Build.VERSION.SdkInt >= BuildVersionCodes.R 
+            when (length >= myIdeaOfASmallList && length <= myIdeaOfALargelList) && isAtLeastAndroid11 //Build.VERSION.SdkInt >= BuildVersionCodes.R 
             -> Medium
 
         | length
-            when length >= myIdeaOfALargelList && Build.VERSION.SdkInt >= BuildVersionCodes.R 
+            when length >= myIdeaOfALargelList && isAtLeastAndroid11 //Build.VERSION.SdkInt >= BuildVersionCodes.R 
             -> Large
 
         | _ 

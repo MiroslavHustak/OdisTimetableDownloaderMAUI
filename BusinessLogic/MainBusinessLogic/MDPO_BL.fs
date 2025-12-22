@@ -49,9 +49,9 @@ module MDPO_BL = //FsHttp
                                             http
                                                 {
                                                     GET url    
-                                                    config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
+                                                    config_cancellationToken token 
                                                 }
-                                            |> Request.sendAsync //Async varianta musi byt quli cancellation token
+                                            |> Request.sendAsync 
         
                                         let! htmlContent = Response.toStringAsync (Some 100000) response        
                                         let document = HtmlDocument.Parse htmlContent // Parse the HTML content using FSharp.Data
@@ -165,7 +165,7 @@ module MDPO_BL = //FsHttp
                                                                     {
                                                                         GET uri  
                                                                         config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
+                                                                        config_cancellationToken token  
                                                                         header "User-Agent" "FsHttp/Android7.1"
                                                                         header headerContent1 headerContent2
                                                                     }
@@ -174,13 +174,12 @@ module MDPO_BL = //FsHttp
                                                                     {
                                                                         GET uri
                                                                         config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token //uz zbytecne, ale ponechavam jako template
+                                                                        config_cancellationToken token 
                                                                         header "User-Agent" "FsHttp/Android7.1"
                                                                     }     
 
                                                     let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
 
-                                                    //Async varianta musi byt quli cancellation token
                                                     let! response = (getSafe >> Request.sendAsync <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
                                                     return Ok response         
@@ -309,7 +308,7 @@ module MDPO_BL = //FsHttp
                                             http
                                                 {
                                                     GET url
-                                                    config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
+                                                    config_cancellationToken token  
 
                                                     config_transformHttpClient
                                                         (fun unsafeClient
@@ -324,8 +323,8 @@ module MDPO_BL = //FsHttp
                                                             unsafeClient
                                                         )
                                                 }
-                                            |> Request.sendAsync //Async varianta musi byt quli cancellation token
-        
+                                            |> Request.sendAsync 
+                                            
                                         let! htmlContent = Response.toStringAsync (Some 100000) response
         
                                         let document = HtmlDocument.Parse htmlContent
@@ -443,7 +442,7 @@ module MDPO_BL = //FsHttp
                                                                         GET uri        
                                                         
                                                                         config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
+                                                                        config_cancellationToken token  
 
                                                                         config_transformHttpClient
                                                                             (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
@@ -464,7 +463,7 @@ module MDPO_BL = //FsHttp
                                                                         GET uri
 
                                                                         config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token  //uz zbytecne, ale ponechavam jako template
+                                                                        config_cancellationToken token  
 
                                                                         config_transformHttpClient
                                                                             (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
@@ -549,7 +548,7 @@ module MDPO_BL = //FsHttp
                                         async
                                             {
                                                 counterAndProgressBar.Post <| Inc 1
-                                                token.ThrowIfCancellationRequested () //tady rychlejsi, nez s config_cancellationToken
+                                                token.ThrowIfCancellationRequested () 
                                                 return! runIO <| downloadFileTaskAsync token link pathToFile
                                             }
                                         |> Async.Catch

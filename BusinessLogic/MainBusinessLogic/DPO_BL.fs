@@ -176,7 +176,6 @@ module DPO_BL =
                                             | true  -> client.DefaultRequestHeaders.Add(headerContent1, headerContent2)
                                             | false -> ()
                              
-                                            //Async varianta musi byt quli cancellation token
                                             use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask 
                           
                                             match response.IsSuccessStatusCode with
@@ -190,7 +189,6 @@ module DPO_BL =
                                                         | true  -> new FileStream(pathToFile, FileMode.Append) 
                                                         | false -> new FileStream(pathToFile, FileMode.CreateNew)
 
-                                                    //Async varianta musi byt quli cancellation token
                                                     let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                     

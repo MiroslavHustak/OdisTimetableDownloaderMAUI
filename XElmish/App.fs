@@ -96,7 +96,7 @@ module App =
         | Idle 
         | InProgress of float * float
 
-    type Model = // This is exactly how not to do it for real UI/UX/FE
+    type Model = // This is exactly how NOT to do it for real UI/UX/FE
         {
             PermissionGranted : bool
             ProgressMsg : string
@@ -118,7 +118,7 @@ module App =
             AnimatedButton : string option // Tracks animated button
         }
 
-    type Msg = // This is exactly how not to do it for real UI/UX/FE
+    type Msg = // This is exactly how NOT to do it for real UI/UX/FE
         | RequestPermission
         | PermissionResult of bool
         | DataClearing
@@ -1296,7 +1296,7 @@ module App =
 
             type ProgressState =
             | Idle
-            | Running of current:float * total:float
+            | Running of current :float * total :float
             | Cancelling
             | Finished
 
