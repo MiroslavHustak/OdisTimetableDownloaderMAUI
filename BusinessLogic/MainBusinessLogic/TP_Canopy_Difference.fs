@@ -112,9 +112,9 @@ module TP_Canopy_Difference =
                                 String.replicate 48 "*"
                                 yield! runIO <| result pathTP_FutureValidity pathCanopy_FutureValidity
                                 String.Empty
-                                withoutReplacementService
+                                longTermValidity
                                 String.replicate 48 "*"
-                                yield! runIO <| result pathTP_WithoutReplacementService pathCanopy_WithoutReplacementService
+                                yield! runIO <| result pathTP_LongTermValidity pathCanopy_LongTermValidity
                             }                
                         |> List.ofSeq
                         |> List.map Encode.string

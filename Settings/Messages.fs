@@ -12,9 +12,9 @@ module Messages =
     let [<Literal>] internal msg2FutureValidity = "Momentálně nejsou dostupné odkazy na JŘ ODIS platné v budoucnosti. Chvíli strpení, prosím."
     let [<Literal>] internal msg3FutureValidity = "JŘ ODIS platné v budoucnosti nebyly k dispozici pro stažení."
 
-    let [<Literal>] internal msg1WithoutReplacementService = "Stahují se teoreticky dlouhodobě platné JŘ ODIS ..."
-    let [<Literal>] internal msg2WithoutReplacementService = "Momentálně nejsou dostupné odkazy na dlouhodobě platné JŘ ODIS. Chvíli strpení, prosím."
-    let [<Literal>] internal msg3WithoutReplacementService = "Dlouhodobě platné JŘ ODIS nebyly k dispozici pro stažení."
+    let [<Literal>] internal msg1LongTermValidity = "Stahují se teoreticky dlouhodobě platné JŘ ODIS ..."
+    let [<Literal>] internal msg2LongTermValidity = "Momentálně nejsou dostupné odkazy na dlouhodobě platné JŘ ODIS. Chvíli strpení, prosím."
+    let [<Literal>] internal msg3LongTermValidity = "Dlouhodobě platné JŘ ODIS nebyly k dispozici pro stažení."
 
     let [<Literal>] internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
     let [<Literal>] internal jsonCancel = "Stahování JSON souborů předčasně ukončeno." 

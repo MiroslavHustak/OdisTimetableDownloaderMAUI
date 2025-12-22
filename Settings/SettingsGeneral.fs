@@ -10,7 +10,7 @@ module SettingsGeneral =
 
     let [<Literal>] internal currentValidity = "JR_ODIS_aktualni_vcetne_vyluk"
     let [<Literal>] internal futureValidity = "JR_ODIS_pouze_budouci_platnost"
-    let [<Literal>] internal withoutReplacementService = "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk"
+    let [<Literal>] internal longTermValidity = "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk"
 
     let [<Literal>] internal dpo = "JR_ODIS_pouze_linky_dopravce_DPO"
     let [<Literal>] internal mdpo = "JR_ODIS_pouze_linky_dopravce_MDPO"
@@ -32,7 +32,7 @@ module SettingsGeneral =
                             | (I1, I1) -> currentValidity
                             | (I1, I2) -> futureValidity
                             | (I1, I3) -> String.Empty
-                            | (I2, I1) -> withoutReplacementService
+                            | (I2, I1) -> longTermValidity
                             | (I2, I2) -> dpo
                             | (I2, I3) -> mdpo
                             | _        -> String.Empty
@@ -93,8 +93,8 @@ module SettingsGeneral =
     let internal pathTP_FutureValidity = path0 <| ODIS_Variants.board.board I1 I2   
     let internal pathCanopy_FutureValidity = path4 <| ODIS_Variants.board.board I1 I2
 
-    let internal pathTP_WithoutReplacementService = path0 <| ODIS_Variants.board.board I2 I1 
-    let internal pathCanopy_WithoutReplacementService = path4 <| ODIS_Variants.board.board I2 I1  
+    let internal pathTP_LongTermValidity = path0 <| ODIS_Variants.board.board I2 I1 
+    let internal pathCanopy_LongTermValidity = path4 <| ODIS_Variants.board.board I2 I1  
         
     (*
     Right-click g:\Users\User\... (vsechny adresare anebo adresar nad tim), select Properties > Security, and grant full control.

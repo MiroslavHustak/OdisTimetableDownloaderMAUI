@@ -28,7 +28,7 @@ module CreatingPathsAndNames =
                     match variant with 
                     | CurrentValidity           -> getDefaultRecordValues |> List.item 0
                     | FutureValidity            -> getDefaultRecordValues |> List.item 1
-                    | WithoutReplacementService -> getDefaultRecordValues |> List.item 2
+                    | LongTermValidity -> getDefaultRecordValues |> List.item 2
             } 
                
     (*

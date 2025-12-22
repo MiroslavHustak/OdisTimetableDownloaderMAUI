@@ -29,7 +29,7 @@ module SortRecordData =
                 ->
                 dateValidityStart > context2.currentTime
                
-            | WithoutReplacementService
+            | LongTermValidity
                 ->                                         
                 ((dateValidityStart <= context2.currentTime 
                 && 

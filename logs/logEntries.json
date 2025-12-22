@@ -3000,3 +3000,24 @@ Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
 { "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 19:06:10 +00:00"] }
 { "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 19:06:10 +00:00"] }
 
+{ "list": [] }
+
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:58:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 03:59:04 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#005","12/21/2025 04:00:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-central-1.amazonaws.com:443))) Error#024-4","12/21/2025 04:07:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/21/2025 17:51:55 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/21/2025 17:53:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:00:17 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:00:18 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:27:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:27:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:13:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:15:42 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:27:43 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024-4","12/22/2025 13:21:11 +00:00"] }
+

@@ -78,7 +78,7 @@ module Types =
     type [<Struct>] internal Validity =
         | CurrentValidity 
         | FutureValidity 
-        | WithoutReplacementService  
+        | LongTermValidity  
 
     type internal ConfigMHD = 
         {

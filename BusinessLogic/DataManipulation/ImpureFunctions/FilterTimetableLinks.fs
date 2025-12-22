@@ -321,7 +321,7 @@ module FilterTimetableLinks =
                                 //let pathToDir = sprintf "%s\\%s" pathToDir file //pro ostatni
                                 let pathToDir = sprintf "%s/%s" pathToDir file //pro ostatni
 
-                                match pathToDir.Contains currentValidity || pathToDir.Contains withoutReplacementService with 
+                                match pathToDir.Contains currentValidity || pathToDir.Contains longTermValidity with 
                                 | true  ->   
                                         true //pro aktualni a dlouhodobe platne
                                         |> function
@@ -354,7 +354,7 @@ module FilterTimetableLinks =
                         match param with
                         | CurrentValidity           -> Records.SortRecordData.sortLinksOut data CurrentValidity
                         | FutureValidity            -> Records.SortRecordData.sortLinksOut data FutureValidity
-                        | WithoutReplacementService -> Records.SortRecordData.sortLinksOut data WithoutReplacementService
+                        | LongTermValidity -> Records.SortRecordData.sortLinksOut data LongTermValidity
                 
                         |> createPathsForDownloadedFiles
                     )  

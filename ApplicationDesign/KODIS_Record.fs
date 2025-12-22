@@ -246,13 +246,13 @@ module WebScraping_KODIS =
                             VariantInt = 1
                         }
         
-                    let contextWithoutReplacementService = 
+                    let contextLongTermValidity = 
                         {
                             DirList = dirList
-                            Variant = WithoutReplacementService
-                            Msg1 = msg1WithoutReplacementService
-                            Msg2 = msg2WithoutReplacementService
-                            Msg3 = msg3WithoutReplacementService
+                            Variant = LongTermValidity
+                            Msg1 = msg1LongTermValidity
+                            Msg2 = msg2LongTermValidity
+                            Msg3 = msg3LongTermValidity
                             VariantInt = 2
                         }
                                                            
@@ -277,7 +277,7 @@ module WebScraping_KODIS =
 
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn
-                        let! msg3 = result lazyList contextWithoutReplacementService, errFn   
+                        let! msg3 = result lazyList contextLongTermValidity, errFn   
 
                         let msg4 = 
                             match calculate_TP_Canopy_Difference >> runIO <| () with

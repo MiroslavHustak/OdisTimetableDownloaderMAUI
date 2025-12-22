@@ -173,7 +173,7 @@ module IO_Operations =
                     |> List.iter
                         (fun (dir : string) 
                             ->                
-                            match dir.Contains currentValidity || dir.Contains withoutReplacementService with 
+                            match dir.Contains currentValidity || dir.Contains longTermValidity with 
                             | true  ->    
                                     sortedLines 
                                     |> List.iter
