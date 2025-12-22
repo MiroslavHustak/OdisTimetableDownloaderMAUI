@@ -35,9 +35,7 @@ open Settings.SettingsGeneral
 
 open BusinessLogic.KODIS_BL_Record
 
-//TODO: Po vytvoreni profesionalniho UX/UI/FE podumat nad timto designem (mozna bude lepsi pure transformation layer)
-
-module WebScraping_KODISFMRecord = 
+module WebScraping_KODIS = 
 
     type private State =  
         { 

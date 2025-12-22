@@ -21,9 +21,7 @@ open Settings.Messages
 open Settings.SettingsGeneral 
 
 module WebScraping_DPO =
-
-    //TODO: Po vytvoreni profesionalniho UX/UI/FE podumat nad timto designem (mozna bude lepsi pure transformation layer)
-    
+   
     //************************Main code********************************************************************************
   
     type private State =  

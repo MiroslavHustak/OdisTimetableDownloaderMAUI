@@ -72,8 +72,8 @@ open AndroidUIHelpers
 
 open ApplicationDesign.WebScraping_DPO
 open ApplicationDesign.WebScraping_MDPO
-open ApplicationDesign.WebScraping_KODISFMRecord
-open ApplicationDesign4.WebScraping_KODISFMRecord4
+open ApplicationDesign.WebScraping_KODIS
+open ApplicationDesign4.WebScraping_KODIS4
 
 (*     
     AndroidManifest.xml : Remember to review and update it if necessary. 

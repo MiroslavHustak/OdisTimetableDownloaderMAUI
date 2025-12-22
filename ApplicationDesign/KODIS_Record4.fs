@@ -30,9 +30,7 @@ open BusinessLogic4.KODIS_BL_Record4
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
 // 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
 
-//TODO: Po vytvoreni profesionalniho UX/UI/FE podumat nad timto designem (mozna bude lepsi pure transformation layer)
-
-module WebScraping_KODISFMRecord4 = 
+module WebScraping_KODIS4 = 
 
     type private State =  
         { 

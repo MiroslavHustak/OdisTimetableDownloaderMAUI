@@ -22,8 +22,6 @@ open Settings.SettingsGeneral
 
 module WebScraping_MDPO =
 
-    //TODO: Po vytvoreni profesionalniho UX/UI/FE podumat nad timto designem (mozna bude lepsi pure transformation layer)
-
     //************************Main code*******************************************************************************
 
     type private State =  
