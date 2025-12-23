@@ -77,7 +77,7 @@ module MoveDir =
 
         try
             let fileDelete () = primIO <| fun () -> File.Delete target
-            let fileMove () =  primIO <| fun () -> File.Move(source, target)     
+            let fileMove () = primIO <| fun () -> File.Move(source, target)     
 
             match (File.Exists target) with
             | true 
