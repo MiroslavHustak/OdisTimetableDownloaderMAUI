@@ -5,8 +5,10 @@ open System.IO
 
 open FsToolkit.ErrorHandling
 
+open IO_Monad
 open Builders
 open Types.Haskell_IO_Monad_Simulation
+
 
 // In this solution, source and destination values are null-checked and validated in the free monad.
 // !!!!!!!!!!!!!!!! Ensure proper checking and validation when used elsewhere !!!!!!!!!!!!!!!!!!!
@@ -29,7 +31,7 @@ module private PathHelpers =
         | Some p 
             ->
             try
-                Ok (Path.GetFullPath p)
+                Ok <| Path.GetFullPath p
             with 
             | ex -> Error <| sprintf "%s path is invalid: %s" what (string ex.Message)
  
@@ -61,11 +63,11 @@ module private PathHelpers =
         | ex -> Error (sprintf "Failed inspecting path '%s': %s" <| fullPath <| string ex.Message)
 
 module MoveDir =
-
+   
     let private safeDeleteDirectory dir =
 
         try
-            Ok (Directory.Delete(dir, true))
+            Ok <| Directory.Delete(dir, true)
         with
         | ex -> Error ex.Message
 
@@ -74,16 +76,27 @@ module MoveDir =
     let private moveFile (source : string) (target : string) : Result<unit, string> =
 
         try
+            let fileDelete () = primIO <| fun () -> File.Delete target
+            let fileMove () =  primIO <| fun () -> File.Move(source, target)     
+
             match (File.Exists target) with
             | true 
                 ->
-                File.Delete target
-                File.Move(source, target)
-                Ok ()            
+                runIOMonad <| IOMonad 
+                    {
+                        do! fileDelete ()
+                        do! fileMove ()
+                        return Ok ()
+                    } 
+                    
             | false 
                 ->
-                File.Move(source, target)
-                Ok ()
+                runIOMonad <| IOMonad 
+                    {
+                        do! fileMove ()
+                        return Ok ()
+                    } 
+               
         with 
         | ex -> Error ex.Message
 

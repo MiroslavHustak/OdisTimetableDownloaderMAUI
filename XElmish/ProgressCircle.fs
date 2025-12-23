@@ -36,7 +36,7 @@ module ProgressCircle =
                             canvas.StrokeColor <- Colors.Blue
                             canvas.DrawArc(centerX - radius, centerY - radius, radius * 2f, radius * 2f, -0f, float32 sweepAngle, false, false)
 
-                            //procenta uvnitr progress circle
+                            // Procenta uvnitr progress circle
                     
                             // Measure the text
                             let textBounds = canvas.GetStringSize(percentageText, Font.Default, 24.0f)
@@ -47,8 +47,17 @@ module ProgressCircle =
                             let textY = centerY - textBounds.Height / 2.0f + textBounds.Height / 2.0f
     
                             // Draw Percentage Text
+                            //canvas.DrawString(percentageText, centerX, centerY, HorizontalAlignment.Center)
+
+                            // Draw Percentage Text
                             canvas.FillColor <- Colors.LightCyan
                             canvas.FontSize <- 24.0f
-                            canvas.DrawString(percentageText, centerX, centerY, HorizontalAlignment.Center)
+                            canvas.FontColor <- Colors.Black
+                            
+                            canvas.DrawString(
+                                percentageText,
+                                dirtyRect,
+                                HorizontalAlignment.Center,
+                                VerticalAlignment.Center)
                 }
         )
