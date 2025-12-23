@@ -187,7 +187,7 @@
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\ParseJsonDataFull.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\ParseJsonData.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\FilterTimetableLinks.fs" />
-	<Compile Include="BusinessLogic\IO_Operations\PureFunctions\CreatePathsAndNames.fs" />
+	<Compile Include="BusinessLogic\IO_Operations\PureHelpers\CreatePathsAndNames.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\FutureLinks.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\IO_Operations.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic\DPO_BL.fs" />
