@@ -2,7 +2,7 @@
 
 open Builders
 
-module IO_Monad =
+module IO_Monad = // For educational purposes only
 
     // Primitive: actually perform a side effect and pass the world through
     let internal primIO (action: unit -> 'a) : IO_Monad<'a> =

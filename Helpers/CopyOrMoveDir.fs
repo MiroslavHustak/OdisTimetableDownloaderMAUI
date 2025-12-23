@@ -76,6 +76,7 @@ module MoveDir =
     let private moveFile (source : string) (target : string) : Result<unit, string> =
 
         try
+            //IO Monad for educational purposes only, could be just File.Delete and File.Move calls
             let fileDelete () = primIO <| fun () -> File.Delete target
             let fileMove () = primIO <| fun () -> File.Move(source, target)     
 
@@ -83,7 +84,7 @@ module MoveDir =
             | true 
                 ->
                 runIOMonad <| IOMonad 
-                    {
+                    {                       
                         do! fileDelete ()
                         do! fileMove ()
                         return Ok ()
