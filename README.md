@@ -57,7 +57,7 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── ErrorHandling/
 │   └── ErrorHandlers.fs
 ├── Helpers/
-│   ├── IO_Monad_Experiments
+│   ├── IO_Monad_Experiments/
 │   │   └── IO_Monad.fs
 │   ├── CopyOrMoveDir.fs
 │   ├── Helpers.fs
