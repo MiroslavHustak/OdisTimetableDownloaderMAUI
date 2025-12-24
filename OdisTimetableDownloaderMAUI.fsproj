@@ -169,6 +169,7 @@
     <Compile Include="Settings\SettingsMDPO.fs" />
     <Compile Include="ComputationExpressions\CEBuilders.fs" />
     <Compile Include="ErrorHandling\ErrorHandlers.fs" />
+    <Compile Include="Helpers\IO_Monad_Experiments\IO_Monad.fs" />
     <Compile Include="Helpers\CopyOrMoveDir.fs" />
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Serialization.fs" />

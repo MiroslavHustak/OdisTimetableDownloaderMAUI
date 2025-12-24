@@ -124,6 +124,46 @@ module Builders =
 
     //**************************************************************************************
 
+    type RealWorld = RealWorldToken
+    
+    // The IO monad: a function that takes a RealWorld token and returns a new one plus a value
+    type IO_Monad<'a> = IO_Monad of (RealWorld -> RealWorld * 'a)
+
+    type IOMonad = IOMonad with
+
+        member _.Bind(io: IO_Monad<'a>, binder: 'a -> IO_Monad<'b>) : IO_Monad<'b> =
+            IO_Monad 
+                (fun world 
+                    ->
+                    let runIO_helper (IO_Monad f) = f
+                    let world', a = runIO_helper io world
+                    runIO_helper (binder a) world'
+                )
+
+        member _.Delay(f: unit -> IO_Monad<'a>) : IO_Monad<'a> =
+            IO_Monad 
+                (fun world
+                    ->
+                    let (IO_Monad delayed) = f()
+                    delayed world
+                )
+        
+        // For do! notation with sequencing (ignoring result)
+        member this.Combine(io1: IO_Monad<unit>, io2: IO_Monad<'a>) : IO_Monad<'a> =
+            this.Bind(io1, fun () -> io2)
+            
+        member _.Zero() : IO_Monad<unit> = 
+            IO_Monad (fun world -> world, ())
+
+        member _.Return(x) : IO_Monad<'a> =
+            IO_Monad (fun world -> world, x)
+        
+        member _.ReturnFrom(io: IO_Monad<'a>) = io
+        
+    let internal IOMonad = IOMonad
+
+   //**************************************************************************************
+
     let [<Literal>] MinLengthCE = 2 //Builder pro CE vyzaduje velke pismeno.... strange
     let [<Literal>] MaxLengthCE = 3 
        
