@@ -115,14 +115,8 @@ module KODIS_BL_Record =
                                 runIO (postToLog <| (string status) <| "#2212-Json")
                                 Error JsonDownloadError
                         )  
-                   |> List.tryPick
-                       (function
-                           | Ok _
-                               -> None
-                           | Error case
-                               -> Some (Error case)       
-                       )
-                    |> Option.defaultValue (Ok ())
+                   |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                   |> Option.defaultValue (Ok ())                   
                                 
                 with
                 | ex                             
@@ -133,7 +127,7 @@ module KODIS_BL_Record =
                        Error StopJsonDownloading
                     | false 
                        ->
-                       runIO (postToLog <| ex.Message <| "#020")
+                       runIO (postToLog <| string ex.Message <| "#020")
                        Error JsonDownloadError
             )
     
@@ -296,14 +290,8 @@ module KODIS_BL_Record =
                                                     Error <| PdfError FileDownloadError                                             
                                         )  
     
-                                    |> List.tryPick
-                                        (function
-                                            | Ok _
-                                                -> None
-                                            | Error case
-                                                -> Some (Error case)     
-                                        )
-                                    |> Option.defaultValue (Ok ())
+                                    |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                                    |> Option.defaultValue (Ok ())                                    
                                 
                                 with
                                 | ex                             
@@ -314,7 +302,7 @@ module KODIS_BL_Record =
                                         Error <| PdfError StopDownloading
                                     | false 
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#024")
+                                        runIO (postToLog <| string ex.Message <| "#024")
                                         Error <| PdfError FileDownloadError
                          } 
      

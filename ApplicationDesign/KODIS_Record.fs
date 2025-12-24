@@ -133,7 +133,7 @@ module WebScraping_KODIS =
                     with
                     | ex
                         -> 
-                        runIO (postToLog <| ex.Message <| "#005") 
+                        runIO (postToLog <| string ex.Message <| "#005") 
                         Error JsonDownloadError 
             
                     |> Result.map (fun _ -> dispatchMsg1) 
@@ -154,7 +154,7 @@ module WebScraping_KODIS =
                     | PdfError FileDeleteError         -> fileDeleteError 
                     | PdfError CreateFolderError4      -> createFolderError   
                     | PdfError CreateFolderError2      -> createFolderError2
-                    | PdfError FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+                    | PdfError FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
                     | PdfError FolderMovingError4      -> folderMovingError 
                     | PdfError CanopyError             -> canopyError
                     | PdfError TimeoutError            -> "timeout"
@@ -162,11 +162,11 @@ module WebScraping_KODIS =
                     | PdfError (ApiResponseError err)  -> err
                     | PdfError ApiDecodingError        -> canopyError
                     | PdfError (NetConnPdfError err)   -> err
-                    | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+                    | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
                     | PdfError LetItBeKodis4           -> String.Empty
                     | PdfError NoPermissionError       -> String.Empty
                     | JsonError JsonParsingError       -> jsonParsingError 
-                    | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+                    | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
                     | JsonError JsonDataFilteringError -> dataFilteringError 
                                                                  
                 let result (lazyList : Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>) (context2 : Context2) =  
@@ -181,7 +181,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog <| ex.Message <| "#22-2")
+                            runIO (postToLog <| string ex.Message <| "#22-2")
                             Error <| JsonError JsonDataFilteringError 
                                 
                     match list with
@@ -271,7 +271,7 @@ module WebScraping_KODIS =
                             with
                             | ex
                                 ->
-                                runIO (postToLog <| ex.Message <| "#22-1")
+                                runIO (postToLog <| string ex.Message <| "#22-1")
                                 Error <| JsonError JsonParsingError
                                 |> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>                       
 

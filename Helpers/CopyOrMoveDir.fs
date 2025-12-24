@@ -67,7 +67,7 @@ module MoveDir =
         try
             Ok (Directory.Delete(dir, true))
         with
-        | ex -> Error ex.Message
+        | ex -> Error <| string ex.Message
 
     let private prepareMoveFolder source = PathHelpers.preparePath "Source" source
 
@@ -85,7 +85,7 @@ module MoveDir =
                 File.Move(source, target)
                 Ok ()
         with 
-        | ex -> Error ex.Message
+        | ex -> Error <| string ex.Message
 
     let private moveEntry source target  =
 
@@ -129,7 +129,7 @@ module MoveDir =
                 Error e
 
         with
-        | ex -> Error ex.Message
+        | ex -> Error <| string ex.Message
 
     let internal moveDirectory source targetParent : IO<Result<unit, string>> =
 
@@ -192,7 +192,7 @@ module MoveDir =
                 try
                     tryMove ()
                 with 
-                | ex -> Error ex.Message
+                | ex -> Error <| string ex.Message
         )
 
 module MoveDir2 =
@@ -206,7 +206,7 @@ module MoveDir2 =
                     | 0 -> Ok ()
                     | n -> Error (sprintf "Native move operation failed with code %d" n)
                 with
-                | ex -> Error ex.Message
+                | ex -> Error <| string ex.Message
         )
 
 module CopyDir =
@@ -275,7 +275,7 @@ module CopyDir =
         try
             tryCopyEntry ()
         with 
-        | ex -> Error ex.Message
+        | ex -> Error <| string ex.Message
 
     let internal copyDirectory source targetParent mode overwriteOption =
 
@@ -339,7 +339,7 @@ module CopyDir =
                                     | errors -> Error (String.concat "; " errors)
                         }
                 with
-                | ex -> Error ex.Message
+                | ex -> Error <| string ex.Message
         )
 
 module CopyDir2 =
@@ -353,5 +353,5 @@ module CopyDir2 =
                     | 0 -> Ok ()
                     | n -> Error (sprintf "Native move operation failed with code %d" n)
                 with
-                | ex -> Error ex.Message
+                | ex -> Error <| string ex.Message
         )

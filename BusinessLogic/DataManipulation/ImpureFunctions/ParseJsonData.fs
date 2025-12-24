@@ -131,7 +131,7 @@ module ParseJsonData =
                             | true  ->
                                     Error <| JsonError StopJsonParsing   
                             | false ->
-                                    runIO (postToLog <| ex.Message <| "#107")
+                                    runIO (postToLog <| string ex.Message <| "#107")
                                     Error <| JsonError JsonParsingError
                     )
         )

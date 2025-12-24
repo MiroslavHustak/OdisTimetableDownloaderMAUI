@@ -4,6 +4,8 @@ open System
 open System.IO
 open System.Threading
 
+open FsToolkit.ErrorHandling
+
 //**********************************
 
 open Types.Types   
@@ -84,7 +86,7 @@ module WebScraping_DPO =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| ex.Message <| "#010")
+                            runIO (postToLog <| string ex.Message <| "#010")
                             Error FileDownloadErrorMHD //dpoMsg1
 
                     | FilterDownloadSave   
@@ -106,7 +108,7 @@ module WebScraping_DPO =
                         with
                         | ex 
                             ->
-                            runIO (postToLog <| ex.Message <| "#011")
+                            runIO (postToLog <| string ex.Message <| "#011")
                             Error FileDownloadErrorMHD //dpoMsg2    
                        
                 pyramidOfInferno
@@ -120,11 +122,11 @@ module WebScraping_DPO =
                             | ServiceUnavailable       -> "503 Service Unavailable"        
                             | NotFound                 -> "404 Page Not Found"
                             | CofeeMakerUnavailable    -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-                            | FileDownloadErrorMHD     -> match runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir with Ok _ -> dpoMsg1 | Error _ -> dpoMsg0 
+                            | FileDownloadErrorMHD     -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir) |> Result.either (fun _ -> dpoMsg1) (fun _ -> dpoMsg0)
                             | FolderCopyOrMoveErrorMHD -> folderCopyingError
                             | ConnectionError          -> noNetConn
                             | FileDeleteErrorMHD       -> fileDeleteError
-                            | StopDownloadingMHD       -> match runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir with Ok _ -> dpoCancelMsg | Error _ -> dpoCancelMsg1
+                            | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir) |> Result.either (fun _ -> dpoCancelMsg) (fun _ -> dpoCancelMsg1)
                             | LetItBeMHD               -> String.Empty
                             | TestDuCase ex            -> ex
                         

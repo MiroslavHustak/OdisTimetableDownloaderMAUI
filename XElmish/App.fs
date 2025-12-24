@@ -289,7 +289,7 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| ex.Message <| "#3-1") 
+                runIO (postToLog <| string ex.Message <| "#3-1") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
@@ -362,7 +362,7 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| ex.Message <| "#1") 
+                runIO (postToLog <| string ex.Message <| "#1") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
@@ -653,7 +653,7 @@ module App =
                         with 
                         | ex
                             ->
-                            runIO (postToLog <| ex.Message <| " #XElmish_ClearData")
+                            runIO (postToLog <| string ex.Message <| " #XElmish_ClearData")
                             DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3
                     }
                      

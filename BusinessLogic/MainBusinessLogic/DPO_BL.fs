@@ -214,7 +214,7 @@ module DPO_BL =
                                     with                                                         
                                     | ex
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#035")
+                                        runIO (postToLog <| string ex.Message <| "#035")
                                         return Error FileDownloadErrorMHD 
                                 } 
                     )
@@ -257,22 +257,24 @@ module DPO_BL =
                                         |> Result.ofChoice
                                     ) 
                                  |> List.tryPick
-                                     (function
-                                         | Ok _
-                                             -> 
-                                             None
-                                         | Error ex
-                                             -> 
-                                             match Helpers.ExceptionHelpers.isCancellation ex with
-                                             | true
+                                    (Result.either
+                                        (fun _
+                                            ->
+                                            None
+                                        )
+                                        (fun ex 
+                                            ->
+                                            match Helpers.ExceptionHelpers.isCancellation ex with
+                                            | true
                                                 ->
                                                 Some (Error StopDownloadingMHD)
-                                             | false 
+                                            | false 
                                                 ->
-                                                runIO (postToLog <| ex.Message <| "#037-10")
+                                                runIO (postToLog <| string ex.Message <| "#37-10")
                                                 Some (Error FileDownloadErrorMHD)  
-                                     )                                    
-                                 |> Option.defaultValue (Ok ()) 
+                                        )
+                                    )                                
+                                |> Option.defaultValue (Ok ()) 
                
                             with                            
                             | ex                             
@@ -283,7 +285,7 @@ module DPO_BL =
                                    Error StopDownloadingMHD
                                 | false 
                                    ->
-                                   runIO (postToLog <| ex.Message <| "#037")
+                                   runIO (postToLog <| string ex.Message <| "#037")
                                    Error FileDownloadErrorMHD  
                     )
 

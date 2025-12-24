@@ -4,6 +4,8 @@ open System
 open System.IO
 open System.Threading
 
+open FsToolkit.ErrorHandling
+
 //**********************************
 
 open Types.Types
@@ -88,7 +90,7 @@ module WebScraping_MDPO =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| ex.Message <| "#007")
+                            runIO (postToLog <| string ex.Message <| "#007")
                             Error FileDownloadErrorMHD //dpoMsg1
            
                     | FilterDownloadSave   //Quli problemum s certifikatem www.mdpo.cz zatim try with bloky vsade, kaj se da
@@ -169,11 +171,11 @@ module WebScraping_MDPO =
                             | ServiceUnavailable       -> "503 Service Unavailable"        
                             | NotFound                 -> "404 Page Not Found"
                             | CofeeMakerUnavailable    -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-                            | FileDownloadErrorMHD     -> match runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir with Ok _ -> mdpoMsg1 | Error _ -> mdpoMsg0 
+                            | FileDownloadErrorMHD     -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir) |> Result.either (fun _ -> mdpoMsg1) (fun _ -> mdpoMsg0)
                             | FolderCopyOrMoveErrorMHD -> folderCopyingError
                             | ConnectionError          -> noNetConn
                             | FileDeleteErrorMHD       -> fileDeleteError
-                            | StopDownloadingMHD       -> match runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir with Ok _ -> mdpoCancelMsg | Error _ -> mdpoCancelMsg1
+                            | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir) |> Result.either (fun _ -> mdpoCancelMsg) (fun _ -> mdpoCancelMsg1)
                             | LetItBeMHD               -> String.Empty
                             | TestDuCase ex            -> ex 
 

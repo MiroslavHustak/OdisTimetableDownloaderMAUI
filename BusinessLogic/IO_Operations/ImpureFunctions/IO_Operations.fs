@@ -50,7 +50,7 @@ module IO_Operations =
                                 with 
                                 | ex 
                                     ->
-                                    runIO (postToLog <| ex.Message <| "#038")
+                                    runIO (postToLog <| string ex.Message <| "#038")
                                     Error <| PdfError FileDeleteError
                         }
     
@@ -83,7 +83,7 @@ module IO_Operations =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| ex.Message <| "#039")
+                                    runIO (postToLog <| string ex.Message <| "#039")
                                     Error <| PdfError FileDeleteError                       
                         }
     
@@ -190,7 +190,7 @@ module IO_Operations =
                 with 
                 | ex
                     ->
-                    runIO (postToLog <| ex.Message <| "#041")
+                    runIO (postToLog <| string ex.Message <| "#041")
                     Error <| PdfError CreateFolderError4   
         )
         
@@ -222,7 +222,7 @@ module IO_Operations =
                     with 
                     | ex
                         ->
-                        runIO (postToLog <| ex.Message <| "#042")
+                        runIO (postToLog <| string ex.Message <| "#042")
                         Error <| PdfError CreateFolderError4   
                 | false 
                     -> 
@@ -242,7 +242,7 @@ module IO_Operations =
                 with 
                 | ex
                     ->
-                    runIO (postToLog <| ex.Message <| "#421")
+                    runIO (postToLog <| string ex.Message <| "#421")
                     Error <| PdfError CreateFolderError2   
         )
 
@@ -286,7 +286,7 @@ module IO_Operations =
                                     with 
                                     | ex 
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#444-3")
+                                        runIO (postToLog <| string ex.Message <| "#444-3")
                                         Error err2                       
                
                         let! _ = 

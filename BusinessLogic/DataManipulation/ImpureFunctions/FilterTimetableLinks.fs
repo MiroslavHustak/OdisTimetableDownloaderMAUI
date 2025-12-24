@@ -352,8 +352,8 @@ module FilterTimetableLinks =
                     (fun data
                         ->
                         match param with
-                        | CurrentValidity           -> Records.SortRecordData.sortLinksOut data CurrentValidity
-                        | FutureValidity            -> Records.SortRecordData.sortLinksOut data FutureValidity
+                        | CurrentValidity  -> Records.SortRecordData.sortLinksOut data CurrentValidity
+                        | FutureValidity   -> Records.SortRecordData.sortLinksOut data FutureValidity
                         | LongTermValidity -> Records.SortRecordData.sortLinksOut data LongTermValidity
                 
                         |> createPathsForDownloadedFiles

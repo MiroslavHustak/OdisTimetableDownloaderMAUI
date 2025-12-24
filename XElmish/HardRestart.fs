@@ -14,16 +14,16 @@ module HardRestart =
 
        IO (fun () 
                -> 
-               match Application.Current |> Option.ofNull with
-               | Some app 
-                   -> 
-                   try
-                       app.Quit()
-                       String.Empty
-                   with
-                   | ex -> string ex.Message
-               
-               | None 
-                   -> 
-                   quitError
+               Application.Current
+               |> Option.ofNull
+               |> Option.map 
+                   (fun app
+                       ->
+                       try
+                           app.Quit()
+                           String.Empty
+                       with
+                       | ex -> string ex.Message
+                   )
+               |> Option.defaultValue quitError               
        )

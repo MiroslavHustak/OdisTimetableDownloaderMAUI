@@ -98,7 +98,7 @@ module KODIS_BL_Record4 =
 
                         | Choice2Of2 ex
                             -> 
-                            runIO (postToLog <| ex.Message <| "#016")                      
+                            runIO (postToLog <| string ex.Message <| "#016")                      
                             return Error <| JsonError JsonDataFilteringError  
                     }
                 |> Async.RunSynchronously //priprava na pripadne pouziti cancellation token, zabal to pak to try-with
@@ -219,16 +219,9 @@ module KODIS_BL_Record4 =
                                                 ->
                                                 runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2212-42")
                                                 Error <| PdfError FileDownloadError                                            
-                                    )  
-       
-                                |> List.tryPick
-                                    (function
-                                        | Ok _
-                                            -> None
-                                        | Error case
-                                            -> Some (Error case)     
-                                    )
-                                |> Option.defaultValue (Ok ())
+                                    )         
+                                |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                                |> Option.defaultValue (Ok ())     
                                    
                             with
                             | ex                             
@@ -239,7 +232,7 @@ module KODIS_BL_Record4 =
                                     Error <| PdfError StopDownloading
                                 | false 
                                     ->
-                                    runIO (postToLog <| ex.Message <| "#024-4")
+                                    runIO (postToLog <| string ex.Message <| "#024-4")
                                     Error <| PdfError FileDownloadError
                         } 
         
@@ -259,13 +252,7 @@ module KODIS_BL_Record4 =
                                         Ok String.Empty     
                                     | _ 
                                         -> 
-                                        match downloadAndSaveTimetables token context with
-                                        | Ok _ 
-                                            -> 
-                                            Ok String.Empty
-                                        
-                                        | Error case 
-                                            -> 
-                                            Error case                                            
+                                        downloadAndSaveTimetables token context
+                                        |> Result.map (fun _ -> String.Empty)
                     }       
         )

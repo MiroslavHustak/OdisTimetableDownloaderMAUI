@@ -61,7 +61,7 @@ module MDPO_BL = //FsHttp
                                     with
                                     | ex 
                                         -> 
-                                        runIO (postToLog <| ex.Message <| "#025")
+                                        runIO (postToLog <| string ex.Message <| "#025")
                        
                                         return None
                                 }  
@@ -216,7 +216,7 @@ module MDPO_BL = //FsHttp
                                     with                                                         
                                     | ex
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#027")
+                                        runIO (postToLog <| string ex.Message <| "#027")
                        
                                         return Error FileDownloadErrorMHD  
                                 } 
@@ -257,22 +257,24 @@ module MDPO_BL = //FsHttp
                                         |> Result.ofChoice
                                     )                                 
                                 |> List.tryPick
-                                    (function
-                                        | Ok _
-                                            -> 
+                                    (Result.either
+                                        (fun _
+                                            ->
                                             None
-                                        | Error ex
-                                            -> 
+                                        )
+                                        (fun ex 
+                                            ->
                                             match Helpers.ExceptionHelpers.isCancellation ex with
                                             | true
-                                               ->
-                                               Some (Error StopDownloadingMHD)
+                                                ->
+                                                Some (Error StopDownloadingMHD)
                                             | false 
-                                               ->
-                                               runIO (postToLog <| ex.Message <| "#28")
-                                               Some (Error FileDownloadErrorMHD)  
-                                    )                                    
-                                 |> Option.defaultValue (Ok ()) 
+                                                ->
+                                                runIO (postToLog <| string ex.Message <| "#28")
+                                                Some (Error FileDownloadErrorMHD)  
+                                        )
+                                    )                                
+                                |> Option.defaultValue (Ok ()) 
 
                             with                            
                             | ex                             
@@ -283,7 +285,7 @@ module MDPO_BL = //FsHttp
                                    Error StopDownloadingMHD
                                 | false 
                                    ->
-                                   runIO (postToLog <| ex.Message <| "#281")
+                                   runIO (postToLog <| string ex.Message <| "#281")
                                    Error FileDownloadErrorMHD  
                     )                
                     
@@ -334,7 +336,7 @@ module MDPO_BL = //FsHttp
                                     with
                                     | ex 
                                         -> 
-                                        runIO (postToLog <| ex.Message <| "#029")
+                                        runIO (postToLog <| string ex.Message <| "#029")
                        
                                         return None                  
                                 }   
@@ -515,7 +517,7 @@ module MDPO_BL = //FsHttp
                                     with                                                         
                                     | ex
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#031")
+                                        runIO (postToLog <| string ex.Message <| "#031")
                       
                                         return Error FileDownloadErrorMHD  
                                 } 
@@ -556,22 +558,25 @@ module MDPO_BL = //FsHttp
                                         |> Result.ofChoice
                                     )   
                                 |> List.tryPick
-                                    (function
-                                        | Ok _
-                                            -> 
+                                    (Result.either
+                                        (fun _
+                                            ->
                                             None
-                                        | Error ex
-                                            -> 
+                                        )
+                                        (fun ex 
+                                            ->
                                             match Helpers.ExceptionHelpers.isCancellation ex with
                                             | true
-                                               ->
-                                               Some (Error StopDownloadingMHD)
+                                                ->
+                                                Some (Error StopDownloadingMHD)
                                             | false 
-                                               ->
-                                               runIO (postToLog <| ex.Message <| "#32")
-                                               Some (Error FileDownloadErrorMHD)  
-                                    )                                    
-                                 |> Option.defaultValue (Ok ()) 
+                                                ->
+                                                runIO (postToLog <| string ex.Message <| "#32")
+                                                Some (Error FileDownloadErrorMHD)  
+                                        )
+                                    )
+                                
+                                |> Option.defaultValue (Ok ()) 
 
                             with                            
                             | ex                             
@@ -582,7 +587,7 @@ module MDPO_BL = //FsHttp
                                    Error StopDownloadingMHD
                                 | false 
                                    ->
-                                   runIO (postToLog <| ex.Message <| "#33")
+                                   runIO (postToLog <| string ex.Message <| "#33")
                                    Error FileDownloadErrorMHD  
                     )   
                     

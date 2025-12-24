@@ -3,6 +3,8 @@
 open System
 open System.Threading
 
+open FsToolkit.ErrorHandling
+
 //**********************************
 
 open Types
@@ -76,7 +78,7 @@ module WebScraping_KODIS4 =
             | PdfError FileDeleteError         -> fileDeleteError 
             | PdfError CreateFolderError4      -> createFolderError
             | PdfError CreateFolderError2      -> createFolderError2
-            | PdfError FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> dispatchMsg4 | Error _ -> dispatchMsg0
+            | PdfError FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
             | PdfError FolderMovingError4      -> folderMovingError 
             | PdfError CanopyError             -> canopyError
             | PdfError TimeoutError            -> "timeout"
@@ -84,11 +86,11 @@ module WebScraping_KODIS4 =
             | PdfError (ApiResponseError err)  -> apiResponseError //err je strasne dluha hlaska
             | PdfError ApiDecodingError        -> canopyError
             | PdfError (NetConnPdfError err)   -> err
-            | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5
+            | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
             | PdfError LetItBeKodis4           -> String.Empty
             | PdfError NoPermissionError       -> String.Empty
             | JsonError JsonParsingError       -> jsonParsingError 
-            | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> function Ok _ -> cancelMsg4 | Error _ -> cancelMsg5 //tady nenastane
+            | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5) //tady nenastane
             | JsonError JsonDataFilteringError -> dataFilteringError 
 
         let result (context2 : Context2) =   
