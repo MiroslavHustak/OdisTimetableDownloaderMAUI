@@ -174,28 +174,20 @@ module Logging =
             
                     with
                     | _ -> None
-    
+                
                 async
                     {
                         try
-                            match checkFileSize () with
-                            | Some _
-                                ->
-                                match prepareJsonAsyncAppend () with
-                                | Ok asyncWriter
-                                    ->
-                                    do! asyncWriter
-                                    return Ok ()
+                            return!
+                                asyncResult
+                                    {
+                                        let! _ = checkFileSize () |> Result.fromOption
+                                        let! asyncWriter = prepareJsonAsyncAppend ()
 
-                                | Error _
-                                    ->
-                                    return Error String.Empty
-
-                            | None
-                                ->
-                                return Error String.Empty
+                                        return! asyncWriter |> AsyncResult.ofAsync
+                                    }
                         with
-                        | _ -> return Error String.Empty
+                        |_ -> return Error String.Empty
                     }
                 |> Async.RunSynchronously
         )

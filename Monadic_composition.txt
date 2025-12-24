@@ -615,3 +615,45 @@ clientCancellationHandler.Dispose()
 let! responseCancellationHandler = Async.OnCancel <| fun () -> response.Dispose()        
 responseCancellationHandler.Dispose()
 *)
+
+async
+    {
+        try
+            return!
+                asyncResult
+                    {
+                        let! _ = checkFileSize () |> Result.fromOption
+                        let! asyncWriter = prepareJsonAsyncAppend ()
+
+                        return! asyncWriter |> AsyncResult.ofAsync
+                    }
+        with
+        |_ -> return Error String.Empty
+    }
+|> Async.RunSynchronously
+
+(*
+async
+    {
+        try
+            match checkFileSize () with
+            | Some _
+                ->
+                match prepareJsonAsyncAppend () with
+                | Ok asyncWriter
+                    ->
+                    do! asyncWriter
+                    return Ok ()
+
+                | Error _
+                    ->
+                    return Error String.Empty
+
+            | None
+                ->
+                return Error String.Empty
+        with
+        | _ -> return Error String.Empty
+    }
+|> Async.RunSynchronously
+*)
