@@ -138,11 +138,11 @@ module DPO_BL =
         
         IO (fun () 
                 -> 
-                let downloadFileTaskAsync (uri : string) (pathToFile : string) =  
+                let downloadFileTaskAsync (uri : string) (pathToFile : string) =  //client.GetAsync
 
                     IO (fun () 
                             -> 
-                            async
+                            async //API of HttpClient is async based
                                 {                      
                                     try         
                                         let client =                             
@@ -237,16 +237,12 @@ module DPO_BL =
                                                     async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
                                                 loop 0
             
-                            try
-                                // Array.Parallel.map doesn’t propagate CancellationToken — there’s no built-in mechanism in Array.Parallel.map to cancel the in-flight computations.
-                                // Therefore async with Async.RunSynchronously shall be used
-                                // But: Array.Parallel.map with Async.RunSynchronously blocks thread pool threads    
-                                // Array.Parallel.map is designed for CPU-bound work anyway
+                            try                               
                                 filterTimetables 
                                 |> List.Parallel.map_IO
                                     (fun (link, pathToFile)
                                         -> 
-                                        async
+                                        async //API of HttpClient is async based
                                             {
                                                 counterAndProgressBar.Post <| Inc 1
                                                 token.ThrowIfCancellationRequested ()

@@ -36,13 +36,15 @@ module KODIS_BL_Record4 =
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
     // 16-12-2024 Nic neni trvalejsiho, nez neco docasneho ...
             
-    let internal operationOnDataFromJson token variant dir = 
+    let internal operationOnDataFromJson (token : CancellationToken) variant dir = //TODO
     
         IO (fun () 
                 ->
                 let result1 : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
                     async
                         {
+                            token.ThrowIfCancellationRequested()
+
                             match! getFutureLinksFromRestApi >> runIO <| urlApi with
                             | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
                             | Error err -> return Error <| PdfError err
@@ -51,6 +53,8 @@ module KODIS_BL_Record4 =
                 let result2 : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
                     async
                         {
+                            token.ThrowIfCancellationRequested()
+
                             match variant with
                             | FutureValidity 
                                 ->
@@ -64,12 +68,18 @@ module KODIS_BL_Record4 =
        
                 async 
                     {
-                        let! results = 
-                            [ 
-                                result1
-                                result2 
-                            ]
-                            |> Async.Parallel
+                        let! results =
+                            async 
+                                {
+                                    let! resultsArray =                                         
+                                        [ 
+                                            result1
+                                            result2
+                                        ]
+                                        |> Async.Parallel
+                                    token.ThrowIfCancellationRequested()
+                                    return resultsArray
+                                }
                             |> Async.Catch
     
                         match results with
@@ -101,8 +111,6 @@ module KODIS_BL_Record4 =
                             runIO (postToLog <| string ex.Message <| "#016")                      
                             return Error <| JsonError JsonDataFilteringError  
                     }
-                |> Async.RunSynchronously //priprava na pripadne pouziti cancellation token, zabal to pak to try-with
-                                          //|> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token) 
         )
                     
     let internal downloadAndSave token =
@@ -190,20 +198,13 @@ module KODIS_BL_Record4 =
                                                                     header "User-Agent" "FsHttp/Android7.1"
                                                                 }                                                   
                                                                
-                                                let response =                                                                 
-                                                    (get uri)
-                                                    |> Request.sendAsync
-                                                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                                                  
+                                                let response = get >> Request.send <| uri      
                                                 let statusCode = response.statusCode
                                                     
                                                 match statusCode with
                                                 | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
                                                     ->         
-                                                    response.SaveFileAsync(pathToFile)
-                                                    |> Async.AwaitTask
-                                                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                                    |> Ok 
+                                                    Ok <| response.SaveFile pathToFile
                                                                     
                                                 | HttpStatusCode.Forbidden 
                                                     ->

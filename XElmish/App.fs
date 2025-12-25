@@ -147,6 +147,7 @@ module App =
         | ClickRequestPermission
         | ClickClearing  
         | ClearAnimation
+        | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
 
     let private cancellationActor =  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
 
@@ -528,16 +529,28 @@ module App =
 
         | Quit  
             -> 
-            #if WINDOWS
-            runIO <| Api.Logging.saveJsonToFile () |> ignore<Result<unit, string>>
+            #if WINDOWS     
+            let cmd () : Cmd<Msg> =
+                Cmd.ofSub 
+                    (fun _ 
+                        ->
+                        async 
+                            {
+                                let! _ = runIO (Api.Logging.saveJsonToFileAsync ())
+                                return ()
+                            }
+                        |> Async.StartImmediate
+                )
+                
+            let message = HardRestart.exitApp >> runIO <| () 
+            { m with ProgressMsg = message }, cmd ()
             #endif
 
             #if ANDROID
-            runIO <| KeepScreenOnManager.keepScreenOn false
-            #endif
-
+            runIO <| KeepScreenOnManager.keepScreenOn false  
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, Cmd.none
+            #endif
 
         | IntermediateQuitCase 
             -> 
@@ -683,6 +696,16 @@ module App =
                     Label2Visible = true
             }, 
             Cmd.none
+
+        | CanopyDifferenceResult result // For educational purposes only
+            ->
+            match result with
+            | Ok _ 
+                -> 
+                m, Cmd.none
+            | Error err 
+                ->  
+                { m with ProgressMsg = err }, Cmd.none
              
         | Kodis 
             ->  
@@ -769,7 +792,6 @@ module App =
                             }     
 
                     let executeSequentially dispatch =
-                    
                         async 
                             {   
                                 RestartVisible >> dispatch <| false
@@ -780,6 +802,24 @@ module App =
                                 | false -> return! delayedCmd2 token dispatch
                             }
                         |> Async.StartImmediate
+
+                    //For educational purposes, takhle to nedelat, zavadi to business logic do UI vrstvy
+                    let cmd2 () : Cmd<Msg> =
+                        async 
+                            {
+                                match! BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
+                                | Ok _      -> return Ok >> CanopyDifferenceResult <| ()
+                                | Error err -> return Error >> CanopyDifferenceResult <| err                                            
+                            }
+                        |> Cmd.ofAsyncMsg                           
+
+                    //For educational purposes, takhle to nedelat, zavadi to business logic do UI vrstvy  
+                    let cmd () : Cmd<Msg> = 
+                         Cmd.batch
+                            [
+                                Cmd.ofSub executeSequentially
+                                cmd2 () 
+                            ]
 
                     match connectivityListener >> runIO >> Option.ofBool <| () with
                     | Some _
@@ -795,7 +835,7 @@ module App =
                                 MdpoVisible = false
                                 ProgressCircleVisible = false
                         }, 
-                        Cmd.ofSub executeSequentially  
+                        cmd () //Cmd.ofSub executeSequentially  
                    
                     | None  
                         ->
@@ -865,15 +905,31 @@ module App =
                                     runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                                     NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
-                   
-                    let executeSequentially dispatch =   
 
+                    let delayedCmd5 (dispatch : Msg -> unit) : Async<unit> =    
+                    
+                        async 
+                            {    
+                                try
+                                    match! stateReducerCmd5 >> runIO <| () with
+                                    | Ok _      -> return NetConnMessage >> dispatch <| String.Empty
+                                    | Error err -> return NetConnMessage >> dispatch <| err
+                                    
+                                with 
+                                | ex
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
+                                    NetConnMessage >> dispatch <| criticalElmishErrorKodis4
+                            }  
+                   
+                    let executeSequentially dispatch = 
                         async 
                             {  
                                RestartVisible >> dispatch <| false
-                               return! delayedCmd2 token dispatch                            
+                               do! delayedCmd2 token dispatch
+                               return! delayedCmd5 dispatch                           
                             }
-                        |> Async.StartImmediate  
+                        |> Async.StartImmediate                     
 
                     match connectivityListener >> runIO >> Option.ofBool <| () with
                     | Some _
@@ -889,7 +945,7 @@ module App =
                                 DpoVisible = false
                                 MdpoVisible = false
                                 ProgressCircleVisible = false
-                        }, 
+                        },
                         Cmd.ofSub executeSequentially  
                    
                     | None  

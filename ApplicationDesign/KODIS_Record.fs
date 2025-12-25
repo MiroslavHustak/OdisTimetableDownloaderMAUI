@@ -279,10 +279,10 @@ module WebScraping_KODIS =
                         let! msg2 = result lazyList contextFutureValidity, errFn
                         let! msg3 = result lazyList contextLongTermValidity, errFn   
 
-                        let msg4 = 
-                            match calculate_TP_Canopy_Difference >> runIO <| () with
-                            | Ok _      -> String.Empty
-                            | Error err -> err      
+                        let msg4 = String.Empty
+                           // match calculate_TP_Canopy_Difference >> runIO <| () |> Async.RunSynchronously with
+                           // | Ok _      -> String.Empty
+                           // | Error err -> err      
                                 
                         #if ANDROID     
                         deleteAllJsonFilesInDirectory >> runIO <| partialPathJsonTemp 

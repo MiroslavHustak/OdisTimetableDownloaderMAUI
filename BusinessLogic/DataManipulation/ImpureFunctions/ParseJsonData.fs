@@ -65,8 +65,7 @@ module ParseJsonData =
                                                 
                                                 counterAndProgressBar.Post <| Inc 1
                                                 
-                                                readAllTextAsync >> runIO <| pathToJson                                                
-                                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                                readAllText >> runIO <| pathToJson                                                
                                                 |> JsonProvider2.Parse // The biggest performance drag                                            
                                             )
 

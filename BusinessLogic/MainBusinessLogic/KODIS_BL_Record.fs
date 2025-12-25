@@ -90,20 +90,13 @@ module KODIS_BL_Record =
                                                 header "User-Agent" "FsHttp/Android7.1"
                                             }
 
-                            let response =                                                                 
-                                (get uri)
-                                |> Request.sendAsync
-                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                      
+                            let response = get >> Request.send <| uri                                      
                             let statusCode = response.statusCode
                                                  
                             match statusCode with
                             | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
                                 ->         
-                                response.SaveFileAsync(pathToFile)
-                                |> Async.AwaitTask
-                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                |> Ok 
+                                Ok <| response.SaveFile pathToFile
                                         
                             | HttpStatusCode.Forbidden 
                                 ->
@@ -259,20 +252,13 @@ module KODIS_BL_Record =
                                                                         header "User-Agent" "FsHttp/Android7.1"
                                                                     }                                                   
                                                             
-                                                    let response =                                                                 
-                                                        (get uri)
-                                                        |> Request.sendAsync
-                                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                                               
+                                                    let response = get >> Request.send <| uri
                                                     let statusCode = response.statusCode
                                                  
                                                     match statusCode with
                                                     | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
                                                         ->         
-                                                        response.SaveFileAsync(pathToFile)
-                                                        |> Async.AwaitTask
-                                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                                        |> Ok 
+                                                        Ok <| response.SaveFile pathToFile
                                                                  
                                                     | HttpStatusCode.Forbidden 
                                                         ->

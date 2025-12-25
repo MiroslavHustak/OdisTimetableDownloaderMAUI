@@ -135,8 +135,6 @@ module CheckNetConnection =
                         ->
                         return None
                 with
-                | _ -> return None
-                
+                | _ -> return None                
             }  
-        |> Async.RunSynchronously  //API is async-only
     #endif

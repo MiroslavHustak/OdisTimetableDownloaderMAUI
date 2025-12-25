@@ -28,7 +28,7 @@ module ParseJsonDataFull =
 
         IO (fun () 
                 ->  
-                jsonEmpty, readAllTextAsync >> runIO >> Async.RunSynchronously <| pathkodisMHDTotal 
+                jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
         )
 
     let private tempJson1, tempJson2 = runIO tempJsonIO
@@ -74,16 +74,13 @@ module ParseJsonDataFull =
                                 |> Seq.ofList
                                 |> Seq.collect
                                     (fun pathToJson 
-                                        ->  
-                                        async
-                                            {
-                                                try                                               
-                                                    let! json = readAllTextAsync >> runIO <| pathToJson
-                                                    return JsonProvider1.Parse json                                                
-                                                with 
-                                                | _ -> return JsonProvider1.Parse tempJson1
-                                            }
-                                        |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator                                
+                                        ->                                         
+                                        try                                               
+                                            let json = readAllText >> runIO <| pathToJson
+                                            JsonProvider1.Parse json                                                
+                                        with 
+                                        | _ -> JsonProvider1.Parse tempJson1
+                                                                     
                                         |> Option.ofNull
                                         |> Option.map (Seq.map _.Timetable)
                                         |> Option.defaultValue Seq.empty
@@ -177,19 +174,12 @@ module ParseJsonDataFull =
                                             |> Option.map (Seq.collect fn2)
                                             |> Option.defaultValue Seq.empty
                                        
-                                        let kodisJsonSamples = 
+                                        let kodisJsonSamples =                                             
                                             try
-                                                async
-                                                    {
-                                                        try
-                                                            let! json = readAllTextAsync >> runIO <| pathToJson  //tady nelze Result.sequence 
-                                                            return JsonProvider1.Parse json
-                                                        with 
-                                                        | _ -> return JsonProvider1.Parse tempJson1
-                                                    }
-                                                |> Async.RunSynchronously //zatim cely async block pouze jako priprava pro potencialni pouziti Async.StartImmediate a progress indicator     
-                                            with
-                                            | _ -> JsonProvider1.Parse tempJson1
+                                                let json = readAllText >> runIO <| pathToJson  //tady nelze Result.sequence 
+                                                JsonProvider1.Parse json
+                                            with 
+                                            | _ -> JsonProvider1.Parse tempJson1                                           
                                     
                                         kodisJsonSamples
                                         |> Option.ofNull

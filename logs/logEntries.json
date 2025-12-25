@@ -3155,3 +3155,143 @@ Response from https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html:
 { "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:15 +00:00"] }
 { "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:42 +00:00"] }
 
+{ "list": [] }
+
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:58:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 03:59:04 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#005","12/21/2025 04:00:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-central-1.amazonaws.com:443))) Error#024-4","12/21/2025 04:07:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/21/2025 17:51:55 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/21/2025 17:53:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:00:17 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:00:18 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:27:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:27:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:13:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:15:42 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:27:43 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024-4","12/22/2025 13:21:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/23/2025 15:28:21 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_io_readfailure, Software caused connection abort)) Error#024-4","12/23/2025 15:30:05 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:31:23 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:33:07 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:38:53 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:41:12 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:42:51 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:42:59 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:47:35 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:51:18 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024","12/24/2025 12:09:22 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/24/2025 12:14:09 +00:00"] }
+{ "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:15 +00:00"] }
+{ "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:42 +00:00"] }
+
+{ "list": [] }
+
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:58:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 03:59:04 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#005","12/21/2025 04:00:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-central-1.amazonaws.com:443))) Error#024-4","12/21/2025 04:07:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/21/2025 17:51:55 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/21/2025 17:53:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:00:17 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:00:18 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:27:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:27:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:13:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:15:42 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:27:43 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024-4","12/22/2025 13:21:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/23/2025 15:28:21 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_io_readfailure, Software caused connection abort)) Error#024-4","12/23/2025 15:30:05 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:31:23 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:33:07 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:38:53 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:41:12 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:42:51 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:42:59 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:47:35 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:51:18 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024","12/24/2025 12:09:22 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/24/2025 12:14:09 +00:00"] }
+{ "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:15 +00:00"] }
+{ "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:42 +00:00"] }
+
+{ "list": [] }
+
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:58:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 03:59:04 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#005","12/21/2025 04:00:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-central-1.amazonaws.com:443))) Error#024-4","12/21/2025 04:07:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/21/2025 17:51:55 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/21/2025 17:53:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:00:17 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:00:18 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:27:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:27:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:13:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:15:42 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:27:43 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024-4","12/22/2025 13:21:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/23/2025 15:28:21 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_io_readfailure, Software caused connection abort)) Error#024-4","12/23/2025 15:30:05 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:31:23 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:33:07 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:38:53 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:41:12 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:42:51 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:42:59 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:47:35 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:51:18 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024","12/24/2025 12:09:22 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/24/2025 12:14:09 +00:00"] }
+{ "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:15 +00:00"] }
+{ "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:42 +00:00"] }
+
+{ "list": [] }
+
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:58:45 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 03:59:04 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#009","12/21/2025 03:59:05 +00:00"] }
+{ "list": ["OperationCanceled Error#005","12/21/2025 04:00:44 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (hostname nor servname provided, or not known (kodis-files.s3.eu-central-1.amazonaws.com:443))) Error#024-4","12/21/2025 04:07:52 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (TaskCanceledException_ctor_DefaultMessage) Error#025","12/21/2025 17:51:55 +00:00"] }
+{ "list": ["Timeout exceeded while getting response Error#008-X05","12/21/2025 17:53:35 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 19:06:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:00:17 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:00:18 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/21/2025 23:27:39 +00:00"] }
+{ "list": ["net_http_ssl_connection_failed Error#008","12/21/2025 23:27:40 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:13:10 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:15:42 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#1722","12/22/2025 02:27:43 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024-4","12/22/2025 13:21:11 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_http_ssl_connection_failed)) Error#025","12/23/2025 15:28:21 +00:00"] }
+{ "list": ["AggregateException_ctor_DefaultMessage (AggregateException_ctor_DefaultMessage (net_io_readfailure, Software caused connection abort)) Error#024-4","12/23/2025 15:30:05 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:31:23 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:33:07 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:38:53 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:41:12 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:42:51 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:42:59 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:47:35 +00:00"] }
+{ "list": [" Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/379_2025_12_20_2026_02_28_v_5df2440111.pdf Forbidden 403 Error#2211-4","12/23/2025 15:51:18 +00:00"] }
+{ "list": ["One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#024","12/24/2025 12:09:22 +00:00"] }
+{ "list": ["One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443)) Error#035","12/24/2025 12:14:09 +00:00"] }
+{ "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:15 +00:00"] }
+{ "list": ["A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#011","12/24/2025 13:03:42 +00:00"] }
+

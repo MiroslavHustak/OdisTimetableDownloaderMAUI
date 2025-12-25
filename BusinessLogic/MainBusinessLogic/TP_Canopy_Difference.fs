@@ -122,14 +122,14 @@ module TP_Canopy_Difference =
                         |> Encode.toString 2
             
                     #if ANDROID
-                    runIO <| serializeWithThoth json logFileNameAndroid    
+                    runIO <| serializeWithThothAsync json logFileNameAndroid    
                     #else
-                    runIO <| serializeWithThoth json logFileNameWindows 
+                    runIO <| serializeWithThothAsync json logFileNameWindows 
                     #endif
            
                 with
                 | ex 
                     ->
                     runIO (postToLog <| string ex.Message <| "#Canopy03")
-                    Error (string ex.Message)
+                    async { return Error (string ex.Message) }
         )

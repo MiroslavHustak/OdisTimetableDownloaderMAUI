@@ -57,7 +57,7 @@ module WebScraping_KODIS4 =
     type private Environment = 
         {
             DeleteAllODISDirectories : string -> IO<Result<unit, JsonParsingAndPdfDownloadErrors>>
-            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> 
+            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>>> 
             DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, JsonParsingAndPdfDownloadErrors>
         }
 
@@ -92,54 +92,7 @@ module WebScraping_KODIS4 =
             | JsonError JsonParsingError       -> jsonParsingError 
             | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5) //tady nenastane
             | JsonError JsonDataFilteringError -> dataFilteringError 
-
-        let result (context2 : Context2) =   
-
-            dispatchWorkIsComplete dispatchMsg2
-                     
-            let dir = context2.DirList |> List.item context2.VariantInt  
-            let list = runIO <| operationOnDataFromJson token context2.Variant dir 
-
-            match list with
-            | Ok list
-                when
-                    list <> List.empty
-                        -> 
-                        let context listMappingFunction = 
-                            {
-                                listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
-                                reportProgress = reportProgress
-                                dir = dir
-                                list = list
-                            }
-                        
-                        dispatchIterationMessage context2.Msg1
-
-                        //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)                      
-                        match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
-                        | true  -> context List.Parallel.map2_IO
-                        | false -> context List.map2
-
-                        |> environment.DownloadAndSave token     
-
-            | Ok _
-                ->   
-                dispatchIterationMessage context2.Msg2
-                System.Threading.Thread.Sleep(6000) 
-                Ok context2.Msg3 
-
-            | Error err 
-                when err <> PdfError StopDownloading
-                ->
-                Error err  
-
-            | Error err                    
-                ->
-                runIO (postToLog <| err <| "#006-1")
-                Error err 
-            
-        //try with blok zrusen
-                 
+                                     
         let dirList = createNewDirectoryPaths path listOfODISVariants
             in
             let contextCurrentValidity = 
@@ -215,7 +168,52 @@ module WebScraping_KODIS4 =
         |> Async.Ignore<Choice<Result<unit, string> array, exn>>  //silently ignoring failed move operations
         |> Async.RunSynchronously
         
-       // runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel end")                                           
+       // runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel end")  
+       
+        let result (context2 : Context2) =   
+        
+            dispatchWorkIsComplete dispatchMsg2
+                             
+            let dir = context2.DirList |> List.item context2.VariantInt  
+            let list = runIO <| operationOnDataFromJson token context2.Variant dir 
+        
+            match list |> Async.RunSynchronously with //to je strasne slozite davat to do Elmishe
+            | Ok list
+                when
+                    list <> List.empty
+                        -> 
+                        let context listMappingFunction = 
+                            {
+                                listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
+                                reportProgress = reportProgress
+                                dir = dir
+                                list = list
+                            }
+                                
+                        dispatchIterationMessage context2.Msg1
+        
+                        //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)                      
+                        match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
+                        | true  -> context List.Parallel.map2_IO
+                        | false -> context List.map2
+        
+                        |> environment.DownloadAndSave token     
+        
+            | Ok _
+                ->   
+                dispatchIterationMessage context2.Msg2
+                System.Threading.Thread.Sleep(6000) 
+                Ok context2.Msg3 
+        
+            | Error err 
+                when err <> PdfError StopDownloading
+                ->
+                Error err  
+        
+            | Error err                    
+                ->
+                runIO (postToLog <| err <| "#006-1")
+                Error err                     
         
         pyramidOfInferno
             {             
@@ -230,10 +228,10 @@ module WebScraping_KODIS4 =
                 let! msg2 = result contextFutureValidity, errFn
                 let! msg3 = result contextLongTermValidity, errFn   
 
-                let msg4 = 
-                    match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
-                    | Ok _      -> String.Empty
-                    | Error err -> err                    
+                let msg4 = String.Empty
+                    //match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
+                    //| Ok _      -> String.Empty
+                    //| Error err -> err                    
 
                 let separator = String.Empty
 
@@ -251,4 +249,11 @@ module WebScraping_KODIS4 =
         IO (fun () 
                 ->
                 stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 
+        )
+
+    let internal stateReducerCmd5 () = 
+    
+        IO (fun () 
+                ->
+                BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| ()
         )

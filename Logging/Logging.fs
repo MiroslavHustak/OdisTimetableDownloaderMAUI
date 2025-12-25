@@ -103,53 +103,10 @@ module Logging =
     //*************************************************************************** 
     #if WINDOWS   
 
-    let internal saveJsonToFile () =
+    let internal saveJsonToFileAsync () =
         
         IO (fun () 
                 ->
-                let prepareJsonAsyncAppend () =
-
-                    try                 
-                        pyramidOfDoom
-                            {  
-                                let url = urlLogging
-                                            
-                                //pouze pro moji potrebu, nepotrebuju znat chyby chyb ....
-                                let filepath = Path.GetFullPath logFileName
-                                let! filepath = filepath |> Option.ofNullEmpty, Error String.Empty
-
-                                let filepath =  
-                                    match File.Exists filepath with
-                                    | true  -> 
-                                            filepath
-                                    | false ->
-                                            File.WriteAllText(filepath, jsonEmpty)
-                                            filepath
-                       
-                                let logEntries = 
-                                    async { return! getLogEntriesFromRestApi >> runIO <| url } 
-                                    |> Async.RunSynchronously
-                                    |> function Ok logEntries -> logEntries | Error _ -> "Chyba při čtení logEntries z KODIS API (kodis.somee)"   
-                   
-                                let writer = new StreamWriter(filepath, true) // Append mode
-                                let! _ = writer |> Option.ofNull, Error String.Empty
-    
-                                return Ok (writer, logEntries)  
-                            }
-                        |> Result.map
-                            (fun (writer, logEntries) 
-                                ->
-                                async
-                                    {
-                                        do! writer.WriteLineAsync logEntries |> Async.AwaitTask
-                                        do! writer.FlushAsync() |> Async.AwaitTask
-    
-                                        return! writer.DisposeAsync().AsTask() |> Async.AwaitTask
-                                    }
-                            )
-                    with
-                    | ex -> Error (string ex.Message)
-    
                 let checkFileSize () =
             
                     try
@@ -175,20 +132,26 @@ module Logging =
                     with
                     | _ -> None
                 
-                async
-                    {
-                        try
-                            return!
-                                asyncResult
-                                    {
-                                        let! _ = checkFileSize () |> Result.fromOption
-                                        let! asyncWriter = prepareJsonAsyncAppend ()
+                
+                try
+                    asyncResult
+                        {
+                            let! _ = checkFileSize () |> Option.toResult "Oversized file deleted"
+                                       
+                            let! logEntries = 
+                                getLogEntriesFromRestApi >> runIO <| urlLogging
+                                |> AsyncResult.mapError (fun _ -> "Chyba při čtení logEntries z KODIS API (kodis.somee)")                                    
 
-                                        return! asyncWriter |> AsyncResult.ofAsync
-                                    }
-                        with
-                        |_ -> return Error String.Empty
-                    }
-                |> Async.RunSynchronously
-        )
+                            let! filepath =
+                                Path.GetFullPath logFileName
+                                |> Option.ofNullEmpty
+                                |> Option.toResult "Invalid path"                                     
+                                                  
+                            use writer = new StreamWriter(filepath, append = true)
+
+                            return! writer.WriteLineAsync logEntries |> Async.AwaitTask
+                        }
+                with
+                | ex -> async { return Error <| string ex.Message }
+    )     
     #endif
