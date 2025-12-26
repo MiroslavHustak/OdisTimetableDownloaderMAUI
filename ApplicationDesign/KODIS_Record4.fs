@@ -228,7 +228,7 @@ module WebScraping_KODIS4 =
                 let! msg2 = result contextFutureValidity, errFn
                 let! msg3 = result contextLongTermValidity, errFn   
 
-                let msg4 = String.Empty
+                let msg4 = String.Empty //viz App.fs a viz stateReducerCmd5 dole
                     //match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
                     //| Ok _      -> String.Empty
                     //| Error err -> err                    
@@ -251,7 +251,7 @@ module WebScraping_KODIS4 =
                 stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 
         )
 
-    let internal stateReducerCmd5 () = 
+    let internal stateReducerCmd5 () = // For educational purposes
     
         IO (fun () 
                 ->
