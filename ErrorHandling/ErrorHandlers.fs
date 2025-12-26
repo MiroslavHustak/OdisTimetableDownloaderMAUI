@@ -23,8 +23,6 @@ module Result =
         | Some value -> Ok value
         | None       -> Error String.Empty  
 
-
-
     let internal toOption = 
         function   
         | Ok value -> Some value 
