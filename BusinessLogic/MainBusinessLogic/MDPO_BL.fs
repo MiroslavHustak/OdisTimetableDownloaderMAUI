@@ -134,7 +134,9 @@ module MDPO_BL = //FsHttp
                                                       
                                     pyramidOfDoom
                                         {         
-                                            let existingFileLength =                               
+                                            let existingFileLength =  
+                                                // TOCTOU race problem is negligible here as the value is only for the Windows Machine mode / resuming downloads
+                                                // Resuming downloading does not work under Android OS
                                                 runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                                 |> function
                                                     | Some _ -> (FileInfo pathToFile).Length
@@ -165,7 +167,8 @@ module MDPO_BL = //FsHttp
                                                                 header "User-Agent" "FsHttp/Android7.1"
                                                             }     
 
-                                            let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
+                                            //TOCTOU race -> try-with will catch
+                                            //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
 
                                             let! response = (getSafe >> Request.send <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
@@ -373,91 +376,76 @@ module MDPO_BL = //FsHttp
 
                     IO (fun () 
                             ->             
-                            try  
-                                let response =           
-                                                      
-                                    pyramidOfDoom
-                                        {                
-                                            let existingFileLength =                               
-                                                runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                |> function
-                                                    | Some _ -> (FileInfo pathToFile).Length
-                                                    | None   -> 0L
+                            try             
+                                let existingFileLength =         
+                                    // TOCTOU race problem is negligible here as the value is only for the Windows Machine mode / resuming downloads
+                                    // Resuming downloading does not work under Android OS
+                                    runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                    |> function
+                                        | Some _ -> (FileInfo pathToFile).Length
+                                        | None   -> 0L
                                                 
-                                            let getUnsafe uri = 
+                                let getUnsafe uri = 
 
-                                                let headerContent1 = "Range" 
-                                                let headerContent2 = sprintf "bytes=%d-" existingFileLength 
+                                    let headerContent1 = "Range" 
+                                    let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                           
-                                                //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
-                                                match existingFileLength > 0L with
-                                                | true  -> 
-                                                        http
-                                                            {
-                                                                GET uri        
+                                    //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
+                                    match existingFileLength > 0L with
+                                    | true  -> 
+                                            http
+                                                {
+                                                    GET uri        
                                                         
-                                                                config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                config_cancellationToken token  
+                                                    config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                    config_cancellationToken token  
 
-                                                                config_transformHttpClient
-                                                                    (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
-                                                                        ->
-                                                                        //temporary code, use block not possible here
-                                                                        let unsafeHandler = new HttpClientHandler()
-                                                                        unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
-                                                                        let unsafeClient = new HttpClient(unsafeHandler)
-                                                                        unsafeClient
-                                                                    )
+                                                    config_transformHttpClient
+                                                        (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                                            ->
+                                                            //temporary code, use block not possible here
+                                                            let unsafeHandler = new HttpClientHandler()
+                                                            unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
+                                                            let unsafeClient = new HttpClient(unsafeHandler)
+                                                            unsafeClient
+                                                        )
 
-                                                                header "User-Agent" "FsHttp/Android7.1"
-                                                                header headerContent1 headerContent2
-                                                            }
-                                                | false ->
-                                                        http
-                                                            {
-                                                                GET uri
+                                                    header "User-Agent" "FsHttp/Android7.1"
+                                                    header headerContent1 headerContent2
+                                                }
+                                    | false ->
+                                            http
+                                                {
+                                                    GET uri
 
-                                                                config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                config_cancellationToken token  
+                                                    config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                    config_cancellationToken token  
 
-                                                                config_transformHttpClient
-                                                                    (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
-                                                                        ->
-                                                                        //temporary code, use block not possible here
-                                                                        let unsafeHandler = new HttpClientHandler() 
-                                                                        unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
-                                                                        let unsafeClient = new HttpClient(unsafeHandler)
-                                                                        unsafeClient
-                                                                    )
+                                                    config_transformHttpClient
+                                                        (fun unsafeClient //Option.ofNull je tady komplikovane, neb je to uvnitr CE, nechame to na try-with
+                                                            ->
+                                                            //temporary code, use block not possible here
+                                                            let unsafeHandler = new HttpClientHandler() 
+                                                            unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)
+                                                            let unsafeClient = new HttpClient(unsafeHandler)
+                                                            unsafeClient
+                                                        )
 
-                                                                header "User-Agent" "FsHttp/Android7.1"
-                                                            }                                          
-
-                                            let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
-                                            let! response = (getUnsafe >> Request.send <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
-
-                                            return Ok response         
-                                        }                       
-
-                                match response with
-                                | Ok response
-                                    ->      
-                                    use response = response  
+                                                    header "User-Agent" "FsHttp/Android7.1"
+                                                }                                          
+                                //TOCTOU race -> try-with will catch
+                                //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
+                                use response = (getUnsafe >> Request.send <| uri) //Option.ofNull tady neni treba                                    
                         
-                                    match response.statusCode with        //TODO logfile
-                                    | HttpStatusCode.OK                  -> Ok <| response.SaveFile pathToFile                                                                             
-                                    | HttpStatusCode.BadRequest          -> Error BadRequest  
-                                    | HttpStatusCode.InternalServerError -> Error InternalServerError
-                                    | HttpStatusCode.NotImplemented      -> Error NotImplemented
-                                    | HttpStatusCode.ServiceUnavailable  -> Error ServiceUnavailable
-                                    | HttpStatusCode.NotFound            -> Error NotFound
-                                    | _                                  -> Error CofeeMakerUnavailable
-                                                                 
-                                | Error err 
-                                    -> 
-                                    runIO (postToLog <| err <| "#030")
-                                    Error ConnectionError   
-                           
+                                match response.statusCode with        //TODO logfile
+                                | HttpStatusCode.OK                  -> Ok <| response.SaveFile pathToFile                                                                             
+                                | HttpStatusCode.BadRequest          -> Error BadRequest  
+                                | HttpStatusCode.InternalServerError -> Error InternalServerError
+                                | HttpStatusCode.NotImplemented      -> Error NotImplemented
+                                | HttpStatusCode.ServiceUnavailable  -> Error ServiceUnavailable
+                                | HttpStatusCode.NotFound            -> Error NotFound
+                                | _                                  -> Error CofeeMakerUnavailable
+                               
                             with                                                         
                             | ex
                                 ->

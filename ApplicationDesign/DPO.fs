@@ -13,6 +13,7 @@ open Types.ErrorTypes
 open Types.Grid3Algebra
 open Types.Haskell_IO_Monad_Simulation
 
+open Helpers
 open Helpers.Builders
 
 open Api.Logging
@@ -89,27 +90,25 @@ module WebScraping_DPO =
                             runIO (postToLog <| string ex.Message <| "#010")
                             Error FileDownloadErrorMHD //dpoMsg1
 
-                    | FilterDownloadSave   
-                        ->     
-                        //try-with nutny pro FSharp.Data.HtmlDocument.Load url v DPO-BL.fs
-                        try                     
-                            let pathToSubdir =
-                                dirList pathToDir 
-                                |> List.tryHead 
-                                |> Option.defaultValue String.Empty
-                                in
-                                match pathToSubdir |> Directory.Exists with 
-                                | false ->
-                                        runIO (postToLog <| FileDeleteErrorMHD <| "#011-1")  
-                                        Error FileDeleteErrorMHD                             
-                                | true  -> 
-                                        let filterTmtb = environment.FilterTimetables pathToSubdir                                     
-                                        runIO <| environment.DownloadAndSaveTimetables reportProgress token filterTmtb 
+                    | FilterDownloadSave ->     
+                        try       
+                            dirList pathToDir
+                            |> List.tryHead
+                            |> Option.toResult "No subdirectory found in dirList (#011-0)"
+                            |> function
+                                | Ok pathToSubdir 
+                                    -> 
+                                    let filterTmtb = environment.FilterTimetables pathToSubdir                                     
+                                    runIO <| environment.DownloadAndSaveTimetables reportProgress token filterTmtb 
+                                | Error _
+                                    -> Error FileDownloadErrorMHD                           
                         with
-                        | ex 
-                            ->
+                        | :? DirectoryNotFoundException ->
+                            runIO (postToLog "Timetable directory not found or was deleted" "#011-1")
+                            Error FileDeleteErrorMHD  // nebo lépe: DirectoryMissingErrorMHD
+                        | ex ->
                             runIO (postToLog <| string ex.Message <| "#011")
-                            Error FileDownloadErrorMHD //dpoMsg2    
+                            Error FileDownloadErrorMHD
                        
                 pyramidOfInferno
                     {  

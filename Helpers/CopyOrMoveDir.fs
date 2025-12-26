@@ -22,45 +22,47 @@ module private PathHelpers =
         | File
         | Missing
 
-    let preparePath (what : string) (path : string) : Result<string, string> =
+    let preparePath (context : string) (path : string) : Result<string, string> =
 
         match Option.ofNullEmptySpace path with
         | None 
             -> 
-            Error <| sprintf "%s path is null or empty." what
+            Error <| sprintf "%s path is null or empty." context
         | Some p 
             ->
             try
                 Ok <| Path.GetFullPath p
             with 
-            | ex -> Error <| sprintf "%s path is invalid: %s" what (string ex.Message)
- 
+            | ex -> Error <| sprintf "%s path is invalid: %s" context (string ex.Message)
+                 
     let detectPathKind (fullPath : string) : Result<PathKind, string> =
-       
-        try
-            let dirExists = Directory.Exists fullPath
-            let fileExists = File.Exists fullPath
 
-            match dirExists, fileExists with
-            | true, false 
-                -> 
-                Ok Dir
-            | false, true 
-                ->
-                Ok File
-            | true, true
-                ->
-                // extremely rare
-                try
-                    let attrs = File.GetAttributes fullPath
-                    match (attrs &&& FileAttributes.Directory) = FileAttributes.Directory with true -> Ok Dir | false -> Ok File
-                with 
-                | _ -> Ok Dir
-            | false, false 
+        //TOCTOU race -> try-with will catch
+        //let dirExists = Directory.Exists fullPath
+        //let fileExists = File.Exists fullPath
+        
+        match preparePath "Provided" fullPath with
+        | Error e
+            ->
+            Error e
+        | Ok normalizedPath
+            ->
+            try
+                let attrs = File.GetAttributes fullPath
+                match attrs &&& FileAttributes.Directory = FileAttributes.Directory with
+                | true  -> Ok Dir
+                | false -> Ok File
+            with
+            | :? FileNotFoundException
+            | :? DirectoryNotFoundException
                 ->
                 Ok Missing
-        with
-        | ex -> Error (sprintf "Failed inspecting path '%s': %s" <| fullPath <| string ex.Message)
+            | :? UnauthorizedAccessException 
+                ->
+                Error (sprintf "Access denied to path '%s'" normalizedPath)
+            | ex
+                ->
+                Error (sprintf "Failed inspecting path '%s': %s" normalizedPath (string ex.Message))
 
 module MoveDir =
    
@@ -73,33 +75,45 @@ module MoveDir =
 
     let private prepareMoveFolder source = PathHelpers.preparePath "Source" source
 
+    let private preparePath (context : string) (path : string) : Result<string, string> =
+
+        match Option.ofNullEmptySpace path with
+        | None 
+            -> 
+            Error <| sprintf "%s path is null or empty." context
+        | Some p 
+            ->
+            try
+                Ok <| Path.GetFullPath p
+            with 
+            | ex -> Error <| sprintf "%s path is invalid: %s" context (string ex.Message)
+
     let private moveFile (source : string) (target : string) : Result<unit, string> =
 
-        try
-            //IO Monad for educational purposes only, could be just File.Delete and File.Move calls
-            let fileDelete () = primIO <| fun () -> File.Delete target
-            let fileMove () = primIO <| fun () -> File.Move(source, target)     
-
-            match (File.Exists target) with
-            | true 
-                ->
-                runIOMonad <| IOMonad 
-                    {                       
-                        do! fileDelete ()
-                        do! fileMove ()
-                        return Ok ()
-                    } 
-                    
-            | false 
-                ->
-                runIOMonad <| IOMonad 
-                    {
-                        do! fileMove ()
-                        return Ok ()
-                    } 
-               
-        with 
-        | ex -> Error <| string ex.Message
+        result
+            {
+                let! sourceFull = preparePath "source" source
+                let! targetFull = preparePath "target" target
+    
+                match sourceFull = targetFull with
+                | true  ->
+                        return ()  
+                | false ->
+                        let moveAction : IO_Monad<unit> =  //tohle je lazy, takze se to neprovede hned
+                            IOMonad
+                                {
+                                    return! primIO (fun () -> File.Move(sourceFull, targetFull, overwrite = true)) //overwrite = true -> fileDelete () + fileMove () 
+                                }
+    
+                        try
+                            runIOMonad moveAction
+                            return ()
+                        with 
+                        | ex
+                            ->
+                            return!
+                                Error (sprintf "Failed to move file from '%s' to '%s': %s" sourceFull targetFull (string ex.Message))
+            }
 
     let private moveEntry source target  =
 
@@ -152,7 +166,7 @@ module MoveDir =
             try
                 Path.GetRelativePath(basePath, entry)
                 |> Option.ofNullEmpty
-                |> Result.fromOption
+                |> Option.toResult "Failed getting relative path"
             with 
             | ex -> Error (sprintf "Failed getting relative path: %s" <| string ex.Message)
 
@@ -168,7 +182,7 @@ module MoveDir =
                             let! dest =
                                 Path.Combine(target, relative)
                                 |> Option.ofNullEmpty
-                                |> Result.fromOption
+                                |> Option.toResult "Failed getting combined path"
                             
                             return! moveEntry entry dest 
                         }
@@ -186,7 +200,7 @@ module MoveDir =
                             let! targetDirName =
                                 Path.GetFileName(preparedSource.TrimEnd(Path.DirectorySeparatorChar))
                                 |> Option.ofNullEmpty
-                                |> Result.fromOption
+                                |> Option.toResult "Failed getting file name"
 
                             let target = Path.Combine(targetParent, targetDirName)
 
@@ -242,118 +256,115 @@ module CopyDir =
 
     let private copyEntry source (destination : string) overwrite =
 
-        let tryCopyEntry () = 
-
-            match PathHelpers.preparePath "Source" source with
-           
-            | Ok fullSource
-                ->
-                match PathHelpers.detectPathKind fullSource with
-                | Ok PathHelpers.Dir
-                    ->
-                    Directory.CreateDirectory destination |> ignore<DirectoryInfo>
-                    Ok ()
-
-                | Ok PathHelpers.File
-                    ->
-                    Path.GetDirectoryName destination
-                    |> Option.ofNullEmpty
-                    |> Result.fromOption
-                    |> Result.bind 
-                        (fun dir 
-                            ->
-                            Directory.CreateDirectory dir |> ignore<DirectoryInfo>
-
-                            match (File.Exists destination, overwrite) with
-                            | (true, true) 
+            result
+                {
+                    let! fullSource = PathHelpers.preparePath "Source" source
+        
+                    match Path.GetDirectoryName destination |> Option.ofNullEmptySpace with
+                    | None 
+                        -> 
+                        return! Error "Destination path has no directory part."
+                    | Some destDir
+                        ->
+                        Directory.CreateDirectory destDir |> ignore
+        
+                    try
+                        File.Copy(fullSource, destination, overwrite)
+                        return ()
+                    with 
+                    | ex 
+                        ->
+                        return!
+                            Error
+                            <| 
+                            match ex with
+                            | :? FileNotFoundException 
+                            | :? DirectoryNotFoundException 
                                 ->
-                                File.Copy(fullSource, destination, true)
-                                Ok ()
-                            | (false, _) 
+                                sprintf "Source not found or inaccessible: %s" fullSource
+                            | :? UnauthorizedAccessException 
                                 ->
-                                File.Copy(fullSource, destination, false)
-                                Ok ()
-                            | (true, false) 
-                                -> 
-                                Ok ()
-                        )
+                                sprintf "Access denied when copying '%s' to '%s'" fullSource destination
+                            | _ when (string ex.Message).Contains("used by another process") || (string ex.Message).Contains("being used") 
+                                ->
+                                sprintf "File is in use: %s" destination
+                            | _ ->
+                                sprintf "Failed to copy '%s' to '%s': %s" fullSource destination (string ex.Message)                       
+                }
 
-                | Ok PathHelpers.Missing 
-                    ->
-                    Error (sprintf "Invalid path (does not exist): %s" fullSource)
-
-                | Error e -> Error e
-
-            | Error e -> Error e
-
-        try
-            tryCopyEntry ()
-        with 
-        | ex -> Error <| string ex.Message
-
-    let internal copyDirectory source targetParent mode overwriteOption =
-
-        let relativePath basePath entry =
-
-            try
-                Path.GetRelativePath(basePath, entry)
-                |> Option.ofNullEmpty
-                |> Result.fromOption
-            with 
-            | ex -> Error (sprintf "Failed getting relative path: %s" <| string ex.Message)
-
+    let internal copyDirectory source targetParent mode overwriteOption : IO<Result<unit,string>> =
         IO (fun ()
-                ->
+              ->
                 try
-                    pyramidOfInferno
+                    result
                         {
                             let resolvePath =
                                 match mode with
                                 | 0 -> prepareMoveEntireFolder
                                 | 1 -> prepareMoveContentOnly
                                 | _ -> fun _ -> Error "Invalid mode"
-
-                            let! preparedSource = resolvePath source, fun err -> Error err
-
-                            let! pathCombine1 =
-                                Path.Combine(targetParent, Path.GetFileName(preparedSource.TrimEnd(Path.DirectorySeparatorChar)))
-                                |> Option.ofNullEmpty
-                                |> Result.fromOption, fun err -> Error err
-
-                            let target =
+    
+                            let! preparedSource = resolvePath source
+    
+                            let! target =
                                 match mode with
-                                | 0 -> pathCombine1
-                                | 1 -> targetParent
-                                | _ -> targetParent                       
-
-                            let pathCombine2 relative =
-                                Path.Combine(target, relative)
-                                |> Option.ofNullEmpty
-                                |> Result.fromOption
-
-                            Directory.CreateDirectory target |> ignore<DirectoryInfo>
-
-                            return
-                                Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories)
-                                |> Seq.map 
+                                | 0 ->
+                                    result 
+                                        {
+                                            let! folderName =
+                                                Path.GetFileName(preparedSource.TrimEnd(Path.DirectorySeparatorChar))
+                                                |> Option.ofNullEmpty
+                                                |> Option.toResult "Failed getting folder name"
+                    
+                                            let! combined =
+                                                Path.Combine(targetParent, folderName)
+                                                |> Option.ofNullEmpty
+                                                |> Option.toResult "Failed combining path"
+                    
+                                            return combined
+                                        }
+                                | 1 -> 
+                                    Ok targetParent
+                                | _ ->
+                                    Error "Invalid mode"
+    
+                            Directory.CreateDirectory target |> ignore
+    
+                            let entries = Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories)
+    
+                            let errors =
+                                entries
+                                |> Seq.map
                                     (fun entry 
                                         ->
                                         result 
                                             {
-                                                let! relative = relativePath preparedSource entry
-                                                let! dest = pathCombine2 relative
-
+                                                let! relative = 
+                                                    try
+                                                        Path.GetRelativePath(preparedSource, entry)
+                                                        |> Option.ofNullEmpty
+                                                        |> Option.toResult "Failed getting relative path"
+                                                    with 
+                                                    | ex -> Error (sprintf "Failed getting relative path: %s" ex.Message)
+    
+                                                let! dest = 
+                                                    Path.Combine(target, relative)
+                                                    |> Option.ofNullEmpty
+                                                    |> Option.toResult "Failed getting destination path"
+    
                                                 return! copyEntry entry dest overwriteOption
                                             }
-                                    )
+                                )
                                 |> Seq.toList
-                                |> List.choose (function Error e -> Some e | _ -> None)
-                                |> function
-                                    | []     -> Ok ()
-                                    | errors -> Error (String.concat "; " errors)
+                                |> List.choose (function Error e -> Some e | Ok _ -> None)
+    
+                            return!
+                                match errors with
+                                | []   -> Ok ()
+                                | errs -> Error <| String.concat "; " errs
                         }
                 with
-                | ex -> Error <| string ex.Message
+                | ex -> Error <| sprintf "Unexpected exception in copyDirectory: %s" (string ex.Message)
         )
 
 module CopyDir2 =

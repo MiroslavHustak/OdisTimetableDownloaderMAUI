@@ -4,6 +4,9 @@ open System.IO
 
 //***************************
 
+open FsToolkit.ErrorHandling
+
+
 open Types
 open Types.Types
 
@@ -80,18 +83,14 @@ module FreeMonadInterpret =
 
         | Free (SourceFilepath next) 
             ->
-            let sourceFilepath source =      
-            
+            let sourceFilepath (source: string) : Result<string,string> =
                 try
-                    pyramidOfDoom
+                    result
                         {
-                            let! value = Path.GetFullPath source |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s #301" source   
-                            let! value = 
-                                (
-                                    let dInfodat : DirectoryInfo = DirectoryInfo value   
-                                    Option.fromBool value dInfodat.Exists
-                                ), Error <| sprintf "Zdrojový adresář %s neexistuje #302" value
-                            return Ok value
+                            return!
+                                Path.GetFullPath source
+                                |> Option.ofNullEmpty
+                                |> Option.toResult (sprintf "Chyba při čtení cesty k %s #301" source)
                         }
                 with
                 | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s #303" source (string ex.Message)
@@ -102,17 +101,13 @@ module FreeMonadInterpret =
             ->
             let destinFilepath destination =  
                 try
-                    pyramidOfDoom
+                    result
                         {
-                            let! value = Path.GetFullPath destination |> Option.ofNullEmpty, Error <| sprintf "Chyba při čtení cesty k %s #304" destination                        
-                            let! value = 
-                                (
-                                    let dInfodat : DirectoryInfo = DirectoryInfo value   
-                                    Option.fromBool value dInfodat.Exists
-                                ), Error <| sprintf "Chyba při čtení cesty k %s #305" value
-                        
-                            return Ok value
-                        }
+                            return!
+                                Path.GetFullPath destination
+                                |> Option.ofNullEmpty
+                                |> Option.toResult (sprintf "Chyba při čtení cesty k %s #305" destination)
+                        }                    
                 with
                 | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s #306" destination (string ex.Message)
 

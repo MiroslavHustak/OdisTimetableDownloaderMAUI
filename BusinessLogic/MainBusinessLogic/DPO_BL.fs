@@ -145,71 +145,53 @@ module DPO_BL =
                             async //API of HttpClient is async based
                                 {                      
                                     try         
-                                        let client =                             
-                                            pyramidOfDoom
-                                                {
-                                                    let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
-                                                    let! client = new HttpClient() |> Option.ofNull, Error String.Empty
+                                        // not <| File.Exists pathToFile TOCTOU race -> try-with will catch
+                                        use client = new HttpClient()
+                                        client.Timeout <- TimeSpan.FromSeconds 30.0
+                                        client.DefaultRequestHeaders.UserAgent.ParseAdd "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
 
-                                                    client.Timeout <- TimeSpan.FromSeconds <| float 30 //timeoutInSeconds
-
-                                                    return Ok client        
-                                                }
-                        
-                                        match client with  
-                                        | Ok client
-                                            ->  
-                                            use client = client
-
-                                            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-
-                                            let existingFileLength =                               
-                                                runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                |> function
-                                                    | Some _ -> (FileInfo pathToFile).Length
-                                                    | None   -> 0L
+                                        let existingFileLength =     
+                                            // TOCTOU race problem is negligible here as the value is only for the Windows Machine mode / resuming downloads
+                                            // Resuming downloading does not work under Android OS
+                                            runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                            |> function
+                                                | Some _ -> (FileInfo pathToFile).Length
+                                                | None   -> 0L
                                                     
-                                            let headerContent1 = "Range" 
-                                            let headerContent2 = sprintf "bytes=%d-" existingFileLength   
+                                        let headerContent1 = "Range" 
+                                        let headerContent2 = sprintf "bytes=%d-" existingFileLength   
 
-                                            match existingFileLength > 0L with
-                                            | true  -> client.DefaultRequestHeaders.Add(headerContent1, headerContent2)
-                                            | false -> ()
+                                        match existingFileLength > 0L with
+                                        | true  -> client.DefaultRequestHeaders.Add(headerContent1, headerContent2)
+                                        | false -> ()
                              
-                                            use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask 
+                                        use! response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token) |> Async.AwaitTask 
                           
-                                            match response.IsSuccessStatusCode with
-                                            | true  ->
-                                                    let pathToFile = pathToFile.Replace("?", String.Empty)
+                                        match response.IsSuccessStatusCode with
+                                        | true  ->
+                                                let pathToFile = pathToFile.Replace("?", String.Empty)
 
-                                                    //use fileStream = new FileStream(pathToFile, FileMode.CreateNew) 
+                                                //use fileStream = new FileStream(pathToFile, FileMode.CreateNew) 
                                     
-                                                    use fileStream =
-                                                        match existingFileLength > 0L with 
-                                                        | true  -> new FileStream(pathToFile, FileMode.Append) 
-                                                        | false -> new FileStream(pathToFile, FileMode.CreateNew)
+                                                use fileStream =
+                                                    match existingFileLength > 0L with 
+                                                    | true  -> new FileStream(pathToFile, FileMode.Append) 
+                                                    | false -> new FileStream(pathToFile, FileMode.CreateNew)
 
-                                                    let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
-                                                    do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
+                                                let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
+                                                do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                     
-                                                    return Ok ()
+                                                return Ok ()
 
-                                            | false ->     
-                                                    use client = client
-
-                                                    return 
-                                                        match response.StatusCode with
-                                                        | HttpStatusCode.BadRequest          -> Error BadRequest
-                                                        | HttpStatusCode.InternalServerError -> Error InternalServerError
-                                                        | HttpStatusCode.NotImplemented      -> Error NotImplemented
-                                                        | HttpStatusCode.ServiceUnavailable  -> Error ServiceUnavailable
-                                                        | HttpStatusCode.NotFound            -> Error NotFound
-                                                        | _                                  -> Error CofeeMakerUnavailable 
-                           
-                                        | Error err 
-                                            -> 
-                                            runIO (postToLog <| err <| "#034")
-                                            return Error ConnectionError   
+                                        | false ->     
+                                                return 
+                                                    match response.StatusCode with
+                                                    | HttpStatusCode.BadRequest          -> Error BadRequest
+                                                    | HttpStatusCode.InternalServerError -> Error InternalServerError
+                                                    | HttpStatusCode.NotImplemented      -> Error NotImplemented
+                                                    | HttpStatusCode.ServiceUnavailable  -> Error ServiceUnavailable
+                                                    | HttpStatusCode.NotFound            -> Error NotFound
+                                                    | _                                  -> Error CofeeMakerUnavailable                            
                            
                                     with                                                         
                                     | ex

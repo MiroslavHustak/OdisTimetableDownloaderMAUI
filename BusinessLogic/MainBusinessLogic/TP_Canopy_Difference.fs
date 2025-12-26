@@ -31,22 +31,11 @@ module TP_Canopy_Difference =
         let fileNames pathToFile =
 
             IO (fun () 
-                    ->
+                    ->  // TOCTOU race problem with .Exists -> removed
                     try
-                        //nelze checkFileCondition
-                        (*
-                            •	If checkFileCondition returns None (e.g., the file does not exist or the condition fails), then fileNames always returns Set.empty<string>.
-                            •	This means your results will be empty if the condition is not met, even if the directory exists and contains files.
-                        *)
-                        runIO <| checkDirectoryCondition pathToFile (fun dirInfo -> dirInfo.Exists)
-                        |> Option.map 
-                            (fun _
-                                ->
-                                Directory.EnumerateFiles pathToFile
-                                |> Seq.map Path.GetFileName
-                                |> Set.ofSeq
-                            )
-                        |> Option.defaultValue Set.empty<string>
+                        Directory.EnumerateFiles pathToFile
+                        |> Seq.map Path.GetFileName
+                        |> Set.ofSeq
                     with
                     | ex 
                         ->
@@ -57,11 +46,9 @@ module TP_Canopy_Difference =
         let getDirNames pathToDir =
 
             IO (fun () 
-                    ->
+                    ->  // TOCTOU race problem with .Exists -> removed
                     try
-                        runIO <| checkDirectoryCondition pathToDir (fun dirInfo -> dirInfo.Exists)
-                        |> Option.map (fun _ -> Directory.EnumerateDirectories pathToDir)
-                        |> Option.defaultValue Set.empty<string>
+                        Directory.EnumerateDirectories pathToDir
                     with
                     | ex 
                         ->

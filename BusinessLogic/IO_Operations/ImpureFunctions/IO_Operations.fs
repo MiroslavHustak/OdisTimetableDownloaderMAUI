@@ -3,6 +3,8 @@
 open System.IO
 open System.Threading
 
+open FsToolkit.ErrorHandling    
+
 //************************************************************
 
 open Types
@@ -135,7 +137,7 @@ module IO_Operations =
                 ->  
                 let dirInfo = DirectoryInfo oldTimetablesPath
 
-                match dirInfo.Exists with
+                match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
                 | true
                     -> 
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
@@ -147,11 +149,11 @@ module IO_Operations =
                           
     let internal deleteOld4 () = //Async.Catch is in App.fs
 
-        IO (fun () 
+        IO (fun () //Time-of-Check-To-Time-Of-Use TOCTOU   
                 ->  
                 let dirInfo = DirectoryInfo oldTimetablesPath4
 
-                match dirInfo.Exists with
+                match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
                 | true
                     -> 
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
@@ -213,10 +215,9 @@ module IO_Operations =
                         ]        
                         |> List.iter
                             (fun pathDir 
-                                ->
-                                match Directory.Exists pathDir with
-                                | true  -> () 
-                                | false -> Directory.CreateDirectory pathDir |> ignore<DirectoryInfo> 
+                                -> 
+                                // If the directory already exists, nothing happens — no exception, no overwrite, no change.
+                                Directory.CreateDirectory pathDir |> ignore<DirectoryInfo>
                             )
                         |> Ok  
                     with 
@@ -227,17 +228,16 @@ module IO_Operations =
                 | false 
                     -> 
                     Error <| PdfError NoPermissionError //jen quli dodrzeni typu, neni tra robit vubec nic
-    )
+        )
 
     let internal createTP_Canopy_Folder pathDir = 
 
         IO (fun () 
                 ->  
-                try           
-                    match Directory.Exists pathDir with
-                    | true  -> () 
-                    | false -> Directory.CreateDirectory pathDir |> ignore<DirectoryInfo> 
-              
+                try   
+                    // If the directory already exists, nothing happens — no exception, no overwrite, no change.
+                    Directory.CreateDirectory pathDir
+                    |> ignore<DirectoryInfo>              
                     |> Ok  
                 with 
                 | ex
@@ -246,58 +246,37 @@ module IO_Operations =
                     Error <| PdfError CreateFolderError2   
         )
 
-    let internal moveFolders source destination err1 err2 = 
-    
-        IO (fun () 
+    let internal moveFolders source destination err1 err2 =
+
+        IO (fun ()
                 ->
-                pyramidOfInferno
+                result
                     {
-                        let! _ = 
-                            Directory.Exists source |> Result.fromBool () err1,
-                                fun _ -> Ok ()   
-                        
-                        let! _ =
-                            Directory.Exists destination |> Result.fromBool () err2,
-                                fun _ 
-                                    ->
-                                    try
-                                        pyramidOfInferno 
-                                            {
-                                                let! _ =    
-                                                    let dirInfo = Directory.CreateDirectory destination
-                                                    Thread.Sleep 1000 //wait for the directory to be created  
+                        try
+                            Directory.CreateDirectory destination |> ignore<DirectoryInfo>
+                        with 
+                        | ex
+                            ->
+                            runIO (postToLog (string ex.Message) "#444-create-dest")
+                            return! Error err2
     
-                                                    dirInfo.Exists |> Result.fromBool () err2,
-                                                        fun _
-                                                            ->
-                                                            runIO (postToLog <| err2 <| "#444-1")
-                                                            Error err2
-                                                let! _ =
-                                                    runFreeMonad
-                                                    <|
-                                                    copyOrMoveFiles { source = source; destination = destination } Move,
-                                                        fun _ 
-                                                            ->
-                                                            runIO (postToLog <| err2 <| "#444-2")
-                                                            Error err2
-                                
-                                                return Ok ()
-                                            }                                 
-                                    with 
-                                    | ex 
-                                        ->
-                                        runIO (postToLog <| string ex.Message <| "#444-3")
-                                        Error err2                       
-               
-                        let! _ = 
-                            runFreeMonad 
+                        do!
+                            runFreeMonad
                             <| 
-                            copyOrMoveFiles { source = source; destination = destination } Move,   
-                                fun err
+                            copyOrMoveFiles { source = source; destination = destination } Move
+                            |> Result.mapError 
+                                (fun moveErr
                                     ->
-                                    runIO (postToLog <| err <| "#444-48")
-                                    Error err2
-                             
-                        return Ok ()
-                    } 
-        )
+                                    runIO (postToLog moveErr "#444-move-files")
+                                    err2  
+                                )
+    
+                        return ()
+                    }
+                |> Result.mapError 
+                    (fun finalErr 
+                        ->
+                        runIO (postToLog (string finalErr) "#444-final-error")
+                        finalErr
+                    )  
+    )

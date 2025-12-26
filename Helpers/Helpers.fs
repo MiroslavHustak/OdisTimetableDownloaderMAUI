@@ -69,66 +69,74 @@ module DirFileHelper =
   
     let [<Literal>] internal jsonEmpty = """[ {} ]"""
 
+    let private safeFullPath path =
+        try
+            Path.GetFullPath path |> Option.ofNullEmpty
+        with
+        | _ -> None 
+
     let internal writeAllText path content =
 
         IO (fun () 
-                ->  
-                pyramidOfDoom
-                    {
-                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
-                        let fInfoDat = FileInfo filepath
-                        let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+                -> 
+                try
+                    result
+                        {
+                            let! filepath = safeFullPath path |> Option.toResult "Failed getting path"                           
+                            return File.WriteAllText(filepath, content)
+                        }   
+                with
+                | ex -> Error <| string ex.Message   
 
-                        return Ok <| File.WriteAllText(filepath, content)
-                    }
-                |> Result.defaultValue ()
+                |> Result.defaultValue () //Predelat pro konkretni pripad
         )
 
     let internal writeAllTextAsync path content =
 
         IO (fun () 
-                ->  
-                pyramidOfDoom
-                    {
-                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
-                        let fInfoDat = FileInfo filepath
-                        let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
-    
-                        return Ok (File.WriteAllTextAsync(filepath, content) |> Async.AwaitTask)
-                    }
-                |> Result.defaultWith (fun _ -> async { return () }) 
+                -> 
+                try
+                    result
+                        {
+                            let! filepath = safeFullPath path  |> Option.toResult "Failed getting path"                            
+                            return File.WriteAllTextAsync(filepath, content) |> Async.AwaitTask
+                        }   
+                with
+                | ex -> Error <| string ex.Message   
+
+                |> Result.defaultWith (fun _ -> async { return () }) //Predelat pro konkretni pripad
         )   
 
     let internal readAllText path = 
 
         IO (fun () 
                 ->  
-                pyramidOfDoom
-                    {
-                        //path je sice casto pod kontrolou a filepath nebude null, nicmene pro jistotu...  
-                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError                                                
-                        let fInfoDat = FileInfo filepath
-                        let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+                try
+                    result
+                        {
+                            let! filepath = safeFullPath path  |> Option.toResult "Failed getting path"                            
+                            return File.ReadAllText filepath    
+                        }   
+                with
+                | ex -> Error <| string ex.Message   
 
-                        return Ok <| File.ReadAllText filepath                                           
-                    }              
-                |> Result.defaultValue jsonEmpty //TODO logfile, nestoji to za to vytahovat Result nahoru     
+                |> Result.defaultValue jsonEmpty //Tohle je pro parsing jsonu se specialni logikou, pro jine pripady upravit
         )
                     
     let internal readAllTextAsync path = 
 
         IO (fun () 
                 -> 
-                pyramidOfDoom
-                    {   
-                        //path je sice casto pod kontrolou a filepath nebude null, nicmene pro jistotu...  
-                        let! filepath = Path.GetFullPath path |> Option.ofNullEmpty, Error JsonDownloadError
-                        let fInfoDat = FileInfo filepath
-                        let! _ = fInfoDat.Exists |> Option.ofBool, Error JsonDownloadError
+                try
+                    result
+                        {
+                            let! filepath = safeFullPath path  |> Option.toResult "Failed getting path"                            
+                            return File.ReadAllTextAsync filepath |> Async.AwaitTask  
+                        }   
+                with
+                | ex -> Error <| string ex.Message   
 
-                        return Ok (File.ReadAllTextAsync filepath |> Async.AwaitTask)                                          
-                    }             
-                |> Result.defaultWith (fun _ -> async { return jsonEmpty }) //TODO logfile, nestoji to za to vytahovat Result nahoru
+                |> Result.defaultWith (fun _ -> async { return jsonEmpty }) //Tohle je pro parsing jsonu se specialni logikou, pro jine pripady upravit
         )
 
     //not used yet

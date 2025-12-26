@@ -104,54 +104,46 @@ module Logging =
     #if WINDOWS   
 
     let internal saveJsonToFileAsync () =
-        
+
         IO (fun () 
                 ->
-                let checkFileSize () =
-            
-                    try
-                        (Path.GetFullPath logFileName)
-                        |> Option.ofNullEmpty 
-                        |> Option.map
-                            (fun path
-                                ->                   
-                                let fileInfo = FileInfo path
-            
-                                let sizeKb = 
-                                    match fileInfo.Exists with
-                                    | true  -> fileInfo.Length / 1024L  //abychom dostali hodnotu v KB
-                                    | false -> 0L
-                        
-                                match (<) sizeKb <| int64 maxFileSizeKb with
-                                | true  -> ()
-                                | false -> fileInfo.Delete()
-            
-                                sizeKb
-                            )
-            
-                    with
-                    | _ -> None
-                
-                
-                try
-                    asyncResult
-                        {
-                            let! _ = checkFileSize () |> Option.toResult "Oversized file deleted"
-                                       
-                            let! logEntries = 
-                                getLogEntriesFromRestApi >> runIO <| urlLogging
-                                |> AsyncResult.mapError (fun _ -> "Chyba při čtení logEntries z KODIS API (kodis.somee)")                                    
-
-                            let! filepath =
+                asyncResult 
+                    {
+                        try
+                            let! path =
                                 Path.GetFullPath logFileName
                                 |> Option.ofNullEmpty
-                                |> Option.toResult "Invalid path"                                     
-                                                  
-                            use writer = new StreamWriter(filepath, append = true)
+                                |> Option.toResult "Invalid path"
 
-                            return! writer.WriteLineAsync logEntries |> Async.AwaitTask
-                        }
-                with
-                | ex -> async { return Error <| string ex.Message }
-    )     
+                            let! logEntries =
+                                getLogEntriesFromRestApi >> runIO <| urlLogging
+                                |> AsyncResult.mapError
+                                    (fun _ -> "Chyba při čtení logEntries z KODIS API (kodis.somee)"
+                                )
+
+                            let fs =
+                                new FileStream(
+                                    path,
+                                    FileMode.OpenOrCreate,
+                                    FileAccess.Write,
+                                    FileShare.None
+                                )
+                            try 
+                                let maxBytes = int64 maxFileSizeKb * 1024L
+
+                                match fs.Length > maxBytes with
+                                | true  -> fs.SetLength 0L  //truncating oversized file
+                                | false -> ()
+
+                                fs.Seek(0L, SeekOrigin.End) |> ignore<int64>
+
+                                use writer = new StreamWriter(fs)
+                                do! writer.WriteLineAsync logEntries |> Async.AwaitTask
+                            finally                        
+                                fs.Dispose()
+                        with
+                        | ex-> return! Error <| string ex.Message 
+                    }
+        )
+
     #endif

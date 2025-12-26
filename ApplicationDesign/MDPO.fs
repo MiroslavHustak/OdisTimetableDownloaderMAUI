@@ -13,6 +13,7 @@ open Types.ErrorTypes
 open Types.Grid3Algebra
 open Types.Haskell_IO_Monad_Simulation
 
+open Helpers
 open Helpers.Builders
 
 open Api.Logging
@@ -91,24 +92,28 @@ module WebScraping_MDPO =
                         | ex 
                             -> 
                             runIO (postToLog <| string ex.Message <| "#007")
-                            Error FileDownloadErrorMHD //dpoMsg1
+                            Error FileDownloadErrorMHD //dpoMsg1                  
            
-                    | FilterDownloadSave   //Quli problemum s certifikatem www.mdpo.cz zatim try with bloky vsade, kaj se da
+                    | FilterDownloadSave   
                         ->                                      
-                        try                     
-                            let pathToSubdir =
-                                dirList pathToDir 
-                                |> List.tryHead 
-                                |> Option.defaultValue String.Empty
-                                in
-                                match pathToSubdir |> Directory.Exists with 
-                                | false ->
-                                        runIO (postToLog <| FileDeleteErrorMHD <| "#008-1")
-                                        Error FileDeleteErrorMHD                             
-                                | true  -> 
-                                        let filterTmtb = environment.SafeFilterTimetables pathToSubdir token
-                                        runIO <| environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb    
+                        try        
+                            dirList pathToDir
+                            |> List.tryHead
+                            |> Option.toResult "No subdirectory found in dirList (#008-1)"
+                            |> function
+                                | Ok pathToSubdir 
+                                    -> 
+                                    let filterTmtb = environment.SafeFilterTimetables pathToSubdir token
+                                    runIO <| environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb    
+                                | Error _
+                                    -> 
+                                    Error FileDownloadErrorMHD  
                         with
+                        | :? DirectoryNotFoundException 
+                            ->
+                            runIO (postToLog "Timetable directory not found or was deleted" "#008")
+                            Error FileDeleteErrorMHD  
+
                         | ex 
                             when (string ex.Message).Contains "Timeout exceeded while getting response"
                             ->
@@ -124,36 +129,31 @@ module WebScraping_MDPO =
                                     dirList pathToDir 
                                     |> List.tryHead 
                                     |> Option.defaultValue String.Empty
-                                    in
-                                    match pathToSubdir |> Directory.Exists with 
-                                    | false ->
-                                            runIO (postToLog <| FileDeleteErrorMHD <| "#009-1") 
-                                            Error FileDeleteErrorMHD                             
-                                    | true  ->                                             
-                                            let filterTmtb = environment.UnsafeFilterTimetables pathToSubdir token  
+                                                                   
+                                let filterTmtb = environment.UnsafeFilterTimetables pathToSubdir token  
                                     
-                                            (runIO <| environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb)
-                                            |> function
-                                                | Ok _     
-                                                    ->                                                         
-                                                    try
-                                                        let dirInfo = DirectoryInfo pathToDir                                                       
-                                                            in
-                                                            dirInfo.EnumerateFiles() 
-                                                            |> Seq.length
-                                                            |> function
-                                                                | 0 -> Error <| TestDuCase "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace."
-                                                                | _ -> Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
-                                                    with 
-                                                    | ex 
-                                                        ->
-                                                        Error <| TestDuCase (string ex.Message)    
+                                (runIO <| environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb)
+                                |> function
+                                    | Ok _     
+                                        ->                                                         
+                                        try
+                                            let dirInfo = DirectoryInfo pathToDir                                                       
+                                                in
+                                                dirInfo.EnumerateFiles() 
+                                                |> Seq.length
+                                                |> function
+                                                    | 0 -> Error <| TestDuCase "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace."
+                                                    | _ -> Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
+                                        with 
+                                        | ex 
+                                            ->
+                                            Error <| TestDuCase (string ex.Message)    
                                                     
-                                                | Error err
-                                                    ->
-                                                    runIO (postToLog <| err <| "#009-2") 
-                                                    Error err       
-                                            //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
+                                    | Error err
+                                        ->
+                                        runIO (postToLog <| err <| "#009-2") 
+                                        Error err       
+                                //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
                             with
                             | ex 
                                 ->

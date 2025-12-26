@@ -58,39 +58,46 @@ module KODIS_BL_Record =
                             counterAndProgressBar.Post <| Inc 1                           
                             
                             token.ThrowIfCancellationRequested ()                            
-                                                                    
-                            let existingFileLength =                               
-                                runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                |> function
-                                    | Some _ -> (FileInfo pathToFile).Length
-                                    | None   -> 0L
                             
-                            let get uri = 
+                            let existingFileLength = 
+                                try
+                                    let fileInfo = FileInfo pathToFile
+                                    match fileInfo.Exists with  //TOCTOU tady bude vzdy, dle copilota tato verze je nejmensi problem
+                                    | true  -> fileInfo.Length
+                                    | false -> 0L
+                                                   
+                                with
+                                |_ -> 0L
 
-                                let headerContent1 = "Range" 
-                                let headerContent2 = sprintf "bytes=%d-" existingFileLength 
-                          
-                                //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
-                                match existingFileLength > 0L with
-                                | true  -> 
-                                        http
-                                            {
-                                                GET uri
-                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                config_cancellationToken token 
-                                                header "User-Agent" "FsHttp/Android7.1"
-                                                header headerContent1 headerContent2
-                                            }
-                                | false ->
-                                        http
-                                            {
-                                                GET uri
-                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                config_cancellationToken token 
-                                                header "User-Agent" "FsHttp/Android7.1"
-                                            }
+                            let request uri =
+                                match existingFileLength with
+                                | 0L 
+                                    ->
+                                    http
+                                        {
+                                            GET uri
+                                            config_timeoutInSeconds 30
+                                            config_cancellationToken token
+                                            header "User-Agent" "FsHttp/Android7.1"
+                                        }
 
-                            let response = get >> Request.send <| uri                                      
+                                | length when length > 0L
+                                    ->
+                                    http
+                                        {
+                                            GET uri
+                                            config_timeoutInSeconds 30
+                                            config_cancellationToken token
+                                            header "User-Agent" "FsHttp/Android7.1"
+                                            header "Range" (sprintf "bytes=%d-" length)
+                                        } 
+
+                                | _ 
+                                    ->
+                                    runIO (postToLog <| "pathToFileExistCheck failed" <| "#2282-Json")
+                                    http { GET uri }                                                                                                                                    
+                                                   
+                            let response = request >> Request.send <| uri      
                             let statusCode = response.statusCode
                                                  
                             match statusCode with
@@ -215,69 +222,64 @@ module KODIS_BL_Record =
                                             // Artificial checkpoint
                                             token.ThrowIfCancellationRequested () 
     
-                                            let pathToFileExistFirstCheck = 
-                                                runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
-                                                in
-                                                match pathToFileExistFirstCheck with  
-                                                | Some _
-                                                    -> 
-                                                    let existingFileLength =                               
-                                                        runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                        |> function
-                                                            | Some _ -> (FileInfo pathToFile).Length
-                                                            | None   -> 0L
-                                                 
-                                                    let get uri = 
-    
-                                                        let headerContent1 = "Range" 
-                                                        let headerContent2 = sprintf "bytes=%d-" existingFileLength 
-                       
-                                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
-                                                        match existingFileLength > 0L with
-                                                        | true  -> 
-                                                                http
-                                                                    {
-                                                                        GET uri
-                                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token 
-                                                                        header "User-Agent" "FsHttp/Android7.1"
-                                                                        header headerContent1 headerContent2
-                                                                    }
-                                                        | false ->
-                                                                http
-                                                                    {
-                                                                        GET uri
-                                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                        config_cancellationToken token 
-                                                                        header "User-Agent" "FsHttp/Android7.1"
-                                                                    }                                                   
-                                                            
-                                                    let response = get >> Request.send <| uri
-                                                    let statusCode = response.statusCode
-                                                 
-                                                    match statusCode with
-                                                    | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
-                                                        ->         
-                                                        Ok <| response.SaveFile pathToFile
-                                                                 
-                                                    | HttpStatusCode.Forbidden 
-                                                        ->
-                                                        runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211") 
-                                                        Error <| PdfError FileDownloadError
-    
-                                                    | status
-                                                        ->
-                                                        runIO (postToLog <| (string status) <| "#2212")
-                                                        Error <| PdfError FileDownloadError
-    
-                                                | None 
+                                            let existingFileLength = 
+                                                try
+                                                    let fileInfo = FileInfo pathToFile
+                                                    match fileInfo.Exists with  //TOCTOU tady bude vzdy, dle copilota tato verze je nejmensi problem
+                                                    | true  -> fileInfo.Length
+                                                    | false -> 0L
+                                                   
+                                                with
+                                                |_ -> 0L
+
+                                            let request uri =
+                                                match existingFileLength with
+                                                | 0L 
                                                     ->
-                                                    runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2212")
-                                                    Error <| PdfError FileDownloadError                                             
-                                        )  
+                                                    http
+                                                        {
+                                                            GET uri
+                                                            config_timeoutInSeconds 30
+                                                            config_cancellationToken token
+                                                            header "User-Agent" "FsHttp/Android7.1"
+                                                        }
+
+                                                | length when length > 0L
+                                                    ->
+                                                    http
+                                                        {
+                                                            GET uri
+                                                            config_timeoutInSeconds 30
+                                                            config_cancellationToken token
+                                                            header "User-Agent" "FsHttp/Android7.1"
+                                                            header "Range" (sprintf "bytes=%d-" length)
+                                                        } 
+
+                                                | _ 
+                                                    ->
+                                                    runIO (postToLog <| "pathToFileExistCheck failed" <| "#2212-43")
+                                                    http { GET uri }                                                                                                                                    
+                                                                   
+                                            let response = request >> Request.send <| uri      
+                                            let statusCode = response.statusCode
+                                                 
+                                            match statusCode with
+                                            | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
+                                                ->         
+                                                Ok <| response.SaveFile pathToFile
+                                                                 
+                                            | HttpStatusCode.Forbidden 
+                                                ->
+                                                runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-44") 
+                                                Error <| PdfError FileDownloadError
     
+                                            | status 
+                                                ->
+                                                runIO (postToLog <| (string status) <| "#2212-45")
+                                                Error <| PdfError FileDownloadError                                                                            
+                                        )         
                                     |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                                    |> Option.defaultValue (Ok ())                                    
+                                    |> Option.defaultValue (Ok ())                                      
                                 
                                 with
                                 | ex                             
@@ -295,26 +297,21 @@ module KODIS_BL_Record =
                 reader
                     {    
                         let! context = fun env -> env
-             
-                        return
-                            match context.dir |> Directory.Exists with 
-                            | false ->
-                                    runIO (postToLog <| NoFolderError <| "#251")
-                                    Error <| PdfError NoFolderError  
-                            | true  ->                                   
-                                    match context.list with
-                                    | [] 
-                                        -> 
-                                        Ok String.Empty     
-                                    | _ 
-                                        -> 
-                                        match downloadAndSaveTimetables token context with
-                                        | Ok _ 
-                                            -> 
-                                            Ok String.Empty
-                                        
-                                        | Error case 
-                                            -> 
-                                            Error case 
+
+                        return                       
+                            try
+                                match context.list with
+                                | [] 
+                                    -> 
+                                    Ok String.Empty     
+                                | _ 
+                                    -> 
+                                    downloadAndSaveTimetables token context
+                                    |> Result.map (fun _ -> String.Empty)
+                            with
+                            | ex 
+                                ->  
+                                runIO (postToLog <| string ex.Message <| "#251")
+                                Error <| PdfError NoFolderError                       
                     }       
         )
