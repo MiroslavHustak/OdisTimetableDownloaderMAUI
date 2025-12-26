@@ -11,8 +11,28 @@ open FsToolkit.ErrorHandling
 open Helpers
 open Types.Haskell_IO_Monad_Simulation
 
-module Serialization =     
+module Serialization =   
 
+    // Async
+    let internal serializeWithThothAsync (json: string) (path: string) : IO<Async<Result<unit, string>>> =
+        
+            IO (fun ()
+                    ->
+                    try   
+                        asyncResult 
+                            {
+                                let! path = 
+                                    Path.GetFullPath path 
+                                    |> Option.ofNullEmpty
+                                    |> Option.toResult "Invalid path"
+                                use writer = new StreamWriter(path, append = false)
+                                return! writer.WriteAsync json |> Async.AwaitTask
+                            }
+                    with
+                    | ex -> async { return Error <| string ex.Message }
+            )
+
+    // Sync
     let internal serializeWithThothSync (json: string) (path: string) : IO<Result<unit, string>> =
     
             IO (fun ()
@@ -49,22 +69,4 @@ module Serialization =
                     |> Option.toResult "Invalid path"               
                 with
                 | ex -> Error <| string ex.Message
-        )
-
-    let internal serializeWithThothAsync (json: string) (path: string) : IO<Async<Result<unit, string>>> =
-    
-        IO (fun ()
-                ->
-                try   
-                    asyncResult 
-                        {
-                            let! path = 
-                                Path.GetFullPath path 
-                                |> Option.ofNullEmpty
-                                |> Option.toResult "Invalid path"
-                            use writer = new StreamWriter(path, append = false)
-                            return! writer.WriteAsync json |> Async.AwaitTask
-                        }
-                with
-                | ex -> async { return Error <| string ex.Message }
         )
