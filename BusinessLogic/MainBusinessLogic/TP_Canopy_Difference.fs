@@ -52,7 +52,7 @@ module TP_Canopy_Difference =
                     with
                     | ex 
                         ->
-                        runIO (postToLog <| string ex.Message <| "#Canopy02")
+                        //runIO (postToLog <| string ex.Message <| "#Canopy02")
                         Seq.empty<string>
             )
           

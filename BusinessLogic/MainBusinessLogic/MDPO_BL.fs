@@ -56,7 +56,7 @@ module MDPO_BL = //FsHttp
                             with
                             | ex 
                                 -> 
-                                runIO (postToLog <| string ex.Message <| "#025")                       
+                                //runIO (postToLog <| string ex.Message <| "#025")                       
                                 None
                     )
                 

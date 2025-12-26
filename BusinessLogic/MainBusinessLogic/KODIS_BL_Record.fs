@@ -290,7 +290,7 @@ module KODIS_BL_Record =
                                         Error <| PdfError StopDownloading
                                     | false 
                                         ->
-                                        runIO (postToLog <| string ex.Message <| "#024")
+                                        //runIO (postToLog <| string ex.Message <| "#024")
                                         Error <| PdfError FileDownloadError
                          } 
      

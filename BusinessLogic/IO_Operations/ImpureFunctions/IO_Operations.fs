@@ -267,7 +267,7 @@ module IO_Operations =
                             |> Result.mapError 
                                 (fun moveErr
                                     ->
-                                    runIO (postToLog moveErr "#444-move-files")
+                                    //runIO (postToLog moveErr "#444-move-files")
                                     err2  
                                 )
     
@@ -276,7 +276,7 @@ module IO_Operations =
                 |> Result.mapError 
                     (fun finalErr 
                         ->
-                        runIO (postToLog (string finalErr) "#444-final-error")
+                        //runIO (postToLog (string finalErr) "#444-final-error")
                         finalErr
                     )  
     )

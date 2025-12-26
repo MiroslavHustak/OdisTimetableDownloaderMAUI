@@ -111,7 +111,7 @@ module WebScraping_MDPO =
                         with
                         | :? DirectoryNotFoundException 
                             ->
-                            runIO (postToLog "Timetable directory not found or was deleted" "#008")
+                            runIO (postToLog "Timetable directory not found or was deleted" "#008-10")
                             Error FileDeleteErrorMHD  
 
                         | ex 
@@ -122,7 +122,7 @@ module WebScraping_MDPO =
 
                         | ex                             
                             ->
-                            runIO (postToLog <| string ex.Message <| "#008") //net_http_ssl_connection_failed 
+                            // runIO (postToLog <| string ex.Message <| "#008") //net_http_ssl_connection_failed 
 
                             try
                                 let pathToSubdir =
@@ -157,7 +157,7 @@ module WebScraping_MDPO =
                             with
                             | ex 
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#009")
+                                //runIO (postToLog <| string ex.Message <| "#009")
                                 Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
                                                                   
                 pyramidOfInferno

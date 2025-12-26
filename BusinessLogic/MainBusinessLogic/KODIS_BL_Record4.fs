@@ -108,7 +108,7 @@ module KODIS_BL_Record4 =
 
                         | Choice2Of2 ex
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#016")                      
+                            //runIO (postToLog <| string ex.Message <| "#016")                      
                             return Error <| JsonError JsonDataFilteringError  
                     }
         )
