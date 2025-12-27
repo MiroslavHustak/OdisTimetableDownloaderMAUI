@@ -180,7 +180,7 @@ module KODIS_BL_Record4 =
                                                         GET uri
                                                         config_timeoutInSeconds 30
                                                         config_cancellationToken token
-                                                        header "User-Agent" "FsHttp/Android7.1"
+                                                        header "User-Agent" "FsHttp/Android"
                                                     }
 
                                             | length when length > 0L
@@ -190,7 +190,7 @@ module KODIS_BL_Record4 =
                                                         GET uri
                                                         config_timeoutInSeconds 30
                                                         config_cancellationToken token
-                                                        header "User-Agent" "FsHttp/Android7.1"
+                                                        header "User-Agent" "FsHttp/Android"
                                                         header "Range" (sprintf "bytes=%d-" length)
                                                     } 
 

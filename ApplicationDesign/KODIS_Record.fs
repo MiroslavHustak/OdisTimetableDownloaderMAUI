@@ -70,7 +70,7 @@ module WebScraping_KODIS =
         { 
             DownloadAndSaveJson = downloadAndSaveJson 
             DeleteAllODISDirectories = deleteAllODISDirectories   
-            ParseJsonStructure = parseJsonStructure  
+            ParseJsonStructure = parseJsonStructure // JsonData.ParseJsonDataFull.digThroughJsonStructure  
             FilterTimetableLinks = filterTimetableLinks  
             DownloadAndSave = downloadAndSave >> runIO
         }    

@@ -119,7 +119,7 @@ module Messages =
 
     let [<Literal>] internal netConnError = "Přerušené internetové připojení způsobilo přerušení stahování souborů. Stahuj vše znova."
     let [<Literal>] internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
-    let [<Literal>] internal apiResponseError = "www.kodis.somee.com je mimo provoz, nelze se dostat k odkazům na JŘ."
+    let [<Literal>] internal apiResponseError = "Nelze se dostat k odkazům na JŘ umístěných na www.kodis.somee.com. Zkus stahovat JŘ po nějaké době znovu."
 
     let [<Literal>] internal buttonQuit = "Vypnout aplikaci" 
     let [<Literal>] internal buttonQuit2 = "Vypnout odpočítávání a aplikaci" 
@@ -132,10 +132,9 @@ module Messages =
     let [<Literal>] internal criticalElmishErrorKodisJson = "Kritická chyba při stahování JSON souborů pro JŘ KODIS. Vypni aplikaci a spusť ji znovu."
 
     let internal appInfoInvoker = 
-        sprintf "%s %s %s"
+        sprintf "%s %s"
         <| "Objevilo se tlačítko \"Spustit AppInfo\"?" 
         <| "Klepni na něj, povol manipulaci se soubory a restartuj aplikaci." 
-        <| "U Androidu 10- se k tomu povolení asi budeš muset proklepat."
 
     let (|Second|Seconds|SecondPlural|) = function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural
 
