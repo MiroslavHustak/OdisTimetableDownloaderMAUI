@@ -106,7 +106,8 @@ module WebScraping_DPO =
                         | :? DirectoryNotFoundException ->
                             runIO (postToLog "Timetable directory not found or was deleted" "#011-1")
                             Error FileDeleteErrorMHD  // nebo lépe: DirectoryMissingErrorMHD
-                        | ex ->
+                        | ex 
+                            ->
                             //runIO (postToLog <| string ex.Message <| "#011")
                             Error FileDownloadErrorMHD
                        

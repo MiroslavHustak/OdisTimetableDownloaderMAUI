@@ -63,34 +63,29 @@ module StringCombine = //testovaci modul pro Rust dll
 
             match s2 |> Option.ofPtrOrNull with
             | Some _ -> Marshal.FreeHGlobal s2
-            | None   -> ()            
+            | None   -> ()    
+            
+module SafeFullPath =
+
+    let internal safeFullPathResult path =
+        try
+            Path.GetFullPath path
+            |> Option.ofNullEmpty 
+            |> Option.toResult "Failed getting path"  
+        with
+        | ex -> Error <| sprintf "Path is invalid: %s" (string ex.Message)
+
+    let internal safeFullPathOption path =
+        try
+            Path.GetFullPath path
+            |> Option.ofNullEmpty 
+        with
+        | _ -> None
 
 module DirFileHelper = 
   
     let [<Literal>] internal jsonEmpty = """[ {} ]"""
-
-    let private safeFullPath path =
-        try
-            Path.GetFullPath path |> Option.ofNullEmpty
-        with
-        | _ -> None 
-
-    let internal writeAllText path content =
-
-        IO (fun () 
-                -> 
-                try
-                    result
-                        {
-                            let! filepath = safeFullPath path |> Option.toResult "Failed getting path"                           
-                            return File.WriteAllText(filepath, content)
-                        }   
-                with
-                | ex -> Error <| string ex.Message   
-
-                |> Result.defaultValue () //Predelat pro konkretni pripad
-        )
-
+ 
     let internal writeAllTextAsync path content =
 
         IO (fun () 
@@ -98,7 +93,7 @@ module DirFileHelper =
                 try
                     result
                         {
-                            let! filepath = safeFullPath path  |> Option.toResult "Failed getting path"                            
+                            let! filepath = SafeFullPath.safeFullPathResult path                             
                             return File.WriteAllTextAsync(filepath, content) |> Async.AwaitTask
                         }   
                 with
@@ -114,7 +109,7 @@ module DirFileHelper =
                 try
                     result
                         {
-                            let! filepath = safeFullPath path  |> Option.toResult "Failed getting path"                            
+                            let! filepath = SafeFullPath.safeFullPathResult path                         
                             return File.ReadAllText filepath    
                         }   
                 with
@@ -130,7 +125,7 @@ module DirFileHelper =
                 try
                     result
                         {
-                            let! filepath = safeFullPath path  |> Option.toResult "Failed getting path"                            
+                            let! filepath = SafeFullPath.safeFullPathResult path      
                             return File.ReadAllTextAsync filepath |> Async.AwaitTask  
                         }   
                 with
@@ -150,7 +145,7 @@ module DirFileHelper =
                 -> 
                 option
                     {
-                        let! filepath = pathToFile |> Path.GetFullPath |> Option.ofNullEmpty                     
+                        let! filepath = SafeFullPath.safeFullPathOption pathToFile                  
                         let fInfodat : FileInfo = FileInfo filepath
 
                         return! condition fInfodat |> Option.ofBool  
@@ -163,7 +158,7 @@ module DirFileHelper =
                 -> 
                 option
                     {
-                        let! dirpath = pathToDir |> Path.GetFullPath |> Option.ofNullEmpty                     
+                        let! dirpath = SafeFullPath.safeFullPathOption pathToDir                 
                         let dInfodat : DirectoryInfo = DirectoryInfo dirpath
     
                         return! condition dInfodat |> Option.ofBool  

@@ -110,10 +110,7 @@ module Logging =
                 asyncResult 
                     {
                         try
-                            let! path =
-                                Path.GetFullPath logFileName
-                                |> Option.ofNullEmpty
-                                |> Option.toResult "Invalid path"
+                            let! path = SafeFullPath.safeFullPathResult logFileName 
 
                             let! logEntries =
                                 getLogEntriesFromRestApi >> runIO <| urlLogging

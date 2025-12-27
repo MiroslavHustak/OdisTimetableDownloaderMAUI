@@ -121,6 +121,7 @@ module App =
     type Msg = // This is exactly how NOT to do it for real UI/UX/FE
         | RequestPermission
         | PermissionResult of bool
+        | Launch
         | DataClearing
         | DataClearingMessage of string
         | AllowDataClearing
@@ -623,7 +624,38 @@ module App =
              
         | NetConnMessage message
             ->
-            { m with NetConnMsg = message; LabelVisible = true; Label2Visible = true }, Cmd.none    
+            { m with NetConnMsg = message; LabelVisible = true; Label2Visible = true }, Cmd.none  
+            
+        | Launch 
+            ->
+            let cmd = 
+                try
+                    let logFileNameDiff =                   
+                        #if ANDROID
+                        logFileNameAndroid 
+                        #else
+                        logFileNameWindows                        
+                        #endif
+
+                    match runIO <| TextFileLauncher.openTextFileReadOnly logFileNameDiff with
+                    | Some app 
+                        ->
+                        Cmd.ofAsyncMsg
+                            (
+                                async
+                                    {
+                                        match! app with    
+                                        | true  -> return NetConnMessage String.Empty 
+                                        | false -> return NetConnMessage launchErrorMsg
+                                    }
+                            )
+                    | None
+                        -> 
+                        NetConnMessage >> Cmd.ofMsg <| launchErrorMsg  
+                with
+                |_ -> NetConnMessage >> Cmd.ofMsg <| launchErrorMsg   
+            
+            m, cmd 
 
         | DataClearing
             ->  
@@ -803,7 +835,7 @@ module App =
                             }
                         |> Async.StartImmediate
 
-                    //For educational purposes, takhle to nedelat, zavadi to business logic do UI vrstvy
+                    //For educational purposes - this is how not to do it (creeping business logic into the UI layer)
                     let cmd2 () : Cmd<Msg> =
                         async 
                             {
@@ -813,7 +845,7 @@ module App =
                             }
                         |> Cmd.ofAsyncMsg                           
 
-                    //For educational purposes, takhle to nedelat, zavadi to business logic do UI vrstvy  
+                    //For educational purposes - this is how not to do it (creeping business logic into the UI layer)  
                     let cmd () : Cmd<Msg> = 
                          Cmd.batch
                             [
@@ -1265,6 +1297,11 @@ module App =
                                 .scaleX(animate buttonRequestPermission m.AnimatedButton)
                                 .scaleY(animate buttonRequestPermission m.AnimatedButton)
                             #endif
+
+                            Button(buttonLauncher, Launch)
+                                .semantics(hint = String.Empty)
+                                .centerHorizontal()
+                                .background(SolidColorBrush(Colors.YellowGreen))
 
                             Button(buttonClearing, ClickClearing)
                                 .semantics(hint = hintClearing)

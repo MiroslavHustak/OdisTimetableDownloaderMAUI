@@ -83,33 +83,21 @@ module FreeMonadInterpret =
 
         | Free (SourceFilepath next) 
             ->
-            let sourceFilepath (source: string) : Result<string,string> =
-                try
-                    result
-                        {
-                            return!
-                                Path.GetFullPath source
-                                |> Option.ofNullEmpty
-                                |> Option.toResult (sprintf "Chyba při čtení cesty k %s #301" source)
-                        }
-                with
-                | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s #303" source (string ex.Message)
+            let sourceFilepath (source : string) : Result<string,string> =                
+                result
+                    {
+                        return! SafeFullPath.safeFullPathResult source 
+                    }                
 
             interpret config io_operation (next (sourceFilepath config.source))
 
         | Free (DestinFilepath next) 
             ->
-            let destinFilepath destination =  
-                try
-                    result
-                        {
-                            return!
-                                Path.GetFullPath destination
-                                |> Option.ofNullEmpty
-                                |> Option.toResult (sprintf "Chyba při čtení cesty k %s #305" destination)
-                        }                    
-                with
-                | ex -> Error <| sprintf "Chyba při čtení cesty k %s. %s #306" destination (string ex.Message)
+            let destinFilepath destination =                  
+                result
+                    {
+                        return! SafeFullPath.safeFullPathResult destination  
+                    }  
 
             interpret config io_operation (next (destinFilepath config.destination))
 
