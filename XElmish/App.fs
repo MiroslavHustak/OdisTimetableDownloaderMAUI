@@ -529,8 +529,19 @@ module App =
             Cmd.none   
 
         | Quit  
-            -> 
-            #if WINDOWS     
+            ->            
+            #if WINDOWS 
+            (*
+            let cmd () : Cmd<Msg> =
+                Cmd.ofAsyncMsg
+                    (
+                        async 
+                            {
+                                let! _ = runIO (Api.Logging.saveJsonToFileAsync ())
+                                return <Msg> -> nechce se mi zavadet Dummy Msg
+                            }
+                    )
+            *) 
             let cmd () : Cmd<Msg> =
                 Cmd.ofSub 
                     (fun _ 
