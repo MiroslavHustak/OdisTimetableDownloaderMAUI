@@ -533,14 +533,12 @@ module App =
             #if WINDOWS 
             (*
             let cmd () : Cmd<Msg> =
-                Cmd.ofAsyncMsg
-                    (
-                        async 
-                            {
-                                let! _ = runIO (Api.Logging.saveJsonToFileAsync ())
-                                return <Msg> -> nechce se mi zavadet Dummy Msg
-                            }
-                    )
+                async 
+                    {
+                        let! _ = runIO (Api.Logging.saveJsonToFileAsync ())
+                        return <Msg> -> nechce se mi zavadet Dummy Msg
+                    }
+                |> Cmd.ofAsyncMsg                    
             *) 
             let cmd () : Cmd<Msg> =
                 Cmd.ofSub 
@@ -552,7 +550,7 @@ module App =
                                 return ()
                             }
                         |> Async.StartImmediate
-                )
+                    )
                 
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, cmd ()
@@ -650,16 +648,15 @@ module App =
 
                     match runIO <| TextFileLauncher.openTextFileReadOnly logFileNameDiff with
                     | Some app 
-                        ->
-                        Cmd.ofAsyncMsg
-                            (
-                                async
-                                    {
-                                        match! app with    
-                                        | true  -> return NetConnMessage String.Empty 
-                                        | false -> return NetConnMessage launchErrorMsg
-                                    }
-                            )
+                        ->                           
+                        async
+                            {
+                                match! app with    
+                                | true  -> return NetConnMessage String.Empty 
+                                | false -> return NetConnMessage launchErrorMsg                        
+                            } 
+                        |> Cmd.ofAsyncMsg
+                           
                     | None
                         -> 
                         NetConnMessage >> Cmd.ofMsg <| launchErrorMsg  

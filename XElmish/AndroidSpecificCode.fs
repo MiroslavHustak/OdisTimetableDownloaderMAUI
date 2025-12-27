@@ -189,7 +189,7 @@ module AndroidUIHelpers =
                                 |> Option.ofNull
                                 |> Option.map (fun _ -> ()), None
     
-                            return! Some <| Application.Context.StartActivity intent
+                            return Some <| Application.Context.StartActivity intent
                         }
                         |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                 with

@@ -1,7 +1,5 @@
 ﻿namespace OdisTimetableDownloaderMAUI
 
-open System
-
 open Microsoft.Maui.Storage
 open Microsoft.Maui.ApplicationModel
 
@@ -37,7 +35,7 @@ module TextFileLauncher =
                                        with 
                                        | _ -> return false
                                    }                          
-                           return! Some safeAsync 
+                           return safeAsync 
                        with
                        | _ -> return! None
                    }

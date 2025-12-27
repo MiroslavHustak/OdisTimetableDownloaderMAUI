@@ -258,7 +258,7 @@ module IO_Operations =
                         | ex
                             ->
                             runIO (postToLog (string ex.Message) "#444-create-dest")
-                            return! Error err2
+                            return ()
     
                         do!
                             runFreeMonad
