@@ -32,8 +32,6 @@ module Logging =
             Message2 : string
         }
 
-    let [<Literal>] private maxFileSizeKb = 512L // Maximum file size in kilobytes 
-
     let private decoderPost : Decoder<ResponsePost> =  //zatim zpetny message neni treba, ale ponechavam pro potencialni pouziti
 
         Decode.object
@@ -115,16 +113,16 @@ module Logging =
                             let! logEntries =
                                 getLogEntriesFromRestApi >> runIO <| urlLogging
                                 |> AsyncResult.mapError
-                                    (fun _ -> "Chyba při čtení logEntries z KODIS API (kodis.somee)"
-                                )
+                                    (fun _ -> "Chyba při čtení logEntries z KODIS API (kodis.somee)")
 
                             let fs =
-                                new FileStream(
-                                    path,
-                                    FileMode.OpenOrCreate,
-                                    FileAccess.Write,
-                                    FileShare.None
-                                )
+                                new FileStream
+                                    (
+                                        path,
+                                        FileMode.OpenOrCreate,
+                                        FileAccess.Write,
+                                        FileShare.None
+                                    )
                             try 
                                 let maxBytes = int64 maxFileSizeKb * 1024L
 

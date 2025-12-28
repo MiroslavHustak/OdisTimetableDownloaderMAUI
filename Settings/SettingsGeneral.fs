@@ -52,6 +52,8 @@ module SettingsGeneral =
     let [<Literal>] internal timeOutInSeconds = 10 
     let [<Literal>] internal waitingForNetConn = 30 //vterin
 
+    let [<Literal>] internal maxFileSizeKb = 10L 
+
     let [<Literal>] internal maxDegreeOfParallelism = 18
     let [<Literal>] internal maxDegreeOfParallelismThrottled = 10
     let [<Literal>] internal maxDegreeOfParallelismMedium = 14

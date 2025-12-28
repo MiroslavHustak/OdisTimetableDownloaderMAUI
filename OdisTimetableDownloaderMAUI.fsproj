@@ -73,29 +73,6 @@
         <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
     </PropertyGroup>
 
-    <!-- iOS Debug-specific settings -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-ios|AnyCPU'">
-        <DefineConstants>$(DefineConstants);IOS</DefineConstants>
-    </PropertyGroup>
-
-    <!-- macCatalyst Debug-specific settings -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-maccatalyst|AnyCPU'">
-        <DefineConstants>$(DefineConstants);MACCATALYST</DefineConstants>
-    </PropertyGroup>
-
-    <!-- iOS Release-specific settings -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-ios|AnyCPU'">
-        <DefineConstants>$(DefineConstants);IOS</DefineConstants>
-    </PropertyGroup>
-
-    <!-- macCatalyst Release-specific settings -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-maccatalyst|AnyCPU'">
-        <DefineConstants>$(DefineConstants);MACCATALYST</DefineConstants>
-        <!-- Ensure compatibility between RuntimeIdentifier and PlatformTarget -->
-        <RuntimeIdentifier>maccatalyst-arm64</RuntimeIdentifier>
-        <PlatformTarget>arm64</PlatformTarget>
-    </PropertyGroup>
-
 	<!-- Windows Debug-specific settings -->
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-windows10.0.19041.0|AnyCPU'">
 		<DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
@@ -232,18 +209,6 @@
     <Compile Include="$(AndroidProjectFolder)MainApplication.fs" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'ios'">
-    <None Include="$(iOSProjectFolder)Info.plist" LogicalName="Info.plist" />
-    <Compile Include="$(iOSProjectFolder)AppDelegate.fs" />
-    <Compile Include="$(iOSProjectFolder)Program.fs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'maccatalyst'">
-    <None Include="$(MacCatalystProjectFolder)Info.plist" LogicalName="Info.plist" />
-    <Compile Include="$(MacCatalystProjectFolder)AppDelegate.fs" />
-    <Compile Include="$(MacCatalystProjectFolder)Program.fs" />
-  </ItemGroup>
-
   <ItemGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
     <Manifest Include="$(WindowsProjectFolder)app.manifest" />
     <AppxManifest Include="$(WindowsProjectFolder)Package.appxmanifest" />
@@ -251,11 +216,6 @@
     <Compile Include="$(WindowsProjectFolder)Main.fs" />
 
     <PackageReference Include="FSharp.Maui.WinUICompat" Version="1.1.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'tizen'">
-    <TizenManifestFile Include="$(TizenProjectFolder)tizen-manifest.xml" />
-    <Compile Include="$(TizenProjectFolder)Main.fs" />
   </ItemGroup>
 
   <ItemGroup>

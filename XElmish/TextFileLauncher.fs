@@ -30,8 +30,10 @@ module TextFileLauncher =
                                                        Title = file.Name,
                                                        File = ReadOnlyFile file.FullName  // This is read-only
                                                    )  
-                                           let! success = Launcher.Default.OpenAsync request |> Async.AwaitTask
-                                           return success
+                                           
+                                           let! result = Launcher.Default.OpenAsync request |> Async.AwaitTask
+                                           
+                                           return result
                                        with 
                                        | _ -> return false
                                    }                          

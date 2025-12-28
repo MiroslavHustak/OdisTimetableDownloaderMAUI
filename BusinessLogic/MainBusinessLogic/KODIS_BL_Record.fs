@@ -78,7 +78,7 @@ module KODIS_BL_Record =
                                             GET uri
                                             config_timeoutInSeconds 30
                                             config_cancellationToken token
-                                            header "User-Agent" "FsHttp/Android7.1"
+                                            header "User-Agent" "FsHttp/Android"
                                         }
 
                                 | length when length > 0L

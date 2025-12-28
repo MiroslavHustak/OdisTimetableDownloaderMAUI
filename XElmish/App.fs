@@ -1310,6 +1310,7 @@ module App =
                                 .semantics(hint = String.Empty)
                                 .centerHorizontal()
                                 .background(SolidColorBrush(Colors.YellowGreen))
+                                .isVisible(m.KodisVisible && m.PermissionGranted)
 
                             Button(buttonClearing, ClickClearing)
                                 .semantics(hint = hintClearing)

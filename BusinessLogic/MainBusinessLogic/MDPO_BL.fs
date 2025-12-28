@@ -431,7 +431,7 @@ module MDPO_BL = //FsHttp
                                                             unsafeClient
                                                         )
 
-                                                    header "User-Agent" "FsHttp/Android7.1"
+                                                    header "User-Agent" "FsHttp/Android"
                                                 }                                          
                                 //TOCTOU race -> try-with will catch
                                 //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
