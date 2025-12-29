@@ -1,4 +1,4 @@
-﻿namespace BusinessLogic4
+﻿namespace ApplicationDesign4
 
 open System
 open System.IO
@@ -36,25 +36,23 @@ module KODIS_BL_Record4 =
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
     // 16-12-2024 Nic neni trvalejsiho, nez neco docasneho ...
             
-    let internal operationOnDataFromJson (token : CancellationToken) variant dir = //TODO
+    let internal operationOnDataFromJson (token : CancellationToken) variant dir = 
     
         IO (fun () 
                 ->
-                let result1 : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
+                token.ThrowIfCancellationRequested() 
+                                
+                let result1 () : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
                     async
                         {
-                            token.ThrowIfCancellationRequested()
-
                             match! getFutureLinksFromRestApi >> runIO <| urlApi with
                             | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
                             | Error err -> return Error <| PdfError err
                         }
     
-                let result2 : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
+                let result2 () : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
                     async
                         {
-                            token.ThrowIfCancellationRequested()
-
                             match variant with
                             | FutureValidity 
                                 ->
@@ -68,18 +66,12 @@ module KODIS_BL_Record4 =
        
                 async 
                     {
-                        let! results =
-                            async 
-                                {
-                                    let! resultsArray =                                         
-                                        [ 
-                                            result1
-                                            result2
-                                        ]
-                                        |> Async.Parallel
-                                    token.ThrowIfCancellationRequested()
-                                    return resultsArray
-                                }
+                        let! results = 
+                            [ 
+                                result1 ()
+                                result2 ()
+                            ]
+                            |> Async.Parallel
                             |> Async.Catch
     
                         match results with
@@ -108,9 +100,10 @@ module KODIS_BL_Record4 =
 
                         | Choice2Of2 ex
                             -> 
-                            //runIO (postToLog <| string ex.Message <| "#016")                      
+                            runIO (postToLog <| string ex.Message <| "#016")                      
                             return Error <| JsonError JsonDataFilteringError  
                     }
+                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )
                     
     let internal downloadAndSave token =
@@ -159,63 +152,76 @@ module KODIS_BL_Record4 =
                                         counterAndProgressBar.Post <| Inc 1
                                                    
                                         // Artificial checkpoint
-                                        token.ThrowIfCancellationRequested ()
-                                        
-                                        let existingFileLength = 
-                                            try
-                                                let fileInfo = FileInfo pathToFile
-                                                match fileInfo.Exists with  //TOCTOU tady bude vzdy, dle copilota tato verze je nejmensi problem
-                                                | true  -> fileInfo.Length
-                                                | false -> 0L
-                                               
-                                            with
-                                            |_ -> 0L
-
-                                        let request uri =
-                                            match existingFileLength with
-                                            | 0L 
-                                                ->
-                                                http
-                                                    {
-                                                        GET uri
-                                                        config_timeoutInSeconds 30
-                                                        config_cancellationToken token
-                                                        header "User-Agent" "FsHttp/Android"
-                                                    }
-
-                                            | length when length > 0L
-                                                ->
-                                                http
-                                                    {
-                                                        GET uri
-                                                        config_timeoutInSeconds 30
-                                                        config_cancellationToken token
-                                                        header "User-Agent" "FsHttp/Android"
-                                                        header "Range" (sprintf "bytes=%d-" length)
-                                                    } 
-
-                                            | _ 
-                                                ->
-                                                runIO (postToLog <| "pathToFileExistCheck failed" <| "#2212-42")
-                                                http { GET uri }                                                                                                                                    
-                                                               
-                                        let response = request >> Request.send <| uri      
-                                        let statusCode = response.statusCode
-                                                    
-                                        match statusCode with
-                                        | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
-                                            ->         
-                                            Ok <| response.SaveFile pathToFile
-                                                                    
-                                        | HttpStatusCode.Forbidden 
-                                            ->
-                                            runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-4") 
-                                            Error <| PdfError FileDownloadError
+                                        token.ThrowIfCancellationRequested () 
        
-                                        | status 
-                                            ->
-                                            runIO (postToLog <| (string status) <| "#2212-41")
-                                            Error <| PdfError FileDownloadError                                                                            
+                                        let pathToFileExistFirstCheck = 
+                                            runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
+                                            in
+                                            match pathToFileExistFirstCheck with  
+                                            | Some _
+                                                -> 
+                                                let existingFileLength =                               
+                                                    runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                                    |> function
+                                                        | Some _ -> (FileInfo pathToFile).Length
+                                                        | None   -> 0L
+                                                    
+                                                let get uri = 
+       
+                                                    let headerContent1 = "Range" 
+                                                    let headerContent2 = sprintf "bytes=%d-" existingFileLength 
+                          
+                                                    //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
+                                                    match existingFileLength > 0L with
+                                                    | true  -> 
+                                                            http
+                                                                {
+                                                                    GET uri
+                                                                    config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                    config_cancellationToken token 
+                                                                    header "User-Agent" "FsHttp/Android7.1"
+                                                                    header headerContent1 headerContent2
+                                                                }
+                                                    | false ->
+                                                            http
+                                                                {
+                                                                    GET uri
+                                                                    config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                    config_cancellationToken token 
+                                                                    header "User-Agent" "FsHttp/Android7.1"
+                                                                }                                                   
+                                                               
+                                                let response =                                                                 
+                                                    (get uri)
+                                                    |> Request.sendAsync
+                                                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                                                  
+                                                let statusCode = response.statusCode
+
+                                                use response = response
+                                                    
+                                                match statusCode with
+                                                | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
+                                                    ->         
+                                                    response.SaveFileAsync(pathToFile)
+                                                    |> Async.AwaitTask
+                                                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                                    |> Ok 
+                                                                    
+                                                | HttpStatusCode.Forbidden 
+                                                    ->
+                                                    runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-4") 
+                                                    Error <| PdfError FileDownloadError
+       
+                                                | status 
+                                                    ->
+                                                    runIO (postToLog <| (string status) <| "#2212-41")
+                                                    Error <| PdfError FileDownloadError
+       
+                                            | None 
+                                                ->
+                                                runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2212-42")
+                                                Error <| PdfError FileDownloadError                                            
                                     )         
                                 |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                                 |> Option.defaultValue (Ok ())     
@@ -237,96 +243,19 @@ module KODIS_BL_Record4 =
                     {    
                         let! context = fun env -> env
                 
-                        return                       
-                            try
-                                match context.list with
-                                | [] 
-                                    -> 
-                                    Ok String.Empty     
-                                | _ 
-                                    -> 
-                                    downloadAndSaveTimetables token context
-                                    |> Result.map (fun _ -> String.Empty)
-                            with
-                            | ex 
-                                ->  
-                                runIO (postToLog <| string ex.Message <| "#251-4")
-                                Error <| PdfError NoFolderError   
+                        return
+                            match context.dir |> Directory.Exists with 
+                            | false ->
+                                    runIO (postToLog <| NoFolderError <| "#251-4")
+                                    Error <| PdfError NoFolderError                                
+                            | true  ->                                   
+                                    match context.list with
+                                    | [] 
+                                        -> 
+                                        Ok String.Empty     
+                                    | _ 
+                                        -> 
+                                        downloadAndSaveTimetables token context
+                                        |> Result.map (fun _ -> String.Empty)
                     }       
         )
-
-(*
-//**************************************************************************************
-   
-(token, uri, pathToFile)
-|||> List.Parallel.map2_IO_Token //context.listMappingFunction                            
-    (fun uri (pathToFile : string) 
-        -> 
-        counterAndProgressBar.Post <| Inc 1
-                                               
-        // Artificial checkpoint
-        token.ThrowIfCancellationRequested () 
-   
-        let pathToFileExistFirstCheck = 
-            runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
-            in
-            match pathToFileExistFirstCheck with  
-            | Some _
-                -> 
-                let existingFileLength =                               
-                    runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                    |> function
-                        | Some _ -> (FileInfo pathToFile).Length
-                        | None   -> 0L
-                                                
-                let get uri = 
-   
-                    let headerContent1 = "Range" 
-                    let headerContent2 = sprintf "bytes=%d-" existingFileLength 
-                      
-                    //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
-                    match existingFileLength > 0L with
-                    | true  -> 
-                            http
-                                {
-                                    GET uri
-                                    config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                    config_cancellationToken token 
-                                    header "User-Agent" "FsHttp/Android7.1"
-                                    header headerContent1 headerContent2
-                                }
-                    | false ->
-                            http
-                                {
-                                    GET uri
-                                    config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                    config_cancellationToken token 
-                                    header "User-Agent" "FsHttp/Android7.1"
-                                }                                                   
-                                                           
-                let response = get >> Request.send <| uri      
-                let statusCode = response.statusCode
-                                                
-                match statusCode with
-                | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
-                    ->         
-                    Ok <| response.SaveFile pathToFile
-                                                                
-                | HttpStatusCode.Forbidden 
-                    ->
-                    runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-4") 
-                    Error <| PdfError FileDownloadError
-   
-                | status 
-                    ->
-                    runIO (postToLog <| (string status) <| "#2212-41")
-                    Error <| PdfError FileDownloadError
-   
-            | None 
-                ->
-                runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2212-42")
-                Error <| PdfError FileDownloadError                                            
-    )         
-|> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-|> Option.defaultValue (Ok ())                                                     
-*)

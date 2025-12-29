@@ -41,7 +41,7 @@
   "",
   "JR_ODIS_pouze_budouci_platnost",
   "************************************************",
-  "Je v TP, ale chybi v Canopy []",
+  "Je v TP, ale chybi v Canopy [\"_S6_2026_01_07_2026_01_07_v.pdf\"]",
   "Je v Canopy, ale chybi v TP []",
   "************************************************",
   "",

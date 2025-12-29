@@ -41,23 +41,26 @@ module MDPO_BL = //FsHttp
                 let fetchHtmlWithFsHttp (url : string) =     
         
                     IO (fun () 
-                            ->                             
-                            try   
-                                use response =  
-                                    http
-                                        {
-                                            GET url    
-                                            config_cancellationToken token 
-                                        }
-                                    |> Request.send 
+                            ->     
+                            async
+                                {
+                                    try   
+                                        use! response =  
+                                            http
+                                                {
+                                                    GET url    
+                                                    config_cancellationToken token 
+                                                }
+                                            |> Request.sendAsync 
         
-                                let htmlContent = Response.toString (Some 100000) response        
-                                Some <| HtmlDocument.Parse htmlContent // Parse the HTML content using FSharp.Data                        
-                            with
-                            | ex 
-                                -> 
-                                //runIO (postToLog <| string ex.Message <| "#025")                       
-                                None
+                                        let! htmlContent = Response.toStringAsync (Some 100000) response        
+                                        return Some <| HtmlDocument.Parse htmlContent // Parse the HTML content using FSharp.Data                        
+                                    with
+                                    | ex 
+                                        -> 
+                                        //runIO (postToLog <| string ex.Message <| "#025")                       
+                                        return None
+                                }  
                     )
                 
                 let urlList = //aby to bylo jednotne s DPO
@@ -69,14 +72,19 @@ module MDPO_BL = //FsHttp
                 |> Seq.collect 
                     (fun url 
                         -> 
-                        let document =                                                      
-                            let documentOption = fetchHtmlWithFsHttp >> runIO <| url
+                        let document =    
+                            async
+                                {
+                                    let! documentOption = fetchHtmlWithFsHttp >> runIO <| url
                             
-                            match documentOption with
-                            | Some document
-                                -> document
-                            | None
-                                -> FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz                              
+                                    match documentOption with
+                                    | Some document
+                                        -> return document
+                                    | None
+                                        -> return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz     
+                                }
+                            |> Async.RunSynchronously
+    
 
                         //HtmlDocument -> web scraping -> extracting data from HTML pages
                                                                                     
@@ -124,82 +132,92 @@ module MDPO_BL = //FsHttp
 
         IO (fun () 
                 -> 
-                let downloadFileTask (token : CancellationToken) (uri : string) (pathToFile : string) =  
+                let downloadFileTaskAsync (token : CancellationToken) (uri : string) (pathToFile : string) =  
        
                     IO (fun () 
                             ->                                                 
                             try
-
-                                let response =           
+                                async
+                                    {
+                                        let response =           
                                                       
-                                    pyramidOfDoom
-                                        {         
-                                            let existingFileLength =  
-                                                // TOCTOU race problem is negligible here as the value is only for the Windows Machine mode / resuming downloads
-                                                // Resuming downloading does not work under Android OS
-                                                runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                |> function
-                                                    | Some _ -> (FileInfo pathToFile).Length
-                                                    | None   -> 0L                                  
+                                            pyramidOfDoom
+                                                {         
+                                                    let existingFileLength =  
+                                                        // TOCTOU race problem is negligible here as the value is only for the Windows Machine mode / resuming downloads
+                                                        // Resuming downloading does not work under Android OS
+                                                        runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                                        |> function
+                                                            | Some _ -> (FileInfo pathToFile).Length
+                                                            | None   -> 0L                                  
                                                     
-                                            let getSafe uri = 
+                                                    let getSafe uri = 
 
-                                                let headerContent1 = "Range" 
-                                                let headerContent2 = sprintf "bytes=%d-" existingFileLength 
+                                                        let headerContent1 = "Range" 
+                                                        let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                           
-                                                //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
-                                                match existingFileLength > 0L with
-                                                | true  -> 
-                                                        http
-                                                            {
-                                                                GET uri  
-                                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                config_cancellationToken token  
-                                                                header "User-Agent" "FsHttp/Android"
-                                                                header headerContent1 headerContent2
-                                                            }
-                                                | false ->
-                                                        http
-                                                            {
-                                                                GET uri
-                                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                config_cancellationToken token 
-                                                                header "User-Agent" "FsHttp/Android"
-                                                            }     
+                                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
+                                                        match existingFileLength > 0L with
+                                                        | true  -> 
+                                                                http
+                                                                    {
+                                                                        GET uri  
+                                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_cancellationToken token  
+                                                                        header "User-Agent" "FsHttp/Android"
+                                                                        header headerContent1 headerContent2
+                                                                    }
+                                                        | false ->
+                                                                http
+                                                                    {
+                                                                        GET uri
+                                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_cancellationToken token 
+                                                                        header "User-Agent" "FsHttp/Android"
+                                                                    }     
 
-                                            //TOCTOU race -> try-with will catch
-                                            //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
+                                                    //TOCTOU race -> try-with will catch
+                                                    //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
 
-                                            let! response = (getSafe >> Request.send <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
+                                                    let! response = (getSafe >> Request.sendAsync <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
-                                            return Ok response         
-                                        }                       
+                                                    return Ok response         
+                                                }  
+                                           
 
-                                match response with
-                                | Ok response
-                                    ->      
-                                    use response = response  
+                                        match response with
+                                        | Ok response
+                                            ->      
+                                            use! response = response  
                         
-                                    match response.statusCode with        //TODO logfile
-                                    | HttpStatusCode.OK                  -> Ok <| response.SaveFile pathToFile    
-                                    | HttpStatusCode.BadRequest          -> Error BadRequest     
-                                    | HttpStatusCode.InternalServerError -> Error InternalServerError
-                                    | HttpStatusCode.NotImplemented      -> Error NotImplemented
-                                    | HttpStatusCode.ServiceUnavailable  -> Error ServiceUnavailable
-                                    | HttpStatusCode.NotFound            -> Error NotFound
-                                    | _                                  -> Error CofeeMakerUnavailable
+                                            match response.statusCode with       
+                                            | HttpStatusCode.OK                  -> 
+                                                                                 do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+                                                                                 return Ok ()
+                                            | HttpStatusCode.BadRequest          -> 
+                                                                                 return Error BadRequest     
+                                            | HttpStatusCode.InternalServerError ->
+                                                                                 return Error InternalServerError
+                                            | HttpStatusCode.NotImplemented      ->
+                                                                                 return Error NotImplemented
+                                            | HttpStatusCode.ServiceUnavailable  ->
+                                                                                 return Error ServiceUnavailable
+                                            | HttpStatusCode.NotFound            ->
+                                                                                 return Error NotFound
+                                            | _                                  ->
+                                                                                 return Error CofeeMakerUnavailable
                                                                              
                                                                  
-                                | Error err 
-                                    -> 
-                                    runIO (postToLog <| err <| "#026")                           
-                                    Error ConnectionError   
-                           
+                                        | Error err 
+                                            -> 
+                                            runIO (postToLog <| err <| "#026")                           
+                                            return Error ConnectionError   
+                                    }
                             with                                                         
                             | ex
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#027")                       
-                                Error FileDownloadErrorMHD  
+                                async { return Error FileDownloadErrorMHD } 
                     )
     
                 let downloadTimetables reportProgress (token : CancellationToken) = 
@@ -225,10 +243,16 @@ module MDPO_BL = //FsHttp
                                 |> Map.toList 
                                 |> List.Parallel.map_IO
                                     (fun (link, pathToFile)
-                                        ->                                         
-                                        counterAndProgressBar.Post <| Inc 1
-                                        token.ThrowIfCancellationRequested () //tady rychlejsi, nez s config_cancellationToken
-                                        runIO <| downloadFileTask token link pathToFile                                       
+                                        -> 
+                                        async
+                                            {
+                                                counterAndProgressBar.Post <| Inc 1
+                                                token.ThrowIfCancellationRequested () //tady rychlejsi, nez s config_cancellationToken
+                                                return! runIO <| downloadFileTaskAsync token link pathToFile  
+                                            } 
+                                        |> Async.Catch
+                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                        |> Result.ofChoice
                                     )                                 
                                 |> List.tryPick
                                     (Result.either
@@ -261,6 +285,8 @@ module MDPO_BL = //FsHttp
         )
 
     //**************************************** UNSAFE CODE, NOT FOR PRODUCTION ****************************************
+
+    // Synchronous version
     
     //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)  
     let internal unsafeFilterTimetables pathToDir token = 
@@ -437,7 +463,7 @@ module MDPO_BL = //FsHttp
                                 //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
                                 use response = (getUnsafe >> Request.send <| uri) //Option.ofNull tady neni treba                                    
                         
-                                match response.statusCode with        //TODO logfile
+                                match response.statusCode with        
                                 | HttpStatusCode.OK                  -> Ok <| response.SaveFile pathToFile                                                                             
                                 | HttpStatusCode.BadRequest          -> Error BadRequest  
                                 | HttpStatusCode.InternalServerError -> Error InternalServerError

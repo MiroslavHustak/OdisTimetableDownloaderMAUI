@@ -112,7 +112,7 @@ module Messages =
     let [<Literal>] internal cancelMsg1 = "Kvůli přerušení připojení k internetu se činnost aplikace ukončuje, může to chvíli trvat ..."
     let [<Literal>] internal cancelMsg1NoConn = "Po obnovení připojení k internetu se činnost aplikace ukončí, může to chvíli trvat ..."
     let [<Literal>] internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
-    let [<Literal>] internal cancelMsg3 = "Chvíli strpení, operace se ukončuje ..."
+    let [<Literal>] internal cancelMsg3 = "Chvíli strpení, operace se ukončuje. Pokud ukončování trvá dlouho a jsi netrpělivý, vypni a zapni aplikaci."
 
     let [<Literal>] internal cancelMsg4 = "Stahování JŘ KODIS předčasně ukončeno."
     let [<Literal>] internal cancelMsg5 = "Stahování JŘ KODIS předčasně ukončeno, úklid se nepodařil."
@@ -134,7 +134,7 @@ module Messages =
     let internal appInfoInvoker = 
         sprintf "%s %s"
         <| "Objevilo se tlačítko \"Spustit AppInfo\"?" 
-        <| "Klepni na něj, povol manipulaci se soubory a restartuj aplikaci." 
+        <| "Klepni na něj, povol manipulaci se soubory a vrať se zpět na aplikaci." 
 
     let (|Second|Seconds|SecondPlural|) = function 1 -> Second | 2 | 3 | 4 -> Seconds | _ -> SecondPlural
 

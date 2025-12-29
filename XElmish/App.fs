@@ -841,25 +841,7 @@ module App =
                                 | true  -> return ()
                                 | false -> return! delayedCmd2 token dispatch
                             }
-                        |> Async.StartImmediate
-
-                    //For educational purposes - this is how not to do it (creeping business logic into the UI layer)
-                    let cmd2 () : Cmd<Msg> =
-                        async 
-                            {
-                                match! BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
-                                | Ok _      -> return Ok >> CanopyDifferenceResult <| ()
-                                | Error err -> return Error >> CanopyDifferenceResult <| err                                            
-                            }
-                        |> Cmd.ofAsyncMsg                           
-
-                    //For educational purposes - this is how not to do it (creeping business logic into the UI layer)  
-                    let cmd () : Cmd<Msg> = 
-                         Cmd.batch
-                            [
-                                Cmd.ofSub executeSequentially
-                                cmd2 () 
-                            ]
+                        |> Async.StartImmediate                   
 
                     match connectivityListener >> runIO >> Option.ofBool <| () with
                     | Some _
@@ -875,7 +857,7 @@ module App =
                                 MdpoVisible = false
                                 ProgressCircleVisible = false
                         }, 
-                        cmd () //Cmd.ofSub executeSequentially  
+                        Cmd.ofSub executeSequentially  
                    
                     | None  
                         ->

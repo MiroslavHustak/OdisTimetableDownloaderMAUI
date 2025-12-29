@@ -31,7 +31,7 @@ module TP_Canopy_Difference =
         let fileNames pathToFile =
 
             IO (fun () 
-                    ->  // TOCTOU race problem with .Exists -> removed
+                    ->  
                     try
                         Directory.EnumerateFiles pathToFile
                         |> Seq.map Path.GetFileName
@@ -46,7 +46,7 @@ module TP_Canopy_Difference =
         let getDirNames pathToDir =
 
             IO (fun () 
-                    ->  // TOCTOU race problem with .Exists -> removed
+                    ->  
                     try
                         Directory.EnumerateDirectories pathToDir
                     with

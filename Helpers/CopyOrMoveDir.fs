@@ -9,6 +9,9 @@ open IO_Monad
 open Builders
 open Types.Haskell_IO_Monad_Simulation
 
+#if ANDROID
+open Android.OS
+#endif
 
 // In this solution, source and destination values are null-checked and validated in the free monad.
 // !!!!!!!!!!!!!!!! Ensure proper checking and validation when used elsewhere !!!!!!!!!!!!!!!!!!!
@@ -21,6 +24,12 @@ module private PathHelpers =
         | Dir
         | File
         | Missing
+
+    #if ANDROID 
+    let isAtLeastAndroid11 = int Build.VERSION.SdkInt >= 30
+    #else
+    let isAtLeastAndroid11 = false
+    #endif
 
     let preparePath (context : string) (path : string) : Result<string, string> =
 
@@ -40,29 +49,58 @@ module private PathHelpers =
         //TOCTOU race -> try-with will catch
         //let dirExists = Directory.Exists fullPath
         //let fileExists = File.Exists fullPath
-        
-        match preparePath "Provided" fullPath with
-        | Error e
-            ->
-            Error e
-        | Ok normalizedPath
+
+        match isAtLeastAndroid11 with
+        | true 
+            -> 
+            match preparePath "Provided" fullPath with
+            | Error e
+                ->
+                Error e
+            | Ok normalizedPath
+                ->
+                try
+                    let attrs = File.GetAttributes fullPath
+                    match attrs &&& FileAttributes.Directory = FileAttributes.Directory with
+                    | true  -> Ok Dir
+                    | false -> Ok File
+                with
+                | :? FileNotFoundException
+                | :? DirectoryNotFoundException
+                    ->
+                    Ok Missing
+                | :? UnauthorizedAccessException 
+                    ->
+                    Error (sprintf "Access denied to path '%s'" normalizedPath)
+                | ex
+                    ->
+                    Error (sprintf "Failed inspecting path '%s': %s" normalizedPath (string ex.Message))
+        | false 
             ->
             try
-                let attrs = File.GetAttributes fullPath
-                match attrs &&& FileAttributes.Directory = FileAttributes.Directory with
-                | true  -> Ok Dir
-                | false -> Ok File
+                let dirExists = Directory.Exists fullPath
+                let fileExists = File.Exists fullPath
+
+                match dirExists, fileExists with
+                | true, false 
+                    -> 
+                    Ok Dir
+                | false, true 
+                    ->
+                    Ok File
+                | true, true
+                    ->
+                    // extremely rare
+                    try
+                        let attrs = File.GetAttributes fullPath
+                        match (attrs &&& FileAttributes.Directory) = FileAttributes.Directory with true -> Ok Dir | false -> Ok File
+                    with 
+                    | _ -> Ok Dir
+                | false, false 
+                    ->
+                    Ok Missing
             with
-            | :? FileNotFoundException
-            | :? DirectoryNotFoundException
-                ->
-                Ok Missing
-            | :? UnauthorizedAccessException 
-                ->
-                Error (sprintf "Access denied to path '%s'" normalizedPath)
-            | ex
-                ->
-                Error (sprintf "Failed inspecting path '%s': %s" normalizedPath (string ex.Message))
+            | ex -> Error (sprintf "Failed inspecting path '%s': %s" <| fullPath <| string ex.Message)
 
 module MoveDir =
    
@@ -90,30 +128,49 @@ module MoveDir =
 
     let private moveFile (source : string) (target : string) : Result<unit, string> =
 
-        result
-            {
-                let! sourceFull = preparePath "source" source
-                let! targetFull = preparePath "target" target
+        match PathHelpers.isAtLeastAndroid11 with
+        | true  
+            ->
+            result
+                {
+                    let! sourceFull = preparePath "source" source
+                    let! targetFull = preparePath "target" target
     
-                match sourceFull = targetFull with
-                | true  ->
-                        return ()  
-                | false ->
-                        let moveAction : IO_Monad<unit> =  //tohle je lazy, takze se to neprovede hned
-                            IOMonad
-                                {
-                                    return! primIO (fun () -> File.Move(sourceFull, targetFull, overwrite = true)) //overwrite = true -> fileDelete () + fileMove () 
-                                }
+                    match sourceFull = targetFull with
+                    | true  ->
+                            return ()  
+                    | false ->
+                            let moveAction : IO_Monad<unit> =  //tohle je lazy, takze se to neprovede hned
+                                IOMonad
+                                    {
+                                        return! primIO (fun () -> File.Move(sourceFull, targetFull, overwrite = true)) //overwrite = true -> fileDelete () + fileMove () 
+                                    }
     
-                        try
-                            runIOMonad moveAction
-                            return ()
-                        with 
-                        | ex
-                            ->
-                            return!
-                                Error (sprintf "Failed to move file from '%s' to '%s': %s" sourceFull targetFull (string ex.Message))
-            }
+                            try
+                                runIOMonad moveAction
+                                return ()
+                            with 
+                            | ex
+                                ->
+                                return!
+                                    Error (sprintf "Failed to move file from '%s' to '%s': %s" sourceFull targetFull (string ex.Message))
+                }
+
+            | false 
+                -> 
+                try
+                    match (File.Exists target) with
+                    | true 
+                        ->
+                        File.Delete target
+                        File.Move(source, target)
+                        Ok ()            
+                    | false 
+                        ->
+                        File.Move(source, target)
+                        Ok ()
+                with 
+                | ex -> Error ex.Message 
 
     let private moveEntry source target  =
 
@@ -172,8 +229,13 @@ module MoveDir =
 
         let moveAllEntries preparedSource target =
 
-            Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories)
-            |> Seq.map 
+            // Eagerly enumerate entries as a list to close handles
+            let entries = 
+                Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories) 
+                |> Seq.toList
+
+            entries
+            |> List.map 
                 (fun entry 
                     ->
                     result
@@ -187,7 +249,6 @@ module MoveDir =
                             return! moveEntry entry dest 
                         }
                 )
-            |> Seq.toList
 
         IO (fun () 
                 ->
@@ -223,20 +284,6 @@ module MoveDir =
                 | ex -> Error <| string ex.Message
         )
 
-module MoveDir2 =
-                
-    let internal moveDirectory2 source targetParent : IO<Result<unit, string>> =
-
-        IO (fun () 
-                ->    
-                try
-                    match NativeHelpers.Native.rust_move_c(source, targetParent) with
-                    | 0 -> Ok ()
-                    | n -> Error (sprintf "Native move operation failed with code %d" n)
-                with
-                | ex -> Error <| string ex.Message
-        )
-
 module CopyDir =
 
     let private prepareMoveEntireFolder source = PathHelpers.preparePath "Source" source
@@ -255,7 +302,10 @@ module CopyDir =
             }
 
     let private copyEntry source (destination : string) overwrite =
-
+   
+        match PathHelpers.isAtLeastAndroid11 with
+        | true 
+            ->
             result
                 {
                     let! fullSource = PathHelpers.preparePath "Source" source
@@ -291,10 +341,61 @@ module CopyDir =
                             | _ ->
                                 sprintf "Failed to copy '%s' to '%s': %s" fullSource destination (string ex.Message)                       
                 }
+        | false 
+            ->
+            let tryCopyEntry () = 
+                
+                match PathHelpers.preparePath "Source" source with
+                           
+                | Ok fullSource
+                    ->
+                    match PathHelpers.detectPathKind fullSource with
+                    | Ok PathHelpers.Dir
+                        ->
+                        Directory.CreateDirectory destination |> ignore<DirectoryInfo>
+                        Ok ()
+                
+                    | Ok PathHelpers.File
+                        ->
+                        Path.GetDirectoryName destination
+                        |> Option.ofNullEmpty
+                        |> Result.fromOption
+                        |> Result.bind 
+                            (fun dir 
+                                ->
+                                Directory.CreateDirectory dir |> ignore<DirectoryInfo>
+                
+                                match (File.Exists destination, overwrite) with
+                                | (true, true) 
+                                    ->
+                                    File.Copy(fullSource, destination, true)
+                                    Ok ()
+                                | (false, _) 
+                                    ->
+                                    File.Copy(fullSource, destination, false)
+                                    Ok ()
+                                | (true, false) 
+                                    -> 
+                                    Ok ()
+                            )
+                
+                    | Ok PathHelpers.Missing 
+                        ->
+                        Error (sprintf "Invalid path (does not exist): %s" fullSource)
+                
+                    | Error e -> Error e
+                
+                | Error e -> Error e
+                
+            try
+                tryCopyEntry ()
+            with 
+            | ex -> Error <| string ex.Message
 
     let internal copyDirectory source targetParent mode overwriteOption : IO<Result<unit,string>> =
+
         IO (fun ()
-              ->
+                ->
                 try
                     result
                         {
@@ -330,11 +431,14 @@ module CopyDir =
     
                             Directory.CreateDirectory target |> ignore
     
-                            let entries = Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories)
+                            // Eagerly enumerate entries as a list to close handles
+                            let entries = 
+                                Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories) 
+                                |> Seq.toList
     
                             let errors =
                                 entries
-                                |> Seq.map
+                                |> List.map
                                     (fun entry 
                                         ->
                                         result 
@@ -355,7 +459,6 @@ module CopyDir =
                                                 return! copyEntry entry dest overwriteOption
                                             }
                                 )
-                                |> Seq.toList
                                 |> List.choose (function Error e -> Some e | Ok _ -> None)
     
                             return!
@@ -367,10 +470,24 @@ module CopyDir =
                 | ex -> Error <| sprintf "Unexpected exception in copyDirectory: %s" (string ex.Message)
         )
 
+module MoveDir2 =
+            
+    let internal moveDirectory2 source targetParent : IO<Result<unit, string>> =
+
+        IO (fun () 
+                ->    
+                try
+                    match NativeHelpers.Native.rust_move_c(source, targetParent) with
+                    | 0 -> Ok ()
+                    | n -> Error (sprintf "Native move operation failed with code %d" n)
+                with
+                | ex -> Error <| string ex.Message
+        )
+
 module CopyDir2 =
-
+        
     let internal copyDirectory2 source targetParent =
-
+        
         IO (fun ()
                 ->
                 try

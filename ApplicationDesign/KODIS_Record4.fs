@@ -25,7 +25,8 @@ open IO_Operations.CreatingPathsAndNames
 open Settings.Messages
 open Settings.SettingsGeneral
 
-open BusinessLogic4.KODIS_BL_Record4
+open ApplicationDesign4.KODIS_BL_Record4
+
 
 //**********************************
 
@@ -57,7 +58,7 @@ module WebScraping_KODIS4 =
     type private Environment = 
         {
             DeleteAllODISDirectories : string -> IO<Result<unit, JsonParsingAndPdfDownloadErrors>>
-            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>>> 
+            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> 
             DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, JsonParsingAndPdfDownloadErrors>
         }
 
@@ -177,7 +178,7 @@ module WebScraping_KODIS4 =
             let dir = context2.DirList |> List.item context2.VariantInt  
             let list = runIO <| operationOnDataFromJson token context2.Variant dir 
         
-            match list |> Async.RunSynchronously with //to je strasne slozite davat to do Elmishe
+            match list with //to je strasne slozite davat to do Elmishe
             | Ok list
                 when
                     list <> List.empty

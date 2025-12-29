@@ -2,6 +2,7 @@
 
 open System.IO
 open System.Threading
+open System.Collections
 
 open FsToolkit.ErrorHandling    
 
@@ -24,6 +25,10 @@ open CreatingPathsAndNames
 
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
+
+#if ANDROID
+open Android.OS
+#endif
 
 module IO_Operations =    
     
@@ -246,37 +251,126 @@ module IO_Operations =
                     Error <| PdfError CreateFolderError2   
         )
 
-    let internal moveFolders source destination err1 err2 =
-
-        IO (fun ()
+    let private moveFoldersAndroid11Plus source destination err1 err2 =
+        
+        IO (fun () 
                 ->
+                let ensureSource () =
+                    try
+                        // safest existence check is to *touch* the directory
+                        Directory.EnumerateFileSystemEntries source |> ignore<IEnumerable>
+                        Ok ()
+                    with 
+                    | ex
+                        ->
+                        runIO (postToLog ex.Message "#444-source-probe")
+                        Error err1
+    
+                let ensureDestination () =
+                    try
+                        let dir = Directory.CreateDirectory destination
+                        Thread.Sleep 1000 //stabilization time
+                        Ok dir
+                    with
+                    | ex 
+                        ->
+                        runIO (postToLog ex.Message "#444-create-dest-ex") 
+                        Error err2
+    
                 result
                     {
-                        try
-                            Directory.CreateDirectory destination |> ignore<DirectoryInfo>
-                        with 
-                        | ex
+                        match ensureSource () with
+                        | Ok ()
+                            -> ()
+                        | Error err 
+                            -> return! Error err
+    
+                        match ensureDestination () with
+                        | Ok _ 
+                            -> ()
+                        | Error err
+                            -> return! Error err
+    
+                        match runFreeMonad (copyOrMoveFiles { source = source; destination = destination } Move) with
+                        | Ok _ 
+                            -> return ()
+                        | Error moveErr
                             ->
-                            runIO (postToLog (string ex.Message) "#444-create-dest")
-                            return ()
-    
-                        do!
-                            runFreeMonad
-                            <| 
-                            copyOrMoveFiles { source = source; destination = destination } Move
-                            |> Result.mapError 
-                                (fun moveErr
-                                    ->
-                                    //runIO (postToLog moveErr "#444-move-files")
-                                    err2  
-                                )
-    
-                        return ()
+                            runIO (postToLog moveErr "#444-move-files") 
+                            return! Error err2
                     }
-                |> Result.mapError 
+                |> Result.mapError
                     (fun finalErr 
                         ->
-                        //runIO (postToLog (string finalErr) "#444-final-error")
+                        runIO (postToLog (string finalErr) "#444-final-error") 
                         finalErr
-                    )  
-    )
+                    )
+        )    
+
+    let private moveFoldersAndroid7_1 source destination err1 err2 = 
+        
+        IO (fun () 
+                ->
+                pyramidOfInferno
+                    {
+                        let! _ = 
+                            Directory.Exists source |> Result.fromBool () err1,
+                                fun _ -> Ok ()   
+                            
+                        let! _ =
+                            Directory.Exists destination |> Result.fromBool () err2,
+                                fun _ 
+                                    ->
+                                    try
+                                        pyramidOfInferno 
+                                            {
+                                                let! _ =    
+                                                    let dirInfo = Directory.CreateDirectory destination
+                                                    Thread.Sleep 1000 //wait for the directory to be created  
+        
+                                                    dirInfo.Exists |> Result.fromBool () err2,
+                                                        fun _
+                                                            ->
+                                                            runIO (postToLog <| err2 <| "#444-1")
+                                                            Error err2
+                                                let! _ =
+                                                    runFreeMonad
+                                                    <|
+                                                    copyOrMoveFiles { source = source; destination = destination } Move,
+                                                        fun _ 
+                                                            ->
+                                                            runIO (postToLog <| err2 <| "#444-2")
+                                                            Error err2
+                                    
+                                                return Ok ()
+                                            }                                 
+                                    with 
+                                    | ex 
+                                        ->
+                                        runIO (postToLog <| ex.Message <| "#444-3")
+                                        Error err2                       
+                   
+                        let! _ = 
+                            runFreeMonad 
+                            <| 
+                            copyOrMoveFiles { source = source; destination = destination } Move,   
+                                fun err
+                                    ->
+                                    runIO (postToLog <| err <| "#444-48")
+                                    Error err2
+                                 
+                        return Ok ()
+                    } 
+        )
+
+    let internal moveFolders source destination err1 err2 : IO<Result<unit, 'a>>= 
+
+        #if ANDROID 
+        let isAtLeastAndroid11 = int Build.VERSION.SdkInt >= 30
+        #else
+        let isAtLeastAndroid11 = true
+        #endif
+
+        match isAtLeastAndroid11 with   
+        | true  -> moveFoldersAndroid11Plus source destination err1 err2
+        | false -> moveFoldersAndroid7_1 source destination err1 err2   

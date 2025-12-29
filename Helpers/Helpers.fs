@@ -140,30 +140,38 @@ module DirFileHelper =
         •	This means your results will be empty if the condition is not met, even if the directory exists and contains files.
     *)
     let internal checkFileCondition pathToFile condition =
-
+    
         IO (fun () 
                 -> 
                 option
                     {
                         let! filepath = SafeFullPath.safeFullPathOption pathToFile                  
-                        let fInfodat : FileInfo = FileInfo filepath
-
-                        return! condition fInfodat |> Option.ofBool  
+                        let fInfodat : FileInfo = FileInfo filepath    
+    
+                        return!
+                            try
+                                condition fInfodat |> Option.ofBool
+                            with
+                            | _ -> None
                     }     
         )
-
-    let internal checkDirectoryCondition pathToDir condition =
     
+    let internal checkDirectoryCondition pathToDir condition =
+        
         IO (fun () 
                 -> 
                 option
                     {
                         let! dirpath = SafeFullPath.safeFullPathOption pathToDir                 
                         let dInfodat : DirectoryInfo = DirectoryInfo dirpath
-    
-                        return! condition dInfodat |> Option.ofBool  
+        
+                        return!
+                            try
+                                condition dInfodat |> Option.ofBool
+                            with
+                            | _ -> None 
                     }     
-        )
+        )    
 
 module MyString = 
             
@@ -174,9 +182,7 @@ module MyString =
         |> List.fold (fun acc i -> (+) acc stringToAdd) String.Empty
 
 module Xor = 
-
     //pro xor CE musi byt explicitne typ, type inference bere u yield typ unit, coz tady jaksi nejde, bo bool
-
     //jen priklad pouziti, v realnem pripade pouzij primo xor { a; b } nebo xor { a; b; c }    
     let internal xor2 (a : bool) (b : bool) = xor { a; b }
     let internal xor3 (a : bool) (b : bool) (c : bool) = xor { a; b; c }   
@@ -188,10 +194,8 @@ module Validation =
        try 
            match Uri.TryCreate(s, UriKind.Absolute) with
            | true, uri
-               ->
-               uri.Scheme = Uri.UriSchemeHttps && uri.Host.Contains(".") && not (uri.Host.Contains("://"))
-           | _ ->
-               false    
+               -> uri.Scheme = Uri.UriSchemeHttps && uri.Host.Contains(".") && not (uri.Host.Contains("://"))
+           | _ -> false    
         with
         | _ -> false
        

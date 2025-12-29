@@ -86,7 +86,11 @@ module FreeMonadInterpret =
             let sourceFilepath (source : string) : Result<string,string> =                
                 result
                     {
-                        return! SafeFullPath.safeFullPathResult source 
+                        let dInfodat : DirectoryInfo = DirectoryInfo source   
+                       //Added existence check for destination directory despite of TOCTOU risk because od Android 7.1
+                        let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302-2" source) dInfodat.Exists    
+
+                        return! SafeFullPath.safeFullPathResult source
                     }                
 
             interpret config io_operation (next (sourceFilepath config.source))
@@ -96,7 +100,11 @@ module FreeMonadInterpret =
             let destinFilepath destination =                  
                 result
                     {
-                        return! SafeFullPath.safeFullPathResult destination  
+                        let dInfodat : DirectoryInfo = DirectoryInfo destination   
+                        //Added existence check for destination directory despite of TOCTOU risk because od Android 7.1
+                        let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302" destination) dInfodat.Exists    
+                        
+                        return! SafeFullPath.safeFullPathResult destination                          
                     }  
 
             interpret config io_operation (next (destinFilepath config.destination))
@@ -110,12 +118,15 @@ module FreeMonadInterpret =
         FreeMonad
             (fun () 
                 -> 
-                cmdBuilder
-                    {
-                        let! sourceFilepath = Free (SourceFilepath Pure)                
-                        let! destinFilepath = Free (DestinFilepath Pure)
+                try
+                    cmdBuilder
+                        {
+                            let! sourceFilepath = Free (SourceFilepath Pure)                
+                            let! destinFilepath = Free (DestinFilepath Pure)
 
-                        return! Free (CopyOrMove (sourceFilepath, destinFilepath))
-                    }
-                |> interpret config io_operation  
+                            return! Free (CopyOrMove (sourceFilepath, destinFilepath))
+                        }
+                    |> interpret config io_operation  
+                with
+                | ex -> Error <| string ex.Message
             )
