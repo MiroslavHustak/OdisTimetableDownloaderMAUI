@@ -158,7 +158,7 @@ let iter_CPU_Async (action : 'a -> unit) (list : 'a list) : unit =
         let maxDegree = Environment.ProcessorCount   // or numberOfThreads (List.length list)
 
         list
-        |> List.map (fun x -> async { action x })
+        |> List.map (fun x -> async { return action x })
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
         |> Async.Ignore
         |> Async.RunSynchronously
@@ -252,7 +252,7 @@ let iter2_CPU_Async<'a, 'b> (mapping: 'a -> 'b -> unit) (xs1: 'a list) (xs2: 'b 
         let maxDegree = Environment.ProcessorCount   // typical choice for CPU-bound work
 
         List.zip xs1 xs2
-        |> List.map (fun (x, y) -> async { mapping x y })
+        |> List.map (fun (x, y) -> async { return mapping x y })
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
         |> Async.Ignore
         |> Async.RunSynchronously
@@ -271,7 +271,7 @@ let iter2_IO<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list
         let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid xs1Length
         
         List.zip xs1 xs2
-        |> List.map (fun (x, y) -> async { mapping x y })
+        |> List.map (fun (x, y) -> async { return mapping x y })
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
         |> Async.Ignore
         |> Async.RunSynchronously

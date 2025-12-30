@@ -61,7 +61,7 @@ module WebScraping_KODIS =
         {
             DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> IO<Result<unit, JsonDownloadErrors>>
             DeleteAllODISDirectories : string -> IO<Result<unit, JsonParsingAndPdfDownloadErrors>>
-            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>> 
+            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Result<string list, JsonParsingAndPdfDownloadErrors>> 
             FilterTimetableLinks : Validity -> string -> Result<string list, JsonParsingAndPdfDownloadErrors> -> IO<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> 
             DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, JsonParsingAndPdfDownloadErrors>
         }
@@ -169,7 +169,7 @@ module WebScraping_KODIS =
                     | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
                     | JsonError JsonDataFilteringError -> dataFilteringError 
                                                                  
-                let result (lazyList : Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>) (context2 : Context2) =  
+                let result (lazyList : Result<string list, JsonParsingAndPdfDownloadErrors>) (context2 : Context2) =  
                    
                     dispatchWorkIsComplete dispatchMsg2
 
@@ -177,7 +177,7 @@ module WebScraping_KODIS =
                         
                     let list = 
                         try  
-                            runIO <| filterTimetableLinks context2.Variant dir lazyList.Value //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
+                            runIO <| filterTimetableLinks context2.Variant dir lazyList //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
                         with
                         | ex
                             ->
@@ -273,7 +273,7 @@ module WebScraping_KODIS =
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#22-1")
                                 Error <| JsonError JsonParsingError
-                                |> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>                       
+                                //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
 
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn

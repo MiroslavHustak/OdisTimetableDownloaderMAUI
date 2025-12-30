@@ -44,7 +44,8 @@ module Messages =
     let [<Literal>] internal deleteOldTimetablesMsg3 = "Při odstraňování zálohovaných předchozích JŘ došlo k problému, ověř, že nemáš otevřen předchozí JŘ."
 
     let [<Literal>] internal dispatchMsg1 = "Dokončeno stahování JSON souborů." 
-    let [<Literal>] internal dispatchMsg2 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
+    let [<Literal>] internal dispatchMsg2 = "Dokončeno stahování JSON souborů, nyní chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
+    let [<Literal>] internal dispatchMsg2_4 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
     let [<Literal>] internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
     
     let [<Literal>] internal dispatchMsg0 = "Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
