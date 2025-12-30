@@ -349,7 +349,7 @@ let map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationTo
         List.zip xs1 xs2
         |> List.map (fun (x, y) -> async { return mapping x y })
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
-        |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)
+        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> Array.toList
 
 // *********************************************************************
