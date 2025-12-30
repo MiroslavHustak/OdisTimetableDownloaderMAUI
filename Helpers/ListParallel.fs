@@ -160,7 +160,7 @@ let iter_CPU_Async (action : 'a -> unit) (list : 'a list) : unit =
         list
         |> List.map (fun x -> async { return action x })
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
-        |> Async.Ignore
+        |> Async.Ignore<unit array> 
         |> Async.RunSynchronously
 
 let iter_IO (action : 'a -> unit) (list : 'a list) =
@@ -254,7 +254,7 @@ let iter2_CPU_Async<'a, 'b> (mapping: 'a -> 'b -> unit) (xs1: 'a list) (xs2: 'b 
         List.zip xs1 xs2
         |> List.map (fun (x, y) -> async { return mapping x y })
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
-        |> Async.Ignore
+        |> Async.Ignore<unit array> 
         |> Async.RunSynchronously
 
 let iter2_IO<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =      
@@ -273,7 +273,7 @@ let iter2_IO<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list
         List.zip xs1 xs2
         |> List.map (fun (x, y) -> async { return mapping x y })
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
-        |> Async.Ignore
+        |> Async.Ignore<unit array> 
         |> Async.RunSynchronously
 
 // Using Array.Parallel.map  //TODO otestovat rychlost ve srovnani s Async.Parallel

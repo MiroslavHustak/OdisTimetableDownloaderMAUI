@@ -307,7 +307,7 @@ module IO_Operations =
                     )
         )    
 
-    let private moveFoldersAndroid7_1 source destination err1 err2 = 
+    let private moveFoldersAndroid7_1 source destination err1 err2 = //7.1 bez Exists nefunguje, TOCTOU zatim neni problem
         
         IO (fun () 
                 ->

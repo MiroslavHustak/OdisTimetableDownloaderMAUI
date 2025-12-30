@@ -169,7 +169,7 @@ module WebScraping_KODIS =
                     | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
                     | JsonError JsonDataFilteringError -> dataFilteringError 
                                                                  
-                let result (lazyList : Result<string list, JsonParsingAndPdfDownloadErrors>) (context2 : Context2) =  
+                let result lazyList (context2 : Context2) =  
                    
                     dispatchWorkIsComplete dispatchMsg2
 
@@ -177,6 +177,7 @@ module WebScraping_KODIS =
                         
                     let list = 
                         try  
+                            let lazyList = lazyList ()
                             runIO <| filterTimetableLinks context2.Variant dir lazyList //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
                         with
                         | ex
@@ -264,7 +265,7 @@ module WebScraping_KODIS =
                         let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
                         let!_ = runIO <| createFolders dirList, errFn 
 
-                        let lazyList = 
+                        let lazyList () = 
                             //laziness jen jako priprava pro pripadne threadsafe multitasking, zatim zadny rozdil oproti eager + parameterless (krome trochu vetsiho overhead u lazy)
                             try               
                                 runIO <| environment.ParseJsonStructure reportProgress token  //TODO pri tvorbe profi UI/UX toto dej jako stateReducerCmd2, ostatni jako stateReducerCmd3

@@ -59,7 +59,7 @@ module KODIS_BL_Record =
                             
                             token.ThrowIfCancellationRequested ()                            
                                                                     
-                            let existingFileLength =                               
+                            let existingFileLength =  // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem                             
                                 runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
                                 |> function
                                     | Some _ -> (FileInfo pathToFile).Length
@@ -224,7 +224,7 @@ module KODIS_BL_Record =
                                             // Artificial checkpoint
                                             token.ThrowIfCancellationRequested () 
     
-                                            let pathToFileExistFirstCheck = 
+                                            let pathToFileExistFirstCheck = // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem        
                                                 runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
                                                 in
                                                 match pathToFileExistFirstCheck with  
@@ -313,7 +313,7 @@ module KODIS_BL_Record =
                         let! context = fun env -> env
              
                         return
-                            match context.dir |> Directory.Exists with 
+                            match context.dir |> Directory.Exists with //TOCTOU race condition by tady nemel byt problem
                             | false ->
                                     runIO (postToLog <| NoFolderError <| "#251")
                                     Error <| PdfError NoFolderError  

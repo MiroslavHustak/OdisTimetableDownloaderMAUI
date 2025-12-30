@@ -173,7 +173,7 @@ module WebScraping_KODIS4 =
        
         let result (context2 : Context2) =   
         
-            dispatchWorkIsComplete dispatchMsg2_4
+            dispatchWorkIsComplete dispatchMsg2
                              
             let dir = context2.DirList |> List.item context2.VariantInt  
             let list = runIO <| operationOnDataFromJson token context2.Variant dir 

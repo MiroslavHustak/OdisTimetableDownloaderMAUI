@@ -154,7 +154,7 @@ module KODIS_BL_Record4 =
                                         // Artificial checkpoint
                                         token.ThrowIfCancellationRequested () 
        
-                                        let pathToFileExistFirstCheck = 
+                                        let pathToFileExistFirstCheck = // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem
                                             runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
                                             in
                                             match pathToFileExistFirstCheck with  
@@ -244,7 +244,7 @@ module KODIS_BL_Record4 =
                         let! context = fun env -> env
                 
                         return
-                            match context.dir |> Directory.Exists with 
+                            match context.dir |> Directory.Exists with // TOCTOU race zatim nebyl problem
                             | false ->
                                     runIO (postToLog <| NoFolderError <| "#251-4")
                                     Error <| PdfError NoFolderError                                

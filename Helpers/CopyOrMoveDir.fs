@@ -78,8 +78,8 @@ module private PathHelpers =
         | false 
             ->
             try
-                let dirExists = Directory.Exists fullPath
-                let fileExists = File.Exists fullPath
+                let dirExists = Directory.Exists fullPath // bez tohoto dir checking mobilni app pro A7.1 nefunguje, TOCTOU race zatim nebyl problem
+                let fileExists = File.Exists fullPath     // bez tohoto file checking mobilni app pro A7.1 nefunguje, TOCTOU race zatim nebyl problem
 
                 match dirExists, fileExists with
                 | true, false 
@@ -159,7 +159,7 @@ module MoveDir =
             | false 
                 -> 
                 try
-                    match (File.Exists target) with
+                    match (File.Exists target) with // bez tohoto file checking mobilni app pro A7.1 nefunguje, TOCTOU race zatim nebyl problem
                     | true 
                         ->
                         File.Delete target
@@ -365,7 +365,7 @@ module CopyDir =
                                 ->
                                 Directory.CreateDirectory dir |> ignore<DirectoryInfo>
                 
-                                match (File.Exists destination, overwrite) with
+                                match (File.Exists destination, overwrite) with // bez tohoto file checking mobilni app pro A7.1 nefunguje, TOCTOU race zatim nebyl problem
                                 | (true, true) 
                                     ->
                                     File.Copy(fullSource, destination, true)

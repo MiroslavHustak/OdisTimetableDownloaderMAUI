@@ -87,7 +87,7 @@ module FreeMonadInterpret =
                 result
                     {
                         let dInfodat : DirectoryInfo = DirectoryInfo source   
-                       //Added existence check for destination directory despite of TOCTOU risk because od Android 7.1
+                       //Added existence check for destination directory despite of TOCTOU risk (Android 7.1)
                         let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302-2" source) dInfodat.Exists    
 
                         return! SafeFullPath.safeFullPathResult source
@@ -101,7 +101,7 @@ module FreeMonadInterpret =
                 result
                     {
                         let dInfodat : DirectoryInfo = DirectoryInfo destination   
-                        //Added existence check for destination directory despite of TOCTOU risk because od Android 7.1
+                        //Added existence check for destination directory despite of TOCTOU risk (Android 7.1)
                         let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302" destination) dInfodat.Exists    
                         
                         return! SafeFullPath.safeFullPathResult destination                          
