@@ -67,10 +67,10 @@ module KODIS_BL_Record4 =
                 async 
                     {
                         let! results = 
-                            [ 
+                            [| 
                                 result1 ()
                                 result2 ()
-                            ]
+                            |]
                             |> Async.Parallel
                             |> Async.Catch
     

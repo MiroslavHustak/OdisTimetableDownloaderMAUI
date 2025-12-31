@@ -36,7 +36,7 @@ open Settings.SettingsGeneral
 open BusinessLogic.KODIS_BL_Record
 
 module WebScraping_KODIS = 
-
+   
     type private State =  
         { 
             TimetablesDownloadedAndSaved : int
@@ -121,10 +121,10 @@ module WebScraping_KODIS =
                                         return Ok ()  //silently ignoring failed move operations
                                     }
                             
-                            [ 
+                            [| 
                                 downloadTask ()
                                 moveAllTask ()
-                            ]
+                            |]
                             |> Async.Parallel  //uz to mame v try with bloku, Async.Catch only if you don’t want one task to cancel all others on failure
                             |> fun workflow -> Async.RunSynchronously(workflow, cancellationToken = token)  
                             |> Array.head
@@ -137,7 +137,7 @@ module WebScraping_KODIS =
                         runIO (postToLog <| string ex.Message <| "#005") 
                         Error JsonDownloadError 
             
-                    |> Result.map (fun _ -> dispatchMsg1) 
+                    |> Result.map (fun _ -> dispatchMsg2) // spravne dispatchMsg1, ale drzi se to po celou dobu ocekavaneho dispatchMsg2
                     |> Result.mapError errFn
 
                 downloadAndSaveJson reportProgress token 
@@ -171,22 +171,65 @@ module WebScraping_KODIS =
                     | JsonError JsonDataFilteringError -> dataFilteringError 
                                                                  
                 let result lazyList (context2 : Context2) =  
-                   
-                    dispatchWorkIsComplete dispatchMsg2
-
+                    
                     let dir = context2.DirList |> List.item context2.VariantInt 
+
+                    // Paralelni dispatch vubec nepomuze, aby se dispatchMsg2 objevil , ale kod ponechavam for educational purposes
+                    let dispatch () = dispatchWorkIsComplete dispatchMsg2
                         
-                    let list = 
+                    let list1 () = 
                         try  
-                            let lazyList = lazyList ()
                             runIO <| filterTimetableLinks context2.Variant dir lazyList //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
                         with
                         | ex
                             ->
                             runIO (postToLog <| string ex.Message <| "#22-2")
                             Error <| JsonError JsonDataFilteringError 
-                                
-                    match list with
+                                                      
+                    let taskDispatch param = async { return DispatchDone param } //for educational purposes
+                    let taskList param = async { return ListDone param } //for educational purposes
+                    
+                    let result : Result<TaskResults array, exn>  = //for educational purposes
+                         [|
+                            taskDispatch (dispatch ())
+                            taskList (list1())
+                         |] 
+                         |> Async.Parallel 
+                         |> Async.Catch
+                         |> Async.RunSynchronously
+                         |> Result.ofChoice
+
+                    let result2 : Result<(string * string) list, JsonParsingAndPdfDownloadErrors> = //for educational purposes
+                        match result with   
+                        | Ok resultsArray 
+                            ->                         
+                            resultsArray 
+                            |> Array.tryPick 
+                                (
+                                    function 
+                                        | ListDone listResult -> Some listResult 
+                                        | DispatchDone _      -> None
+                                )
+                            |> Option.defaultValue (Error <| JsonError JsonDataFilteringError)
+                        | Error _ 
+                            ->  
+                            Error <| JsonError JsonDataFilteringError     
+                            
+                    (*
+                    dispatchWorkIsComplete dispatchMsg2
+
+                    let list2 = 
+                        try  
+                            runIO <| filterTimetableLinks context2.Variant dir lazyList //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
+                        with
+                        | ex
+                            ->
+                            runIO (postToLog <| string ex.Message <| "#22-2")
+                            Error <| JsonError JsonDataFilteringError 
+                    *)
+                    
+                    //match list2 with
+                    match result2 with
                     | Ok list
                         when
                             list <> List.empty
@@ -266,7 +309,7 @@ module WebScraping_KODIS =
                         let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
                         let!_ = runIO <| createFolders dirList, errFn 
 
-                        let lazyList () = 
+                        let lazyList = 
                             //laziness jen jako priprava pro pripadne threadsafe multitasking, zatim zadny rozdil oproti eager + parameterless (krome trochu vetsiho overhead u lazy)
                             try               
                                 runIO <| environment.ParseJsonStructure reportProgress token  //TODO pri tvorbe profi UI/UX toto dej jako stateReducerCmd2, ostatni jako stateReducerCmd3

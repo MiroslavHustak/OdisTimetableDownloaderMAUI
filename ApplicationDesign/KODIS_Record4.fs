@@ -159,11 +159,11 @@ module WebScraping_KODIS4 =
                
         //runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel start")
         
-        [ 
+        [| 
             moveTask1 ()
             moveTask2 ()
             moveTask3 ()
-        ]
+        |]
         |> Async.Parallel  
         |> Async.Catch   //silently ignoring failed move operations //// becomes Async<Result<Result<_,_>[], exn>>
         |> Async.Ignore<Choice<Result<unit, string> array, exn>>  //silently ignoring failed move operations

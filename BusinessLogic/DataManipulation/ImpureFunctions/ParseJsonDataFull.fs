@@ -42,10 +42,10 @@ module ParseJsonDataFull =
 
         IO (fun () 
                 ->  
-                [
+                [|
                     readAllTextAsync >> runIO <| pathkodisMHDTotal 
                     readAllTextAsync >> runIO <| pathkodisMHDTotal2_0 
-                ]         
+                |]         
                 |> Async.Parallel 
                 |> Async.Catch
                 |> Async.RunSynchronously

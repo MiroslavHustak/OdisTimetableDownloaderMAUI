@@ -2,6 +2,8 @@
 
 open System.Threading
 
+open ErrorTypes
+
 module Haskell_IO_Monad_Simulation =    
     
     type [<Struct>] internal IO<'a> = IO of (unit -> 'a) // wrapping custom type simulating Haskell's IO Monad (without the monad, of course)
@@ -55,24 +57,20 @@ module FreeMonad =
 
     let internal runFreeMonad (FreeMonad action) = action ()
 
-module Types =     
-   
-    type internal Context<'a, 'b, 'c> = 
-        {
-            listMappingFunction : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
-            reportProgress : (float * float ) -> unit
-            dir : string
-            list : (string * string) list
-        }
+module Types =    
+
+    type internal TaskResults =   
+       | DispatchDone of unit
+       | ListDone of Result<(string * string) list, JsonParsingAndPdfDownloadErrors> 
                     
     type [<Struct>] internal MsgIncrement =
         | Inc of int  
            
-    type ConnectivityMessage =
+    type internal ConnectivityMessage =
         | UpdateState of bool
         | CheckState of AsyncReplyChannel<bool>    
 
-    type CancellationMessage =
+    type internal CancellationMessage =
         | UpdateState2 of bool * CancellationTokenSource
         | CheckState2 of AsyncReplyChannel<CancellationToken option>    
 
@@ -93,4 +91,12 @@ module Types =
             source2 : string
             source3 : string
             destination : string
+        }
+
+    type internal Context<'a, 'b, 'c> = 
+        {
+            listMappingFunction : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
+            reportProgress : (float * float ) -> unit
+            dir : string
+            list : (string * string) list
         }
