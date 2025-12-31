@@ -39,16 +39,15 @@ module Connectivity =
 
         IO (fun () 
                 -> 
-                let initialConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
-                    in
-                    actor.Post <| UpdateState initialConnected // prvotni inicializace mailboxu
+                let initialConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet     
+                
+                actor.Post <| UpdateState initialConnected // prvotni inicializace mailboxu
     
                 let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
              
                     try  
-                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet  
-                            in
-                            actor.Post <| UpdateState isConnected
+                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet                              
+                        actor.Post <| UpdateState isConnected
                     with
                     | _ -> ()  //Proste at to tise pokracuje
             
@@ -64,9 +63,8 @@ module Connectivity =
                 let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
 
                     try  
-                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
-                            in
-                            onConnectivityChange isConnected
+                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet                            
+                        onConnectivityChange isConnected
                     with
                     | _ -> ()  //Proste at to tise pokracuje         
             

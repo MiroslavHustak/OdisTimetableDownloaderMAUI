@@ -16,7 +16,7 @@ module StateMonad =
                 runState (f v) s1
             )
 
-   // Computation expression builder for the State monad
+    // Computation expression builder for the State monad
     
     type internal StateBuilder = StateBuilder with
         member _.Return(x) = returnState x

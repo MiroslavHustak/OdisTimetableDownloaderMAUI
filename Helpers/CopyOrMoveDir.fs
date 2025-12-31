@@ -45,11 +45,7 @@ module private PathHelpers =
             | ex -> Error <| sprintf "%s path is invalid: %s" context (string ex.Message)
                  
     let detectPathKind (fullPath : string) : Result<PathKind, string> =
-
-        //TOCTOU race -> try-with will catch
-        //let dirExists = Directory.Exists fullPath
-        //let fileExists = File.Exists fullPath
-
+      
         match isAtLeastAndroid11 with
         | true 
             -> 
@@ -140,7 +136,7 @@ module MoveDir =
                     | true  ->
                             return ()  
                     | false ->
-                            let moveAction : IO_Monad<unit> =  //tohle je lazy, takze se to neprovede hned
+                            let moveAction : IO_Monad<unit> =  //tohle je lazy, takze se to neprovede hned TODO overit
                                 IOMonad
                                     {
                                         return! primIO (fun () -> File.Move(sourceFull, targetFull, overwrite = true)) //overwrite = true -> fileDelete () + fileMove () 
@@ -470,7 +466,7 @@ module CopyDir =
                 | ex -> Error <| sprintf "Unexpected exception in copyDirectory: %s" (string ex.Message)
         )
 
-module MoveDir2 =
+module MoveDir2 = //testing Rust code implementation (for Windows Machine only)    
             
     let internal moveDirectory2 source targetParent : IO<Result<unit, string>> =
 
@@ -484,7 +480,7 @@ module MoveDir2 =
                 | ex -> Error <| string ex.Message
         )
 
-module CopyDir2 =
+module CopyDir2 = //testing Rust code implementation (for Windows Machine only)     
         
     let internal copyDirectory2 source targetParent =
         

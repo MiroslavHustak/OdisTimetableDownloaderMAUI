@@ -109,6 +109,21 @@ module Builders =
          member _.Zero() = ()    
 
     let internal pyramidOfDamnation = MyBuilder5
+
+    //**************************************************************************************
+    type internal OptionAdaptedBuilder = OptionAdaptedBuilder with
+        member _.Bind(m, nextFunc) =
+            match m with
+            | Some v -> nextFunc v
+            | None   -> None    
+        member _.Return x : 'a = x   
+        member _.ReturnFrom x : 'a = x
+        member _.Using(resource, binder) =
+            use r = resource
+            binder r
+    
+    // Instantiate the adapted CE
+    let internal option2 = OptionAdaptedBuilder
       
     //**************************************************************************************
 

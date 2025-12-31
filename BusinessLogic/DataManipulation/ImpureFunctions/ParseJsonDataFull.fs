@@ -25,6 +25,8 @@ open Helpers.DirFileHelper
 
 module ParseJsonDataFull =  
 
+    //************* Zatim pouzivani pozastaneno, kontroluj zas od casu Json od KODISu ************    
+
     //*************************Helpers************************************************************
 
     let private tempJsonIO = 
@@ -66,9 +68,9 @@ module ParseJsonDataFull =
         
         IO (fun () 
                 ->  
-                FSharp.Control.Lazy.Create 
-                    (fun () 
-                        ->
+                //FSharp.Control.Lazy.Create 
+                    //(fun () 
+                     //   ->
                         let kodisTimetables () : Reader<string list, string seq> =
         
                             reader  //Reader monad for educational purposes only, no real benefit here  
@@ -219,5 +221,5 @@ module ParseJsonDataFull =
                             | false ->
                                     runIO (postToLog <| string ex.Message <| "#107")
                                     Error <| JsonError JsonParsingError
-                    )
+                   // )
         )

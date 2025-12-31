@@ -2,9 +2,10 @@
 
 open System
 
-//SCDUs for type-driven development (TDD)  
+// ****************** SCDUs for type-driven development (TDD) ******************      
 
 // [<Struct>] does not help or makes even things worse
+
 type internal CompleteLinkOpt = CompleteLinkOpt of string option
 type internal FileToBeSavedOpt = FileToBeSavedOpt of string option
 type internal OldPrefix = OldPrefix of string

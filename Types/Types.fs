@@ -27,6 +27,7 @@ module Haskell_IO_Monad_Simulation =
     // Simulating Haskell's RealWorld token for better purity representation 
     // Educational code
     type RealWorld = RealWorld 
+
     type IO2<'a> = IO2 of (RealWorld -> RealWorld * 'a)
      
     let runIO2 (IO2 f) =

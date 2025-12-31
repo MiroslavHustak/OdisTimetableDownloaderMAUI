@@ -50,5 +50,5 @@ module ApiTransformLayer =
     let internal transformLogEntriesApiResponse = 
       
         function
-        | Ok value -> value.GetLogEntries
-        | Error _  -> String.Empty
+            | Ok value -> value.GetLogEntries
+            | Error _  -> String.Empty

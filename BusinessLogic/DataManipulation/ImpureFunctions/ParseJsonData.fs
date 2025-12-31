@@ -54,7 +54,7 @@ module ParseJsonData =
                                                             async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
                                                         loop 0
 
-                                    let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
+                                    //let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 
                                     let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel computing done separatelly
                                         pathToJsonList3
@@ -65,7 +65,8 @@ module ParseJsonData =
                                                 
                                                 counterAndProgressBar.Post <| Inc 1
                                                 
-                                                readAllText >> runIO <| pathToJson                                                
+                                                readAllTextAsync >> runIO <| pathToJson   
+                                                |> Async.RunSynchronously
                                                 |> JsonProvider2.Parse // The biggest performance drag                                            
                                             )
 
