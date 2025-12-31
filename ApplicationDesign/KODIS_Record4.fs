@@ -69,7 +69,7 @@ module WebScraping_KODIS4 =
             DownloadAndSave = downloadAndSave >> runIO
         }    
 
-    let private stateReducer (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
+    let private stateReducer (token : CancellationToken) path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
               
         let errFn err =  
 
@@ -134,49 +134,58 @@ module WebScraping_KODIS4 =
                 destination = oldTimetablesPath4 
             }
 
-        // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
-        // nicmene priprava na zpracovani err je provedena  
-        let moveTask1 () = 
-            async
-                {
-                    let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis4 FolderMovingError4
-                    return Ok () 
-                }
-        
-        let moveTask2 () = 
-            async 
-                {    
-                    let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis4 FolderMovingError4
-                    return Ok ()  
-                }
+        let moveAll () =  
 
-        let moveTask3 () = 
-            async
-                {
-                    let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis4 FolderMovingError4
-                    return Ok ()  
-                }     
+            IO (fun () 
+                    ->
+                    // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
+                    // nicmene priprava na zpracovani err je provedena  
+                    let moveTask1 () = 
+                        async
+                            {
+                                let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis4 FolderMovingError4
+                                return Ok () 
+                            }
+        
+                    let moveTask2 () = 
+                        async 
+                            {    
+                                let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis4 FolderMovingError4
+                                return Ok ()  
+                            }
+
+                    let moveTask3 () = 
+                        async
+                            {
+                                let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis4 FolderMovingError4
+                                return Ok ()  
+                            }     
                
-        //runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel start")
+                    //runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel start")
         
-        [| 
-            moveTask1 ()
-            moveTask2 ()
-            moveTask3 ()
-        |]
-        |> Async.Parallel  
-        |> Async.Catch   //silently ignoring failed move operations //// becomes Async<Result<Result<_,_>[], exn>>
-        |> Async.Ignore<Choice<Result<unit, string> array, exn>>  //silently ignoring failed move operations
-        |> Async.RunSynchronously
-        
-       // runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel end")  
+                    [| 
+                        moveTask1 ()
+                        moveTask2 ()
+                        moveTask3 ()
+                    |]
+                    |> Async.Parallel  
+                    |> Async.Catch   //silently ignoring failed move operations //// becomes Async<Result<Result<_,_>[], exn>>
+                    |> Async.Ignore<Choice<Result<unit, string> array, exn>>  //silently ignoring failed move operations                   
+                    |> (fun a -> Async.RunSynchronously(a, cancellationToken = token))  
+                    |> Ok
+
+                    // runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel end")  
+            )
        
         let result (context2 : Context2) =   
         
-            dispatchWorkIsComplete dispatchMsg2
+            //dispatchWorkIsComplete dispatchMsg2
+            dispatchCancelVisible false    
                              
             let dir = context2.DirList |> List.item context2.VariantInt  
             let list = runIO <| operationOnDataFromJson token context2.Variant dir 
+
+            dispatchRestartVisible false
         
             match list with //to je strasne slozite davat to do Elmishe
             | Ok list
@@ -221,10 +230,13 @@ module WebScraping_KODIS4 =
                 #if ANDROID
                 let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
-
+                
+                dispatchCancelVisible false
+               
+                let!_ = moveAll >> runIO <| (), errFn                  
                 let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
-                let!_ = runIO <| createFolders dirList, errFn 
-
+                let!_ = runIO <| createFolders dirList, errFn                           
+               
                 let! msg1 = result contextCurrentValidity, errFn
                 let! msg2 = result contextFutureValidity, errFn
                 let! msg3 = result contextLongTermValidity, errFn   
@@ -243,13 +255,13 @@ module WebScraping_KODIS4 =
                     |> String.concat separator       
 
                 return sprintf "%s%s" dispatchMsg3 combinedMessage
-            }          
+            }    
     
-    let internal stateReducerCmd4 token path dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
+    let internal stateReducerCmd4 token path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
 
         IO (fun () 
                 ->
-                stateReducer token path dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 
+                stateReducer token path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 
         )
 
     let internal stateReducerCmd5 () = // For educational purposes

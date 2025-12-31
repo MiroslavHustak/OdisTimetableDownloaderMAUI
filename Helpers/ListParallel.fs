@@ -179,7 +179,7 @@ let iter_IO (action : 'a -> unit) (list : 'a list) =
         |> Array.map (fun item -> async { return action item })
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
         |> Async.Ignore<unit array> 
-        |> Async.RunSynchronously //Async.Parallel doesn't block any threads while waiting for IO operations to complete.
+        |> Async.RunSynchronously 
 
 // Using Array.Parallel.map //Array.Parallel.map is designed for CPU-bound work.  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let map_CPU (action : 'a -> 'b) (list : 'a list) : 'b list =

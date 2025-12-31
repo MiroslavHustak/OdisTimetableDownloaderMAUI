@@ -173,9 +173,9 @@ module WebScraping_KODIS =
                 let result lazyList (context2 : Context2) =  
                     
                     let dir = context2.DirList |> List.item context2.VariantInt 
-
+                    
                     // Paralelni dispatch vubec nepomuze, aby se dispatchMsg2 objevil , ale kod ponechavam for educational purposes
-                    let dispatch () = dispatchWorkIsComplete dispatchMsg2
+                    let dispatch () = dispatchWorkIsComplete dispatchMsg1_1
                         
                     let list1 () = 
                         try  
@@ -213,10 +213,10 @@ module WebScraping_KODIS =
                             |> Option.defaultValue (Error <| JsonError JsonDataFilteringError)
                         | Error _ 
                             ->  
-                            Error <| JsonError JsonDataFilteringError     
-                            
+                            Error <| JsonError JsonDataFilteringError                                
+                   
                     (*
-                    dispatchWorkIsComplete dispatchMsg2
+                    dispatchWorkIsComplete dispatchMsg1_1 // dispatchMsg2
 
                     let list2 = 
                         try  
@@ -226,9 +226,10 @@ module WebScraping_KODIS =
                             ->
                             runIO (postToLog <| string ex.Message <| "#22-2")
                             Error <| JsonError JsonDataFilteringError 
-                    *)
                     
-                    //match list2 with
+                     *)
+
+                    //match list2 with                    
                     match result2 with
                     | Ok list
                         when

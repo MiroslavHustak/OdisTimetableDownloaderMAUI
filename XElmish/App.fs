@@ -134,6 +134,7 @@ module App =
         | Home
         | Home2
         | RestartVisible of bool
+        | CancelVisible of bool
         | Quit
         | EmergencyQuit
         | IntermediateQuitCase
@@ -629,7 +630,11 @@ module App =
 
         | RestartVisible isVisible 
             -> 
-            { m with BackHomeVisible = isVisible; CancelVisible = not isVisible }, Cmd.none                   
+            { m with BackHomeVisible = isVisible; CancelVisible = not isVisible }, Cmd.none      
+            
+        | CancelVisible isVisible 
+            -> 
+            { m with CancelVisible = isVisible }, Cmd.none                   
              
         | NetConnMessage message
             ->
@@ -834,7 +839,6 @@ module App =
                     let executeSequentially dispatch =
                         async 
                             {   
-                                RestartVisible >> dispatch <| false
                                 do! delayedCmd1 token dispatch 
                                 
                                 match token.IsCancellationRequested with 
@@ -884,8 +888,6 @@ module App =
             |> function
                 | Some token 
                     ->
-                    //delayedCmd1 nebude, neb json se zde nestahuje
-
                     let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =    
 
                         async 
@@ -904,6 +906,8 @@ module App =
                                                     stateReducerCmd4
                                                     <| token
                                                     <| kodisPathTemp4
+                                                    <| fun isVisible -> CancelVisible >> dispatch <| isVisible    
+                                                    <| fun isVisible -> RestartVisible >> dispatch <| isVisible
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                     <| fun message -> IterationMessage >> dispatch <| message 
                                                     <| reportProgress      
@@ -946,10 +950,10 @@ module App =
                    
                     let executeSequentially dispatch = 
                         async 
-                            {  
-                               RestartVisible >> dispatch <| false
-                               do! delayedCmd2 token dispatch
-                               return! delayedCmd5 dispatch                           
+                            {          
+                                //RestartVisible >> dispatch <| false
+                                do! delayedCmd2 token dispatch
+                                return! delayedCmd5 dispatch                           
                             }
                         |> Async.StartImmediate                     
 

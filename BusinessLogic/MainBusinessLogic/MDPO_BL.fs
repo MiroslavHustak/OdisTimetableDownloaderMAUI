@@ -83,7 +83,7 @@ module MDPO_BL = //FsHttp
                                     | None
                                         -> return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz     
                                 }
-                            |> Async.RunSynchronously
+                            |> (fun a -> Async.RunSynchronously(a, cancellationToken = token))
     
 
                         //HtmlDocument -> web scraping -> extracting data from HTML pages

@@ -52,7 +52,7 @@ module ProgressCircle =
                             // Draw Percentage Text
                             canvas.FillColor <- Colors.LightCyan
                             canvas.FontSize <- 24.0f
-                            canvas.FontColor <- Colors.Black
+                            canvas.FontColor <- Colors.Grey
                             
                             canvas.DrawString(
                                 percentageText,

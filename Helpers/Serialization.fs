@@ -45,6 +45,7 @@ module Serialization =
                 | ex -> Error <| string ex.Message
         )
 
+    (*
     // For educational purposes, not to be used in production code
     let internal serializeWithThoth (json : string) (path : string) : IO<Result<unit, string>> =
 
@@ -56,7 +57,7 @@ module Serialization =
                             let! path = SafeFullPath.safeFullPathOption path 
                             use writer = new StreamWriter(path, append = false)
                             // Does not block the thread in the kernel during the actual disk wait 
-                            // Insignificant performance help
+                            // Insignificant performance help at a cost
                             return! writer.WriteAsync json |> Async.AwaitTask                               
                         }
                     |> Async.RunSynchronously 
@@ -64,3 +65,4 @@ module Serialization =
                 with
                 | ex -> Error <| string ex.Message
         )
+    *)
