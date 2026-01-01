@@ -70,7 +70,7 @@ module DPO_BL =
                                     |> Option.bind
                                         (fun attr
                                             -> 
-                                            option
+                                            option //moje paranoia na null nebo prazdne retezce
                                                 {
                                                     let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
                                                     let nodes : string = nodes

@@ -35,7 +35,8 @@ module KODIS_BL_Record4 =
         
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
     // 16-12-2024 Nic neni trvalejsiho, nez neco docasneho ...
-            
+    // 31-12-2025 ... kdo by to byl rekl, ze se nic nezmeni   
+    
     let internal operationOnDataFromJson (token : CancellationToken) variant dir = 
     
         IO (fun () 
@@ -243,7 +244,7 @@ module KODIS_BL_Record4 =
                     {    
                         let! context = fun env -> env
                 
-                        return
+                        return                               
                             match context.dir |> Directory.Exists with // TOCTOU race zatim nebyl problem
                             | false ->
                                     runIO (postToLog <| NoFolderError <| "#251-4")
@@ -256,6 +257,6 @@ module KODIS_BL_Record4 =
                                     | _ 
                                         -> 
                                         downloadAndSaveTimetables token context
-                                        |> Result.map (fun _ -> String.Empty)
+                                        |> Result.map (fun _ -> String.Empty)                          
                     }       
         )

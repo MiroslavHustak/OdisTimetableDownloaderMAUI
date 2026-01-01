@@ -111,6 +111,7 @@ module ParseJsonDataFull =
 
                                     let kodisJsonSamples =    
                                         pathToJsonList3 
+                                        |> List.filter (not << isNull)  //just in case
                                         |> List.Parallel.map_CPU
                                             (fun pathToJson 
                                                 ->
@@ -119,7 +120,8 @@ module ParseJsonDataFull =
                                                     JsonProvider2.Parse json
                                                 with
                                                 | _ -> JsonProvider2.Parse tempJson2
-                                            )  
+                                            )
+                                        |> List.filter (not << isNull)  //just in case        
 
                                     return 
                                         (pathToJsonList3, kodisJsonSamples) 

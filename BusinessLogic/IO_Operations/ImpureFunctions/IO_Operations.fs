@@ -366,12 +366,21 @@ module IO_Operations =
 
     let internal moveFolders source destination err1 err2 : IO<Result<unit, 'a>>= 
 
-        #if ANDROID 
-        let isAtLeastAndroid11 = int Build.VERSION.SdkInt >= 30
-        #else
-        let isAtLeastAndroid11 = true
-        #endif
+        try
+            #if ANDROID 
+            let isAtLeastAndroid11 = int Build.VERSION.SdkInt >= 30
+            #else
+            let isAtLeastAndroid11 = true
+            #endif
 
-        match isAtLeastAndroid11 with   
-        | true  -> moveFoldersAndroid11Plus source destination err1 err2
-        | false -> moveFoldersAndroid7_1 source destination err1 err2   
+            match isAtLeastAndroid11 with   
+            | true  -> moveFoldersAndroid11Plus source destination err1 err2
+            | false -> moveFoldersAndroid7_1 source destination err1 err2   
+        with
+        | ex 
+            ->
+            IO (fun () 
+                    ->  
+                    runIO (postToLog <| string ex.Message <| "#444-ex") 
+                    Error err2   
+            )   

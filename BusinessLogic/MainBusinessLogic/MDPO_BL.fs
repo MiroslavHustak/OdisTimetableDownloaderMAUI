@@ -96,7 +96,7 @@ module MDPO_BL = //FsHttp
                                 |> Option.bind
                                     (fun attr 
                                         -> 
-                                        option  //pyramidOfDoom with None
+                                        option  //moje paranoia na null nebo prazdne retezce
                                             {
                                                 let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
                                                 let nodes : string = nodes
@@ -361,7 +361,7 @@ module MDPO_BL = //FsHttp
                                 |> Option.bind
                                     (fun attr 
                                         -> 
-                                        option  //pyramidOfDoom with None
+                                        option  //moje paranoia na null nebo prazdne retezce
                                             {
                                                 let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
                                                 let nodes : string = nodes

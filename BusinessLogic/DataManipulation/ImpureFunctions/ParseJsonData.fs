@@ -54,20 +54,25 @@ module ParseJsonData =
                                                             async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
                                                         loop 0
 
-                                    //let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
+                                    let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 
                                     let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel computing done separatelly
                                         pathToJsonList3
+                                        |> List.filter (not << isNull) //just in case
                                         |> List.Parallel.map_CPU 
                                             (fun pathToJson 
                                                 ->                                               
                                                 token.ThrowIfCancellationRequested()  // Artificial checkpoint 
                                                 
-                                                counterAndProgressBar.Post <| Inc 1
+                                                counterAndProgressBar.Post <| Inc 1                                               
                                                 
-                                                readAllText >> runIO <| pathToJson   
-                                                |> JsonProvider2.Parse // The biggest performance drag                                            
+                                                try
+                                                    readAllText >> runIO <| pathToJson   
+                                                    |> JsonProvider2.Parse // The biggest performance drag    
+                                                with
+                                                | _ -> JsonProvider2.Parse tempJson2
                                             )
+                                        |> List.filter (not << isNull)  //just in case
                                             
                                     return 
                                         (pathToJsonList3, kodisJsonSamples) 
