@@ -4,7 +4,7 @@ open System
 open System.Threading
 
 //************************************************************
-
+open FSharp.Data
 open FsToolkit.ErrorHandling
 
 //************************************************************
@@ -68,9 +68,7 @@ module ParseJsonData =
                                                 readAllText >> runIO <| pathToJson   
                                                 |> JsonProvider2.Parse // The biggest performance drag                                            
                                             )
-
-                                    counterAndProgressBar.Dispose()
-                                    
+                                            
                                     return 
                                         (pathToJsonList3, kodisJsonSamples) 
                                         ||> List.Parallel.map2_CPU 
@@ -81,31 +79,43 @@ module ParseJsonData =
                                                 counterAndProgressBar.Post <| Inc 1
                                                 
                                                 //JsonProvider's results are of Array type => Array is used
-                                                let timetables = 
-                                                    kodisJsonSample
-                                                    |> Option.ofNull
-                                                    |> Option.map (fun value -> value.Data |> Array.Parallel.map (_.Timetable))
+                                                
+                                                let timetables =
+                                                    option 
+                                                        {
+                                                            let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull 
+                                                            let! data = sample.Data |> Option.ofNull                                                             
+                                                            return 
+                                                                data
+                                                                |> Array.Parallel.map 
+                                                                    (fun (item : JsonProvider2.Datum) -> item.Timetable)
+                                                        }
+                                                    |> Option.defaultValue Array.empty   
+                                                
+                                                let vyluky =
+                                                    option 
+                                                        {
+                                                            let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull 
+                                                            let! data = sample.Data |> Option.ofNull                                                             
+                                                            return 
+                                                                data
+                                                                |> Array.Parallel.map 
+                                                                    (fun (item : JsonProvider2.Datum) -> item.Vyluky)
+                                                                |> Array.concat
+                                                        }
                                                     |> Option.defaultValue Array.empty
-                             
-                                                let vyluky = 
-                                                    kodisJsonSample
-                                                    |> Option.ofNull
-                                                    |> Option.map (fun value -> value.Data |> Array.Parallel.map (_.Vyluky) |> Array.concat)
+                                                
+                                                let attachments =
+                                                    option 
+                                                        {
+                                                            let! arr = vyluky |> Option.ofNull                                                             
+                                                            return
+                                                                arr
+                                                                |> Array.collect (fun (item : JsonProvider2.Vyluky) -> item.Attachments)
+                                                                |> Array.choose (fun item -> item.Url |> Option.ofNullEmptySpace)
+                                                        }
                                                     |> Option.defaultValue Array.empty
-                             
-                                                let attachments = 
-                                                    vyluky
-                                                    |> Option.ofNull
-                                                    |> Option.map
-                                                        (fun value 
-                                                            -> 
-                                                            value
-                                                            |> Array.collect (_.Attachments)
-                                                            |> Array.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) 
-                                                            |> Array.choose id  // Remove `None` values
-                                                        )
-                                                    |> Option.defaultValue Array.empty
-                                 
+                                             
                                                 Array.append timetables attachments   
                                             ) 
                                         |> List.toArray 

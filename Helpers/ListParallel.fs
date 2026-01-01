@@ -131,9 +131,9 @@ let private maxDegreeOfParallelismAdaptedAndroid =
 
 //**************************Functions*******************************************
 
-// ALL FUNCTIONS ARE NOT WRAPPED IN TRY..WITH AND THE RECORD TYPE TO AVOID HASSLE
-
 // Although functions using numberOfThreads, async and tasks are technically impure, they are pure in the sense that they do not change any state outside their scope
+
+// Arrays cannot raise exceptions as the lists the arrays are converted from cannot be nullable
 
 // Using Array.Parallel.iter  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter_CPU (action : 'a -> unit) (list : 'a list) : unit =
@@ -145,7 +145,7 @@ let iter_CPU (action : 'a -> unit) (list : 'a list) : unit =
     | _ ->
         list
         |> List.toArray
-        |> Array.Parallel.iter action
+        |> Array.Parallel.iter action  
 
 /// Version using Async.Parallel for CPU-bound iteration (for performance testing)
 let iter_CPU_Async (action : 'a -> unit) (list : 'a list) : unit =
@@ -159,7 +159,7 @@ let iter_CPU_Async (action : 'a -> unit) (list : 'a list) : unit =
 
         list
         |> Array.ofList
-        |> Array.map (fun x -> async { return action x })
+        |> Array.map (fun x -> async { return action x })  
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
         |> Async.Ignore<unit array> 
         |> Async.RunSynchronously
@@ -176,7 +176,7 @@ let iter_IO (action : 'a -> unit) (list : 'a list) =
             
         list
         |> Array.ofList
-        |> Array.map (fun item -> async { return action item })
+        |> Array.map (fun item -> async { return action item })  
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
         |> Async.Ignore<unit array> 
         |> Async.RunSynchronously 
@@ -191,7 +191,7 @@ let map_CPU (action : 'a -> 'b) (list : 'a list) : 'b list =
     | _ ->
         list
         |> List.toArray
-        |> Array.Parallel.map action
+        |> Array.Parallel.map action  
         |> Array.toList
 
 /// Version using Async.Parallel for CPU-bound mapping (for testing/comparison)

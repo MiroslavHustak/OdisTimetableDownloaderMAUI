@@ -144,34 +144,32 @@ module DirFileHelper =
     
         IO (fun () 
                 -> 
-                option
-                    {
-                        let! filepath = SafeFullPath.safeFullPathOption pathToFile                  
-                        let fInfodat : FileInfo = FileInfo filepath    
+                try
+                    option
+                        {
+                            let! filepath = SafeFullPath.safeFullPathOption pathToFile                  
+                            let fInfodat : FileInfo = FileInfo filepath    
     
-                        return!
-                            try
-                                condition fInfodat |> Option.ofBool
-                            with
-                            | _ -> None
-                    }     
+                            return! condition fInfodat |> Option.ofBool
+                        }  
+                with
+                | _ -> None        
         )
     
     let internal checkDirectoryCondition pathToDir condition =
         
         IO (fun () 
                 -> 
-                option
-                    {
-                        let! dirpath = SafeFullPath.safeFullPathOption pathToDir                 
-                        let dInfodat : DirectoryInfo = DirectoryInfo dirpath
+                try
+                    option
+                        {
+                            let! dirpath = SafeFullPath.safeFullPathOption pathToDir                 
+                            let dInfodat : DirectoryInfo = DirectoryInfo dirpath
         
-                        return!
-                            try
-                                condition dInfodat |> Option.ofBool
-                            with
-                            | _ -> None 
-                    }     
+                            return! condition dInfodat |> Option.ofBool                               
+                        }    
+                with
+                | _ -> None              
         )    
 
 module MyString = 

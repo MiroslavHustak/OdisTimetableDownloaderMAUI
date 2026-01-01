@@ -225,26 +225,31 @@ module MoveDir =
 
         let moveAllEntries preparedSource target =
 
-            // Eagerly enumerate entries as a list to close handles
-            let entries = 
-                Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories) 
-                |> Seq.toList
+            try
+                // Eagerly enumerate entries as a list to close handles
+                let entries = 
+               
+                        Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories) 
+                        |> Seq.toList
+               
 
-            entries
-            |> List.map 
-                (fun entry 
-                    ->
-                    result
-                        {
-                            let! relative = relativePath preparedSource entry
-                            let! dest =
-                                Path.Combine(target, relative)
-                                |> Option.ofNullEmpty
-                                |> Option.toResult "Failed getting combined path"
+                entries
+                |> List.map 
+                    (fun entry 
+                        ->
+                        result
+                            {
+                                let! relative = relativePath preparedSource entry
+                                let! dest =
+                                    Path.Combine(target, relative)
+                                    |> Option.ofNullEmpty
+                                    |> Option.toResult "Failed getting combined path"
                             
-                            return! moveEntry entry dest 
-                        }
-                )
+                                return! moveEntry entry dest 
+                            }
+                    )
+            with
+            | ex -> [ Error (sprintf "Failed enumerating entries: %s" <| string ex.Message) ] 
 
         IO (fun () 
                 ->
@@ -305,18 +310,18 @@ module CopyDir =
             result
                 {
                     let! fullSource = PathHelpers.preparePath "Source" source
-        
-                    match Path.GetDirectoryName destination |> Option.ofNullEmptySpace with
-                    | None 
-                        -> 
-                        return! Error "Destination path has no directory part."
-                    | Some destDir
-                        ->
-                        Directory.CreateDirectory destDir |> ignore
-        
                     try
-                        File.Copy(fullSource, destination, overwrite)
-                        return ()
+                        match Path.GetDirectoryName destination |> Option.ofNullEmptySpace with
+                        | None 
+                            -> 
+                            return! Error "Destination path has no directory part."
+                        | Some destDir
+                            ->
+                            Directory.CreateDirectory destDir |> ignore
+        
+                    
+                            File.Copy(fullSource, destination, overwrite)
+                            return ()
                     with 
                     | ex 
                         ->

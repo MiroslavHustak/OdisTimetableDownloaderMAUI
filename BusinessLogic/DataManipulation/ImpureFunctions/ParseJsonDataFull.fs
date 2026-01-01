@@ -82,15 +82,23 @@ module ParseJsonDataFull =
                                         |> Seq.ofList
                                         |> Seq.collect
                                             (fun pathToJson 
-                                                ->                                         
+                                                ->                                              
                                                 try                                               
                                                     let json = readAllText >> runIO <| pathToJson
                                                     JsonProvider1.Parse json                                                
                                                 with 
                                                 | _ -> JsonProvider1.Parse tempJson1
-                                                                     
+                                                
                                                 |> Option.ofNull
-                                                |> Option.map (Seq.map _.Timetable)
+                                                |> Option.map
+                                                    (Seq.choose 
+                                                        (fun item 
+                                                            -> 
+                                                            item 
+                                                            |> Option.ofNull 
+                                                            |> Option.map (fun item -> item.Timetable)
+                                                        )
+                                                    )
                                                 |> Option.defaultValue Seq.empty
                                             )
                                 }
@@ -122,25 +130,40 @@ module ParseJsonDataFull =
                                                 let timetables = 
                                                     kodisJsonSample
                                                     |> Option.ofNull
-                                                    |> Option.map (fun value -> value.Data |> Array.Parallel.map (_.Timetable))
+                                                    |> Option.bind
+                                                        (fun value 
+                                                            -> 
+                                                            value.Data 
+                                                            |> Option.ofNull 
+                                                            |> Option.map (fun data -> data |> Array.Parallel.map (_.Timetable))
+                                                        )
                                                     |> Option.defaultValue Array.empty
                              
                                                 let vyluky = 
                                                     kodisJsonSample
                                                     |> Option.ofNull
-                                                    |> Option.map (fun value -> value.Data |> Array.Parallel.map (_.Vyluky) |> Array.concat)
+                                                    |> Option.bind 
+                                                        (fun value 
+                                                            ->
+                                                            value.Data
+                                                            |> Option.ofNull
+                                                            |> Option.map (fun data -> data |> Array.Parallel.map (_.Vyluky) |> Array.concat))
                                                     |> Option.defaultValue Array.empty
                              
                                                 let attachments = 
                                                     vyluky
                                                     |> Option.ofNull
-                                                    |> Option.map
+                                                    |> Option.bind 
                                                         (fun value
-                                                            -> 
+                                                            ->
                                                             value
-                                                            |> Array.collect (_.Attachments)
-                                                            |> Array.Parallel.map (fun item -> item.Url |> Option.ofNullEmptySpace) 
-                                                            |> Array.choose id  // Remove `None` values
+                                                            |> Option.ofNull
+                                                            |> Option.map 
+                                                                (fun arr
+                                                                    ->
+                                                                    arr
+                                                                    |> Array.collect (_.Attachments)
+                                                                    |> Array.choose (fun item -> item.Url |> Option.ofNullEmptySpace))
                                                         )
                                                     |> Option.defaultValue Array.empty
                                  
