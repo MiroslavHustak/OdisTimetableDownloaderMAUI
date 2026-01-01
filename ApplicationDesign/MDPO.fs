@@ -75,8 +75,11 @@ module WebScraping_MDPO =
 
                     match action with   
                     | CopyOldTimetables 
-                        ->                          
-                        runIO <| moveFolders configMHD.source configMHD.destination LetItBeMHD FolderCopyOrMoveErrorMHD
+                        ->   
+                        try
+                            runIO <| moveFolders configMHD.source configMHD.destination LetItBeMHD FolderCopyOrMoveErrorMHD
+                            with
+                            | _ -> Error LetItBeMHD //silently ignoring failed move operations
                   
                     | DeleteOneODISDirectory
                         ->  

@@ -263,7 +263,7 @@ module IO_Operations =
                     with 
                     | ex
                         ->
-                        runIO (postToLog ex.Message "#444-source-probe")
+                        //runIO (postToLog ex.Message "#444-source-probe")
                         Error err1
     
                 let ensureDestination () =
@@ -293,7 +293,8 @@ module IO_Operations =
     
                         match runFreeMonad (copyOrMoveFiles { source = source; destination = destination } Move) with
                         | Ok _ 
-                            -> return ()
+                            ->
+                            return ()
                         | Error moveErr
                             ->
                             runIO (postToLog moveErr "#444-move-files") 
@@ -302,7 +303,7 @@ module IO_Operations =
                 |> Result.mapError
                     (fun finalErr 
                         ->
-                        runIO (postToLog (string finalErr) "#444-final-error") 
+                        //runIO (postToLog (string finalErr) "#444-final-error") 
                         finalErr
                     )
         )    

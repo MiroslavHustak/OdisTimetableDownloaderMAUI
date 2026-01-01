@@ -118,7 +118,7 @@ module WebScraping_KODIS =
                                         let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis FolderMovingError
                                         let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis FolderMovingError
 
-                                        return Ok ()  //silently ignoring failed move operations
+                                        return Ok ()  
                                     }
                             
                             [| 
@@ -132,10 +132,7 @@ module WebScraping_KODIS =
                         finally
                             ()              
                     with
-                    | ex
-                        -> 
-                        runIO (postToLog <| string ex.Message <| "#005") 
-                        Error JsonDownloadError 
+                    | _ -> Error LetItBeKodis //silently ignoring failed download operations
             
                     |> Result.map (fun _ -> dispatchMsg2) // spravne dispatchMsg1, ale drzi se to po celou dobu ocekavaneho dispatchMsg2
                     |> Result.mapError errFn
