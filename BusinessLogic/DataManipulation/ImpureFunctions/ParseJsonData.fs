@@ -69,12 +69,16 @@ module ParseJsonData =
                                                 |> JsonProvider2.Parse // The biggest performance drag                                            
                                             )
 
+                                    counterAndProgressBar.Dispose()
+                                    
                                     return 
                                         (pathToJsonList3, kodisJsonSamples) 
                                         ||> List.Parallel.map2_CPU 
                                             (fun pathToJson kodisJsonSample
                                                 ->  
                                                 token.ThrowIfCancellationRequested()  // Artificial checkpoint 
+                                                
+                                                counterAndProgressBar.Post <| Inc 1
                                                 
                                                 //JsonProvider's results are of Array type => Array is used
                                                 let timetables = 
