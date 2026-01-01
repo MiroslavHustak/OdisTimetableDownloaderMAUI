@@ -83,30 +83,38 @@ module FreeMonadInterpret =
 
         | Free (SourceFilepath next) 
             ->
-            let sourceFilepath (source : string) : Result<string,string> =                
-                result
-                    {
-                        let dInfodat : DirectoryInfo = DirectoryInfo source   
-                       //Added existence check for destination directory despite of TOCTOU risk (Android 7.1)
-                        let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302-2" source) dInfodat.Exists    
+            let sourceFilepath (source : string) : Result<string,string> =       
+            
+                try
+                    result
+                        {
+                            let dInfodat : DirectoryInfo = DirectoryInfo source   
+                           //Added existence check for destination directory despite of TOCTOU risk (Android 7.1)
+                            let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302-2" source) dInfodat.Exists    
 
-                        return! SafeFullPath.safeFullPathResult source
-                    }                
+                            return! SafeFullPath.safeFullPathResult source
+                        }   
+                with
+                | ex -> Error <| string ex.Message
 
             interpret config io_operation (next (sourceFilepath config.source))
 
         | Free (DestinFilepath next) 
             ->
-            let destinFilepath destination =                  
-                result
-                    {
-                        let dInfodat : DirectoryInfo = DirectoryInfo destination   
-                        //Added existence check for destination directory despite of TOCTOU risk (Android 7.1)
-                        let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302" destination) dInfodat.Exists    
+            let destinFilepath destination =    
+            
+                try
+                    result
+                        {
+                            let dInfodat : DirectoryInfo = DirectoryInfo destination   
+                            //Added existence check for destination directory despite of TOCTOU risk (Android 7.1)
+                            let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302" destination) dInfodat.Exists    
                         
-                        return! SafeFullPath.safeFullPathResult destination                          
-                    }  
-
+                            return! SafeFullPath.safeFullPathResult destination                          
+                        }  
+                with
+                | ex -> Error <| string ex.Message
+                
             interpret config io_operation (next (destinFilepath config.destination))
 
         | Free (CopyOrMove (s, d)) 

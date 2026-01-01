@@ -33,9 +33,9 @@ module ParseJsonData =
         
         IO (fun () 
                 ->  
-                //FSharp.Control.Lazy.Create  // Use FSharp.Control.Lazy.Create to explicitly reference the F# Lazy type and avoid conflicts with System.Lazy<'T> from .NET.
-                   // (fun () 
-                       // ->
+              //FSharp.Control.Lazy.Create  // Use FSharp.Control.Lazy.Create to explicitly reference the F# Lazy type and avoid conflicts with System.Lazy<'T> from .NET.
+                 // (fun () 
+                     // ->
                         let kodisTimetables3 : Reader<string list, string seq> = 
 
                             reader //Reader monad for educational purposes only, no real benefit here  
@@ -148,5 +148,5 @@ module ParseJsonData =
                             | false ->
                                     runIO (postToLog <| string ex.Message <| "#107")
                                     Error <| JsonError JsonParsingError
-                  //  )
+                 // )
         )
