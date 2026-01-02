@@ -57,7 +57,7 @@ module Logging =
                 async
                     {       
                         try
-                            let! response = 
+                            use! response = 
                                 http
                                     {
                                         POST urlLogging

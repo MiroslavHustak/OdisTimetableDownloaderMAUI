@@ -45,16 +45,24 @@ module KODIS_BL_Record =
                             .StartImmediate
                                 <|
                                 fun inbox 
-                                    ->
+                                    ->                        
                                     let rec loop n = 
-                                        async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
-                                    loop 0
-      
-                try 
-                    (token, jsonLinkList, pathToJsonList)
-                    |||> List.Parallel.map2_IO_Token 
-                        (fun uri (pathToFile : string) 
-                            ->                                
+                                        async
+                                            {
+                                                try
+                                                    let! Inc i = inbox.Receive()
+                                                    reportProgress (float n, float l)
+                                                    return! loop (n + i)
+                                                with
+                                                | ex -> runIO (postToLog <| string ex.Message <| "#900-MP")
+                                            }
+                                    loop 0      
+              
+                (token, jsonLinkList, pathToJsonList)
+                |||> List.Parallel.map2_IO_Token 
+                    (fun uri (pathToFile : string) 
+                        ->     
+                        try
                             counterAndProgressBar.Post <| Inc 1                           
                             
                             token.ThrowIfCancellationRequested ()                            
@@ -70,7 +78,7 @@ module KODIS_BL_Record =
                                 let headerContent1 = "Range" 
                                 let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                           
-                                //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
+                                //config_timeoutInSeconds 30 -> 30 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
                                 match existingFileLength > 0L with
                                 | true  -> 
                                         http
@@ -89,48 +97,61 @@ module KODIS_BL_Record =
                                                 config_cancellationToken token 
                                                 header "User-Agent" "FsHttp/Android7.1"
                                             }
-
-                            let response =                                                                 
-                                (get uri)
-                                |> Request.sendAsync
+                            
+                            let runAsyncSafe a =
+                                Async.Catch a
                                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                      
-                            use response = response 
 
-                            let statusCode = response.statusCode
-
-                            match statusCode with
-                            | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
-                                ->         
-                                response.SaveFileAsync(pathToFile)
-                                |> Async.AwaitTask
-                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                |> Ok 
-                                        
-                            | HttpStatusCode.Forbidden 
-                                ->
-                                runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-Json") 
-                                Error JsonDownloadError
-    
-                            | status
-                                ->
-                                runIO (postToLog <| (string status) <| "#2212-Json")
-                                Error JsonDownloadError
-                        )  
-                   |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                   |> Option.defaultValue (Ok ())                   
+                            match get >> Request.sendAsync >> runAsyncSafe <| uri with
+                            | Choice1Of2 response 
+                                -> 
+                                try
+                                    use response = response                                 
                                 
-                with
-                | ex                             
-                    -> 
-                    match Helpers.ExceptionHelpers.isCancellation ex with
-                    | true
-                       ->
-                       Error StopJsonDownloading
-                    | false 
-                       ->
-                       runIO (postToLog <| string ex.Message <| "#020")
-                       Error JsonDownloadError
+                                    let statusCode = response.statusCode
+                                
+                                    match statusCode with
+                                    | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
+                                        ->         
+                                        response.SaveFileAsync(pathToFile)
+                                        |> Async.AwaitTask
+                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                        |> Ok 
+                                                                        
+                                    | HttpStatusCode.Forbidden 
+                                        ->
+                                        runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-Json") 
+                                        Error JsonDownloadError
+                                                                            
+                                    | status
+                                        ->
+                                        runIO (postToLog <| (string status) <| "#2212-Json")
+                                        Error JsonDownloadError 
+
+                                with 
+                                | ex 
+                                    -> 
+                                    runIO (postToLog <| string ex.Message <| "#2213-Json")
+                                    Error JsonDownloadError
+                                
+                            | Choice2Of2 ex
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#2214-Json")
+                                Error JsonDownloadError  
+                            
+                        with
+                        | ex -> 
+                            match Helpers.ExceptionHelpers.isCancellation ex with
+                            | true
+                                ->
+                                Error StopJsonDownloading
+                            | false 
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#020")
+                                Error JsonDownloadError
+                    )  
+                |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                |> Option.defaultValue (Ok ())                  
             )
     
     let internal downloadAndSave token =  
@@ -150,75 +171,83 @@ module KODIS_BL_Record =
                                          .StartImmediate
                                              <|
                                              fun inbox 
-                                                 ->
+                                                 ->                                               
                                                  let rec loop n = 
-                                                     async { match! inbox.Receive() with Inc i -> context.reportProgress (float n, float l); return! loop (n + i) }
+                                                    async
+                                                        {
+                                                            try
+                                                                let! Inc i = inbox.Receive()
+                                                                context.reportProgress (float n, float l)
+                                                                return! loop (n + i)
+                                                            with
+                                                            | ex -> runIO (postToLog <| ex.Message <| "#901-MP")
+                                                        }
                                                  loop 0
-                                                             
-                            return    
-                                try 
-                                    //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
-                                    let removeDuplicatePathPairs uri pathToFile =
-                                        (uri, pathToFile)
-                                        ||> List.zip 
-                                        |> List.distinctBy snd
+                                                 
+                            //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
+                            let removeDuplicatePathPairs uri pathToFile =
+                                (uri, pathToFile)
+                                ||> List.zip 
+                                |> List.distinctBy snd
                          
-                                    let uri, pathToFile =
-                                        context.list
-                                        |> List.distinct
-                                        |> List.unzip
-                                        |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
-                                        |> List.unzip
-                                                                 
-                                    // State monad implementation test
-                                    //**************************************************************************************
+                            let uri, pathToFile =
+                                context.list
+                                |> List.distinct
+                                |> List.unzip
+                                |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
+                                |> List.unzip
+                                                         
+                            // State monad implementation test
+                            //**************************************************************************************
                                  
-                                    let removeDuplicatePathPairsState2 (uriList : string list) (pathList : string list) =
+                            let removeDuplicatePathPairsState2 (uriList : string list) (pathList : string list) =
     
-                                        let pairs = List.zip uriList pathList
+                                let pairs = List.zip uriList pathList
                                  
-                                        let processPair (uri, path) =
+                                let processPair (uri, path) =
     
-                                            State
-                                                (fun seen
-                                                    ->
-                                                    match Set.contains path seen with
-                                                    | true  -> (None, seen)
-                                                    | false -> (Some (uri, path), Set.add path seen)
-                                                )
+                                    State
+                                        (fun seen
+                                            ->
+                                            match Set.contains path seen with
+                                            | true  -> (None, seen)
+                                            | false -> (Some (uri, path), Set.add path seen)
+                                        )
                                  
-                                        let computation =
+                                let computation =
     
-                                            state
-                                                {
-                                                    let! results =
-                                                        pairs
-                                                        |> List.fold 
-                                                            (fun acc pair
-                                                                ->
-                                                                state
-                                                                    {
-                                                                        let! collected = acc
-                                                                        match! processPair pair with
-                                                                        | Some x -> return x :: collected
-                                                                        | None   -> return collected
-                                                                    }
-                                                            )
-                                                            (returnState [])
+                                    state
+                                        {
+                                            let! results =
+                                                pairs
+                                                |> List.fold 
+                                                    (fun acc pair
+                                                        ->
+                                                        state
+                                                            {
+                                                                let! collected = acc
+                                                                match! processPair pair with
+                                                                | Some x -> return x :: collected
+                                                                | None   -> return collected
+                                                            }
+                                                    )
+                                                    (returnState [])
     
-                                                    return List.rev results
-                                                }
+                                            return List.rev results
+                                        }
                                  
-                                        fst (runState computation Set.empty)                                   
+                                fst (runState computation Set.empty)                                   
     
-                                    let uri2, pathToFile2 = removeDuplicatePathPairsState2 uri pathToFile |> List.unzip
+                            let uri2, pathToFile2 = removeDuplicatePathPairsState2 uri pathToFile |> List.unzip
     
-                                    //**************************************************************************************
-    
-                                    (token, uri, pathToFile)
-                                    |||> List.Parallel.map2_IO_Token //context.listMappingFunction                            
-                                        (fun uri (pathToFile : string) 
-                                            -> 
+                            //**************************************************************************************
+                            
+                            return        
+                                (token, uri, pathToFile)
+                                |||> List.Parallel.map2_IO_Token //context.listMappingFunction                            
+                                    (fun uri (pathToFile : string) 
+                                        -> 
+                                        try 
                                             counterAndProgressBar.Post <| Inc 1
                                                 
                                             // Artificial checkpoint
@@ -259,53 +288,67 @@ module KODIS_BL_Record =
                                                                         config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token 
                                                                         header "User-Agent" "FsHttp/Android7.1"
-                                                                    }                                                   
-                                                            
-                                                    let response =                                                                 
-                                                        (get uri)
-                                                        |> Request.sendAsync
+                                                                    }    
+
+                                                    let runAsyncSafe a =
+                                                        Async.Catch a
                                                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                                               
-                                                    let statusCode = response.statusCode
+
+                                                    match get >> Request.sendAsync >> runAsyncSafe <| uri with
+                                                    | Choice1Of2 response 
+                                                        -> 
+                                                        try
+                                                            use response = response
+
+                                                            let statusCode = response.statusCode
                                                  
-                                                    match statusCode with
-                                                    | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
-                                                        ->         
-                                                        response.SaveFileAsync(pathToFile)
-                                                        |> Async.AwaitTask
-                                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                                        |> Ok 
+                                                            match statusCode with
+                                                            | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
+                                                                ->         
+                                                                response.SaveFileAsync(pathToFile)
+                                                                |> Async.AwaitTask
+                                                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                                                |> Ok 
                                                                  
-                                                    | HttpStatusCode.Forbidden 
-                                                        ->
-                                                        runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211") 
-                                                        Error <| PdfError FileDownloadError
+                                                            | HttpStatusCode.Forbidden 
+                                                                ->
+                                                                runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211") 
+                                                                Error <| PdfError FileDownloadError
     
-                                                    | status
+                                                            | status
+                                                                ->
+                                                                runIO (postToLog <| (string status) <| "#2212")
+                                                                Error <| PdfError FileDownloadError
+                                                        with 
+                                                        | ex 
+                                                            -> 
+                                                            runIO (postToLog <| string ex.Message <| "#2213")
+                                                            Error <| PdfError FileDownloadError
+
+                                                    | Choice2Of2 ex
                                                         ->
-                                                        runIO (postToLog <| (string status) <| "#2212")
-                                                        Error <| PdfError FileDownloadError
+                                                        runIO (postToLog <| string ex.Message <| "#2214")
+                                                        Error <| PdfError FileDownloadError  
     
                                                 | None 
                                                     ->
                                                     runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2212")
-                                                    Error <| PdfError FileDownloadError                                             
-                                        )  
+                                                    Error <| PdfError FileDownloadError      
+                                        with
+                                        | ex                             
+                                            -> 
+                                            match Helpers.ExceptionHelpers.isCancellation ex with
+                                            | true
+                                                ->
+                                                Error <| PdfError StopDownloading
+                                            | false 
+                                                ->
+                                                runIO (postToLog <| string ex.Message <| "#024")
+                                                Error <| PdfError FileDownloadError        
+                                    )  
     
-                                    |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                                    |> Option.defaultValue (Ok ())                                    
-                                
-                                with
-                                | ex                             
-                                    -> 
-                                    match Helpers.ExceptionHelpers.isCancellation ex with
-                                    | true
-                                        ->
-                                        Error <| PdfError StopDownloading
-                                    | false 
-                                        ->
-                                        runIO (postToLog <| string ex.Message <| "#024")
-                                        Error <| PdfError FileDownloadError
+                                |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                                |> Option.defaultValue (Ok ())                               
                          } 
      
                 reader

@@ -113,18 +113,17 @@ module DPO_BL =
                                             | false -> cont s 
                                         
                                         // (x << s) item2
-                                        // xCPS (s item2) id
-                                        
-                                        (xTail << s) item2
-                                        in   
-                                        let lineName = 
-                                            let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
-                                            let s1 s = removeLastFourCharacters s 
-                                            sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
-                                            in                
-                                            let pathToFile = 
-                                                let item2 = item2.Replace("?", String.Empty)                                            
-                                                sprintf "%s/%s" pathToDir lineName
+                                        // xCPS (s item2) id                                        
+                                        (xTail << s) item2 
+
+                                    let lineName = 
+                                        let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
+                                        let s1 s = removeLastFourCharacters s 
+                                        sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
+                                        in                
+                                        let pathToFile = 
+                                            let item2 = item2.Replace("?", String.Empty)                                            
+                                            sprintf "%s/%s" pathToDir lineName
 
                                     linkToPdf, pathToFile
                                 )
@@ -216,8 +215,16 @@ module DPO_BL =
                                             fun inbox 
                                                 ->
                                                 let rec loop n = 
-                                                    async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
-                                                loop 0
+                                                    async
+                                                        {
+                                                            try
+                                                                let! Inc i = inbox.Receive()
+                                                                reportProgress (float n, float l)
+                                                                return! loop (n + i)
+                                                            with
+                                                            | ex -> runIO (postToLog <| string ex.Message <| "#900DPO-MP")
+                                                        }
+                                                loop 0      
             
                             try                               
                                 filterTimetables 
