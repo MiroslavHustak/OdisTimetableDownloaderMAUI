@@ -79,6 +79,7 @@ module ParseJsonDataFull =
         
                                     return 
                                         pathToJsonList
+                                        |> List.filter (not << isNull)  //just in case
                                         |> Seq.ofList
                                         |> Seq.collect
                                             (fun pathToJson 
@@ -137,7 +138,13 @@ module ParseJsonDataFull =
                                                             -> 
                                                             value.Data 
                                                             |> Option.ofNull 
-                                                            |> Option.map (fun data -> data |> Array.Parallel.map (_.Timetable))
+                                                            |> Option.map
+                                                                (fun data 
+                                                                    -> 
+                                                                    data 
+                                                                    |> Array.filter (not << isNull)  //just in case
+                                                                    |> Array.Parallel.map (_.Timetable)
+                                                                )
                                                         )
                                                     |> Option.defaultValue Array.empty
                              
@@ -149,11 +156,19 @@ module ParseJsonDataFull =
                                                             ->
                                                             value.Data
                                                             |> Option.ofNull
-                                                            |> Option.map (fun data -> data |> Array.Parallel.map (_.Vyluky) |> Array.concat))
+                                                            |> Option.map 
+                                                                (fun data
+                                                                    ->
+                                                                    data 
+                                                                    |> Array.filter (not << isNull)  //just in case
+                                                                    |> Array.Parallel.map (_.Vyluky) 
+                                                                    |> Array.concat)
+                                                                )
                                                     |> Option.defaultValue Array.empty
                              
                                                 let attachments = 
                                                     vyluky
+                                                    |> Array.filter (not << isNull)  //just in case
                                                     |> Option.ofNull
                                                     |> Option.bind 
                                                         (fun value
@@ -184,6 +199,7 @@ module ParseJsonDataFull =
                         
                                     return                          
                                         pathToJsonList
+                                        |> List.filter (not << isNull)  //just in case
                                         |> Seq.ofList 
                                         |> Seq.collect  //vzhledem ke komplikovanosti nepouzivam Result.sequence pro Array.collect (po zmene na seq ocekavam to same), nejde Some, nejde Ok jako vyse
                                             (fun pathToJson 
@@ -215,6 +231,7 @@ module ParseJsonDataFull =
                                                     | _ -> JsonProvider1.Parse tempJson1                                           
                                     
                                                 kodisJsonSamples
+                                                |> Array.filter (not << isNull)  //just in case
                                                 |> Option.ofNull
                                                 |> Option.map (Seq.collect fn3)
                                                 |> Option.defaultValue Seq.empty
