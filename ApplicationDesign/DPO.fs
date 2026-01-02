@@ -93,7 +93,8 @@ module WebScraping_DPO =
                             runIO (postToLog <| string ex.Message <| "#010")
                             Error FileDownloadErrorMHD //dpoMsg1
 
-                    | FilterDownloadSave ->     
+                    | FilterDownloadSave
+                        ->     
                         try       
                             dirList pathToDir
                             |> List.tryHead
@@ -104,7 +105,8 @@ module WebScraping_DPO =
                                     let filterTmtb = environment.FilterTimetables pathToSubdir                                     
                                     runIO <| environment.DownloadAndSaveTimetables reportProgress token filterTmtb 
                                 | Error _
-                                    -> Error FileDownloadErrorMHD                           
+                                    -> 
+                                    Error FileDownloadErrorMHD                           
                         with
                         | :? DirectoryNotFoundException ->
                             runIO (postToLog "Timetable directory not found or was deleted" "#011-1")
