@@ -187,26 +187,31 @@ module MDPO_BL = //FsHttp
 
                                         match response with
                                         | Ok response
-                                            ->      
-                                            use! response = response  
+                                            ->   
+                                            try
+                                                use! response = response  
                         
-                                            match response.statusCode with       
-                                            | HttpStatusCode.OK                  -> 
-                                                                                 do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
-                                                                                 return Ok ()
-                                            | HttpStatusCode.BadRequest          -> 
-                                                                                 return Error BadRequest     
-                                            | HttpStatusCode.InternalServerError ->
-                                                                                 return Error InternalServerError
-                                            | HttpStatusCode.NotImplemented      ->
-                                                                                 return Error NotImplemented
-                                            | HttpStatusCode.ServiceUnavailable  ->
-                                                                                 return Error ServiceUnavailable
-                                            | HttpStatusCode.NotFound            ->
-                                                                                 return Error NotFound
-                                            | _                                  ->
-                                                                                 return Error CofeeMakerUnavailable
-                                                                             
+                                                match response.statusCode with       
+                                                | HttpStatusCode.OK                  -> 
+                                                                                     do! response.SaveFileAsync >> Async.AwaitTask <| pathToFile
+                                                                                     return Ok ()
+                                                | HttpStatusCode.BadRequest          -> 
+                                                                                     return Error BadRequest     
+                                                | HttpStatusCode.InternalServerError ->
+                                                                                     return Error InternalServerError
+                                                | HttpStatusCode.NotImplemented      ->
+                                                                                     return Error NotImplemented
+                                                | HttpStatusCode.ServiceUnavailable  ->
+                                                                                     return Error ServiceUnavailable
+                                                | HttpStatusCode.NotFound            ->
+                                                                                     return Error NotFound
+                                                | _                                  ->
+                                                                                     return Error CofeeMakerUnavailable
+                                            with 
+                                            | ex 
+                                                -> 
+                                                runIO (postToLog <| string ex.Message <| "#2213MDPO")
+                                                return Error FileDownloadErrorMHD                                                                              
                                                                  
                                         | Error err 
                                             -> 
@@ -235,8 +240,16 @@ module MDPO_BL = //FsHttp
                                             fun inbox 
                                                 ->
                                                 let rec loop n = 
-                                                    async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
-                                                loop 0
+                                                    async
+                                                        {
+                                                            try
+                                                                let! Inc i = inbox.Receive()
+                                                                reportProgress (float n, float l)
+                                                                return! loop (n + i)
+                                                            with
+                                                            | ex -> runIO (postToLog <| string ex.Message <| "#900MDPO-MP")
+                                                        }
+                                                loop 0     
         
                             try
                                 filterTimetables
@@ -327,8 +340,7 @@ module MDPO_BL = //FsHttp
                             | ex 
                                 -> 
                                 runIO (postToLog <| string ex.Message <| "#029")                       
-                                None                  
-                                 
+                                None   
                     )
                 
                 let urlList = //aby to bylo jednotne s DPO
@@ -494,8 +506,16 @@ module MDPO_BL = //FsHttp
                                             fun inbox 
                                                 ->
                                                 let rec loop n = 
-                                                    async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
-                                                loop 0
+                                                    async
+                                                        {
+                                                            try
+                                                                let! Inc i = inbox.Receive()
+                                                                reportProgress (float n, float l)
+                                                                return! loop (n + i)
+                                                            with
+                                                            | ex -> runIO (postToLog <| string ex.Message <| "#900DPOunsafe-MP")
+                                                        }
+                                                loop 0     
         
                             try
                                 filterTimetables
