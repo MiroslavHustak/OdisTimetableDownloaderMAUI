@@ -33,7 +33,6 @@ type MauiProgram =
     static member CreateMauiApp(): MauiApp =
 
         try
-
             ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 
 
             let builder : MauiAppBuilder =
