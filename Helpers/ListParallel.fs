@@ -16,6 +16,8 @@ open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 
 //*************************************************************
 
+open Types.ErrorTypes
+open Helpers.ExceptionHelpers
 open Settings.SettingsGeneral
 
 //************************************************************************
@@ -340,7 +342,7 @@ let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b lis
         |> Async.RunSynchronously
         |> Array.toList
 
-let map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+let internal map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
     
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -351,14 +353,22 @@ let map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationTo
         []
     | false
         ->
-        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid xs1Length
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid xs1Length        
         
         List.zip xs1 xs2
         |> Array.ofList
-        |> Array.map (fun (x, y) -> async { return mapping x y })
-        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+        |> Array.map
+            (fun (x, y) 
+                ->
+                async 
+                    {
+                        token.ThrowIfCancellationRequested ()
+                        return mapping x y
+                    }
+            )        
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)           
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-        |> Array.toList
+        |> List.ofArray       
 
 // *********************************************************************
 // EXPERIMENTAL: Code quotations variants — DO NOT USE IN PRODUCTION

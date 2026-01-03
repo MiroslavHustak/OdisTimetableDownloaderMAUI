@@ -137,7 +137,7 @@ module KODIS_BL_Record =
                             | Choice2Of2 ex
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#2214-Json")
-                                Error JsonDownloadError  
+                                Error StopJsonDownloading  
                             
                         with
                         | ex -> 
@@ -294,7 +294,7 @@ module KODIS_BL_Record =
                                                         Async.Catch a
                                                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
 
-                                                    match get >> Request.sendAsync >> runAsyncSafe <| uri with
+                                                    match runAsyncSafe (Request.sendAsync (get uri)) with
                                                     | Choice1Of2 response 
                                                         -> 
                                                         try
@@ -304,11 +304,10 @@ module KODIS_BL_Record =
                                                  
                                                             match statusCode with
                                                             | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
-                                                                ->         
-                                                                response.SaveFileAsync(pathToFile)
-                                                                |> Async.AwaitTask
-                                                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                                                |> Ok 
+                                                                ->  
+                                                                match runAsyncSafe ((response.SaveFileAsync pathToFile) |> Async.AwaitTask) with 
+                                                                | Choice1Of2 result -> Ok result
+                                                                | Choice2Of2 _ -> Error <| PdfError StopDownloading
                                                                  
                                                             | HttpStatusCode.Forbidden 
                                                                 ->
@@ -328,7 +327,7 @@ module KODIS_BL_Record =
                                                     | Choice2Of2 ex
                                                         ->
                                                         runIO (postToLog <| string ex.Message <| "#2214")
-                                                        Error <| PdfError FileDownloadError  
+                                                        raise ex  
     
                                                 | None 
                                                     ->
@@ -346,7 +345,6 @@ module KODIS_BL_Record =
                                                 runIO (postToLog <| string ex.Message <| "#024")
                                                 Error <| PdfError FileDownloadError        
                                     )  
-    
                                 |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                                 |> Option.defaultValue (Ok ())                               
                          } 

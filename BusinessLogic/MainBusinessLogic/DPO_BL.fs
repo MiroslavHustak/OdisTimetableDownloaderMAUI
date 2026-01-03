@@ -177,7 +177,7 @@ module DPO_BL =
                                                     | true  -> new FileStream(pathToFile, FileMode.Append) 
                                                     | false -> new FileStream(pathToFile, FileMode.CreateNew)
 
-                                                let! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
+                                                use! stream = response.Content.ReadAsStreamAsync () |> Async.AwaitTask
                                                 do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                     
                                                 return Ok ()
