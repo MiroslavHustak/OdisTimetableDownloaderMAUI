@@ -21,6 +21,7 @@ open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
+open Helpers.Validation
 open Helpers.DirFileHelper
 
 module ParseJsonDataFull =  
@@ -70,7 +71,7 @@ module ParseJsonDataFull =
                 ->  
                 //FSharp.Control.Lazy.Create 
                     //(fun () 
-                     //   ->
+                     // ->
                         let kodisTimetables () : Reader<string list, string seq> =
         
                             reader  //Reader monad for educational purposes only, no real benefit here  
@@ -252,6 +253,13 @@ module ParseJsonDataFull =
                                 addOn()
                                 |> Seq.append task
                                 |> Seq.distinct
+                                |> Seq.choose 
+                                    (fun item
+                                        -> 
+                                        isValidHttps item
+                                        |> Option.fromBool item
+                                        |> Option.bind Option.ofNullEmptySpace //ofNullEmptySpace je vyse, ale pro jistotu jeste jednou quli addOn
+                                    ) 
                                 |> List.ofSeq
                                 |> Ok   
                         with

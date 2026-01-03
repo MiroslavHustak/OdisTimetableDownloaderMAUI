@@ -16,6 +16,7 @@ open FsToolkit.ErrorHandling
 
 open Helpers
 open Helpers.Builders
+open Helpers.Validation
 open Helpers.DirFileHelper
 
 open Api.Logging
@@ -85,7 +86,6 @@ module MDPO_BL = //FsHttp
                                 }
                             |> (fun a -> Async.RunSynchronously(a, cancellationToken = token))
     
-
                         //HtmlDocument -> web scraping -> extracting data from HTML pages
                                                                                     
                         document.Descendants "a"                  
@@ -117,12 +117,22 @@ module MDPO_BL = //FsHttp
                                 ->                                                                 
                                 let linkToPdf = sprintf "%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
                                 //chybne odkazy jsou pozdeji tise eliminovany
+                                let linkToPdf = 
+                                    isValidHttps linkToPdf
+                                    |> Option.fromBool linkToPdf
+                                    |> Option.defaultValue String.Empty
+
                                 let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
                                 let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
+
                                 linkToPdf, pathToFile << lineName <| item2
                             )                          
                         |> Seq.distinct   
-                        |> Seq.filter (fun (item1, item2) -> not (isNull item1 || isNull item2)) //just in case
+                        |> Seq.filter 
+                            (fun (item1, item2)
+                                -> 
+                                not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2)//just in case                                         
+                            )             
                     )  
                 |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
         )
@@ -178,6 +188,8 @@ module MDPO_BL = //FsHttp
 
                                                     //TOCTOU race -> try-with will catch
                                                     //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
+
+                                                    let! uri = isValidHttps uri |> Option.fromBool uri, Error String.Empty
 
                                                     let! response = (getSafe >> Request.sendAsync <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
@@ -396,10 +408,20 @@ module MDPO_BL = //FsHttp
                                 //chybne odkazy jsou pozdeji tise eliminovany
                                 let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  
                                 let pathToFile lineName = sprintf "%s/%s" pathToDir lineName
+                               
+                                let linkToPdf = 
+                                    isValidHttps linkToPdf
+                                    |> Option.fromBool linkToPdf
+                                    |> Option.defaultValue String.Empty
+
                                 linkToPdf, pathToFile << lineName <| item2
                             ) 
-                        |> Seq.distinct    
-                        |> Seq.filter (fun (item1, item2) -> not (isNull item1 || isNull item2)) //just in case                                         
+                        |> Seq.distinct  
+                        |> Seq.filter 
+                            (fun (item1, item2)
+                                -> 
+                                not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2)//just in case                                         
+                            )                                      
                     )  
                 |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
         )
@@ -473,6 +495,7 @@ module MDPO_BL = //FsHttp
                                                 }                                          
                                 //TOCTOU race -> try-with will catch
                                 //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
+
                                 use response = (getUnsafe >> Request.send <| uri) //Option.ofNull tady neni treba                                    
                         
                                 match response.statusCode with        

@@ -24,6 +24,7 @@ open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
+open Helpers.Validation
 open Helpers.DirFileHelper
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
@@ -144,7 +145,14 @@ module ParseJsonData =
                                 in
                                 addOn()
                                 |> Seq.append task
-                                |> Seq.distinct
+                                |> Seq.choose 
+                                    (fun item
+                                        -> 
+                                        isValidHttps item
+                                        |> Option.fromBool item
+                                        |> Option.bind Option.ofNullEmptySpace //ofNullEmptySpace je vyse, ale pro jistotu jeste jednou quli addOn
+                                    ) 
+                                |> Seq.distinct                                
                                 |> List.ofSeq
                                 |> Ok  
                         with

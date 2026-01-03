@@ -15,6 +15,7 @@ open FsToolkit.ErrorHandling
 
 open Helpers
 open Helpers.Builders
+open Helpers.Validation
 open Helpers.DirFileHelper
 
 open Api.Logging
@@ -92,6 +93,11 @@ module DPO_BL =
                                     let linkToPdf = sprintf"%s%s" pathDpoWeb item2  //https://www.dpo.cz // /jr/2023-04-01/024.pdf 
                                     //chybne odkazy jsou pozdeji tise eliminovany
 
+                                    let linkToPdf = 
+                                        isValidHttps linkToPdf
+                                        |> Option.fromBool linkToPdf
+                                        |> Option.defaultValue String.Empty
+
                                     let adaptedLineName =
                                         let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
                                         
@@ -127,9 +133,13 @@ module DPO_BL =
 
                                     linkToPdf, pathToFile
                                 )
-                            |> Seq.toList
-                            |> List.filter (fun (item1, item2) -> not (isNull item1 || isNull item2)) //just in case
-                            |> List.distinct
+                            |> Seq.distinct
+                            |> Seq.filter 
+                                (fun (item1, item2)
+                                    -> 
+                                    not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2)//just in case                                         
+                                )  
+                            |> Seq.toList                                
                     ) 
         )
 
@@ -145,7 +155,9 @@ module DPO_BL =
                                 {                      
                                     try         
                                         // not <| File.Exists pathToFile TOCTOU race -> try-with will catch
+                                                                               
                                         use client = new HttpClient()
+
                                         client.Timeout <- TimeSpan.FromSeconds 30.0
                                         client.DefaultRequestHeaders.UserAgent.ParseAdd "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
 

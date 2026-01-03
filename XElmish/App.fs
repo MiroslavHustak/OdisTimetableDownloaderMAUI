@@ -90,7 +90,7 @@ open ApplicationDesign4.WebScraping_KODIS4
    <AndroidResource Include="Platforms\Android\Resources\xml\network_security_config.xml" />
 *)
 
-module App =   
+module App =  
 
     type ProgressIndicator = 
         | Idle 
@@ -151,11 +151,68 @@ module App =
         | ClearAnimation
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
 
-    let private cancellationActor =  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
+    
+    // NOTE:
+    // Global cancellation actor used intentionally for single-view stress-testing
+    // Expected to be replaced by more suitable system in multi-MVU UI.
+    let internal cancellationActor =  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
 
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 
-       
+                        
+        MailboxProcessor<CancellationMessage>
+            .StartImmediate
+                <|
+                fun inbox
+                    ->
+                    let rec loop (cancelRequested: bool) (cts: CancellationTokenSource) =
+                    
+                        async 
+                            {
+                                match! inbox.Receive() with
+                                | UpdateState2 (newState, newCts)
+                                    ->
+                                    match newState with
+                                    | true  ->
+                                            cts.Cancel()
+                                            cts.Dispose()
+                                    | false -> 
+                                            cts.Dispose() 
+                                    return! loop newState newCts
+        
+                                | CheckState2 reply
+                                    ->
+                                    let tokenOpt = 
+                                        match cts.IsCancellationRequested with
+                                        | true  -> None
+                                        | false -> Some cts.Token
+                                    
+                                    reply.Reply tokenOpt
+
+                                    return! loop cancelRequested cts
+
+                                | CancelCurrent
+                                    ->
+                                    cts.Cancel()
+                                    // Do NOT dispose or replace — keep the same CTS
+                                    // Ongoing work will see cancellation
+                                    // When user starts new work, init2() will replace it normally
+                                    return! loop true cts   // or keep cancelRequested flag if you want
+        
+                                | Stop reply 
+                                    ->
+                                    match cancelRequested with
+                                    | true  -> cts.Cancel()  
+                                    | false -> () 
+                                    
+                                    cts.Dispose()
+                                    reply.Reply ()
+                                   // do not continue loop
+                            }
+
+                    loop false (new CancellationTokenSource())
+     
+       (*
         MailboxProcessor<CancellationMessage>
             .StartImmediate
                 <|
@@ -181,7 +238,7 @@ module App =
                                     ->
                                     let ctsTokenOpt =                        
                                         try
-                                            cts.Token |> Option.ofNull
+                                            Some cts.Token 
                                         with
                                         | _ -> None                           
                      
@@ -191,7 +248,8 @@ module App =
                             }
     
                     loop false (new CancellationTokenSource()) //whatever to initialise    
-                      
+                *)      
+
     let init () =         
             
         let ctsInitial = new CancellationTokenSource()
@@ -1357,79 +1415,88 @@ module App =
     // MAUI lifecycle events fire completely outside the Elmish/Fabulous world.
     // Lifecycle events -> OnResume, OnStart, OnSleep,...
 
-    type DispatchHolder = static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
+    type internal DispatchHolder = static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
 
-    let captureDispatchSub (_ : Model) : Cmd<Msg> =
+    let internal captureDispatchSub (_ : Model) : Cmd<Msg> =
 
         Cmd.ofSub 
             (fun (dispatch : Dispatch<Msg>)
                 ->
                 DispatchHolder.DispatchRef <- Some <| System.WeakReference<Dispatch<Msg>>(dispatch)
             )
+
+    let internal stopCancellationActorAsync () =
+    
+        async
+            {
+                // This will dispose the current CTS and end the loop
+                cancellationActor.PostAndReply Stop
+            }
+        |> Async.StartImmediate  // Fire-and-forget, does not block lifecycle thread
     
     let program : Program<unit, Model, Msg, IFabApplication> = 
     
         Program.statefulWithCmd init update view 
         |> Program.withSubscription captureDispatchSub
-        
-        (* 
-            The professional FE code should include patterns similar to the following ones:
+                
+    (* 
+        The professional FE code should include patterns similar to the following ones:
 
-            type Screen =
-            | Home
-            | Clearing
-            | Progress of ProgressState
-            | NoConnection
-            | Completed of string
+        type Screen =
+        | Home
+        | Clearing
+        | Progress of ProgressState
+        | NoConnection
+        | Completed of string
 
-            type ProgressState =
-            | Idle
-            | Running of current :float * total :float
-            | Cancelling
-            | Finished
+        type ProgressState =
+        | Idle
+        | Running of current :float * total :float
+        | Cancelling
+        | Finished
 
-            type ClearingState =
-            | NotStarted
-            | Confirming
-            | Clearing
-            | Cleared
+        type ClearingState =
+        | NotStarted
+        | Confirming
+        | Clearing
+        | Cleared
 
-            type Connectivity =
-            | Connected
-            | Disconnected
+        type Connectivity =
+        | Connected
+        | Disconnected
 
-            type Model =
-                {
-                    Permission : PermissionState
-                    Connectivity : Connectivity
-                    Screen : Screen
-                    Clearing : ClearingState
-                    Progress : ProgressState
-                    Message : string option
-                    AnimatedButton : ButtonId option
-                }
+        type Model =
+            {
+                Permission : PermissionState
+                Connectivity : Connectivity
+                Screen : Screen
+                Clearing : ClearingState
+                Progress : ProgressState
+                Message : string option
+                AnimatedButton : ButtonId option
+            }
 
-            match model.Screen with
-            | Home ->
-                homeView()
+        match model.Screen with
+        | Home ->
+            homeView()
             
-            | Clearing ->
-                clearingView()
+        | Clearing ->
+            clearingView()
             
-            | Progress p ->
-                progressView p
+        | Progress p ->
+            progressView p
             
-            | NoConnection ->
-                noConnectionView()
+        | NoConnection ->
+            noConnectionView()
 
-        App/             
-        ├─ MVU/
-        │   ├─ Home.fs
-        │   ├─ Clearing.fs
-        │   ├─ Progress.fs
-        │   └─ NoConnection.fs
-        └─ Commands/
-            ├─ Connectivity.fs
-            ├─ Kodis.fs
-            └─ Clearing.fs 
-        *)
+    App/             
+    ├─ MVU/
+    │   ├─ Home.fs
+    │   ├─ Clearing.fs
+    │   ├─ Progress.fs
+    │   └─ NoConnection.fs
+    └─ Commands/
+        ├─ Connectivity.fs
+        ├─ Kodis.fs
+        └─ Clearing.fs 
+    *)

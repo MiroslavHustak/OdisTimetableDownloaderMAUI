@@ -11,8 +11,9 @@ Licensed under the Apache License, Version 2.0 (the "License")
 
 namespace OdisTimetableDownloaderMAUI
 
-open System
+open System.IO
 open System.Net
+open System.Threading
 
 open Microsoft.Maui.Hosting
 open Microsoft.Maui.LifecycleEvents
@@ -56,6 +57,19 @@ type MauiProgram =
                     events.AddAndroid(
                         fun (android : IAndroidLifecycleBuilder) 
                             ->
+                            // When app goes to background → cancel any running download/scrape if you want
+                            android.OnPause(
+                                fun _
+                                    ->
+                                    //App.cancellationActor.Post Types.Types.CancelCurrent   //not my intent  
+                                    ()
+                                )
+                                |> ignore<ILifecycleBuilder>
+            
+                            // When process is about to be killed → clean up actor fully
+                            android.OnStop
+                                (fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder>
+
                             android.OnResume(
                                 fun (_activity : Android.App.Activity) 
                                     ->
@@ -118,4 +132,4 @@ type MauiProgram =
         | ex
             ->
             runIO (postToLog (string ex.Message) "#3008")
-            failwithf "Failed to create MauiApp: %s" (string ex.Message)    
+            MauiApp.CreateBuilder().Build()  //dummy process, dulezite je logging exception
