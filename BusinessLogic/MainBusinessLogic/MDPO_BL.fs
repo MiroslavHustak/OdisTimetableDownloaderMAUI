@@ -131,7 +131,7 @@ module MDPO_BL = //FsHttp
                         |> Seq.filter 
                             (fun (item1, item2)
                                 -> 
-                                not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2)//just in case                                         
+                                not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2) //just in case                                         
                             )             
                     )  
                 |> Seq.fold (fun acc (key, value) -> Map.add key value acc) Map.empty //vyzkousime si tvorbu Map
@@ -251,6 +251,13 @@ module MDPO_BL = //FsHttp
                                             <|
                                             fun inbox 
                                                 ->
+                                                use _ =
+                                                    token.Register
+                                                        (fun () 
+                                                            ->
+                                                            inbox.Post (Unchecked.defaultof<MsgIncrement>)
+                                                        )
+
                                                 let rec loop n = 
                                                     async
                                                         {
@@ -528,6 +535,13 @@ module MDPO_BL = //FsHttp
                                             <|
                                             fun inbox 
                                                 ->
+                                                use _ =
+                                                    token.Register
+                                                        (fun () 
+                                                            ->
+                                                            inbox.Post (Unchecked.defaultof<MsgIncrement>)
+                                                        )
+
                                                 let rec loop n = 
                                                     async
                                                         {

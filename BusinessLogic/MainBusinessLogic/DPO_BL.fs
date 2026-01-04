@@ -226,6 +226,13 @@ module DPO_BL =
                                             <|
                                             fun inbox 
                                                 ->
+                                                use _ =
+                                                    token.Register
+                                                        (fun () 
+                                                            ->
+                                                            inbox.Post (Unchecked.defaultof<MsgIncrement>)
+                                                        )
+
                                                 let rec loop n = 
                                                     async
                                                         {
