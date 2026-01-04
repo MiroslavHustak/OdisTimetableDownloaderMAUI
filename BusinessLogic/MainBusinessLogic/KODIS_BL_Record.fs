@@ -126,7 +126,7 @@ module KODIS_BL_Record =
                                             Ok result
 
                                         | Choice2Of2 _ 
-                                            -> Error <| StopJsonDownloading
+                                            -> Error StopJsonDownloading
                                                                         
                                     | HttpStatusCode.Forbidden 
                                         ->
@@ -144,7 +144,7 @@ module KODIS_BL_Record =
                                     runIO (postToLog <| string ex.Message <| "#2213-Json")
                                     Error JsonDownloadError
                                 
-                            | Choice2Of2 _
+                            | Choice2Of2 ex
                                 ->
                                 //runIO (postToLog <| string ex.Message <| "#2214-Json")
                                 Error StopJsonDownloading  

@@ -57,6 +57,7 @@ type MauiProgram =
                     events.AddAndroid(
                         fun (android : IAndroidLifecycleBuilder) 
                             ->
+                            (*
                             // When app goes to background → cancel any running download/scrape if you want
                             android.OnPause(
                                 fun _
@@ -65,7 +66,8 @@ type MauiProgram =
                                     ()
                                 )
                                 |> ignore<ILifecycleBuilder>
-            
+                            *)
+                            
                             // When process is about to be killed → clean up actor fully
                             android.OnStop
                                 (fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder>
@@ -132,4 +134,4 @@ type MauiProgram =
         | ex
             ->
             runIO (postToLog (string ex.Message) "#3008")
-            MauiApp.CreateBuilder().Build()  //dummy process, dulezite je logging exception
+            MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception
