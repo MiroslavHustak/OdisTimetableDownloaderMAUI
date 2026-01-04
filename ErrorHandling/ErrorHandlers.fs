@@ -203,18 +203,48 @@ module Option =
         | None       -> Result.Error error    
     *)
 
-module ExceptionHelpers = 
+module ExceptionHelpers =
 
     [<TailCall>]
-    let rec private containsCancellation (e : exn) =
-        match e with
+    let rec private containsCancellation (ex : exn) : bool =
+        
+        match ex with
+        | null
+            -> 
+            false
         | :? OperationCanceledException 
-        | :? System.Threading.Tasks.TaskCanceledException 
-            -> true
-        | _ 
-            when isNull e.InnerException 
-            -> false
-        | _ 
-            -> containsCancellation e.InnerException
+            ->
+            true
+        | :? AggregateException
+            as agg
+            ->
+            agg.Flatten().InnerExceptions
+            |> Seq.exists containsCancellation
+        | _ when isNull ex.InnerException 
+            -> 
+            false
+        | _ ->
+            containsCancellation ex.InnerException
+
+        (* neni tail recursive
+        ex 
+        |> Option.ofNull
+        |> Option.map 
+            (fun ex 
+                ->
+                match ex with
+                | :? OperationCanceledException 
+                    -> true
+                | :? AggregateException 
+                    as agg 
+                        ->
+                        agg.Flatten().InnerExceptions
+                        |> Seq.exists containsCancellation
+                | _ when isNull ex.InnerException 
+                    -> false
+                | _ -> containsCancellation ex.InnerException
+            )
+         |> Option.defaultValue false 
+         *) 
 
     let internal isCancellation (ex : exn) = containsCancellation ex
