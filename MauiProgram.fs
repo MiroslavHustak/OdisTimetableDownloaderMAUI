@@ -58,19 +58,18 @@ type MauiProgram =
                         fun (android : IAndroidLifecycleBuilder) 
                             ->
                             (*
-                            // When app goes to background → cancel any running download/scrape if you want
+                            // When app goes to background 
                             android.OnPause(
                                 fun _
                                     ->
                                     //App.cancellationActor.Post Types.Types.CancelCurrent   //not my intent  
                                     ()
                                 )
-                                |> ignore<ILifecycleBuilder>
-                            *)
-                            
-                            // When process is about to be killed → clean up actor fully
+                                |> ignore<ILifecycleBuilder>    
+
                             android.OnStop
-                                (fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder>
+                                (fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
+                            *) 
 
                             android.OnResume(
                                 fun (_activity : Android.App.Activity) 
@@ -123,7 +122,7 @@ type MauiProgram =
                                         ->
                                         () //runIO (postToLog "For testing purposes" "#3000")
 
-                                ) |> ignore<ILifecycleBuilder>
+                                ) |> ignore<IAndroidLifecycleBuilder>
                         ) |> ignore<ILifecycleBuilder>
                 ) |> ignore<MauiAppBuilder>
             #endif        

@@ -151,7 +151,6 @@ module App =
         | ClearAnimation
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
 
-    
     // NOTE:
     // Global cancellation actor used intentionally for single-view stress-testing
     // Expected to be replaced by more suitable system in multi-MVU UI.
@@ -210,46 +209,8 @@ module App =
                                    // do not continue loop
                             }
 
-                    loop false (new CancellationTokenSource())
+                    loop false (new CancellationTokenSource())   
      
-       (*
-        MailboxProcessor<CancellationMessage>
-            .StartImmediate
-                <|
-                fun inbox 
-                    ->
-                    let rec loop (cancelIsRequested : bool) (cts : CancellationTokenSource) =
-
-                        async
-                            {
-                                match! inbox.Receive() with
-                                | UpdateState2 (newState, newCts)
-                                    ->
-                                    match newState with
-                                    | true  ->
-                                            cts.Cancel()
-                                            cts.Dispose()
-                                    | false -> 
-                                            () 
-    
-                                    return! loop newState newCts
-    
-                                | CheckState2 replyChannel 
-                                    ->
-                                    let ctsTokenOpt =                        
-                                        try
-                                            Some cts.Token 
-                                        with
-                                        | _ -> None                           
-                     
-                                    replyChannel.Reply ctsTokenOpt 
-
-                                    return! loop cancelIsRequested cts
-                            }
-    
-                    loop false (new CancellationTokenSource()) //whatever to initialise    
-                *)      
-
     let init () =         
             
         let ctsInitial = new CancellationTokenSource()
@@ -548,8 +509,7 @@ module App =
                     ProgressCircleVisible = false
                     CancelVisible = false
                     BackHomeVisible = isVisible
-            }, 
-            Cmd.none
+            }, Cmd.none
                    
         | QuitCountdown message
             ->
@@ -588,7 +548,9 @@ module App =
             Cmd.none   
 
         | Quit  
-            ->            
+            ->            // This will dispose the current CTS and end the loop
+            let stopCancellationActorAsync () = async { cancellationActor.PostAndReply Stop }       
+                            
             #if WINDOWS 
             (*
             let cmd () : Cmd<Msg> =
@@ -605,6 +567,7 @@ module App =
                         ->
                         async 
                             {
+                                do! stopCancellationActorAsync ()
                                 let! _ = runIO (Api.Logging.saveJsonToFileAsync ())
                                 return ()
                             }
@@ -618,7 +581,11 @@ module App =
             #if ANDROID
             runIO <| KeepScreenOnManager.keepScreenOn false  
             let message = HardRestart.exitApp >> runIO <| () 
-            { m with ProgressMsg = message }, Cmd.none
+
+            { 
+                m with ProgressMsg = message
+            },
+            Cmd.ofSub (fun _ -> stopCancellationActorAsync() |> Async.StartImmediate)
             #endif
 
         | IntermediateQuitCase 
@@ -870,6 +837,7 @@ module App =
                                                     stateReducerCmd2 
                                                     <| token
                                                     <| kodisPathTemp
+                                                    <| fun isVisible -> CancelVisible >> dispatch <| isVisible   
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                     <| fun message -> IterationMessage >> dispatch <| message 
                                                     <| reportProgress            
@@ -1424,16 +1392,7 @@ module App =
                 ->
                 DispatchHolder.DispatchRef <- Some <| System.WeakReference<Dispatch<Msg>>(dispatch)
             )
-
-    let internal stopCancellationActorAsync () =
-    
-        async
-            {
-                // This will dispose the current CTS and end the loop
-                cancellationActor.PostAndReply Stop
-            }
-        |> Async.StartImmediate  // Fire-and-forget, does not block lifecycle thread
-    
+            
     let program : Program<unit, Model, Msg, IFabApplication> = 
     
         Program.statefulWithCmd init update view 

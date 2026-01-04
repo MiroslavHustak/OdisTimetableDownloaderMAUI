@@ -16,7 +16,7 @@ module Messages =
     let [<Literal>] internal msg2LongTermValidity = "Momentálně nejsou dostupné odkazy na dlouhodobě platné JŘ ODIS. Chvíli strpení, prosím."
     let [<Literal>] internal msg3LongTermValidity = "Dlouhodobě platné JŘ ODIS nebyly k dispozici pro stažení."
 
-    let [<Literal>] internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
+    let [<Literal>] internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení." 
     let [<Literal>] internal jsonCancel = "Stahování JSON souborů předčasně ukončeno." 
     let [<Literal>] internal rcError = "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
     let [<Literal>] internal jsonParsingError = "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
@@ -48,21 +48,21 @@ module Messages =
     let [<Literal>] internal dispatchMsg2 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
     let [<Literal>] internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
     
-    let [<Literal>] internal dispatchMsg0 = "Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
-    let [<Literal>] internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
+    let [<Literal>] internal dispatchMsg0 = "Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
 
     let [<Literal>] internal dispatchParseMsg = "Došlo k chybě při parsování JSON souborů."  
     let [<Literal>] internal parseCancelMsg = "Parsování JSON souborů. Stahování JŘ DPO předčasně ukončeno."
 
-    let [<Literal>] internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
-    let [<Literal>] internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."
+    let [<Literal>] internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."
     let [<Literal>] internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
     let [<Literal>] internal mdpoCancelMsg = "Stahování JŘ MDPO předčasně ukončeno."
     let [<Literal>] internal mdpoCancelMsg1 = "Stahování JŘ MDPO předčasně ukončeno, úklid se nepodařil."
 
-    let [<Literal>] internal dpoMsg0 = "Došlo k chybě, JŘ DPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
-    let [<Literal>] internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."  
-    let [<Literal>] internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
+    let [<Literal>] internal dpoMsg0 = "Došlo k chybě, JŘ DPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení." 
     let [<Literal>] internal dpoCancelMsg = "Stahování JŘ DPO předčasně ukončeno."
     let [<Literal>] internal dpoCancelMsg1 = "Stahování JŘ DPO předčasně ukončeno, úklid se nepodařil."
   

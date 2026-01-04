@@ -140,7 +140,7 @@ module WebScraping_KODIS =
                 downloadAndSaveJson reportProgress token 
         )
 
-    let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
+    let internal stateReducerCmd2 (token : CancellationToken) path dispatchCancelVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress =
 
         IO (fun () 
                 ->    
@@ -171,7 +171,7 @@ module WebScraping_KODIS =
                     
                     let dir = context2.DirList |> List.item context2.VariantInt 
                     
-                    // Paralelni dispatch vubec nepomuze, aby se dispatchMsg2 objevil , ale kod ponechavam for educational purposes
+                    // Paralelni dispatch vubec nepomuze, aby se dispatchMsg2 objevil, ale kod ponechavam for educational purposes
                     let dispatch () = dispatchWorkIsComplete dispatchMsg1_1
                         
                     let list1 () = 
@@ -222,8 +222,7 @@ module WebScraping_KODIS =
                         | ex
                             ->
                             runIO (postToLog <| string ex.Message <| "#22-2")
-                            Error <| JsonError JsonDataFilteringError 
-                    
+                            Error <| JsonError JsonDataFilteringError                     
                      *)
 
                     //match list2 with                    
@@ -301,6 +300,8 @@ module WebScraping_KODIS =
                                                            
                 pyramidOfInferno
                     {       
+                        dispatchCancelVisible false
+
                         #if ANDROID
                         let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                         #endif
@@ -317,7 +318,9 @@ module WebScraping_KODIS =
                                 runIO (postToLog <| string ex.Message <| "#22-1")
                                 Error <| JsonError JsonParsingError
                                 //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
-
+                        
+                        dispatchCancelVisible true
+                        
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn
                         let! msg3 = result lazyList contextLongTermValidity, errFn   

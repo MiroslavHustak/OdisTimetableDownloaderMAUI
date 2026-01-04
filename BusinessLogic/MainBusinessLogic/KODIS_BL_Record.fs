@@ -328,8 +328,16 @@ module KODIS_BL_Record =
                                                                         -> 
                                                                         Ok result
 
-                                                                    | Choice2Of2 _ 
-                                                                        -> Error <| PdfError StopDownloading
+                                                                    | Choice2Of2 ex 
+                                                                        -> 
+                                                                        match Helpers.ExceptionHelpers.isCancellation ex with
+                                                                        | true
+                                                                            ->
+                                                                            Error <| PdfError StopDownloading
+                                                                        | false 
+                                                                            ->
+                                                                            runIO (postToLog <| string ex.Message <| "#024-K4")
+                                                                            Error <| PdfError FileDownloadError
                                                                  
                                                                 | HttpStatusCode.Forbidden 
                                                                     ->
@@ -349,7 +357,14 @@ module KODIS_BL_Record =
                                                         | Choice2Of2 ex
                                                             ->
                                                             //runIO (postToLog <| string ex.Message <| "#2214")
-                                                            Error <| PdfError StopDownloading  
+                                                            match Helpers.ExceptionHelpers.isCancellation ex with
+                                                            | true
+                                                                ->
+                                                                Error <| PdfError StopDownloading
+                                                            | false 
+                                                                ->
+                                                                runIO (postToLog <| string ex.Message <| "#7024")
+                                                                Error <| PdfError FileDownloadError  
     
                                                     | None 
                                                         ->
