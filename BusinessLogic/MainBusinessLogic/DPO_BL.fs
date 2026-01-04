@@ -126,10 +126,10 @@ module DPO_BL =
                                         let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
                                         let s1 s = removeLastFourCharacters s 
                                         sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
-                                        in                
-                                        let pathToFile = 
-                                            let item2 = item2.Replace("?", String.Empty)                                            
-                                            sprintf "%s/%s" pathToDir lineName
+                                                    
+                                    let pathToFile = 
+                                        let item2 = item2.Replace("?", String.Empty)                                            
+                                        sprintf "%s/%s" pathToDir lineName
 
                                     linkToPdf, pathToFile
                                 )
