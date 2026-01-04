@@ -169,7 +169,6 @@ module ParseJsonDataFull =
                              
                                                 let attachments = 
                                                     vyluky
-                                                    |> Array.filter (not << isNull)  //just in case
                                                     |> Option.ofNull
                                                     |> Option.bind 
                                                         (fun value
@@ -232,7 +231,6 @@ module ParseJsonDataFull =
                                                     | _ -> JsonProvider1.Parse tempJson1                                           
                                     
                                                 kodisJsonSamples
-                                                |> Array.filter (not << isNull)  //just in case
                                                 |> Option.ofNull
                                                 |> Option.map (Seq.collect fn3)
                                                 |> Option.defaultValue Seq.empty

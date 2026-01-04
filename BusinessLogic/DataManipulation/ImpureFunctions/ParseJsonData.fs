@@ -51,8 +51,23 @@ module ParseJsonData =
                                                     <|
                                                     fun inbox 
                                                         ->
+                                                        use _ =
+                                                            token.Register
+                                                                (fun () 
+                                                                    ->
+                                                                    inbox.Post (Unchecked.defaultof<MsgIncrement>)
+                                                                )
+
                                                         let rec loop n = 
-                                                            async { match! inbox.Receive() with Inc i -> reportProgress (float n, float l); return! loop (n + i) }
+                                                            async
+                                                                {
+                                                                    try
+                                                                        let! Inc i = inbox.Receive()
+                                                                        reportProgress (float n, float l)
+                                                                        return! loop (n + i)
+                                                                    with
+                                                                    | ex -> runIO (postToLog <| ex.Message <| "#911-MP")
+                                                                }
                                                         loop 0
 
                                     let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
