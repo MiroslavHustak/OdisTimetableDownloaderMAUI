@@ -234,7 +234,6 @@ module App =
                                     ->
                                     async
                                         {    
-                                            (*
                                             #if WINDOWS  
                                             match isConnected with
                                             | true  ->
@@ -243,20 +242,11 @@ module App =
                                                     NetConnMessage >> dispatch <| noNetConn 
                                                     do! Async.Sleep 2000
                                                     return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                            #else                                            
+                                            #else                                                           
                                             match isConnected with
-                                            | true  -> 
-                                                    return NetConnMessage >> dispatch <| yesNetConn 
-                                            | false -> 
-                                                    return dispatch EmergencyQuit //NetConnMessage >> dispatch <| noNetConn                                                   
-                                            #endif 
-                                            *)
-
-                                            match isConnected with
-                                            | true  ->                                                     
-                                                    return dispatch Home2 //NetConnMessage >> dispatch <| yesNetConn 
-                                            | false -> 
-                                                    return EmergencyQuit >> dispatch <| false //NetConnMessage >> dispatch <| noNetConn                              
+                                            | true  -> return dispatch Home2 
+                                            | false -> return EmergencyQuit >> dispatch <| false 
+                                            #endif         
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 
@@ -605,7 +595,7 @@ module App =
             -> 
             m, Cmd.ofMsg Quit
 
-        | EmergencyQuit status
+        | EmergencyQuit isConnected
             ->
             let ctsNew = new CancellationTokenSource() 
                 in
@@ -625,28 +615,7 @@ module App =
                         return! delayedQuit dispatch
                     }
                 |> Async.StartImmediate
-
-            { 
-                m with 
-                    ProgressMsg = String.Empty
-                    NetConnMsg = noNetConn4
-                    ProgressIndicator = Idle
-                    Progress = 0.0   
-                    RestartVisible = false
-                    ClearingVisible = false
-                    KodisVisible = false
-                    DpoVisible = false
-                    MdpoVisible = false
-                    CloudVisible = false  
-                    ProgressCircleVisible = false
-                    BackHomeVisible = false
-                    CancelVisible = false
-                    LabelVisible = true
-                    Label2Visible = true  
-                    InternetIsConnected = status
-            }, Cmd.ofSub executeQuit  
-           
-           (*
+          
             #if WINDOWS
             m, Cmd.none          
             #endif
@@ -668,10 +637,10 @@ module App =
                     BackHomeVisible = false
                     CancelVisible = false
                     LabelVisible = true
-                    Label2Visible = true                    
+                    Label2Visible = true  
+                    InternetIsConnected = isConnected          
             }, Cmd.ofSub executeQuit
-            #endif
-            *)
+            #endif           
 
         | Home2  
             -> 
