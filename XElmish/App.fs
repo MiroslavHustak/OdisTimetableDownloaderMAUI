@@ -631,6 +631,7 @@ module App =
                     MdpoVisible = false
                     CloudVisible = false  
                     ProgressCircleVisible = false
+                    BackHomeVisible = false
                     CancelVisible = false
                     LabelVisible = true
                     Label2Visible = true                    
