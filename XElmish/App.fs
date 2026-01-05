@@ -115,6 +115,7 @@ module App =
             CloudVisible : bool
             LabelVisible : bool
             Label2Visible : bool
+            InternetIsConnected : bool
             AnimatedButton : string option // Tracks animated button
         }
 
@@ -136,7 +137,7 @@ module App =
         | RestartVisible of bool
         | CancelVisible of bool
         | Quit
-        | EmergencyQuit
+        | EmergencyQuit of bool
         | IntermediateQuitCase
         | QuitCountdown of string
         | NetConnMessage of string
@@ -233,6 +234,7 @@ module App =
                                     ->
                                     async
                                         {    
+                                            (*
                                             #if WINDOWS  
                                             match isConnected with
                                             | true  ->
@@ -247,7 +249,14 @@ module App =
                                                     return NetConnMessage >> dispatch <| yesNetConn 
                                             | false -> 
                                                     return dispatch EmergencyQuit //NetConnMessage >> dispatch <| noNetConn                                                   
-                                            #endif                                           
+                                            #endif 
+                                            *)
+
+                                            match isConnected with
+                                            | true  ->                                                     
+                                                    return dispatch Home2 //NetConnMessage >> dispatch <| yesNetConn 
+                                            | false -> 
+                                                    return EmergencyQuit >> dispatch <| false //NetConnMessage >> dispatch <| noNetConn                              
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 
@@ -283,6 +292,7 @@ module App =
                 CloudVisible = false
                 LabelVisible = true
                 Label2Visible = true
+                InternetIsConnected = true
                 AnimatedButton = None
             } 
 
@@ -290,7 +300,7 @@ module App =
             {       
                 initialModel with
                     PermissionGranted = true
-                    ProgressMsg = String.Empty
+                    //ProgressMsg = String.Empty
                     NetConnMsg = noNetConnInitial
                     ClearingVisible = false
                     KodisVisible = false
@@ -323,7 +333,7 @@ module App =
             | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
             | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none 
 
-    let init2 () = 
+    let init2 isConnected = 
 
         let ctsNew = new CancellationTokenSource()
             in
@@ -341,21 +351,22 @@ module App =
             {       
                 PermissionGranted = permissionGranted
                 ProgressMsg = String.Empty
-                NetConnMsg = String.Empty
+                NetConnMsg = isConnected |> function true -> String.Empty | false -> noNetConn3
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
                 RestartVisible = false
-                ClearingVisible = permissionGranted
-                KodisVisible = permissionGranted
-                DpoVisible = permissionGranted
-                MdpoVisible = permissionGranted
+                ClearingVisible = isConnected |> function true -> permissionGranted | false -> false
+                KodisVisible = isConnected |> function true -> permissionGranted | false -> false
+                DpoVisible = isConnected |> function true -> permissionGranted | false -> false
+                MdpoVisible = isConnected |> function true -> permissionGranted | false -> false
                 ProgressCircleVisible = false
                 BackHomeVisible = false
                 CancelVisible = false
                 CloudVisible = false
                 LabelVisible = true
                 Label2Visible = true
+                InternetIsConnected = isConnected
                 AnimatedButton = None
             } 
 
@@ -363,13 +374,14 @@ module App =
             {    
                 initialModel with
                     PermissionGranted = true
-                    ProgressMsg = String.Empty
+                    //ProgressMsg = String.Empty
                     NetConnMsg = noNetConnInitial
                     ClearingVisible = false
                     KodisVisible = false
                     DpoVisible = false
                     MdpoVisible = false
                     AnimatedButton = None
+                    InternetIsConnected = false
             }   
             
         match runIO <| ensureMainDirectoriesExist with
@@ -421,7 +433,7 @@ module App =
            
         | ClickRestart 
             ->
-            { m with AnimatedButton = Some buttonRestart }, cmdOnClickAnimation Home
+            { m with AnimatedButton = Some buttonRestart }, cmdOnClickAnimation Home2
             
         | ClickRequestPermission
             ->
@@ -482,12 +494,13 @@ module App =
                 | false -> value
             { 
                 m with 
-                    ProgressIndicator = InProgress (progressValue, totalProgress)
-                    Progress = progress 
+                    ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (progressValue, totalProgress) | false -> Idle
+                    Progress = m.InternetIsConnected |> function true -> progress | false -> 0.0   
+                    NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
                     ClearingVisible = false
                     KodisVisible = false
                     ProgressCircleVisible = isVisible
-                    CancelVisible = isVisible
+                    CancelVisible = m.InternetIsConnected |> function true -> isVisible | false -> false 
                     DpoVisible = false
                     MdpoVisible = false
                     BackHomeVisible = false
@@ -499,7 +512,7 @@ module App =
             {
                 m with                    
                     ProgressMsg = result
-                    NetConnMsg = String.Empty
+                    NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
                     ProgressIndicator = Idle
                     Progress = 0.0
                     ClearingVisible = false
@@ -592,7 +605,7 @@ module App =
             -> 
             m, Cmd.ofMsg Quit
 
-        | EmergencyQuit 
+        | EmergencyQuit status
             ->
             let ctsNew = new CancellationTokenSource() 
                 in
@@ -601,7 +614,7 @@ module App =
             let delayedQuit (dispatch : Msg -> unit) = 
                 async
                     {
-                        do! Async.Sleep 60000 //za hodinu mu to vypneme automaticky
+                        do! Async.Sleep 300000 //za dany cas mu to vypneme automaticky // 5 minut
                         //do! Async.AwaitTask (System.Threading.Tasks.Task.Delay(System.Threading.Timeout.InfiniteTimeSpan))                        
                         return dispatch IntermediateQuitCase
                     }
@@ -612,7 +625,28 @@ module App =
                         return! delayedQuit dispatch
                     }
                 |> Async.StartImmediate
+
+            { 
+                m with 
+                    ProgressMsg = String.Empty
+                    NetConnMsg = noNetConn4
+                    ProgressIndicator = Idle
+                    Progress = 0.0   
+                    RestartVisible = false
+                    ClearingVisible = false
+                    KodisVisible = false
+                    DpoVisible = false
+                    MdpoVisible = false
+                    CloudVisible = false  
+                    ProgressCircleVisible = false
+                    BackHomeVisible = false
+                    CancelVisible = false
+                    LabelVisible = true
+                    Label2Visible = true  
+                    InternetIsConnected = status
+            }, Cmd.ofSub executeQuit  
            
+           (*
             #if WINDOWS
             m, Cmd.none          
             #endif
@@ -637,10 +671,11 @@ module App =
                     Label2Visible = true                    
             }, Cmd.ofSub executeQuit
             #endif
+            *)
 
         | Home2  
             -> 
-            init2 ()
+            init2 m.InternetIsConnected
 
         | Home  
             -> 
@@ -652,7 +687,13 @@ module App =
                 in
                 cancellationActor.Post <| UpdateState2 (true, ctsNew)    
            
-            { m with ProgressMsg = cancelMsg3; NetConnMsg = String.Empty; ProgressCircleVisible = false; CancelVisible = false }, Cmd.none
+            { m with 
+                ProgressMsg = cancelMsg3
+                NetConnMsg = String.Empty
+                ProgressCircleVisible = false
+                CancelVisible = false
+                BackHomeVisible = false
+            }, Cmd.none
 
         | RestartVisible isVisible 
             -> 
@@ -880,7 +921,8 @@ module App =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgKodis 
-                                ProgressIndicator = InProgress (0.0, 0.0)
+                                NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
+                                ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (0.0, 0.0) | false -> Idle  
                                 ClearingVisible = false
                                 CloudVisible = false
                                 KodisVisible = false
@@ -894,14 +936,22 @@ module App =
                         ->
                         { 
                             m with                               
-                                NetConnMsg = noNetConn1
-                                ProgressIndicator = InProgress (0.0, 0.0)
+                                ProgressMsg = String.Empty
+                                NetConnMsg = noNetConn4
+                                ProgressIndicator = Idle
+                                Progress = 0.0   
+                                RestartVisible = false
                                 ClearingVisible = false
-                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
-                                MdpoVisible = false  
+                                MdpoVisible = false
+                                CloudVisible = false  
                                 ProgressCircleVisible = false
+                                BackHomeVisible = false
+                                CancelVisible = false
+                                LabelVisible = true
+                                Label2Visible = true   
+                                InternetIsConnected = false
                         }, 
                         Cmd.none 
                                    
@@ -990,8 +1040,8 @@ module App =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgKodis1 
-                                //NetConnMsg = yesNetConn
-                                ProgressIndicator = InProgress (0.0, 0.0)
+                                NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
+                                ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (0.0, 0.0) | false -> Idle  
                                 ClearingVisible = false
                                 CloudVisible = false
                                 KodisVisible = false
@@ -1005,14 +1055,22 @@ module App =
                         ->
                         { 
                             m with                               
-                                NetConnMsg = noNetConn1
-                                ProgressIndicator = InProgress (0.0, 0.0)
+                                ProgressMsg = String.Empty
+                                NetConnMsg = noNetConn4
+                                ProgressIndicator = Idle
+                                Progress = 0.0   
+                                RestartVisible = false
                                 ClearingVisible = false
-                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
-                                MdpoVisible = false  
+                                MdpoVisible = false
+                                CloudVisible = false  
                                 ProgressCircleVisible = false
+                                BackHomeVisible = false
+                                CancelVisible = false
+                                LabelVisible = true
+                                Label2Visible = true   
+                                InternetIsConnected = false
                         }, 
                         Cmd.none 
 
@@ -1092,8 +1150,8 @@ module App =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgDpo //progressMsgMdpo
-                                NetConnMsg = String.Empty
-                                ProgressIndicator = InProgress (0.0, 0.0)
+                                NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
+                                ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (0.0, 0.0) | false -> Idle  
                                 ClearingVisible = false
                                 CloudVisible = false
                                 KodisVisible = false
@@ -1107,14 +1165,22 @@ module App =
                         ->
                         { 
                             m with                               
-                                NetConnMsg = noNetConn1
-                                ProgressIndicator = InProgress (0.0, 0.0)
+                                ProgressMsg = String.Empty
+                                NetConnMsg = noNetConn4
+                                ProgressIndicator = Idle
+                                Progress = 0.0   
+                                RestartVisible = false
                                 ClearingVisible = false
-                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
-                                MdpoVisible = false 
+                                MdpoVisible = false
+                                CloudVisible = false  
                                 ProgressCircleVisible = false
+                                BackHomeVisible = false
+                                CancelVisible = false
+                                LabelVisible = true
+                                Label2Visible = true  
+                                InternetIsConnected = false
                         }, 
                         Cmd.none  
 
@@ -1194,8 +1260,8 @@ module App =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgMdpo
-                                NetConnMsg = String.Empty
-                                ProgressIndicator = InProgress (0.0, 0.0)
+                                NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
+                                ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (0.0, 0.0) | false -> Idle  
                                 ClearingVisible = false
                                 CloudVisible = false
                                 KodisVisible = false
@@ -1209,14 +1275,22 @@ module App =
                         ->
                         { 
                             m with                               
-                                NetConnMsg = noNetConn1
-                                ProgressIndicator = InProgress (0.0, 0.0)
+                                ProgressMsg = String.Empty
+                                NetConnMsg = noNetConn4
+                                ProgressIndicator = Idle
+                                Progress = 0.0   
+                                RestartVisible = false
                                 ClearingVisible = false
-                                CloudVisible = false
                                 KodisVisible = false
                                 DpoVisible = false
-                                MdpoVisible = false  
+                                MdpoVisible = false
+                                CloudVisible = false  
                                 ProgressCircleVisible = false
+                                BackHomeVisible = false
+                                CancelVisible = false
+                                LabelVisible = true
+                                Label2Visible = true    
+                                InternetIsConnected = false
                         }, 
                         Cmd.none  
 
@@ -1401,6 +1475,10 @@ module App =
                 
     (* 
         The professional FE code should include patterns similar to the following ones:
+
+        type AppState =
+        | Normal of NormalModel
+        | EmergencyNoInternet of EmergencyModel
 
         type Screen =
         | Home
