@@ -3,11 +3,46 @@
 open System
 open System.Runtime.InteropServices
 
-module Native =
+module Native =  
+    
+    // Native interop module containing Platform Invoke (P/Invoke) declarations
+    // for functions implemented in unmanaged DLLs.
 
-    // C++ code:
+    // .NET declarations calling exported functions from native DLLs from Rust
 
-    //type ProgressCallback = delegate of float * float -> unit
+    [<DllImport("string_combine_dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
+    extern IntPtr combine_strings(IntPtr s1, IntPtr s2)
+
+    [<DllImport("string_combine_dll", CallingConvention = CallingConvention.Cdecl)>]
+    extern void free_string(IntPtr ptr)
+
+    (*
+    Note: Add to .fsproj to copy the DLL to output:
+    <ItemGroup>
+          <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\string_combine_dll.dll">
+		      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         </None>
+     </ItemGroup>
+    *)
+
+    [<DllImport("rust_copy_move.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
+    extern int rust_copy_c(string src, string dst)
+
+    [<DllImport("rust_copy_move.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
+    extern int rust_move_c(string src, string dst)
+
+    (*
+    Note: Add to .fsproj to copy the DLL to output:
+    <ItemGroup>
+              <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
+		          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         </None>
+     </ItemGroup>
+    *)
+
+    // .NET declarations calling exported functions from native DLLs from C++
+  
+    // type ProgressCallback = delegate of float * float -> unit
     
     [<DllImport(@"CppHelpers.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl)>]
     extern int CopyDirContent64(
@@ -29,42 +64,10 @@ module Native =
     )
 
     (*
-    Pridat do fsproj
+    Note: Add to .fsproj to copy the DLL to output:
     <ItemGroup>
 	  <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\CppHelpers.dll">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-         </None>
-     </ItemGroup>
-    *)
-
-    // Rust code:
-
-    [<DllImport("string_combine_dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
-    extern IntPtr combine_strings(IntPtr s1, IntPtr s2)
-
-    [<DllImport("string_combine_dll", CallingConvention = CallingConvention.Cdecl)>]
-    extern void free_string(IntPtr ptr)
-
-    (*
-    Pridat do fsproj
-    <ItemGroup>
-          <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\string_combine_dll.dll">
-		      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-         </None>
-     </ItemGroup>
-    *)
-
-    [<DllImport("rust_copy_move.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
-    extern int rust_copy_c(string src, string dst)
-
-    [<DllImport("rust_copy_move.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
-    extern int rust_move_c(string src, string dst)
-
-    (*
-    Pridat do fsproj
-    <ItemGroup>
-              <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
-		          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
          </None>
      </ItemGroup>
     *)

@@ -14,12 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CombiningStrings", "Combini
 		..\..\source\Rust\string_combine_dll\src\lib.rs = ..\..\source\Rust\string_combine_dll\src\lib.rs
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CopyingAndMoving", "CopyingAndMoving", "{C148AA85-54B8-4A6D-AAB6-BD2B6A42C9BD}"
-	ProjectSection(SolutionItems) = preProject
-		C:\Users\User\RustRoverProjects\rust_copy_move\src\copy_move.rs = C:\Users\User\RustRoverProjects\rust_copy_move\src\copy_move.rs
-		C:\Users\User\RustRoverProjects\rust_copy_move\src\lib.rs = C:\Users\User\RustRoverProjects\rust_copy_move\src\lib.rs
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CppHelpers", "CppHelpers", "{0FBBBC7C-3DCC-4810-B8B1-617F0EC4EB20}"
 	ProjectSection(SolutionItems) = preProject
 		..\CppHelpers\copyingDirectories.cpp = ..\CppHelpers\copyingDirectories.cpp
@@ -81,7 +75,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6E303B49-043B-42DB-A606-380F35B63948} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{C148AA85-54B8-4A6D-AAB6-BD2B6A42C9BD} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61F7FB11-1E47-470C-91E2-47F8143E1572}
