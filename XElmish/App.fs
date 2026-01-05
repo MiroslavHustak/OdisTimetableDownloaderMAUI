@@ -177,6 +177,7 @@ module App =
                                             cts.Dispose()
                                     | false -> 
                                             cts.Dispose() 
+
                                     return! loop newState newCts
         
                                 | CheckState2 reply
@@ -190,11 +191,10 @@ module App =
 
                                     return! loop cancelRequested cts
 
-                                | CancelCurrent
+                                | CancelCurrent //zatim nevyuzito
                                     ->
                                     cts.Cancel()
                                     // Do NOT dispose or replace — keep the same CTS
-                                    // Ongoing work will see cancellation
                                     // When user starts new work, init2() will replace it normally
                                     return! loop true cts   // or keep cancelRequested flag if you want
         

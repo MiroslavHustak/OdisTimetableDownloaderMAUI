@@ -164,7 +164,7 @@ module WebScraping_KODIS =
                     | PdfError LetItBeKodis4           -> String.Empty
                     | PdfError NoPermissionError       -> String.Empty
                     | JsonError JsonParsingError       -> jsonParsingError 
-                    | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
+                    | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5)
                     | JsonError JsonDataFilteringError -> dataFilteringError 
                                                                  
                 let result lazyList (context2 : Context2) =  

@@ -91,7 +91,7 @@ module WebScraping_KODIS4 =
             | PdfError LetItBeKodis4           -> String.Empty
             | PdfError NoPermissionError       -> String.Empty
             | JsonError JsonParsingError       -> jsonParsingError 
-            | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5) //tady nenastane
+            | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
             | JsonError JsonDataFilteringError -> dataFilteringError 
                                      
         let dirList = createNewDirectoryPaths path listOfODISVariants
