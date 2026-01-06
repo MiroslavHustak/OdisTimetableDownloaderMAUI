@@ -153,7 +153,7 @@ module Option =
                 return Some value
             }
 
-    let internal ofNullEmpty2 (value: 'nullableValue) : string option =
+    let internal ofNullEmpty2 (value : 'nullableValue) : string option =
         option2 
             {
                 let!_ = (not <| System.Object.ReferenceEquals(value, null)) |> fromBool value                            
