@@ -263,11 +263,15 @@ module ParseJsonDataFull =
                         with
                         | ex
                             ->  
-                            match Helpers.ExceptionHelpers.isCancellation ex with
-                            | true  ->
-                                    Error <| JsonError StopJsonParsing   
-                            | false ->
-                                    runIO (postToLog <| string ex.Message <| "#107")
-                                    Error <| JsonError JsonParsingError
+                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                            | err 
+                                when err = StopDownloading
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#123456X")
+                                Error <| JsonError StopJsonParsing   
+                            | _ 
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#107")
+                                Error <| JsonError JsonParsingError    
                    // )
         )

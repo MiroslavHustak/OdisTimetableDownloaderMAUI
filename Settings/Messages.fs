@@ -38,6 +38,7 @@ module Messages =
     #endif
 
     let [<Literal>] internal canopyError = "REST API error." 
+    let [<Literal>] internal timeoutError = "JŘ ODIS nebyly staženy v důsledku slabého internetového připojení." 
 
     let [<Literal>] internal deleteOldTimetablesMsg1 = "Chvíli strpení, usilovně odstraňuji zálohované předchozí JŘ ..."  
     let [<Literal>] internal deleteOldTimetablesMsg2 = "Odstranění zálohovaných předchozích JŘ úspěšně provedeno."

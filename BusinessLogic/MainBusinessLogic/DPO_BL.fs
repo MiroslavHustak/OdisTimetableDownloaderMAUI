@@ -267,15 +267,17 @@ module DPO_BL =
                                             None
                                         )
                                         (fun ex 
-                                            ->
-                                            match Helpers.ExceptionHelpers.isCancellation ex with
-                                            | true
+                                            ->                                             
+                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                            | err 
+                                                when err = StopDownloading
                                                 ->
-                                                Some (Error StopDownloadingMHD)
-                                            | false 
+                                                runIO (postToLog <| string ex.Message <| "#123456YY")
+                                                Some (Error <| StopDownloadingMHD)
+                                            | _ 
                                                 ->
-                                                runIO (postToLog <| string ex.Message <| "#37-10")
-                                                Some (Error FileDownloadErrorMHD)  
+                                                runIO (postToLog <| string ex.Message <| "#037-10")
+                                                Some (Error <| FileDownloadErrorMHD)   
                                         )
                                     )                                
                                 |> Option.defaultValue (Ok ()) 
@@ -283,14 +285,16 @@ module DPO_BL =
                             with                            
                             | ex                             
                                 -> 
-                                match Helpers.ExceptionHelpers.isCancellation ex with
-                                | true
-                                   ->
-                                   Error StopDownloadingMHD
-                                | false 
-                                   ->
-                                   runIO (postToLog <| string ex.Message <| "#037")
-                                   Error FileDownloadErrorMHD  
+                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                | err 
+                                    when err = StopDownloading
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| "#123456Y")
+                                    Error <| StopDownloadingMHD
+                                | _ 
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| "#037")
+                                    Error <| FileDownloadErrorMHD   
                     )
 
                 runIO <| downloadTimetables reportProgress token   

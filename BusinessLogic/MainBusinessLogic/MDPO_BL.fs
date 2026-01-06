@@ -166,13 +166,12 @@ module MDPO_BL = //FsHttp
                                                         let headerContent1 = "Range" 
                                                         let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                           
-                                                        //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
                                                         match existingFileLength > 0L with
                                                         | true  -> 
                                                                 http
                                                                     {
                                                                         GET uri  
-                                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_timeoutInSeconds 60 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token  
                                                                         header "User-Agent" "FsHttp/Android"
                                                                         header headerContent1 headerContent2
@@ -181,7 +180,7 @@ module MDPO_BL = //FsHttp
                                                                 http
                                                                     {
                                                                         GET uri
-                                                                        config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                        config_timeoutInSeconds 60 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                         config_cancellationToken token 
                                                                         header "User-Agent" "FsHttp/Android"
                                                                     }     
@@ -303,14 +302,16 @@ module MDPO_BL = //FsHttp
                             with                            
                             | ex                             
                                 -> 
-                                match Helpers.ExceptionHelpers.isCancellation ex with
-                                | true
-                                   ->
-                                   Error StopDownloadingMHD
-                                | false 
-                                   ->
-                                   runIO (postToLog <| string ex.Message <| "#281")
-                                   Error FileDownloadErrorMHD  
+                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                | err 
+                                    when err = StopDownloading
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| "#123456WYX")
+                                    Error <| StopDownloadingMHD
+                                | _ 
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| "#281")
+                                    Error <| FileDownloadErrorMHD   
                     )                
                     
                 runIO <| downloadTimetables reportProgress token
@@ -457,14 +458,13 @@ module MDPO_BL = //FsHttp
                                     let headerContent1 = "Range" 
                                     let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                           
-                                    //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
                                     match existingFileLength > 0L with
                                     | true  -> 
                                             http
                                                 {
                                                     GET uri        
                                                         
-                                                    config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                    config_timeoutInSeconds 60     //pouzije se kratsi cas, pokud zaroven token a timeout
                                                     config_cancellationToken token  
 
                                                     config_transformHttpClient
@@ -485,7 +485,7 @@ module MDPO_BL = //FsHttp
                                                 {
                                                     GET uri
 
-                                                    config_timeoutInSeconds 30     //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                    config_timeoutInSeconds 60     //pouzije se kratsi cas, pokud zaroven token a timeout
                                                     config_cancellationToken token  
 
                                                     config_transformHttpClient
@@ -581,14 +581,16 @@ module MDPO_BL = //FsHttp
                             with                            
                             | ex                             
                                 -> 
-                                match Helpers.ExceptionHelpers.isCancellation ex with
-                                | true
-                                   ->
-                                   Error StopDownloadingMHD
-                                | false 
-                                   ->
-                                   runIO (postToLog <| string ex.Message <| "#33")
-                                   Error FileDownloadErrorMHD  
+                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                | err 
+                                    when err = StopDownloading
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| "#123456YYX")
+                                    Error <| StopDownloadingMHD
+                                | _ 
+                                    ->
+                                    runIO (postToLog <| string ex.Message <| "#33")
+                                    Error <| FileDownloadErrorMHD                                 
                     )   
                     
                 runIO <| downloadTimetables reportProgress token

@@ -1,12 +1,55 @@
 ﻿namespace Helpers
 
 open System
+open System.Threading
 
 open FsToolkit.ErrorHandling
 
 //***********************************
 
+open Types.ErrorTypes
 open Helpers.Builders
+
+module ExceptionHelpers =
+
+    [<TailCall>]
+    let rec private containsCancellation (token : CancellationToken) (ex : exn) =
+
+        match ex with
+        | null 
+            ->
+            FileDownloadError 
+    
+        | :? OperationCanceledException
+            ->
+            match token.IsCancellationRequested with
+            | true  -> StopDownloading      
+            | false -> TimeoutError      
+    
+        | :? AggregateException as agg 
+            ->
+            let results =
+                agg.Flatten().InnerExceptions
+                |> Seq.map (containsCancellation token)
+                |> Seq.toList
+
+            pyramidOfHell
+                {   
+                    let!_ = not (results |> List.exists ((=) StopDownloading)), fun _ -> StopDownloading
+                    let!_ = not (results |> List.exists ((=) TimeoutError)), fun _ -> TimeoutError
+                    
+                    return FileDownloadError        
+                }
+    
+        | _ when isNull ex.InnerException
+            ->
+            FileDownloadError //NoCancellation
+    
+        | _ 
+            ->
+            containsCancellation token ex.InnerException
+   
+    let internal isCancellation (token : CancellationToken) (ex : exn) = containsCancellation token ex
             
 module Result =    
             
@@ -202,49 +245,3 @@ module Option =
         | Some value -> Result.Ok value
         | None       -> Result.Error error    
     *)
-
-module ExceptionHelpers =
-
-    [<TailCall>]
-    let rec private containsCancellation (ex : exn) : bool =
-        
-        match ex with
-        | null
-            -> 
-            false
-        | :? OperationCanceledException 
-            ->
-            true
-        | :? AggregateException
-            as agg
-            ->
-            agg.Flatten().InnerExceptions
-            |> Seq.exists containsCancellation
-        | _ when isNull ex.InnerException 
-            -> 
-            false
-        | _ ->
-            containsCancellation ex.InnerException
-
-        (* neni tail recursive
-        ex 
-        |> Option.ofNull
-        |> Option.map 
-            (fun ex 
-                ->
-                match ex with
-                | :? OperationCanceledException 
-                    -> true
-                | :? AggregateException 
-                    as agg 
-                        ->
-                        agg.Flatten().InnerExceptions
-                        |> Seq.exists containsCancellation
-                | _ when isNull ex.InnerException 
-                    -> false
-                | _ -> containsCancellation ex.InnerException
-            )
-         |> Option.defaultValue false 
-         *) 
-
-    let internal isCancellation (ex : exn) = containsCancellation ex

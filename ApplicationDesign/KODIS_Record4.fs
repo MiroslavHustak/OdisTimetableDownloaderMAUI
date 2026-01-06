@@ -82,7 +82,7 @@ module WebScraping_KODIS4 =
             | PdfError FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
             | PdfError FolderMovingError4      -> folderMovingError 
             | PdfError CanopyError             -> canopyError
-            | PdfError TimeoutError            -> "timeout"
+            | PdfError TimeoutError            -> timeoutError
             | PdfError PdfConnectionError      -> cancelMsg2 
             | PdfError (ApiResponseError err)  -> apiResponseError //err je strasne dluha hlaska
             | PdfError ApiDecodingError        -> canopyError

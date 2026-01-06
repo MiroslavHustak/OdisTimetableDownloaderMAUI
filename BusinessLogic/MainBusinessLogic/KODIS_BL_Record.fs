@@ -84,14 +84,13 @@ module KODIS_BL_Record =
 
                                 let headerContent1 = "Range" 
                                 let headerContent2 = sprintf "bytes=%d-" existingFileLength 
-                          
-                                //config_timeoutInSeconds 30 -> 30 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
+                                
                                 match existingFileLength > 0L with
                                 | true  -> 
                                         http
                                             {
                                                 GET uri
-                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                config_timeoutInSeconds 60 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                 config_cancellationToken token 
                                                 header "User-Agent" "FsHttp/Android7.1"
                                                 header headerContent1 headerContent2
@@ -100,7 +99,7 @@ module KODIS_BL_Record =
                                         http
                                             {
                                                 GET uri
-                                                config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                config_timeoutInSeconds 60 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                 config_cancellationToken token 
                                                 header "User-Agent" "FsHttp/Android7.1"
                                             }
@@ -151,15 +150,24 @@ module KODIS_BL_Record =
                                 Error StopJsonDownloading  
                             
                         with
-                        | ex -> // Cancellation pro json  downloading funguje jen s vnitrnim try with blokem
-                            match Helpers.ExceptionHelpers.isCancellation ex with
-                            | true
+                        | ex 
+                            -> // Cancellation pro json  downloading funguje jen s vnitrnim try with blokem
+                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                            | err 
+                                when err = StopDownloading
                                 ->
-                                Error StopJsonDownloading
-                            | false 
+                                runIO (postToLog <| string ex.Message <| "#123456W")
+                                Error <| StopJsonDownloading
+                            | err 
+                                when err = TimeoutError
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#020W")
+                                Error <| JsonTimeoutError
+
+                            | _ 
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#020")
-                                Error JsonDownloadError
+                                Error <| JsonDownloadError                             
                     )  
                 |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                 |> Option.defaultValue (Ok ())                  
@@ -289,13 +297,12 @@ module KODIS_BL_Record =
                                                             let headerContent1 = "Range" 
                                                             let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                        
-                                                            //config_timeoutInSeconds 300 -> 300 vterin, aby to nekolidovalo s odpocitavadlem (max 60 vterin) v XElmish 
                                                             match existingFileLength > 0L with
                                                             | true  -> 
                                                                     http
                                                                         {
                                                                             GET uri
-                                                                            config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                            config_timeoutInSeconds 60 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                             config_cancellationToken token 
                                                                             header "User-Agent" "FsHttp/Android7.1"
                                                                             header headerContent1 headerContent2
@@ -304,7 +311,7 @@ module KODIS_BL_Record =
                                                                     http
                                                                         {
                                                                             GET uri
-                                                                            config_timeoutInSeconds 30 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                            config_timeoutInSeconds 60 //pouzije se kratsi cas, pokud zaroven token a timeout
                                                                             config_cancellationToken token 
                                                                             header "User-Agent" "FsHttp/Android7.1"
                                                                         }    
@@ -331,14 +338,16 @@ module KODIS_BL_Record =
 
                                                                     | Choice2Of2 ex 
                                                                         -> 
-                                                                        match Helpers.ExceptionHelpers.isCancellation ex with
-                                                                        | true
+                                                                        match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                                        | err 
+                                                                            when err = StopDownloading
                                                                             ->
+                                                                            runIO (postToLog <| string ex.Message <| "#123456A")
                                                                             Error <| PdfError StopDownloading
-                                                                        | false 
+                                                                        | err 
                                                                             ->
                                                                             runIO (postToLog <| string ex.Message <| "#024-K4")
-                                                                            Error <| PdfError FileDownloadError
+                                                                            Error <| PdfError err                                                                 
                                                                  
                                                                 | HttpStatusCode.Forbidden 
                                                                     ->
@@ -357,16 +366,17 @@ module KODIS_BL_Record =
 
                                                         | Choice2Of2 ex
                                                             ->
-                                                            //runIO (postToLog <| string ex.Message <| "#2214")
-                                                            match Helpers.ExceptionHelpers.isCancellation ex with
-                                                            | true
+                                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                            | err 
+                                                                when err = StopDownloading
                                                                 ->
+                                                                runIO (postToLog <| string ex.Message <| "#123456B")
                                                                 Error <| PdfError StopDownloading
-                                                            | false 
+                                                            | err 
                                                                 ->
                                                                 runIO (postToLog <| string ex.Message <| "#7024")
-                                                                Error <| PdfError FileDownloadError  
-    
+                                                                Error <| PdfError err            
+                                                           
                                                     | None 
                                                         ->
                                                         runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2230")
@@ -374,26 +384,30 @@ module KODIS_BL_Record =
                                             with
                                             | ex                             
                                                 -> 
-                                                match Helpers.ExceptionHelpers.isCancellation ex with
-                                                | true
+                                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                | err 
+                                                    when err = StopDownloading
                                                     ->
+                                                    runIO (postToLog <| string ex.Message <| "#123456C")
                                                     Error <| PdfError StopDownloading
-                                                | false 
+                                                | err 
                                                     ->
                                                     runIO (postToLog <| string ex.Message <| "#024")
-                                                    Error <| PdfError FileDownloadError        
+                                                    Error <| PdfError err             
                                         )  
                                 with
                                 | ex                             
                                     -> 
-                                    match Helpers.ExceptionHelpers.isCancellation ex with
-                                    | true
+                                    match Helpers.ExceptionHelpers.isCancellation token ex with
+                                    | err 
+                                        when err = StopDownloading
                                         ->
+                                        runIO (postToLog <| string ex.Message <| "#123456D")
                                         [ Error <| PdfError StopDownloading ]
-                                    | false 
+                                    | err 
                                         ->
                                         runIO (postToLog <| string ex.Message <| "#024-6")
-                                        [ Error <| PdfError FileDownloadError ]
+                                        [ Error <| PdfError err ]    
                                 
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                             |> Option.defaultValue (Ok ())                               
