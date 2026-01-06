@@ -196,8 +196,8 @@ module App =
                                     ->
                                     cts.Cancel()
                                     // Do NOT dispose or replace — keep the same CTS
-                                    // When user starts new work, init2() will replace it normally
-                                    return! loop true cts   // or keep cancelRequested flag if you want
+                                    // When user starts new work, init2 will replace it normally
+                                    return! loop true cts  
         
                                 | Stop reply 
                                     ->
@@ -207,7 +207,6 @@ module App =
                                     
                                     cts.Dispose()
                                     reply.Reply ()
-                                   // do not continue loop
                             }
 
                     loop false (new CancellationTokenSource())   
