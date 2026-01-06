@@ -126,7 +126,8 @@ module KODIS_BL_Record =
                                             Ok result
 
                                         | Choice2Of2 _ 
-                                            -> Error StopJsonDownloading
+                                            ->
+                                            Error StopJsonDownloading
                                                                         
                                     | HttpStatusCode.Forbidden 
                                         ->
