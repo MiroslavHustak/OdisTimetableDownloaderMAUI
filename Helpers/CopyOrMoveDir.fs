@@ -192,7 +192,7 @@ module MoveDir =
                             
                             Directory.CreateDirectory dir |> ignore<DirectoryInfo>
                             
-                            let! _ = moveFile fullSource target
+                            let!_ = moveFile fullSource target
                             
                             return ()
                         }
@@ -227,11 +227,9 @@ module MoveDir =
 
             try
                 // Eagerly enumerate entries as a list to close handles
-                let entries = 
-               
-                        Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories) 
-                        |> Seq.toList
-               
+                let entries =                
+                    Directory.EnumerateFileSystemEntries(preparedSource, "*", SearchOption.AllDirectories) 
+                    |> Seq.toList
 
                 entries
                 |> List.map 
