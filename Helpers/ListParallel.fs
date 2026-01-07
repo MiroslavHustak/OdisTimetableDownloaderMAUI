@@ -503,3 +503,37 @@ let map2'<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list)
 
     | true  ->
             []
+
+    (*      
+       //// iter_IO in C#
+
+        public static async Task DownloadUrlsAsync(
+        IReadOnlyList<string> urls,
+        int maxConcurrency = 18)
+        {
+            if (urls.Count == 0)
+                return;
+
+            using var semaphore = new SemaphoreSlim(maxConcurrency);
+
+            var tasks =
+                urls.Select(async url =>
+                {
+                    await semaphore.WaitAsync().ConfigureAwait(false);
+                    try
+                    {
+                        var content = await httpClient.GetStringAsync(url)
+                                                        .ConfigureAwait(false);
+
+                        Console.WriteLine($"Got {url}: {content.Length} chars");
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+            await Task.WhenAll(tasks).ConfigureAwait(false); //eqv. Async.Parallel
+        }      
+            
+    *)

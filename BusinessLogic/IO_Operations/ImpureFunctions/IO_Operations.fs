@@ -384,3 +384,46 @@ module IO_Operations =
                     runIO (postToLog <| string ex.Message <| "#444-ex") 
                     Error err2   
             )   
+
+    let internal moveAll configKodis (token : CancellationToken)=  
+    
+        IO (fun () 
+                ->
+                // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
+                // nicmene priprava na zpracovani err je provedena  
+                let moveTask1 () = 
+                    async
+                        {
+                            let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis4 FolderMovingError4
+                            return Ok () 
+                        }
+            
+                let moveTask2 () = 
+                    async 
+                        {    
+                            let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis4 FolderMovingError4
+                            return Ok ()  
+                        }
+    
+                let moveTask3 () = 
+                    async
+                        {
+                            let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis4 FolderMovingError4
+                            return Ok ()  
+                        }   
+                                
+                //runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel start")
+            
+                [| 
+                    moveTask1 ()
+                    moveTask2 ()
+                    moveTask3 ()
+                |]
+                |> Async.Parallel  
+                |> Async.Catch   //silently ignoring failed move operations //// becomes Async<Result<Result<_,_>[], exn>>
+                |> Async.Ignore<Choice<Result<unit, string> array, exn>>  //silently ignoring failed move operations                   
+                |> (fun a -> Async.RunSynchronously(a, cancellationToken = token))  
+                |> Ok
+    
+                // runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel end")  
+        )

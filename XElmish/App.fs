@@ -1426,7 +1426,8 @@ module App =
     // MAUI lifecycle events fire completely outside the Elmish/Fabulous world.
     // Lifecycle events -> OnResume, OnStart, OnSleep,...
 
-    type internal DispatchHolder = static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
+    type internal DispatchHolder = 
+        static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
 
     let internal captureDispatchSub (_ : Model) : Cmd<Msg> =
 
