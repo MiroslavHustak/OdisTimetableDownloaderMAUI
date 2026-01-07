@@ -73,7 +73,7 @@ module Types =
     type internal CancellationMessage =
         | UpdateState2 of bool * CancellationTokenSource
         | CheckState2 of AsyncReplyChannel<CancellationToken option> 
-        | Stop of AsyncReplyChannel<unit>  // Add stop message
+        | Stop of AsyncReplyChannel<unit>  
         | CancelCurrent   
 
     type [<Struct>] internal Validity =
