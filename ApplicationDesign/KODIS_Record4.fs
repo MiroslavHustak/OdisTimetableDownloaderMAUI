@@ -159,8 +159,8 @@ module WebScraping_KODIS4 =
                                 
                         dispatchIterationMessage context2.Msg1
         
-                        //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)                      
-                        match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
+                        // nyni zcela nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)                      
+                        match list.Length >= 4 with 
                         | true  -> context List.Parallel.map2_IO
                         | false -> context List.map2
         
