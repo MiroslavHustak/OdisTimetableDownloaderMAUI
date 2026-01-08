@@ -25,7 +25,8 @@ open IO_Operations.CreatingPathsAndNames
 open Settings.Messages
 open Settings.SettingsGeneral
 
-open ApplicationDesign4.KODIS_BL_Record4
+//open BusinessLogic.KODIS_BL_Record4
+open BusinessLogicNew.KODIS_BL_Record4
 
 
 //**********************************

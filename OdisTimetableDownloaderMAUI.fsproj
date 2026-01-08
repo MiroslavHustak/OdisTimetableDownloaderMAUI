@@ -172,6 +172,11 @@
     <Compile Include="BusinessLogic\MainBusinessLogic\KODIS_BL_Record.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic\KODIS_BL_Record4.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic\TP_Canopy_Difference.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogicNew\DPO_BL_New.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogicNew\MDPO_BL_New.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogicNew\KODIS_BL_Record_New.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogicNew\KODIS_BL_Record4_New.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogicNew\TP_Canopy_Difference_New.fs" />
     <Compile Include="ApplicationDesign\DPO.fs" />
     <Compile Include="ApplicationDesign\MDPO.fs" />
     <Compile Include="ApplicationDesign\KODIS_Record.fs" />
