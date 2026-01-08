@@ -50,7 +50,8 @@ module SettingsGeneral =
         ]    
         
     let [<Literal>] internal timeOutInSeconds = 10 
-    let [<Literal>] internal waitingForNetConn = 30 //vterin
+    let [<Literal>] internal timeOutInSeconds2 = 60
+    let [<Literal>] internal waitingForNetConn = 60 //vterin
 
     let [<Literal>] internal maxFileSizeKb = 10L 
 

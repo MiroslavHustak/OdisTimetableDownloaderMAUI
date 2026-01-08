@@ -125,6 +125,7 @@ type MauiProgram =
                                 ) |> ignore<IAndroidLifecycleBuilder>
                         ) |> ignore<ILifecycleBuilder>
                 ) |> ignore<MauiAppBuilder>
+
             #endif        
        
             builder.Build()

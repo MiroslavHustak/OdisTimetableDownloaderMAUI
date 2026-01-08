@@ -46,13 +46,8 @@ module KODIS_BL_Record =
                                 <|
                                 fun inbox 
                                     ->         
-                                    use _ =
-                                        token.Register
-                                            (fun () 
-                                                ->
-                                                inbox.Post (Unchecked.defaultof<MsgIncrement>)
-                                            )
-                                            
+                                    //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
+                                    
                                     let rec loop n = 
                                         async
                                             {
@@ -191,13 +186,8 @@ module KODIS_BL_Record =
                                              <|
                                              fun inbox 
                                                  ->   
-                                                 use _ =
-                                                     token.Register
-                                                         (fun () 
-                                                             ->
-                                                             inbox.Post (Unchecked.defaultof<MsgIncrement>)
-                                                         )
-
+                                                 //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
+                                                 
                                                  let rec loop n = 
                                                     async
                                                         {

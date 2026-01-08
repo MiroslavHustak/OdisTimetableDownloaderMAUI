@@ -233,7 +233,7 @@ module App =
                                     ->
                                     async
                                         {    
-                                            #if WINDOWS  
+                                            //#if WINDOWS  
                                             match isConnected with
                                             | true  ->
                                                     return () 
@@ -241,11 +241,11 @@ module App =
                                                     NetConnMessage >> dispatch <| noNetConn 
                                                     do! Async.Sleep 2000
                                                     return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                            #else                                                           
-                                            match isConnected with
-                                            | true  -> return dispatch Home2 
-                                            | false -> return EmergencyQuit >> dispatch <| false 
-                                            #endif         
+                                            //#else                                                           
+                                            //match isConnected with
+                                            //| true  -> return dispatch Home2 
+                                            //| false -> return EmergencyQuit >> dispatch <| false 
+                                            //#endif         
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 

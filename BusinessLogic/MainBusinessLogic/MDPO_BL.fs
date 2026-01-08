@@ -54,7 +54,8 @@ module MDPO_BL = //FsHttp
                                                 }
                                             |> Request.sendAsync 
         
-                                        let! htmlContent = Response.toStringAsync (Some 100000) response        
+                                        let! htmlContent = Response.toStringAsync (Some 100000) response   
+                                        
                                         return Some <| HtmlDocument.Parse htmlContent // Parse the HTML content using FSharp.Data                        
                                     with
                                     | ex 
@@ -189,7 +190,6 @@ module MDPO_BL = //FsHttp
                                                     //let!_ = not <| File.Exists pathToFile |> Option.ofBool, Error String.Empty
 
                                                     let! uri = isValidHttps uri |> Option.fromBool uri, Error String.Empty
-
                                                     let! response = (getSafe >> Request.sendAsync <| uri) |> Option.ofNull, Error String.Empty //Option.ofNull tady neni treba, ale aby to bylo jednotne....
 
                                                     return Ok response         
@@ -250,13 +250,8 @@ module MDPO_BL = //FsHttp
                                             <|
                                             fun inbox 
                                                 ->
-                                                use _ =
-                                                    token.Register
-                                                        (fun () 
-                                                            ->
-                                                            inbox.Post (Unchecked.defaultof<MsgIncrement>)
-                                                        )
-
+                                                //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
+                                                
                                                 let rec loop n = 
                                                     async
                                                         {
@@ -535,12 +530,7 @@ module MDPO_BL = //FsHttp
                                             <|
                                             fun inbox 
                                                 ->
-                                                use _ =
-                                                    token.Register
-                                                        (fun () 
-                                                            ->
-                                                            inbox.Post (Unchecked.defaultof<MsgIncrement>)
-                                                        )
+                                                //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
 
                                                 let rec loop n = 
                                                     async

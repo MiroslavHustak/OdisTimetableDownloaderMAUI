@@ -94,5 +94,6 @@ module Counters =
                                         |> Async.executeOnMainThread 
                         }
     
-                Async.StartImmediate (loop waitingForNetConn) 
+                //Async.StartImmediate (loop waitingForNetConn) //The ANR is caused by Async.StartImmediate running on the UI thread.
+                Async.Start (loop waitingForNetConn) 
         )

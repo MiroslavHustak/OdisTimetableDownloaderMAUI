@@ -55,6 +55,9 @@ module IO_Operations =
                                         |> Ok
                                         //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
                                 with 
+                                | :? System.IO.DirectoryNotFoundException
+                                    ->
+                                    Ok ()   // nothing to delete 
                                 | ex 
                                     ->
                                     runIO (postToLog <| string ex.Message <| "#038")
@@ -88,6 +91,9 @@ module IO_Operations =
                                         |> Ok               
                                     
                                 with 
+                                | :? System.IO.DirectoryNotFoundException
+                                    ->
+                                    Ok ()   // nothing to delete 
                                 | ex
                                     ->
                                     runIO (postToLog <| string ex.Message <| "#039")
@@ -111,9 +117,12 @@ module IO_Operations =
                         |> List.Parallel.iter_IO (fun item -> item.Delete true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
                         |> Ok
                 with
-                | _ 
+                | :? System.IO.DirectoryNotFoundException
                     ->
-                    runIO (postToLog <| pathToDir <| "#040")
+                    Ok ()   // nothing to delete 
+                | ex
+                    ->
+                    runIO (postToLog <| string ex.Message <| "#040")
                     Error FileDownloadErrorMHD //dpoMsg1  
         )   
     
@@ -127,49 +136,83 @@ module IO_Operations =
                         in 
                         dirInfo.EnumerateFiles()
                         |> Seq.toList
-                        |> List.Parallel.iter_IO (fun item -> item.Delete())                     
+                        |> List.Parallel.iter_IO (fun item -> item.Delete())   
                 with
-                | _ 
+                | :? System.IO.DirectoryNotFoundException
                     ->
-                    ()
-                    //runIO (postToLog <| pathToDir <| "#40-1")
+                    ()   // nothing to delete 
+                | ex
+                    ->
+                    () // runIO (postToLog <| string ex.Message <| "#040-1")
                     //proste se nic nestane, tak se nesmazou, no...
         )  
         
-    let internal deleteOld () = //Async.Catch is in App.fs
+    let internal deleteOld () = 
 
         IO (fun () 
                 ->  
-                let dirInfo = DirectoryInfo oldTimetablesPath
+                try
+                    let dirInfo = DirectoryInfo oldTimetablesPath
 
-                match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
-                | true
-                    -> 
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
                     dirInfo.Delete()
-                | false 
+
+                    (*
+                    //Time-of-Check-To-Time-Of-Use TOCTOU   
+                    match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
+                    | true
+                        -> 
+                        deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
+                        dirInfo.Delete()
+                    | false 
+                        ->
+                        ()
+                    *)
+                with
+                | :? System.IO.DirectoryNotFoundException
                     ->
-                    ()    
+                    ()   // nothing to delete 
+                | ex
+                    ->
+                    runIO (postToLog <| string ex.Message <| "#1040")
         )
                           
     let internal deleteOld4 () = //Async.Catch is in App.fs
 
-        IO (fun () //Time-of-Check-To-Time-Of-Use TOCTOU   
+        IO (fun () 
                 ->  
-                let dirInfo = DirectoryInfo oldTimetablesPath4
+                try
+                    let dirInfo = DirectoryInfo oldTimetablesPath4
 
-                match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
-                | true
-                    -> 
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
 
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
 
                     dirInfo.Delete()
-                | false 
+
+                    (*
+                    //Time-of-Check-To-Time-Of-Use TOCTOU   
+                    match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
+                    | true
+                        -> 
+                        deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
+
+                        runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
+                        runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
+
+                        dirInfo.Delete()
+                    | false 
+                        ->
+                        ()    
+                    *)
+                with
+                | :? System.IO.DirectoryNotFoundException
                     ->
-                    ()             
+                    ()   // nothing to delete 
+                | ex
+                    ->
+                    runIO (postToLog <| string ex.Message <| "#1041")  
         )
       
     let internal createFolders dirList =  
