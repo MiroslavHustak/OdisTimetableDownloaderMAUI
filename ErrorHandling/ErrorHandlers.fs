@@ -11,44 +11,55 @@ open Types.ErrorTypes
 open Helpers.Builders
 
 module ExceptionHelpers =
-
-    [<TailCall>]
-    let rec private containsCancellation (token : CancellationToken) (ex : exn) =
-
-        match ex with
-        | null 
-            ->
-            FileDownloadError 
     
-        | :? OperationCanceledException
-            ->
-            match token.IsCancellationRequested with
-            | true  -> StopDownloading      
-            | false -> TimeoutError      
-    
-        | :? AggregateException as agg 
-            ->
-            let results =
-                agg.Flatten().InnerExceptions
-                |> Seq.map (containsCancellation token)
-                |> Seq.toList
+    let private containsCancellation (token : CancellationToken) (ex : exn) : PdfDownloadErrors =
+        
+        let rec loop (stack : exn list) (acc : PdfDownloadErrors list) : PdfDownloadErrors list =
 
-            pyramidOfHell
-                {   
-                    let!_ = not (results |> List.exists ((=) StopDownloading)), fun _ -> StopDownloading
-                    let!_ = not (results |> List.exists ((=) TimeoutError)), fun _ -> TimeoutError
+            match stack with
+            | [] 
+                -> 
+                acc
+
+            | current :: rest 
+                ->
+                match current with
+                | null 
+                    -> loop rest (FileDownloadError :: acc)
+
+                | :? OperationCanceledException 
+                    ->
+                    let result =
+                        match token.IsCancellationRequested with
+                        | true  -> StopDownloading
+                        | false -> TimeoutError
+                    loop rest (result :: acc)
+
+                | :? AggregateException as agg 
+                    ->
+                    // Flatten inner exceptions and push them onto the stack
+                    let flattened = agg.Flatten().InnerExceptions |> Seq.toList
+                    loop (flattened @ rest) acc
+
+                | _ when isNull current.InnerException 
+                    ->
+                    loop rest (FileDownloadError :: acc)
+                | _ 
+                    ->
+                    // Push inner exception onto stack
+                    loop (current.InnerException :: rest) acc
+    
+        // Start with the initial exception
+        let results = loop [ex] []
+
+        pyramidOfHell
+            {   
+                let!_ = not (results |> List.exists ((=) StopDownloading)), fun _ -> StopDownloading
+                let!_ = not (results |> List.exists ((=) TimeoutError)), fun _ -> TimeoutError
                     
-                    return FileDownloadError        
-                }
-    
-        | _ when isNull ex.InnerException
-            ->
-            FileDownloadError //NoCancellation
-    
-        | _ 
-            ->
-            containsCancellation token ex.InnerException
-   
+                return FileDownloadError        
+            } 
+            
     let internal isCancellation (token : CancellationToken) (ex : exn) = containsCancellation token ex
             
 module Result =    

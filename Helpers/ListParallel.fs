@@ -371,7 +371,7 @@ let internal map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : Cance
         |> List.ofArray     
         
 // Teoreticky ano, ale negativne to ovlivni cancellation a musel by byt zcela jiny system pro Result handling (az v Elmishi)
-let map2_IO_Token_Async<'a,'b,'c> (mapping :'a->'b->'c) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : Async<'c list> =
+let map2_IO_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : Async<'c list> =
 
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -393,7 +393,7 @@ let map2_IO_Token_Async<'a,'b,'c> (mapping :'a->'b->'c) (token : CancellationTok
                     async 
                         {
                             token.ThrowIfCancellationRequested ()
-                            return mapping x y
+                            return! mapping x y
                         }
                 )        
         async 

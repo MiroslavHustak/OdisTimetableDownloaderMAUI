@@ -107,11 +107,11 @@ module KODIS_BL_Record4 =
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
 
-    let internal downloadAndSave token =  
+    let internal downloadAndSave token context =  
    
         IO (fun ()
                 ->
-                let downloadWithResume (uri: string) (pathToFile: string) (token: CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
+                let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                
                     async 
                         {
@@ -213,143 +213,132 @@ module KODIS_BL_Record4 =
                             return! attempt 0 initialBackoffMs
                     }
    
-                let downloadAndSaveTimetables (token : CancellationToken) =  
-
-                    reader
-                        {                           
-                            let! context = fun env -> env 
+                let downloadAndSaveTimetables (token : CancellationToken) context =                                         
          
-                            let l = context.list |> List.length
-                                 in
-                                 let counterAndProgressBar =
-                                     MailboxProcessor<MsgIncrement>
-                                         .StartImmediate
-                                             <|
-                                             fun inbox 
-                                                 ->   
-                                                 let rec loop n = 
-                                                    async
-                                                        {
-                                                            try
-                                                                let! Inc i = inbox.Receive()
-                                                                context.reportProgress (float n, float l)
-                                                                return! loop (n + i)
-                                                            with
-                                                            | ex -> runIO (postToLog <| ex.Message <| "#903-MP-K4")
-                                                        }
-                                                 loop 0
+                    let l = context.list |> List.length
+                            in
+                            let counterAndProgressBar =
+                                MailboxProcessor<MsgIncrement>
+                                    .StartImmediate
+                                        <|
+                                        fun inbox 
+                                            ->   
+                                            let rec loop n = 
+                                                async
+                                                    {
+                                                        try
+                                                            let! Inc i = inbox.Receive()
+                                                            context.reportProgress (float n, float l)
+                                                            return! loop (n + i)
+                                                        with
+                                                        | ex -> runIO (postToLog <| ex.Message <| "#903-MP-K4")
+                                                    }
+                                            loop 0
                                                  
-                            //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
-                            let removeDuplicatePathPairs uri pathToFile =
-                                (uri, pathToFile)
-                                ||> List.zip 
-                                |> List.distinctBy snd
+                    //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
+                    let removeDuplicatePathPairs uri pathToFile =
+                        (uri, pathToFile)
+                        ||> List.zip 
+                        |> List.distinctBy snd
                          
-                            let uri, pathToFile =
-                                context.list
-                                |> List.distinct
-                                |> List.unzip
-                                |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
-                                |> List.unzip        
-   
-                            return   
-                                try
-                                    (token, uri, pathToFile)
-                                    |||> List.Parallel.map2_IO_Token
-                                        (fun uri (pathToFile : string) 
-                                            -> 
-                                            try
-                                                counterAndProgressBar.Post <| Inc 1
+                    let uri, pathToFile =
+                        context.list
+                        |> List.distinct
+                        |> List.unzip
+                        |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
+                        |> List.unzip           
+                               
+                    try
+                        (token, uri, pathToFile)
+                        |||> List.Parallel.map2_IO_Token_Async                                    
+                            (fun uri (pathToFile : string) 
+                                -> 
+                                async
+                                    {
+                                        try
+                                            counterAndProgressBar.Post <| Inc 1
 
-                                                token.ThrowIfCancellationRequested()
+                                            token.ThrowIfCancellationRequested()
    
-                                                // my original safety check – keep it to avoid re-downloading finished PDFs)
-                                                let pathToFileExistFirstCheck =
-                                                    runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
+                                            // my original safety check – keep it to avoid re-downloading finished PDFs)
+                                            let pathToFileExistFirstCheck =
+                                                runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
    
-                                                match pathToFileExistFirstCheck with
-                                                | Some _ 
-                                                    ->
-                                                    // File already exists → skip download entirely
-                                                    Ok ()
-   
-                                                | None 
-                                                    ->
-                                                    // File does not exist (or was deleted) → download (with resume if partial)
-                                                    let result = downloadWithResume uri pathToFile token
-                                                    
-                                                    let runAsyncSafe a =
-                                                        Async.Catch a
-                                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                                        |> Result.ofChoice
-
-                                                    match result |> runAsyncSafe with
-                                                    | Ok _    
-                                                        -> 
-                                                        Ok ()
-
-                                                    | Error ex 
-                                                        ->
-                                                        match Helpers.ExceptionHelpers.isCancellation token ex with
-                                                        | err 
-                                                            when err = StopDownloading
-                                                            ->
-                                                            runIO (postToLog <| string ex.Message <| "#123456G-K4")
-                                                            Error <| PdfError StopDownloading
-                                                        | err 
-                                                            ->
-                                                            runIO (postToLog <| string ex.Message <| "#7024-K4")
-                                                            Error <| PdfError err  
-                                              
-                                            with
-                                            | ex
+                                            match pathToFileExistFirstCheck with
+                                            | Some _ 
                                                 ->
-                                                match Helpers.ExceptionHelpers.isCancellation token ex with
-                                                | err 
-                                                    when err = StopDownloading
-                                                    ->
-                                                    runIO (postToLog <| string ex.Message <| "#123456F-K4")
-                                                    Error <| PdfError StopDownloading
-                                                | err 
-                                                    ->
-                                                    runIO (postToLog <| string ex.Message <| "#024-K4")
-                                                    Error <| PdfError err        
-                                        )
-                                with
-                                | ex 
-                                    ->
-                                    match Helpers.ExceptionHelpers.isCancellation token ex with
-                                    | err 
-                                        when err = StopDownloading 
-                                        ->
-                                        runIO (postToLog (string ex.Message) "#123456E-K4") 
-                                        [ Error (PdfError StopDownloading) ]
-                                    | err 
-                                        ->
-                                        runIO (postToLog (ex.Message) "#024-6-K4") 
-                                        [ Error (PdfError err) ]
+                                                // File already exists → skip download entirely
+                                                return Ok ()
    
-                            |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                            |> Option.defaultValue (Ok ())
-                        } 
-   
-                reader
-                    {    
-                        let! context = fun env -> env
-        
-                        return
-                            match context.dir |> Directory.Exists with  //TOCTOU race condition by tady nemel byt problem
-                            | false ->
-                                runIO (postToLog NoFolderError "#251-K4")
-                                Error (PdfError NoFolderError)  
-                            | true  ->                                   
-                                match context.list with
-                                | [] 
-                                    -> 
-                                    Ok String.Empty     
-                                | _ -> 
-                                    match downloadAndSaveTimetables token context with
-                                    | Ok _       -> Ok String.Empty
-                                    | Error case -> Error case 
-                    }       
-       )
+                                            | None 
+                                                ->
+                                                // File does not exist (or was deleted) → download (with resume if partial)
+                                                let result = downloadWithResume uri pathToFile token                                                    
+                                                          
+                                                match! result with
+                                                | Ok _    
+                                                    -> 
+                                                    return Ok ()
+
+                                                | Error err 
+                                                    ->
+                                                    match err with
+                                                    | err 
+                                                        when err = StopDownloading
+                                                        ->
+                                                        runIO (postToLog <| string err <| "#123456G-K4")
+                                                        return Error <| PdfError StopDownloading
+                                                    | err 
+                                                        ->
+                                                        runIO (postToLog <| string err <| "#7028-K4")
+                                                        return Error <| PdfError err  
+                                              
+                                        with
+                                        | ex
+                                            ->
+                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                            | err 
+                                                when err = StopDownloading
+                                                ->
+                                                runIO (postToLog <| string ex.Message <| "#123456F-K4")
+                                                return Error <| PdfError StopDownloading
+                                            | err 
+                                                ->
+                                                runIO (postToLog <| string ex.Message <| "#024-K4")
+                                                return Error <| PdfError err 
+                                    }                                 
+                            )
+
+                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
+
+                    with
+                    | ex 
+                        ->
+                        match Helpers.ExceptionHelpers.isCancellation token ex with
+                        | err 
+                            when err = StopDownloading 
+                            ->
+                            runIO (postToLog (string ex.Message) "#123456E-K4") 
+                            [ Error (PdfError StopDownloading) ]
+                        | err 
+                            ->
+                            runIO (postToLog (ex.Message) "#024-6-K4") 
+                            [ Error (PdfError err) ]
+                               
+                    |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                    |> Option.defaultValue (Ok ())  
+                        
+                match context.dir |> Directory.Exists with  //TOCTOU race condition by tady nemel byt problem
+                | false ->
+                    runIO (postToLog NoFolderError "#251-K4")
+                    Error (PdfError NoFolderError)  
+                | true  ->                                   
+                    match context.list with
+                    | [] 
+                        -> 
+                        Ok String.Empty     
+                    | _ -> 
+                        match downloadAndSaveTimetables token context with
+                        | Ok _       -> Ok String.Empty
+                        | Error case -> Error case                         
+        )

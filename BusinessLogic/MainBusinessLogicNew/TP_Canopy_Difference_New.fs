@@ -1,4 +1,4 @@
-﻿namespace BusinessLogic
+﻿namespace BusinessLogicNew
 
 open System
 open System.IO
