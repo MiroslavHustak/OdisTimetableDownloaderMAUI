@@ -20,15 +20,10 @@ open Helpers.Validation
 open Helpers.DirFileHelper
 
 open Api.Logging
+open Settings.SettingsMDPO
 
 open Types.Types
 open Types.ErrorTypes
-open Types.Grid3Algebra
-
-open Settings.SettingsMDPO
-open Settings.SettingsGeneral    
-
-open IO_Operations.IO_Operations
 open Types.Haskell_IO_Monad_Simulation
 
 module MDPO_BL = //FsHttp
@@ -158,9 +153,8 @@ module MDPO_BL = //FsHttp
                                                         // TOCTOU race problem is negligible here as the value is only for the Windows Machine mode / resuming downloads
                                                         // Resuming downloading does not work under Android OS
                                                         runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                        |> function
-                                                            | Some _ -> (FileInfo pathToFile).Length
-                                                            | None   -> 0L                                  
+                                                        |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                                        |> Option.defaultValue 0L                             
                                                     
                                                     let getSafe uri = 
 
@@ -267,7 +261,7 @@ module MDPO_BL = //FsHttp
                             try
                                 filterTimetables
                                 |> Map.toList 
-                                |> List.Parallel.map_IO
+                                |> List.Parallel.map_IO_AW
                                     (fun (link, pathToFile)
                                         -> 
                                         async
@@ -547,7 +541,7 @@ module MDPO_BL = //FsHttp
                             try
                                 filterTimetables
                                 |> Map.toList 
-                                |> List.Parallel.map_IO
+                                |> List.Parallel.map_IO_AW
                                     (fun (link, pathToFile)
                                         -> 
                                         counterAndProgressBar.Post <| Inc 1

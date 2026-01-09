@@ -187,6 +187,7 @@
     <Compile Include="XElmish\ProgressCircle.fs" />
     <Compile Include="XElmish\Counters.fs" />
     <Compile Include="XElmish\App.fs" />
+    <Compile Include="XElmish\AppNew.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 

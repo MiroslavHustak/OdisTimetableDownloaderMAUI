@@ -51,7 +51,7 @@ module IO_Operations =
                                         |> Seq.filter (fun item -> getDefaultRecordValues |> List.contains item.Name) //prunik dvou kolekci (plus jeste Seq.distinct pro unique items)
                                         |> Seq.distinct 
                                         |> Seq.toList
-                                        |> List.Parallel.iter_IO (fun item -> item.Delete true)
+                                        |> List.Parallel.iter_IO_AW (fun item -> item.Delete true)
                                         |> Ok
                                         //smazeme pouze adresare obsahujici stare JR, ostatni ponechame              
                                 with 
@@ -87,7 +87,7 @@ module IO_Operations =
                                         dirInfo.EnumerateDirectories()
                                         |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
                                         |> Seq.toList
-                                        |> List.Parallel.iter_IO (fun item -> item.Delete true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
+                                        |> List.Parallel.iter_IO_AW (fun item -> item.Delete true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
                                         |> Ok               
                                     
                                 with 
@@ -114,7 +114,7 @@ module IO_Operations =
                         dirInfo.EnumerateDirectories()
                         |> Seq.filter (fun item -> (=) item.Name dirName) 
                         |> Seq.toList
-                        |> List.Parallel.iter_IO (fun item -> item.Delete true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
+                        |> List.Parallel.iter_IO_AW (fun item -> item.Delete true) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce  
                         |> Ok
                 with
                 | :? System.IO.DirectoryNotFoundException
@@ -136,7 +136,7 @@ module IO_Operations =
                         in 
                         dirInfo.EnumerateFiles()
                         |> Seq.toList
-                        |> List.Parallel.iter_IO (fun item -> item.Delete())   
+                        |> List.Parallel.iter_IO_AW (fun item -> item.Delete())   
                 with
                 | :? System.IO.DirectoryNotFoundException
                     ->

@@ -14,7 +14,6 @@ open FsToolkit.ErrorHandling
 //******************************************
 
 open Helpers
-open Helpers.Builders
 open Helpers.Validation
 open Helpers.DirFileHelper
 
@@ -22,13 +21,9 @@ open Api.Logging
 
 open Types.Types
 open Types.ErrorTypes  
-open Types.Grid3Algebra
+open Types.Haskell_IO_Monad_Simulation
 
 open Settings.SettingsDPO
-open Settings.SettingsGeneral
-
-open IO_Operations.IO_Operations
-open Types.Haskell_IO_Monad_Simulation
 
 //HttpClient
 module DPO_BL =
@@ -165,9 +160,8 @@ module DPO_BL =
                                             // TOCTOU race problem is negligible here as the value is only for the Windows Machine mode / resuming downloads
                                             // Resuming downloading does not work under Android OS
                                             runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                            |> function
-                                                | Some _ -> (FileInfo pathToFile).Length
-                                                | None   -> 0L
+                                            |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                            |> Option.defaultValue 0L
                                                     
                                         let headerContent1 = "Range" 
                                         let headerContent2 = sprintf "bytes=%d-" existingFileLength   
@@ -242,7 +236,7 @@ module DPO_BL =
             
                             try                               
                                 filterTimetables 
-                                |> List.Parallel.map_IO
+                                |> List.Parallel.map_IO_AW
                                     (fun (link, pathToFile)
                                         -> 
                                         async //API of HttpClient is async based

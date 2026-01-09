@@ -14,7 +14,8 @@ open Types.Haskell_IO_Monad_Simulation
 
 open FsToolkit.ErrorHandling
 
-open BusinessLogic.KODIS_BL_Record
+//open BusinessLogic.KODIS_BL_Record //not resuming
+open BusinessLogicNew.KODIS_BL_Record //resuming
 open BusinessLogic.TP_Canopy_Difference
 
 open Helpers
@@ -32,8 +33,6 @@ open Filtering.FilterTimetableLinks
 open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
-
-open BusinessLogic.KODIS_BL_Record
 
 module WebScraping_KODIS = 
    
@@ -63,17 +62,18 @@ module WebScraping_KODIS =
             DeleteAllODISDirectories : string -> IO<Result<unit, JsonParsingAndPdfDownloadErrors>>
             ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Result<string list, JsonParsingAndPdfDownloadErrors>> 
             FilterTimetableLinks : Validity -> string -> Result<string list, JsonParsingAndPdfDownloadErrors> -> IO<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> 
-            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, JsonParsingAndPdfDownloadErrors>
+            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, JsonParsingAndPdfDownloadErrors>  //not resuming
         }
 
-    let private environment : Environment =
+    let private environment : Environment = 
         { 
             DownloadAndSaveJson = downloadAndSaveJson 
             DeleteAllODISDirectories = deleteAllODISDirectories   
             ParseJsonStructure = parseJsonStructure // JsonData.ParseJsonDataFull.digThroughJsonStructure
             
             FilterTimetableLinks = filterTimetableLinks  
-            DownloadAndSave = downloadAndSave >> runIO
+            //DownloadAndSave = downloadAndSave >> runIO //not resuming
+            DownloadAndSave = fun token context -> runIO (downloadAndSave token context) //resuming
         }    
 
     let internal stateReducerCmd1 (token : CancellationToken) reportProgress =
@@ -244,7 +244,7 @@ module WebScraping_KODIS =
                                 //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
                                 //**********************************************************************
                                 match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
-                                | true  -> context List.Parallel.map2_IO
+                                | true  -> context List.Parallel.map2_IO_AW
                                 | false -> context List.map2  
                                 //**********************************************************************
                                  

@@ -11,6 +11,55 @@ open Types.ErrorTypes
 open Helpers.Builders
 
 module ExceptionHelpers =
+
+    let private containsCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) =
+        
+        let rec loop (stack : exn list) (acc : 'c list) : 'c list =
+
+            match stack with
+            | [] 
+                -> 
+                acc
+
+            | current :: rest 
+                ->
+                match current with
+                | null 
+                    ->
+                    loop rest (fileDownloadError :: acc)
+
+                | :? OperationCanceledException 
+                    ->
+                    let result =
+                        match token.IsCancellationRequested with
+                        | true  -> stopDownloading
+                        | false -> timeoutError
+                    loop rest (result :: acc)
+
+                | :? AggregateException as agg 
+                    ->
+                    // Flatten inner exceptions and push them onto the stack
+                    let flattened = agg.Flatten().InnerExceptions |> Seq.toList
+                    loop (flattened @ rest) acc
+
+                | _ when isNull current.InnerException 
+                    ->
+                    loop rest (fileDownloadError :: acc)
+                | _ 
+                    ->
+                    // Push inner exception onto stack
+                    loop (current.InnerException :: rest) acc
+    
+        // Start with the initial exception
+        let results = loop [ex] []
+
+        pyramidOfHell
+            {   
+                let!_ = not (results |> List.exists ((=) stopDownloading)), fun _ -> stopDownloading
+                let!_ = not (results |> List.exists ((=) timeoutError)), fun _ -> timeoutError
+                    
+                return fileDownloadError        
+            } 
     
     let private containsCancellation (token : CancellationToken) (ex : exn) : PdfDownloadErrors =
         
@@ -25,7 +74,8 @@ module ExceptionHelpers =
                 ->
                 match current with
                 | null 
-                    -> loop rest (FileDownloadError :: acc)
+                    ->
+                    loop rest (FileDownloadError :: acc)
 
                 | :? OperationCanceledException 
                     ->
@@ -61,6 +111,8 @@ module ExceptionHelpers =
             } 
             
     let internal isCancellation (token : CancellationToken) (ex : exn) = containsCancellation token ex
+    let internal isCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) = 
+        containsCancellationGeneric stopDownloading timeoutError fileDownloadError token ex 
             
 module Result =    
             

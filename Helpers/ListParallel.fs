@@ -138,7 +138,7 @@ let private maxDegreeOfParallelismAdaptedAndroid =
 // Arrays cannot raise exceptions as the lists the arrays are converted from cannot be nullable
 
 // Using Array.Parallel.iter  //TODO otestovat rychlost ve srovnani s Async.Parallel
-let iter_CPU (action : 'a -> unit) (list : 'a list) : unit =
+let iter_CPU_PT (action : 'a -> unit) (list : 'a list) : unit =
 
     match list with
     | []
@@ -148,9 +148,10 @@ let iter_CPU (action : 'a -> unit) (list : 'a list) : unit =
         list
         |> List.toArray
         |> Array.Parallel.iter action  
+        ()
 
 /// Version using Async.Parallel for CPU-bound iteration (for performance testing)
-let iter_CPU_Async (action : 'a -> unit) (list : 'a list) : unit =
+let iter_CPU_AW (action : 'a -> unit) (list : 'a list) : unit =
 
     match list with
     | []
@@ -165,8 +166,9 @@ let iter_CPU_Async (action : 'a -> unit) (list : 'a list) : unit =
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
         |> Async.Ignore<unit array> 
         |> Async.RunSynchronously
+        ()
 
-let iter_IO (action : 'a -> unit) (list : 'a list) =
+let iter_IO_AW (action : 'a -> unit) (list : 'a list) =
  
     match list with
     | [] 
@@ -182,9 +184,10 @@ let iter_IO (action : 'a -> unit) (list : 'a list) =
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
         |> Async.Ignore<unit array> 
         |> Async.RunSynchronously 
+        ()
 
 // Using Array.Parallel.map //Array.Parallel.map is designed for CPU-bound work.  //TODO otestovat rychlost ve srovnani s Async.Parallel
-let map_CPU (action : 'a -> 'b) (list : 'a list) : 'b list =
+let map_CPU_PT (action : 'a -> 'b) (list : 'a list) : 'b list =
 
     match list with
     | []
@@ -196,8 +199,7 @@ let map_CPU (action : 'a -> 'b) (list : 'a list) : 'b list =
         |> Array.Parallel.map action  
         |> Array.toList
 
-/// Version using Async.Parallel for CPU-bound mapping (for testing/comparison)
-let map_CPU_Async (action : 'a -> 'b) (list : 'a list) : 'b list =
+let map_CPU_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a list) : 'b list =
 
     match list with
     | []
@@ -208,12 +210,20 @@ let map_CPU_Async (action : 'a -> 'b) (list : 'a list) : 'b list =
 
         list
         |> Array.ofList
-        |> Array.map (fun x -> async { return action x })
+        |> Array.map
+            (fun x 
+                ->
+                async 
+                    {
+                        token.ThrowIfCancellationRequested ()
+                        return action x
+                    }
+            )  
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
-        |> Async.RunSynchronously
+        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> Array.toList
 
-let map_IO (action : 'a -> 'b) (list : 'a list) =
+let map_IO_AW (action : 'a -> 'b) (list : 'a list) =
 
     match list with
     | [] -> 
@@ -229,7 +239,7 @@ let map_IO (action : 'a -> 'b) (list : 'a list) =
          |> List.ofArray
 
 // Using Array.Parallel.iter //TODO otestovat rychlost ve srovnani s Async.Parallel
-let iter2_CPU<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
+let iter2_CPU_PT<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
 
     match xs1, xs2 with
     | [], _ | _, [] 
@@ -244,7 +254,7 @@ let iter2_CPU<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b lis
         |> Array.Parallel.iter (fun (x, y) -> mapping x y)
 
 /// Version using Async.Parallel for CPU-bound work (for testing and comparison with Array.Parallel)
-let iter2_CPU_Async<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
+let iter2_CPU_AW<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
 
     match xs1, xs2 with
     | [], _ | _, [] 
@@ -262,8 +272,9 @@ let iter2_CPU_Async<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
         |> Async.Ignore<unit array> 
         |> Async.RunSynchronously
+        ()
 
-let iter2_IO<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =      
+let iter2_IO_AW<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =      
     
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -282,9 +293,70 @@ let iter2_IO<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
         |> Async.Ignore<unit array> 
         |> Async.RunSynchronously
+        ()
+
+let iter2_IO_AW_Token<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : unit =
+
+    let xs1Length = List.length xs1
+    let xs2Length = List.length xs2
+
+    match (xs1Length = 0 || xs2.IsEmpty) || xs1Length <> xs2Length with
+    | true 
+        ->
+        ()
+    | false
+        ->
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid xs1Length        
+                    
+        List.zip xs1 xs2
+        |> Array.ofList
+        |> Array.map
+            (fun (x, y) 
+                ->
+                async 
+                    {
+                        token.ThrowIfCancellationRequested ()
+                        return! mapping x y
+                    }
+            )        
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted) |> Async.Ignore<_>
+        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+        ()
+
+let iter2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : Async<unit> =
+
+    let xs1Length = List.length xs1
+    let xs2Length = List.length xs2
+
+    match (xs1Length = 0 || xs2.IsEmpty) || xs1Length <> xs2Length with
+    | true 
+        ->
+        async { return () }
+    | false
+        ->
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid xs1Length        
+           
+        let tasks =  
+            List.zip xs1 xs2
+            |> Array.ofList
+            |> Array.map
+                (fun (x, y) 
+                    ->
+                    async 
+                        {
+                            token.ThrowIfCancellationRequested ()
+                            return! mapping x y
+                        }
+                )        
+        async 
+            {
+                let! results = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+                results |> ignore<'c array> 
+                return ()
+            }     
 
 // Using Array.Parallel.map  //TODO otestovat rychlost ve srovnani s Async.Parallel
-let map2_CPU<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+let map2_CPU_PT<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
 
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -300,10 +372,10 @@ let map2_CPU<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b li
         List.zip xs1 xs2
         |> List.toArray
         |> Array.Parallel.map (fun (x, y) -> mapping x y)
-        |> Array.toList
+        |> Array.toList        
 
 /// Version using Async.Parallel for CPU-bound mapping (for performance testing/comparison only)
-let map2_CPU2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+let map2_CPU2_AW<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
 
     match xs1, xs2 with
     | [], _ | _, [] 
@@ -322,7 +394,67 @@ let map2_CPU2<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b l
         |> Async.RunSynchronously
         |> Array.toList
 
-let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+ //v mem pripade pro parsing velice mirne, tj. zanedbatelne pomalejsi, nez Array.Parallel (ale mohu aplikovat token)
+let map2_CPU2_AW_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+
+    match xs1, xs2 with
+    | [], _ | _, [] 
+        ->
+        []
+    | _ when List.length xs1 <> List.length xs2
+        ->
+        []
+    | _ ->
+        let maxDegree = Environment.ProcessorCount   // standard choice for CPU-bound tasks
+
+        List.zip xs1 xs2
+        |> Array.ofList
+        |> Array.map
+            (fun (x, y) 
+                ->
+                async 
+                    {
+                        token.ThrowIfCancellationRequested ()
+                        return mapping x y
+                    }
+            )        
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+        |> Array.toList
+
+let map2_CPU2_AW_Token_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : Async<'c list> =
+
+    match xs1, xs2 with
+    | [], _ | _, [] 
+        ->
+        async { return [] }
+
+    | _ when List.length xs1 <> List.length xs2
+        ->
+        async { return [] }
+
+    | _ ->
+        let maxDegree = Environment.ProcessorCount   // standard choice for CPU-bound tasks
+
+        let tasks = 
+            List.zip xs1 xs2
+            |> Array.ofList
+            |> Array.map
+                (fun (x, y) 
+                    ->
+                    async 
+                        {
+                            token.ThrowIfCancellationRequested ()
+                            return mapping x y
+                        }
+                )  
+        async 
+            {
+                let! results = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+                return results |> Array.toList
+            }    
+
+let map2_IO_AW<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
     
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -342,7 +474,7 @@ let map2_IO<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b lis
         |> Async.RunSynchronously
         |> Array.toList
 
-let internal map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+let internal map2_IO_AW_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
     
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -370,8 +502,7 @@ let internal map2_IO_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : Cance
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> List.ofArray     
         
-// Teoreticky ano, ale negativne to ovlivni cancellation a musel by byt zcela jiny system pro Result handling (az v Elmishi)
-let map2_IO_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : Async<'c list> =
+let map2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : Async<'c list> =
 
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2

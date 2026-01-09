@@ -90,7 +90,13 @@ open ApplicationDesign4.WebScraping_KODIS4
    <AndroidResource Include="Platforms\Android\Resources\xml\network_security_config.xml" />
 *)
 
-module App =  
+module AppNew =  
+
+    type private CancellationMessage =
+        | GetToken of AsyncReplyChannel<CancellationToken option>
+        | CancelToken
+        | Reset of CancellationTokenSource
+        | Stop of AsyncReplyChannel<unit> 
 
     type ProgressIndicator = 
         | Idle 
@@ -152,71 +158,64 @@ module App =
         | ClearAnimation
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
 
-    // NOTE:
-    // Global cancellation actor used intentionally for single-view stress-testing
-    // Expected to be replaced by more suitable system in multi-MVU UI.
-    let internal globalCancellationActor =  //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
+    let private localCancellationActor () =
 
-        //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
-        //the mailbox will not raise an exception on its own. 
-                        
-        MailboxProcessor<CancellationMessage>
-            .StartImmediate
-                <|
-                fun inbox
-                    ->
-                    let rec loop (cancelRequested : bool) (cts : CancellationTokenSource) =
-                    
-                        async 
-                            {
-                                match! inbox.Receive() with
-                                | UpdateState2 (newState, newCts)
-                                    ->
-                                    match newState with
-                                    | true  ->
-                                            cts.Cancel()
-                                            cts.Dispose()
-                                    | false -> 
-                                            cts.Dispose() 
+        MailboxProcessor<CancellationMessage>.StartImmediate
+            (fun inbox 
+                ->
+                let rec loop (cts : CancellationTokenSource) =
+                    async 
+                        {
+                            match! inbox.Receive() with
+                            | GetToken reply
+                                ->
+                                let tokenOpt =
+                                    match cts.IsCancellationRequested with
+                                    | true  -> None
+                                    | false -> Some cts.Token
+                                reply.Reply tokenOpt 
+                                return! loop cts
 
-                                    return! loop newState newCts
+                            | CancelToken
+                                ->
+                                cts.Cancel()
+                                return! loop cts
+
+                            | Reset newCts 
+                                ->
+                                cts.Dispose()
+                                return! loop newCts
+
+                            | Stop reply 
+                                ->
+                                cts.Cancel()
+                                cts.Dispose()
+                                reply.Reply ()
+                        }
+
+                loop (new CancellationTokenSource())
+            )
+
+    let private kodisActor = localCancellationActor()
+    let private kodis4Actor = localCancellationActor()
+    let private mdpoActor = localCancellationActor()
+    let private dpoActor = localCancellationActor()  
+    
+    let private cancelLocalActor (actor : MailboxProcessor<CancellationMessage>) =
         
-                                | CheckState2 reply
-                                    ->
-                                    let tokenOpt = 
-                                        match cts.IsCancellationRequested with
-                                        | true  -> None
-                                        | false -> Some cts.Token
-                                    
-                                    reply.Reply tokenOpt
-
-                                    return! loop cancelRequested cts
-
-                                | CancelCurrent //zatim nevyuzito
-                                    ->
-                                    cts.Cancel()
-                                    // Do NOT dispose or replace — keep the same CTS
-                                    // When user starts new work, init2 will replace it normally
-                                    return! loop true cts  
-        
-                                | Stop reply 
-                                    ->
-                                    match cancelRequested with
-                                    | true  -> cts.Cancel()  
-                                    | false -> () 
-                                    
-                                    cts.Dispose()
-                                    reply.Reply ()
-                            }
-
-                    loop false (new CancellationTokenSource())  
-
-    let init () =         
-            
-        let ctsInitial = new CancellationTokenSource()
-            in
-            globalCancellationActor.Post <| UpdateState2 (false, ctsInitial) //inicializace
-                
+        let newCts = new CancellationTokenSource()
+    
+        actor.Post CancelToken
+    
+        async 
+            {
+                do! Async.Sleep 10 // 10 ms is usually enough
+                actor.Post (Reset newCts)
+            }
+        |> Async.StartImmediate
+    
+    let init () =     
+     
         let monitorConnectivity (dispatch : Msg -> unit) = //obsahuje countDown2, nelze odsunout do Connectivity             
                    
             AsyncSeq.initInfinite (fun _ -> true)
@@ -323,10 +322,6 @@ module App =
             | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none 
 
     let init2 isConnected = 
-
-        let ctsNew = new CancellationTokenSource()
-            in
-            globalCancellationActor.Post <| UpdateState2 (false, ctsNew)
         
         #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
@@ -550,9 +545,7 @@ module App =
             Cmd.none   
 
         | Quit  
-            ->            // This will dispose the current CTS and end the loop
-            let stopCancellationActorAsync () = async { globalCancellationActor.PostAndReply Stop }       
-                            
+            ->              
             #if WINDOWS 
             (*
             let cmd () : Cmd<Msg> =
@@ -569,25 +562,35 @@ module App =
                         ->
                         async 
                             {
-                                do! stopCancellationActorAsync ()
                                 let! _ = runIO (Api.Logging.saveJsonToFileAsync ())
                                 return ()
                             }
                         |> Async.StartImmediate
                     )
-                
+
+            kodisActor.PostAndReply(fun reply -> Stop reply)
+            kodis4Actor.PostAndReply(fun reply -> Stop reply)
+            mdpoActor.PostAndReply(fun reply -> Stop reply)
+            dpoActor.PostAndReply(fun reply -> Stop reply)
+            
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, cmd ()
             #endif
 
             #if ANDROID
             runIO <| KeepScreenOnManager.keepScreenOn false  
+            
+            kodisActor.PostAndReply(fun reply -> Stop reply)
+            kodis4Actor.PostAndReply(fun reply -> Stop reply)
+            mdpoActor.PostAndReply(fun reply -> Stop reply)
+            dpoActor.PostAndReply(fun reply -> Stop reply)
+
             let message = HardRestart.exitApp >> runIO <| () 
 
             { 
                 m with ProgressMsg = message
             },
-            Cmd.ofSub (fun _ -> stopCancellationActorAsync() |> Async.StartImmediate)
+            Cmd.none
             #endif
 
         | IntermediateQuitCase 
@@ -596,10 +599,6 @@ module App =
 
         | EmergencyQuit isConnected
             ->
-            let ctsNew = new CancellationTokenSource() 
-                in
-                globalCancellationActor.Post <| UpdateState2 (true, ctsNew)    
-
             let delayedQuit (dispatch : Msg -> unit) = 
                 async
                     {
@@ -650,11 +649,15 @@ module App =
             init ()
 
         | Cancel 
-            ->
-            let ctsNew = new CancellationTokenSource() 
-                in
-                globalCancellationActor.Post <| UpdateState2 (true, ctsNew)    
-           
+            ->   
+            [
+                kodisActor
+                kodis4Actor
+                mdpoActor
+                dpoActor
+            ]
+            |> List.iter cancelLocalActor
+          
             { m with 
                 ProgressMsg = cancelMsg3
                 NetConnMsg = String.Empty
@@ -789,7 +792,7 @@ module App =
              
         | Kodis 
             ->  
-            globalCancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
+            kodisActor.PostAndReply(fun reply -> GetToken reply) 
             |> function
                 | Some token 
                     ->                     
@@ -929,7 +932,7 @@ module App =
 
         | Kodis4  
             ->
-            globalCancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
+            kodis4Actor.PostAndReply(fun reply -> GetToken reply)
             |> function
                 | Some token 
                     ->
@@ -1048,7 +1051,7 @@ module App =
           
         | Dpo 
             -> 
-            globalCancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
+            dpoActor.PostAndReply(fun reply -> GetToken reply)
             |> function
                 | Some token 
                     ->
@@ -1158,7 +1161,7 @@ module App =
 
         | Mdpo //pridano network_security_config.xml, ale zda se, ze to nepomohlo
             ->  
-            globalCancellationActor.PostAndReply <| fun replyChannel -> CheckState2 replyChannel
+            mdpoActor.PostAndReply(fun reply -> GetToken reply)
             |> function
                 | Some token 
                     ->             

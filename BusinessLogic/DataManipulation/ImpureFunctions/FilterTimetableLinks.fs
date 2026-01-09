@@ -276,7 +276,7 @@ module FilterTimetableLinks =
                         (fun value 
                             -> 
                             value
-                            |> List.Parallel.map_CPU 
+                            |> List.Parallel.map_CPU_PT 
                                 (fun item
                                     -> 
                                     let item = extractSubstring item      //"https://kodis-files.s3.eu-central-1.amazonaws.com/timetables/2_2023_03_13_2023_12_09.pdf                 
@@ -298,17 +298,17 @@ module FilterTimetableLinks =
                                     let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
                                     cond1 && cond2 
                                 )         
-                            |> List.Parallel.map_CPU (fun item -> splitKodisLink item) 
+                            |> List.Parallel.map_CPU_PT (fun item -> splitKodisLink item) 
                         )          
                            
                 //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
                 let createPathsForDownloadedFiles filteredList : (string * string) list = 
           
                     filteredList
-                    |> List.Parallel.map_CPU 
+                    |> List.Parallel.map_CPU_PT 
                         //(fun item -> fst item |> function CompleteLink value -> value, snd item |> function FileToBeSaved value -> value)
                         (fun (CompleteLink linkVal, FileToBeSaved fileVal) -> linkVal, fileVal)
-                    |> List.Parallel.map_CPU
+                    |> List.Parallel.map_CPU_PT
                         (fun (link, file) 
                             -> 
                             let path =                                         

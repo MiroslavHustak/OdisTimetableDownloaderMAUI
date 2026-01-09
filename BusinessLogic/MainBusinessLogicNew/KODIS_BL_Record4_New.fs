@@ -16,20 +16,15 @@ open FsToolkit.ErrorHandling
 open Types
 open Types.Types
 open Types.ErrorTypes
-
-//*******************
+open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
 open Api.FutureLinks
 
-open Helpers
-open Helpers.Builders
 open Helpers.DirFileHelper
 
 open Settings.SettingsGeneral
-open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
-open Types.Haskell_IO_Monad_Simulation
 
 module KODIS_BL_Record4 =    
         
@@ -126,9 +121,8 @@ module KODIS_BL_Record4 =
    
                                         let existingFileLength =                               
                                             runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                            |> function
-                                                | Some _ -> (FileInfo pathToFile).Length
-                                                | None   -> 0L
+                                            |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                            |> Option.defaultValue 0L
                                       
                                         let headerContent1 = "Range" 
                                         let headerContent2 = sprintf "bytes=%d-" existingFileLength 
@@ -250,7 +244,7 @@ module KODIS_BL_Record4 =
                                
                     try
                         (token, uri, pathToFile)
-                        |||> List.Parallel.map2_IO_Token_Async                                    
+                        |||> List.Parallel.map2_IO_AW_Token_Async                                    
                             (fun uri (pathToFile : string) 
                                 -> 
                                 async
@@ -258,7 +252,7 @@ module KODIS_BL_Record4 =
                                         try
                                             counterAndProgressBar.Post <| Inc 1
 
-                                            token.ThrowIfCancellationRequested()
+                                            //token.ThrowIfCancellationRequested()
    
                                             // my original safety check – keep it to avoid re-downloading finished PDFs)
                                             let pathToFileExistFirstCheck =

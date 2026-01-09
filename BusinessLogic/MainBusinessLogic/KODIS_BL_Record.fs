@@ -21,14 +21,9 @@ open Settings.SettingsGeneral
 
 open Api.Logging
 
-open Helpers
 open Helpers.Builders
 open Helpers.StateMonad
 open Helpers.DirFileHelper
-
-open JsonData.ParseJsonData
-open IO_Operations.IO_Operations
-open Filtering.FilterTimetableLinks
 
 module KODIS_BL_Record =       
            
@@ -61,19 +56,19 @@ module KODIS_BL_Record =
                                     loop 0      
               
                 (token, jsonLinkList, pathToJsonList)
-                |||> List.Parallel.map2_IO_Token 
+                |||> List.Parallel.map2_IO_AW_Token 
                     (fun uri (pathToFile : string) 
                         ->     
                         try
                             counterAndProgressBar.Post <| Inc 1                           
                             
-                            token.ThrowIfCancellationRequested ()                            
+                            // Artificial checkpoint po mych List.Parallel nebo Async.Parallel nedavat
+                            //token.ThrowIfCancellationRequested ()                           
                                                                     
                             let existingFileLength =  // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem                             
                                 runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                |> function
-                                    | Some _ -> (FileInfo pathToFile).Length
-                                    | None   -> 0L
+                                |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                |> Option.defaultValue 0L
                             
                             let get uri = 
 
@@ -261,14 +256,14 @@ module KODIS_BL_Record =
                             return   
                                 try
                                     (token, uri, pathToFile)
-                                    |||> List.Parallel.map2_IO_Token //context.listMappingFunction                            
+                                    |||> List.Parallel.map2_IO_AW_Token //context.listMappingFunction                            
                                         (fun uri (pathToFile : string) 
                                             -> 
                                             try 
                                                 counterAndProgressBar.Post <| Inc 1
                                                 
-                                                // Artificial checkpoint
-                                                token.ThrowIfCancellationRequested () 
+                                                // Artificial checkpoint po mych List.Parallel nebo Async.Parallel nedavat
+                                                //token.ThrowIfCancellationRequested () 
     
                                                 let pathToFileExistFirstCheck = // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem        
                                                     runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
@@ -278,9 +273,8 @@ module KODIS_BL_Record =
                                                         -> 
                                                         let existingFileLength =                               
                                                             runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                            |> function
-                                                                | Some _ -> (FileInfo pathToFile).Length
-                                                                | None   -> 0L
+                                                            |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                                            |> Option.defaultValue 0L
                                                  
                                                         let get uri = 
     

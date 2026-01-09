@@ -67,7 +67,7 @@ module WebScraping_KODIS4 =
         { 
             DeleteAllODISDirectories = deleteAllODISDirectories   
             OperationOnDataFromJson = operationOnDataFromJson
-            DownloadAndSave = fun token context -> runIO (downloadAndSave token context)
+            DownloadAndSave = fun token context -> runIO (downloadAndSave token context) //downloadAndSave >> runIO
         }    
 
     let private stateReducer (token : CancellationToken) path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
@@ -162,7 +162,7 @@ module WebScraping_KODIS4 =
         
                         // nyni zcela nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)                      
                         match list.Length >= 4 with 
-                        | true  -> context List.Parallel.map2_IO
+                        | true  -> context List.Parallel.map2_IO_AW
                         | false -> context List.map2
         
                         |> environment.DownloadAndSave token     

@@ -114,7 +114,7 @@ module ParseJsonDataFull =
                                     let kodisJsonSamples =    
                                         pathToJsonList3 
                                         |> List.filter (not << isNull)  //just in case
-                                        |> List.Parallel.map_CPU
+                                        |> List.Parallel.map_CPU_PT
                                             (fun pathToJson 
                                                 ->
                                                 try
@@ -127,7 +127,7 @@ module ParseJsonDataFull =
 
                                     return 
                                         (pathToJsonList3, kodisJsonSamples) 
-                                        ||> List.Parallel.map2_CPU 
+                                        ||> List.Parallel.map2_CPU_PT 
                                             (fun pathToJson kodisJsonSample
                                                 ->    
                                                 //JsonProvider's results are of Array type => Array is used
@@ -207,7 +207,7 @@ module ParseJsonDataFull =
                                                 let fn1 (value : JsonProvider1.Attachment seq) = 
                                                     value
                                                     |> List.ofSeq
-                                                    |> List.Parallel.map_CPU (fun item -> item.Url |> Option.ofNullEmptySpace) // jj, funguje to :-)                               
+                                                    |> List.Parallel.map_CPU_PT (fun item -> item.Url |> Option.ofNullEmptySpace) // jj, funguje to :-)                               
                                                     |> List.choose id //co neprojde, to beze slova ignoruju
                                                     |> List.toSeq
 

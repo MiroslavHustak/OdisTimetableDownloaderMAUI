@@ -3,12 +3,10 @@
 open System
 open System.IO
 open Thoth.Json.Net
-open FsToolkit.ErrorHandling
 
 //*******************
 
 open Helpers.Serialization
-open Helpers.DirFileHelper
 
 open Api.Logging
 open Settings.SettingsGeneral

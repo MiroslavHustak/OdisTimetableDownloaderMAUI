@@ -27,7 +27,6 @@ open Helpers.Builders
 open Helpers.DirFileHelper
 
 open Settings.SettingsGeneral
-open IO_Operations.IO_Operations
 open Filtering.FilterTimetableLinks
 open Types.Haskell_IO_Monad_Simulation
 
@@ -107,7 +106,7 @@ module KODIS_BL_Record4 =
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
 
-    let internal downloadAndSave2 token =  
+    let internal downloadAndSave token =  
 
         IO (fun () 
                 ->         
@@ -160,14 +159,14 @@ module KODIS_BL_Record4 =
                             return   
                                 try
                                     (token, uri, pathToFile)
-                                    |||> List.Parallel.map2_IO_Token //context.listMappingFunction                            
+                                    |||> List.Parallel.map2_IO_AW_Token //context.listMappingFunction                            
                                         (fun uri (pathToFile : string) 
                                             -> 
                                             try 
                                                 counterAndProgressBar.Post <| Inc 1
                                                 
-                                                // Artificial checkpoint
-                                                token.ThrowIfCancellationRequested () 
+                                                // Artificial checkpoint po mych List.Parallel nebo Async.Parallel nedavat
+                                                //token.ThrowIfCancellationRequested () 
     
                                                 let pathToFileExistFirstCheck = // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem        
                                                     runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
@@ -177,9 +176,8 @@ module KODIS_BL_Record4 =
                                                         -> 
                                                         let existingFileLength =                               
                                                             runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                            |> function
-                                                                | Some _ -> (FileInfo pathToFile).Length
-                                                                | None   -> 0L
+                                                            |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                                            |> Option.defaultValue 0L
                                                  
                                                         let get uri = 
     

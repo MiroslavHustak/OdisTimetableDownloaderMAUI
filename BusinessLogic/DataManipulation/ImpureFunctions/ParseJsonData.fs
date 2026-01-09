@@ -51,13 +51,14 @@ module ParseJsonData =
                                                     <|
                                                     fun inbox 
                                                         ->
+                                                        (*
                                                         use _ =
                                                             token.Register
                                                                 (fun () 
                                                                     ->
                                                                     inbox.Post (Unchecked.defaultof<MsgIncrement>)
                                                                 )
-
+                                                        *)
                                                         let rec loop n = 
                                                             async
                                                                 {
@@ -73,12 +74,12 @@ module ParseJsonData =
                                     let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 
                                     let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel computing done separatelly
-                                        pathToJsonList3
-                                        |> List.filter (not << isNull) //just in case
-                                        |> List.Parallel.map_CPU 
+                                        (token, pathToJsonList3 |> List.filter (not << isNull)) //just in case
+                                        ||> List.Parallel.map_CPU_AW_Token 
                                             (fun pathToJson 
                                                 ->                                               
-                                                token.ThrowIfCancellationRequested()  // Artificial checkpoint 
+                                                // Artificial checkpoint po mych List.Parallel nebo Async.Parallel nedavat
+                                                //token.ThrowIfCancellationRequested () 
                                                 
                                                 counterAndProgressBar.Post <| Inc 1                                               
                                                 
@@ -91,11 +92,12 @@ module ParseJsonData =
                                         |> List.filter (not << isNull)  //just in case
                                             
                                     return 
-                                        (pathToJsonList3, kodisJsonSamples) 
-                                        ||> List.Parallel.map2_CPU 
+                                        (token, pathToJsonList3, kodisJsonSamples) 
+                                        |||> List.Parallel.map2_CPU2_AW_Token 
                                             (fun pathToJson kodisJsonSample
                                                 ->  
-                                                token.ThrowIfCancellationRequested()  // Artificial checkpoint 
+                                                // Artificial checkpoint po mych List.Parallel nebo Async.Parallel nedavat
+                                                //token.ThrowIfCancellationRequested () 
                                                 
                                                 counterAndProgressBar.Post <| Inc 1
                                                 
