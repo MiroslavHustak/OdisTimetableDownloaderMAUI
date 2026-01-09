@@ -26,6 +26,7 @@ open Helpers
 open Helpers.Builders
 open Helpers.Validation
 open Helpers.DirFileHelper
+open Helpers.ExceptionHelpers
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
 module ParseJsonData =      
@@ -175,12 +176,12 @@ module ParseJsonData =
                         with
                         | ex
                             ->  
-                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                             | err 
                                 when err = StopDownloading
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#123456X")
-                                Error <| JsonError StopJsonParsing   
+                                Error <| JsonError StopJsonParsing  
                             | _ 
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#107")

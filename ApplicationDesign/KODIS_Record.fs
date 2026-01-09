@@ -15,7 +15,7 @@ open Types.Haskell_IO_Monad_Simulation
 open FsToolkit.ErrorHandling
 
 //open BusinessLogic.KODIS_BL_Record //not resuming
-open BusinessLogicNew.KODIS_BL_Record //resuming
+open BusinessLogic_R.KODIS_BL_Record //resuming
 open BusinessLogic.TP_Canopy_Difference
 
 open Helpers

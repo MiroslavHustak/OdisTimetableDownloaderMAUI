@@ -1,4 +1,4 @@
-﻿namespace BusinessLogicNew
+﻿namespace BusinessLogic_R
 
 open System
 open System.IO
@@ -16,6 +16,7 @@ open FsToolkit.ErrorHandling
 open Helpers
 open Helpers.Validation
 open Helpers.DirFileHelper
+open Helpers.ExceptionHelpers
 
 open Api.Logging
 
@@ -201,7 +202,7 @@ module DPO_BL =
                                                 with 
                                                 | ex
                                                     ->
-                                                    match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                     | err when err = StopDownloading 
                                                         ->
                                                         runIO (postToLog <| string ex.Message <| "#123456J-DPO")
@@ -223,7 +224,7 @@ module DPO_BL =
     
                                         | Choice2Of2 ex 
                                             ->
-                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                             | err when err = StopDownloading
                                                 ->
                                                 runIO (postToLog <| string ex.Message <| "#123456H-DPO")
@@ -318,7 +319,7 @@ module DPO_BL =
                                         with 
                                         | ex
                                             ->
-                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                             | err when err = StopDownloading 
                                                 ->
                                                 runIO (postToLog <| string ex.Message <| "#123456F-DPO")
@@ -334,7 +335,7 @@ module DPO_BL =
     
                     with
                     | ex ->
-                        match Helpers.ExceptionHelpers.isCancellation token ex with
+                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                         | err when err = StopDownloading 
                             ->
                             runIO (postToLog (string ex.Message) "#123456E-DPO")

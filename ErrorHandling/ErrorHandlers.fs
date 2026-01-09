@@ -61,56 +61,6 @@ module ExceptionHelpers =
                 return fileDownloadError        
             } 
     
-    let private containsCancellation (token : CancellationToken) (ex : exn) : PdfDownloadErrors =
-        
-        let rec loop (stack : exn list) (acc : PdfDownloadErrors list) : PdfDownloadErrors list =
-
-            match stack with
-            | [] 
-                -> 
-                acc
-
-            | current :: rest 
-                ->
-                match current with
-                | null 
-                    ->
-                    loop rest (FileDownloadError :: acc)
-
-                | :? OperationCanceledException 
-                    ->
-                    let result =
-                        match token.IsCancellationRequested with
-                        | true  -> StopDownloading
-                        | false -> TimeoutError
-                    loop rest (result :: acc)
-
-                | :? AggregateException as agg 
-                    ->
-                    // Flatten inner exceptions and push them onto the stack
-                    let flattened = agg.Flatten().InnerExceptions |> Seq.toList
-                    loop (flattened @ rest) acc
-
-                | _ when isNull current.InnerException 
-                    ->
-                    loop rest (FileDownloadError :: acc)
-                | _ 
-                    ->
-                    // Push inner exception onto stack
-                    loop (current.InnerException :: rest) acc
-    
-        // Start with the initial exception
-        let results = loop [ex] []
-
-        pyramidOfHell
-            {   
-                let!_ = not (results |> List.exists ((=) StopDownloading)), fun _ -> StopDownloading
-                let!_ = not (results |> List.exists ((=) TimeoutError)), fun _ -> TimeoutError
-                    
-                return FileDownloadError        
-            } 
-            
-    let internal isCancellation (token : CancellationToken) (ex : exn) = containsCancellation token ex
     let internal isCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) = 
         containsCancellationGeneric stopDownloading timeoutError fileDownloadError token ex 
             

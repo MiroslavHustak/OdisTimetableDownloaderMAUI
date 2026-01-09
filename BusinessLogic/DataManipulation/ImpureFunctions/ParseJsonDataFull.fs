@@ -23,6 +23,7 @@ open Helpers
 open Helpers.Builders
 open Helpers.Validation
 open Helpers.DirFileHelper
+open Helpers.ExceptionHelpers
 
 module ParseJsonDataFull =  
 
@@ -263,12 +264,12 @@ module ParseJsonDataFull =
                         with
                         | ex
                             ->  
-                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                             | err 
                                 when err = StopDownloading
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#123456X")
-                                Error <| JsonError StopJsonParsing   
+                                Error <| JsonError StopJsonParsing  
                             | _ 
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#107")

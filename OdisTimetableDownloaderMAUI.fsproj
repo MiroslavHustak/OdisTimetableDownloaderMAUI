@@ -172,11 +172,11 @@
     <Compile Include="BusinessLogic\MainBusinessLogic\KODIS_BL_Record.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic\KODIS_BL_Record4.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic\TP_Canopy_Difference.fs" />
-    <Compile Include="BusinessLogic\MainBusinessLogicNew\DPO_BL_New.fs" />
-    <Compile Include="BusinessLogic\MainBusinessLogicNew\MDPO_BL_New.fs" />
-    <Compile Include="BusinessLogic\MainBusinessLogicNew\KODIS_BL_Record_New.fs" />
-    <Compile Include="BusinessLogic\MainBusinessLogicNew\KODIS_BL_Record4_New.fs" />
-    <Compile Include="BusinessLogic\MainBusinessLogicNew\TP_Canopy_Difference_New.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic_R\DPO_BL_R.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic_R\MDPO_BL_R.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic_R\KODIS_BL_Record_R.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic_R\KODIS_BL_Record4_R.fs" />
+    <Compile Include="BusinessLogic\MainBusinessLogic_R\TP_Canopy_Difference_R.fs" />
     <Compile Include="ApplicationDesign\DPO.fs" />
     <Compile Include="ApplicationDesign\MDPO.fs" />
     <Compile Include="ApplicationDesign\KODIS_Record.fs" />
@@ -187,7 +187,7 @@
     <Compile Include="XElmish\ProgressCircle.fs" />
     <Compile Include="XElmish\Counters.fs" />
     <Compile Include="XElmish\App.fs" />
-    <Compile Include="XElmish\AppNew.fs" />
+    <Compile Include="XElmish\App_R.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 

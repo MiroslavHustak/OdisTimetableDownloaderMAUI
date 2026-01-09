@@ -90,7 +90,7 @@ open ApplicationDesign4.WebScraping_KODIS4
    <AndroidResource Include="Platforms\Android\Resources\xml\network_security_config.xml" />
 *)
 
-module AppNew =  
+module App_R =  
 
     type private CancellationMessage =
         | GetToken of AsyncReplyChannel<CancellationToken option>

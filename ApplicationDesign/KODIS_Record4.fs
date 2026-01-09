@@ -26,7 +26,7 @@ open Settings.Messages
 open Settings.SettingsGeneral
 
 //open BusinessLogic.KODIS_BL_Record4
-open BusinessLogicNew.KODIS_BL_Record4
+open BusinessLogic_R.KODIS_BL_Record4
 
 
 //**********************************

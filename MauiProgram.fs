@@ -41,7 +41,7 @@ type MauiProgram =
                 MauiApp
                     .CreateBuilder()
                     //.UseFabulousApp(App.program) //not resumable
-                    .UseFabulousApp(AppNew.program) //resumable
+                    .UseFabulousApp(App_R.program) //resumable
                     .ConfigureFonts(
                         fun (fonts : IFontCollection)
                             ->

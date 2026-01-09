@@ -24,6 +24,7 @@ open Api.Logging
 open Helpers.Builders
 open Helpers.StateMonad
 open Helpers.DirFileHelper
+open Helpers.ExceptionHelpers
 
 module KODIS_BL_Record =       
            
@@ -142,7 +143,7 @@ module KODIS_BL_Record =
                         with
                         | ex 
                             -> // Cancellation pro json  downloading funguje jen s vnitrnim try with blokem
-                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                             | err 
                                 when err = StopDownloading
                                 ->
@@ -153,7 +154,6 @@ module KODIS_BL_Record =
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#020W")
                                 Error <| JsonTimeoutError
-
                             | _ 
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#020")
@@ -322,7 +322,7 @@ module KODIS_BL_Record =
 
                                                                     | Choice2Of2 ex 
                                                                         -> 
-                                                                        match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                                         | err 
                                                                             when err = StopDownloading
                                                                             ->
@@ -350,7 +350,7 @@ module KODIS_BL_Record =
 
                                                         | Choice2Of2 ex
                                                             ->
-                                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                             | err 
                                                                 when err = StopDownloading
                                                                 ->
@@ -368,7 +368,7 @@ module KODIS_BL_Record =
                                             with
                                             | ex                             
                                                 -> 
-                                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                 | err 
                                                     when err = StopDownloading
                                                     ->
@@ -382,7 +382,7 @@ module KODIS_BL_Record =
                                 with
                                 | ex                             
                                     -> 
-                                    match Helpers.ExceptionHelpers.isCancellation token ex with
+                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                     | err 
                                         when err = StopDownloading
                                         ->

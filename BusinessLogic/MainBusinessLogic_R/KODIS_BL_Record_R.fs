@@ -1,4 +1,4 @@
-﻿namespace BusinessLogicNew
+﻿namespace BusinessLogic_R
 
 open System
 open System.IO
@@ -293,7 +293,7 @@ module KODIS_BL_Record =
                                                 with
                                                 | ex 
                                                     ->
-                                                    match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                     | err 
                                                         when err = StopDownloading
                                                         ->
@@ -316,7 +316,7 @@ module KODIS_BL_Record =
    
                                         | Choice2Of2 ex 
                                             ->
-                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
                                                 when err = StopDownloading
                                                 ->
@@ -419,7 +419,7 @@ module KODIS_BL_Record =
                                         with
                                         | ex
                                             ->
-                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
                                                 when err = StopDownloading
                                                 ->
@@ -437,7 +437,7 @@ module KODIS_BL_Record =
                     with
                     | ex 
                         ->
-                        match Helpers.ExceptionHelpers.isCancellation token ex with
+                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                         | err 
                             when err = StopDownloading 
                             ->

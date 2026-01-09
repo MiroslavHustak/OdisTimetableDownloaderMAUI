@@ -25,6 +25,7 @@ open Api.FutureLinks
 open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
+open Helpers.ExceptionHelpers
 
 open Settings.SettingsGeneral
 open Filtering.FilterTimetableLinks
@@ -225,7 +226,7 @@ module KODIS_BL_Record4 =
 
                                                                     | Choice2Of2 ex 
                                                                         -> 
-                                                                        match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                                         | err 
                                                                             when err = StopDownloading
                                                                             ->
@@ -253,7 +254,7 @@ module KODIS_BL_Record4 =
 
                                                         | Choice2Of2 ex
                                                             ->
-                                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                             | err 
                                                                 when err = StopDownloading
                                                                 ->
@@ -271,7 +272,7 @@ module KODIS_BL_Record4 =
                                             with
                                             | ex                             
                                                 -> 
-                                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                 | err 
                                                     when err = StopDownloading
                                                     ->
@@ -285,7 +286,7 @@ module KODIS_BL_Record4 =
                                 with
                                 | ex                             
                                     -> 
-                                    match Helpers.ExceptionHelpers.isCancellation token ex with
+                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                     | err 
                                         when err = StopDownloading
                                         ->

@@ -16,6 +16,7 @@ open FsToolkit.ErrorHandling
 open Helpers
 open Helpers.Validation
 open Helpers.DirFileHelper
+open Helpers.ExceptionHelpers
 
 open Api.Logging
 
@@ -257,7 +258,7 @@ module DPO_BL =
                                         )
                                         (fun ex 
                                             ->                                             
-                                            match Helpers.ExceptionHelpers.isCancellation token ex with
+                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
                                                 when err = StopDownloading
                                                 ->
@@ -274,7 +275,7 @@ module DPO_BL =
                             with                            
                             | ex                             
                                 -> 
-                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                 | err 
                                     when err = StopDownloading
                                     ->

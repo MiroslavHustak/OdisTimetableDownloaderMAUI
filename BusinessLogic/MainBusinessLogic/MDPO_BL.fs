@@ -18,6 +18,7 @@ open Helpers
 open Helpers.Builders
 open Helpers.Validation
 open Helpers.DirFileHelper
+open Helpers.ExceptionHelpers
 
 open Api.Logging
 open Settings.SettingsMDPO
@@ -291,7 +292,7 @@ module MDPO_BL = //FsHttp
                             with                            
                             | ex                             
                                 -> 
-                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                 | err 
                                     when err = StopDownloading
                                     ->
@@ -565,7 +566,7 @@ module MDPO_BL = //FsHttp
                             with                            
                             | ex                             
                                 -> 
-                                match Helpers.ExceptionHelpers.isCancellation token ex with
+                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                 | err 
                                     when err = StopDownloading
                                     ->
