@@ -245,6 +245,15 @@ module MoveDir =
                             
                                 return! moveEntry entry dest 
                             }
+
+                        (*
+                        resultOption
+                            {
+                                let! relative = relativePath preparedSource entry
+                                let! dest = Path.Combine(target, relative) |> Option.ofNullEmpty  //dostaneme Error None                          
+                                return! moveEntry entry dest 
+                            }
+                         *)
                     )
             with
             | ex -> [ Error (sprintf "Failed enumerating entries: %s" <| string ex.Message) ] 

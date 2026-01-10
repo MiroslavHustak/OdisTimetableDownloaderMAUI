@@ -98,18 +98,21 @@ module WebScraping_DPO =
 
                     | FilterDownloadSave
                         ->     
+                        let downloadTimetables pathToDir = 
+                            result 
+                                {
+                                    let! firstSubDir = 
+                                        dirList pathToDir
+                                        |> List.tryHead
+                                        |> Option.toResult FileDownloadErrorMHD
+                        
+                                    let filter = environment.FilterTimetables firstSubDir                                 
+                        
+                                    return! runIO <| environment.DownloadAndSaveTimetables reportProgress token filter
+                                }
+
                         try       
-                            dirList pathToDir
-                            |> List.tryHead
-                            |> Option.toResult "No subdirectory found in dirList (#011-0)"
-                            |> function
-                                | Ok pathToSubdir 
-                                    -> 
-                                    let filterTmtb = environment.FilterTimetables pathToSubdir                                     
-                                    runIO <| environment.DownloadAndSaveTimetables reportProgress token filterTmtb 
-                                | Error _
-                                    -> 
-                                    Error FileDownloadErrorMHD                           
+                            downloadTimetables pathToDir                         
                         with
                         | :? DirectoryNotFoundException ->
                             runIO (postToLog "Timetable directory not found or was deleted" "#011-1")

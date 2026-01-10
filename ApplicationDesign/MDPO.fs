@@ -97,19 +97,22 @@ module WebScraping_MDPO =
                             Error FileDownloadErrorMHD //dpoMsg1                  
            
                     | FilterDownloadSave   
-                        ->                                      
+                        ->  
+                        let downloadTimetables pathToDir = 
+                            result 
+                                {
+                                    let! firstSubDir = 
+                                        dirList pathToDir
+                                        |> List.tryHead
+                                        |> Option.toResult FileDownloadErrorMHD
+                                    
+                                    let filter = environment.FilterTimetables firstSubDir token
+                        
+                                    return! runIO <| environment.DownloadAndSaveTimetables reportProgress token firstSubDir filter
+                                }
+                        
                         try        
-                            dirList pathToDir
-                            |> List.tryHead
-                            |> Option.toResult "No subdirectory found in dirList (#008-1)"
-                            |> function
-                                | Ok pathToSubdir 
-                                    -> 
-                                    let filterTmtb = environment.FilterTimetables pathToSubdir token
-                                    runIO <| environment.DownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb    
-                                | Error _
-                                    -> 
-                                    Error FileDownloadErrorMHD  
+                           downloadTimetables pathToDir
                         with
                         | :? DirectoryNotFoundException 
                             ->
