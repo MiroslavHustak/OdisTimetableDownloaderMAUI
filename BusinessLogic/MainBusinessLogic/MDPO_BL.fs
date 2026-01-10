@@ -29,8 +29,6 @@ open Types.Haskell_IO_Monad_Simulation
 
 module MDPO_BL = //FsHttp
 
-    //************************Submain functions************************************************************************
-
     let internal safeFilterTimetables pathToDir token = 
 
         IO (fun () 

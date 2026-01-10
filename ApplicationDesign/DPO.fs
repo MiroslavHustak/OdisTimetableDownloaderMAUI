@@ -17,7 +17,10 @@ open Helpers
 open Helpers.Builders
 
 open Api.Logging
-open BusinessLogic.DPO_BL   
+
+//open BusinessLogic.DPO_BL   
+open BusinessLogic_R.DPO_BL  
+
 open IO_Operations.IO_Operations
 
 open Settings.Messages
@@ -52,7 +55,7 @@ module WebScraping_DPO =
     let private environment: Environment =
         { 
             FilterTimetables = filterTimetables  
-            DownloadAndSaveTimetables = downloadAndSaveTimetables   
+            DownloadAndSaveTimetables = downloadAndSaveTimetables     
         }    
 
     let internal webscraping_DPO reportProgress token pathToDir =  
@@ -113,7 +116,7 @@ module WebScraping_DPO =
                             Error FileDeleteErrorMHD  // nebo lépe: DirectoryMissingErrorMHD
                         | ex 
                             ->
-                            //runIO (postToLog <| string ex.Message <| "#011")
+                            runIO (postToLog <| string ex.Message <| "#011")
                             Error FileDownloadErrorMHD
                        
                 pyramidOfInferno

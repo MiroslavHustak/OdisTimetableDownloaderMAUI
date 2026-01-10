@@ -28,8 +28,6 @@ open Settings.SettingsDPO
 
 //HttpClient
 module DPO_BL =
-
-    //************************Submain functions************************************************************************
      
     let internal filterTimetables pathToDir = 
 
@@ -243,7 +241,7 @@ module DPO_BL =
                                         async //API of HttpClient is async based
                                             {
                                                 counterAndProgressBar.Post <| Inc 1
-                                                token.ThrowIfCancellationRequested ()
+                                                //token.ThrowIfCancellationRequested ()
                                                 return! runIO <| downloadFileTaskAsync link pathToFile 
                                             }
                                         |> Async.Catch

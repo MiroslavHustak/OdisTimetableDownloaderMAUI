@@ -65,6 +65,7 @@ open IO_Operations.IO_Operations
 open Helpers
 open Helpers.Builders
 open Helpers.Connectivity
+open Helpers.ExceptionHelpers
 
 #if ANDROID
 open AndroidUIHelpers    
@@ -825,8 +826,14 @@ module App =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
-                                    NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
+                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    | err when err = StopDownloading 
+                                        ->
+                                        dispatch Home2   
+                                    | _ 
+                                        -> 
+                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
+                                        NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
                             }  
 
                     let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
@@ -868,8 +875,14 @@ module App =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
-                                    NetConnMessage >> dispatch <| criticalElmishErrorKodis
+                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    | err when err = StopDownloading 
+                                        ->
+                                        dispatch Home2   
+                                    | _ 
+                                        ->
+                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
+                                        NetConnMessage >> dispatch <| criticalElmishErrorKodis
                             }     
 
                     let executeSequentially dispatch =
@@ -973,8 +986,14 @@ module App =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
-                                    NetConnMessage >> dispatch <| criticalElmishErrorKodis4
+                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    | err when err = StopDownloading 
+                                        ->
+                                        dispatch Home2   
+                                    | _ 
+                                        ->
+                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
+                                        NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
 
                     let delayedCmd5 (dispatch : Msg -> unit) : Async<unit> =    
@@ -1092,8 +1111,14 @@ module App =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
-                                    NetConnMessage >> dispatch <| criticalElmishErrorDpo
+                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    | err when err = StopDownloading 
+                                        ->
+                                        dispatch Home2   
+                                    | _ 
+                                        ->
+                                        runIO (postToLog <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
+                                        NetConnMessage >> dispatch <| criticalElmishErrorDpo
                             }  
                      
                     let execute dispatch = 
@@ -1202,8 +1227,14 @@ module App =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
-                                    NetConnMessage >> dispatch <| criticalElmishErrorMdpo
+                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    | err when err = StopDownloading 
+                                        ->
+                                        dispatch Home2   
+                                    | _ 
+                                        ->
+                                        runIO (postToLog <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
+                                        NetConnMessage >> dispatch <| criticalElmishErrorMdpo
                             }  
                   
                     let execute dispatch =

@@ -287,7 +287,6 @@ module KODIS_BL_Record4 =
                                                         ->
                                                         runIO (postToLog <| string err <| "#7028-K4")
                                                         return Error <| PdfError err  
-                                              
                                         with
                                         | ex
                                             ->

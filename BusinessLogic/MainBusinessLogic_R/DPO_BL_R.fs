@@ -27,10 +27,7 @@ open Types.Types
 open Types.ErrorTypes  
 open Types.Haskell_IO_Monad_Simulation
 
-//HttpClient
 module DPO_BL =
-
-    //************************Submain functions************************************************************************
      
     let internal filterTimetables pathToDir = 
 
@@ -139,45 +136,45 @@ module DPO_BL =
                             |> Seq.toList                                
                     ) 
         )
-
-    let internal downloadAndSave token context =  
+    
+    let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) (filteredTimetables : IO<(string * string) list>) : IO<Result<unit, MHDErrors>> =
     
         IO (fun () 
-                ->     
-                let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
+                ->    
+                let downloadWithResumeDPO
+                    (uri : string)
+                    (pathToFile : string)
+                    (token : CancellationToken)
+                    : Async<Result<unit, MHDErrors>> =
     
-                    async 
+                    async
                         {
                             let maxRetries = 5
                             let initialBackoffMs = 1000
     
                             let rec attempt retryCount (backoffMs : int) =
-
-                                async 
+                                async
                                     {
                                         token.ThrowIfCancellationRequested()
     
                                         let existingFileLength =
                                             runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
-                                            |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                            |> Option.map (fun _ -> FileInfo(pathToFile).Length)
                                             |> Option.defaultValue 0L
-    
-                                        let headerContent1 = "Range"
-                                        let headerContent2 = sprintf "bytes=%d-" existingFileLength
     
                                         let request =
                                             match existingFileLength > 0L with
                                             | true  ->
-                                                    http
+                                                    http 
                                                         {
                                                             GET uri
                                                             config_timeoutInSeconds timeOutInSeconds2
                                                             config_cancellationToken token
                                                             header "User-Agent" "FsHttp/Android7.1"
-                                                            header headerContent1 headerContent2
+                                                            header "Range" (sprintf "bytes=%d-" existingFileLength)
                                                         }
                                             | false ->
-                                                    http
+                                                    http 
                                                         {
                                                             GET uri
                                                             config_timeoutInSeconds timeOutInSeconds2
@@ -196,171 +193,98 @@ module DPO_BL =
                                                 ->
                                                 try
                                                     use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask
-                                                    use fileStream = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
-                                                    do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
+                                                    use fs = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
+                                                    do! stream.CopyToAsync(fs, token) |> Async.AwaitTask
                                                     return Ok ()
-                                                with 
-                                                | ex
+                                                with
+                                                | ex 
                                                     ->
                                                     match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                                    | err when err = StopDownloading 
+                                                    | StopDownloading 
                                                         ->
-                                                        runIO (postToLog <| string ex.Message <| "#123456J-DPO")
-                                                        return Error StopDownloading
-                                                    | err 
+                                                        runIO (postToLog ex.Message "#123456J-DPO")
+                                                        return Error StopDownloadingMHD
+                                                    | _
                                                         ->
-                                                        runIO (postToLog <| string ex.Message <| "#3352-DPO")
-                                                        return Error err
-    
-                                            | HttpStatusCode.Forbidden
-                                                ->
-                                                runIO <| postToLog () (sprintf "%s Forbidden 403 #2211-DPO" uri)
-                                                return Error FileDownloadError
-    
-                                            | status 
-                                                ->
-                                                runIO <| postToLog (string status) "#2212-DPO"
-                                                return Error FileDownloadError
+                                                        runIO (postToLog ex.Message "#3352-DPO")
+                                                        return Error FileDownloadErrorMHD
+                                            | _ ->
+                                                runIO (postToLog (string response.statusCode) "#2212-DPO")
+                                                return Error FileDownloadErrorMHD
     
                                         | Choice2Of2 ex 
                                             ->
                                             match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                            | err when err = StopDownloading
+                                            | StopDownloading 
                                                 ->
-                                                runIO (postToLog <| string ex.Message <| "#123456H-DPO")
-                                                return Error StopDownloading
-                                            | err
+                                                runIO (postToLog ex.Message "#123456H-DPO")
+                                                return Error StopDownloadingMHD
+                                            | _ when retryCount < maxRetries 
                                                 ->
-                                                match retryCount < maxRetries with
-                                                | true  ->
-                                                        do! Async.Sleep backoffMs
-                                                        return! attempt (retryCount + 1) (backoffMs * 2)
-                                                | false ->
-                                                        runIO <| postToLog (string ex.Message) (sprintf "#7024-DPO (retry %d)" retryCount)
-                                                        return Error err
+                                                do! Async.Sleep backoffMs
+                                                return! attempt (retryCount + 1) (backoffMs * 2)
+                                            | _ ->
+                                                runIO (postToLog ex.Message "#7024-DPO")
+                                                return Error FileDownloadErrorMHD
                                     }
     
                             return! attempt 0 initialBackoffMs
                         }
     
-                // -------------------------------------------
-                // Download all timetables / PDFs in context
-                // -------------------------------------------
-                let downloadAndSaveTimetables (token : CancellationToken) context =
+                let timetables =
+                    runIO filteredTimetables
+                    |> List.distinct
     
-                    let l = context.list |> List.length
-
-                    let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>
-                            .StartImmediate
-                                <| fun inbox
-                                    ->
+                match timetables with
+                | [] ->
+                    Ok ()
+    
+                | _ ->
+                    try
+                        let l = timetables.Length
+    
+                        let counterAndProgressBar =
+                            MailboxProcessor<MsgIncrement>.StartImmediate
+                                (fun inbox ->
                                     let rec loop n =
                                         async
                                             {
-                                                try
-                                                    let! Inc i = inbox.Receive()
-                                                    context.reportProgress (float n, float l)
-                                                    return! loop (n + i)
-                                                with
-                                                | ex -> runIO (postToLog <| ex.Message <| "#903-MP-DPO")
+                                                let! Inc i = inbox.Receive()
+                                                reportProgress (float n, float l)
+                                                return! loop (n + i)
                                             }
                                     loop 0
+                                )
     
-                    let removeDuplicatePathPairs uri pathToFile =
-                        (uri, pathToFile) ||> List.zip
-                        |> List.distinctBy snd
-    
-                    let uri, pathToFile =
-                        context.list
-                        |> List.distinct
-                        |> List.unzip
-                        |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
-                        |> List.unzip
-    
-                    try
+                
+                        let uri, pathToFile =
+                            timetables 
+                            |> List.unzip
+
                         (token, uri, pathToFile)
-                        |||> List.Parallel.map2_IO_AW_Token_Async
-                            (fun uri (pathToFile : string) 
+                        |||> List.Parallel.map2_IO_AW_Token_Async                        
+                            (fun uri path
                                 ->
                                 async
                                     {
-                                        try
-                                            counterAndProgressBar.Post <| Inc 1
-    
-                                            let pathExists =
-                                                runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
-    
-                                            match pathExists with
-                                            | Some _ 
-                                                ->
-                                                return Ok ()
-
-                                            | None 
-                                                ->
-                                                let! result = downloadWithResume uri pathToFile token
-                                                match result with
-                                                | Ok _ 
-                                                    ->
-                                                    return Ok ()
-
-                                                | Error err
-                                                    ->
-                                                    match err with
-                                                    | err when err = StopDownloading 
-                                                        ->
-                                                        runIO (postToLog <| string err <| "#123456G-DPO")
-                                                        return Error <| PdfError StopDownloading
-                                                    | err
-                                                        ->
-                                                        runIO (postToLog <| string err <| "#7028-DPO")
-                                                        return Error <| PdfError err
-    
-                                        with 
-                                        | ex
-                                            ->
-                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                            | err when err = StopDownloading 
-                                                ->
-                                                runIO (postToLog <| string ex.Message <| "#123456F-DPO")
-                                                return Error <| PdfError StopDownloading
-                                            | err
-                                                ->
-                                                runIO (postToLog <| string ex.Message <| "#024-DPO")
-                                                return Error <| PdfError err
+                                        counterAndProgressBar.Post <| Inc 1
+                                        let! r = downloadWithResumeDPO uri path token
+                                        return r
                                     }
                             )
-
                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-    
+                        |> List.tryFind (function Error _ -> true | Ok _ -> false)
+                        |> Option.defaultValue (Ok ())
+                   
                     with
-                    | ex ->
+                    | ex 
+                        ->
                         match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                        | err when err = StopDownloading 
-                            ->
-                            runIO (postToLog (string ex.Message) "#123456E-DPO")
-                            [ Error (PdfError StopDownloading) ]
-                        | err 
-                            ->
-                            runIO (postToLog (ex.Message) "#024-6-DPO")
-                            [ Error (PdfError err) ]
-    
-                // -------------------------------------------
-                // Main logic
-                // -------------------------------------------
-                match context.dir |> Directory.Exists with
-                | false ->
-                        runIO (postToLog NoFolderError "#251-DPO")
-                        Error (PdfError NoFolderError)
-                | true  ->
-                        match context.list with
-                        | []
-                            ->
-                            Ok ()
-                        | _ 
-                            ->
-                            downloadAndSaveTimetables token context 
-                            |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                            |> Option.defaultValue (Ok ())
+                        | StopDownloading ->
+                            runIO (postToLog ex.Message "#123456E-DPO")
+                            Error StopDownloadingMHD
+                        | _ ->
+                            runIO (postToLog ex.Message "#024-6-DPO")
+                            Error FileDownloadErrorMHD
         )
     

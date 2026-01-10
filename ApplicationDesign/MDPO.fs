@@ -17,7 +17,10 @@ open Helpers
 open Helpers.Builders
 
 open Api.Logging
-open BusinessLogic.MDPO_BL  
+
+//open BusinessLogic.MDPO_BL   
+open BusinessLogic_R.MDPO_BL  
+
 open IO_Operations.IO_Operations
 
 open Settings.Messages
@@ -45,18 +48,14 @@ module WebScraping_MDPO =
 
     type private Environment = 
         {
-            SafeFilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
-            SafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
-            UnsafeFilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
-            UnsafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
+            FilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
+            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
         }
 
     let private environment : Environment =
         { 
-            SafeFilterTimetables = safeFilterTimetables 
-            SafeDownloadAndSaveTimetables = safeDownloadAndSaveTimetables      
-            UnsafeFilterTimetables = unsafeFilterTimetables 
-            UnsafeDownloadAndSaveTimetables = unsafeDownloadAndSaveTimetables       
+            FilterTimetables = filterTimetables 
+            DownloadAndSaveTimetables = downloadAndSaveTimetables      
         }    
 
     let internal webscraping_MDPO reportProgress token pathToDir = 
@@ -106,8 +105,8 @@ module WebScraping_MDPO =
                             |> function
                                 | Ok pathToSubdir 
                                     -> 
-                                    let filterTmtb = environment.SafeFilterTimetables pathToSubdir token
-                                    runIO <| environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb    
+                                    let filterTmtb = environment.FilterTimetables pathToSubdir token
+                                    runIO <| environment.DownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb    
                                 | Error _
                                     -> 
                                     Error FileDownloadErrorMHD  
@@ -121,47 +120,7 @@ module WebScraping_MDPO =
                             when (string ex.Message).Contains "Timeout exceeded while getting response"
                             ->
                             runIO (postToLog <| string ex.Message <| "#008-X05") 
-                            Error (TestDuCase (sprintf "%s%s" "V časovém limitu jsem neobdržel reakci z www.mdpo.cz. Pokud používáš starou verzi Androidu, asi se k JŘ MDPO takhle nedostaneš." " X05")) 
-
-                        | ex                             
-                            ->
-                            // runIO (postToLog <| string ex.Message <| "#008") //net_http_ssl_connection_failed 
-
-                            try
-                                let pathToSubdir =
-                                    dirList pathToDir 
-                                    |> List.tryHead 
-                                    |> Option.defaultValue String.Empty
-                                                                   
-                                let filterTmtb = environment.UnsafeFilterTimetables pathToSubdir token  
-                                    
-                                (runIO <| environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb)
-                                |> function
-                                    | Ok _     
-                                        ->                                                         
-                                        try
-                                            let dirInfo = DirectoryInfo pathToDir                                                       
-                                                in
-                                                dirInfo.EnumerateFiles() 
-                                                |> Seq.length
-                                                |> function
-                                                    | 0 -> Error <| TestDuCase "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace."
-                                                    | _ -> Error <| TestDuCase "Staženo jen díky vypnutého ověřování certifikatu www.mdpo.cz"
-                                        with 
-                                        | ex 
-                                            ->
-                                            Error <| TestDuCase (string ex.Message)    
-                                                    
-                                    | Error err
-                                        ->
-                                        runIO (postToLog <| err <| "#009-2") 
-                                        Error err       
-                                //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
-                            with
-                            | ex 
-                                ->
-                                //runIO (postToLog <| string ex.Message <| "#009")
-                                Error (TestDuCase (sprintf "%s%s" (string ex.Message) " X04")) //FileDownloadErrorMHD //mdpoMsg2 //quli ex je refactoring na result komplikovany                     
+                            Error (TestDuCase "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace.")                              
                                                                   
                 pyramidOfInferno
                     {  
