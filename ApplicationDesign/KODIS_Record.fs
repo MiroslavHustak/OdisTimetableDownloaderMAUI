@@ -300,7 +300,7 @@ module WebScraping_KODIS =
                                                            
                 pyramidOfInferno
                     {       
-                        dispatchCancelVisible false
+                        //dispatchCancelVisible false
 
                         #if ANDROID
                         let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
@@ -319,7 +319,7 @@ module WebScraping_KODIS =
                                 Error <| JsonError JsonParsingError
                                 //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
                         
-                        dispatchCancelVisible true
+                        //dispatchCancelVisible true
                         
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn

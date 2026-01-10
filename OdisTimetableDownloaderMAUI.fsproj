@@ -181,8 +181,9 @@
     <Compile Include="ApplicationDesign\MDPO.fs" />
     <Compile Include="ApplicationDesign\KODIS_Record.fs" />
     <Compile Include="ApplicationDesign\KODIS_Record4.fs" />
-    <Compile Include="XElmish\TextFileLauncher.fs" />
+    <Compile Include="XElmish\ComparisonResultFileLauncher.fs" />
     <Compile Include="XElmish\HardRestart.fs" />
+    <Compile Include="XElmish\ActorModels.fs" />
     <Compile Include="XElmish\AndroidSpecificCode.fs" />
     <Compile Include="XElmish\ProgressCircle.fs" />
     <Compile Include="XElmish\Counters.fs" />

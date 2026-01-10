@@ -19,7 +19,6 @@ Licensed under the Apache License, Version 2.0 (the "License")
 namespace OdisTimetableDownloaderMAUI
 
 open System
-open System.IO
 open System.Threading
 
 open FSharp.Control
@@ -63,7 +62,6 @@ open Api.Logging
 open IO_Operations.IO_Operations
 
 open Helpers
-open Helpers.Builders
 open Helpers.Connectivity
 open Helpers.ExceptionHelpers
 
@@ -161,7 +159,7 @@ module App =
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 
                         
-        MailboxProcessor<CancellationMessage>
+        MailboxProcessor<CancellationMessageGlobal>
             .StartImmediate
                 <|
                 fun inbox
@@ -200,7 +198,7 @@ module App =
                                     // When user starts new work, init2 will replace it normally
                                     return! loop true cts  
         
-                                | Stop reply 
+                                | Stop2 reply 
                                     ->
                                     match cancelRequested with
                                     | true  -> cts.Cancel()  
@@ -452,7 +450,7 @@ module App =
                                                                             
                                     match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
                                     | true  -> Android.OS.Environment.IsExternalStorageManager
-                                    | false -> status = PermissionStatus.Granted
+                                    | false -> (=) status PermissionStatus.Granted
         
                                     |> function
                                         | true  -> ()
@@ -552,7 +550,7 @@ module App =
 
         | Quit  
             ->            // This will dispose the current CTS and end the loop
-            let stopCancellationActorAsync () = async { globalCancellationActor.PostAndReply Stop }       
+            let stopCancellationActorAsync () = async { globalCancellationActor.PostAndReply Stop2 }       
                             
             #if WINDOWS 
             (*
@@ -687,7 +685,7 @@ module App =
                         logFileNameWindows                        
                         #endif
 
-                    match runIO <| TextFileLauncher.openTextFileReadOnly logFileNameDiff with
+                    match runIO <| ComparisonResultFileLauncher.openTextFileReadOnly logFileNameDiff with
                     | Some app 
                         ->                           
                         async
@@ -830,8 +828,7 @@ module App =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _ 
-                                        -> 
+                                    | _ -> 
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
                             }  
@@ -879,8 +876,7 @@ module App =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _ 
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodis
                             }     
@@ -990,8 +986,7 @@ module App =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _ 
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
@@ -1115,8 +1110,7 @@ module App =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _ 
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorDpo
                             }  
@@ -1231,8 +1225,7 @@ module App =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _ 
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorMdpo
                             }  

@@ -294,10 +294,9 @@ module MDPO_BL = //FsHttp
                                 | err 
                                     when err = StopDownloading
                                     ->
-                                    runIO (postToLog <| string ex.Message <| "#123456WYX")
+                                    //runIO (postToLog <| string ex.Message <| "#123456WYX")
                                     Error <| StopDownloadingMHD
-                                | _ 
-                                    ->
+                                | _ ->
                                     runIO (postToLog <| string ex.Message <| "#281")
                                     Error <| FileDownloadErrorMHD   
                     )                
@@ -568,10 +567,9 @@ module MDPO_BL = //FsHttp
                                 | err 
                                     when err = StopDownloading
                                     ->
-                                    runIO (postToLog <| string ex.Message <| "#123456YYX")
+                                    //runIO (postToLog <| string ex.Message <| "#123456YYX")
                                     Error <| StopDownloadingMHD
-                                | _ 
-                                    ->
+                                | _ ->
                                     runIO (postToLog <| string ex.Message <| "#33")
                                     Error <| FileDownloadErrorMHD                                 
                     )   

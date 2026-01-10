@@ -143,12 +143,15 @@ module DPO_BL =
                 ->    
                 let downloadWithResumeDPO (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, MHDErrors>> =
     
-                    async
+                    asyncResult
                         {
                             let maxRetries = 5
                             let initialBackoffMs = 1000
+
+                            let! uri = isValidHttps uri |> Result.fromBool uri LetItBeMHD   //pro jistotu jeste jednou
     
                             let rec attempt retryCount (backoffMs : int) =
+
                                 async
                                     {
                                         token.ThrowIfCancellationRequested()
@@ -198,10 +201,9 @@ module DPO_BL =
                                                     match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                     | StopDownloading 
                                                         ->
-                                                        runIO (postToLog ex.Message "#123456J-DPO")
+                                                        //runIO (postToLog ex.Message "#123456J-DPO")
                                                         return Error StopDownloadingMHD
-                                                    | _
-                                                        ->
+                                                    | _ ->
                                                         runIO (postToLog ex.Message "#3352-DPO")
                                                         return Error FileDownloadErrorMHD
                                             | _ ->
@@ -213,7 +215,7 @@ module DPO_BL =
                                             match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                             | StopDownloading 
                                                 ->
-                                                runIO (postToLog ex.Message "#123456H-DPO")
+                                                //runIO (postToLog ex.Message "#123456H-DPO")
                                                 return Error StopDownloadingMHD
                                             | _ when retryCount < maxRetries 
                                                 ->
@@ -275,8 +277,9 @@ module DPO_BL =
                     | ex 
                         ->
                         match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                        | StopDownloading ->
-                            runIO (postToLog ex.Message "#123456E-DPO")
+                        | StopDownloading 
+                            ->
+                            //runIO (postToLog ex.Message "#123456E-DPO")
                             Error StopDownloadingMHD
                         | _ ->
                             runIO (postToLog ex.Message "#024-6-DPO")

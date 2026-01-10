@@ -137,13 +137,12 @@ module WebScraping_KODIS4 =
        
         let result (context2 : Context2) =   
         
-            //dispatchWorkIsComplete dispatchMsg2
-            dispatchCancelVisible false    
+            //dispatchCancelVisible false    
                              
             let dir = context2.DirList |> List.item context2.VariantInt  
             let list = runIO <| operationOnDataFromJson token context2.Variant dir 
 
-            dispatchRestartVisible false
+            //dispatchRestartVisible false 
         
             match list with //to je strasne slozite davat to do Elmishe
             | Ok list
@@ -189,7 +188,7 @@ module WebScraping_KODIS4 =
                 let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
                 
-                dispatchCancelVisible false
+                //dispatchCancelVisible false
                
                 let!_ = runIO <| moveAll configKodis token, errFn                  
                 let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  

@@ -59,6 +59,18 @@ module FreeMonad =
 
 module Types =    
 
+    type internal CancellationMessageLocal =
+        | GetToken of AsyncReplyChannel<CancellationToken option>
+        | CancelToken
+        | Reset of CancellationTokenSource
+        | Stop of AsyncReplyChannel<unit> 
+
+    type internal CancellationMessageGlobal =
+        | UpdateState2 of bool * CancellationTokenSource
+        | CheckState2 of AsyncReplyChannel<CancellationToken option> 
+        | Stop2 of AsyncReplyChannel<unit>  
+        | CancelCurrent  
+
     type internal TaskResults =   
        | DispatchDone of unit
        | ListDone of Result<(string * string) list, JsonParsingAndPdfDownloadErrors> 
@@ -68,13 +80,7 @@ module Types =
            
     type internal ConnectivityMessage =
         | UpdateState of bool
-        | CheckState of AsyncReplyChannel<bool>    
-
-    type internal CancellationMessage =
-        | UpdateState2 of bool * CancellationTokenSource
-        | CheckState2 of AsyncReplyChannel<CancellationToken option> 
-        | Stop of AsyncReplyChannel<unit>  
-        | CancelCurrent   
+        | CheckState of AsyncReplyChannel<bool>     
 
     type [<Struct>] internal Validity =
         | CurrentValidity 

@@ -8,7 +8,7 @@ open FsToolkit.ErrorHandling
 open Helpers
 open Types.Haskell_IO_Monad_Simulation
 
-module TextFileLauncher =  
+module ComparisonResultFileLauncher =  
    
    let internal openTextFileReadOnly (path : string) = 
 

@@ -19,7 +19,6 @@ Licensed under the Apache License, Version 2.0 (the "License")
 namespace OdisTimetableDownloaderMAUI
 
 open System
-open System.IO
 open System.Threading
 
 open FSharp.Control
@@ -53,17 +52,15 @@ open Settings.Messages
 open Settings.SettingsGeneral
 
 open Types.Types
+open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 open Counters
-open Types.ErrorTypes
-
+open ActorModels
 open Api.Logging
-
 open IO_Operations.IO_Operations
 
 open Helpers
-open Helpers.Builders
 open Helpers.Connectivity
 open Helpers.ExceptionHelpers
 
@@ -92,12 +89,6 @@ open ApplicationDesign4.WebScraping_KODIS4
 *)
 
 module App_R =  
-
-    type private CancellationMessage =
-        | GetToken of AsyncReplyChannel<CancellationToken option>
-        | CancelToken
-        | Reset of CancellationTokenSource
-        | Stop of AsyncReplyChannel<unit> 
 
     type ProgressIndicator = 
         | Idle 
@@ -158,62 +149,6 @@ module App_R =
         | ClickClearing  
         | ClearAnimation
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
-
-    let private localCancellationActor () =
-
-        MailboxProcessor<CancellationMessage>.StartImmediate
-            (fun inbox 
-                ->
-                let rec loop (cts : CancellationTokenSource) =
-                    async 
-                        {
-                            match! inbox.Receive() with
-                            | GetToken reply
-                                ->
-                                let tokenOpt =
-                                    match cts.IsCancellationRequested with
-                                    | true  -> None
-                                    | false -> Some cts.Token
-                                reply.Reply tokenOpt 
-                                return! loop cts
-
-                            | CancelToken
-                                ->
-                                cts.Cancel()
-                                return! loop cts
-
-                            | Reset newCts 
-                                ->
-                                cts.Dispose()
-                                return! loop newCts
-
-                            | Stop reply 
-                                ->
-                                cts.Cancel()
-                                cts.Dispose()
-                                reply.Reply ()
-                        }
-
-                loop (new CancellationTokenSource())
-            )
-
-    let private kodisActor = localCancellationActor()
-    let private kodis4Actor = localCancellationActor()
-    let private mdpoActor = localCancellationActor()
-    let private dpoActor = localCancellationActor()  
-    
-    let private cancelLocalActor (actor : MailboxProcessor<CancellationMessage>) =
-        
-        let newCts = new CancellationTokenSource()
-    
-        actor.Post CancelToken
-    
-        async 
-            {
-                do! Async.Sleep 10 // 10 ms is usually enough
-                actor.Post (Reset newCts)
-            }
-        |> Async.StartImmediate
     
     let init () =     
      
@@ -391,6 +326,11 @@ module App_R =
             { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none            
 
     let update msg m =
+        
+        let kodisActor = localCancellationActor()
+        let kodis4Actor = localCancellationActor()
+        let mdpoActor = localCancellationActor()
+        let dpoActor = localCancellationActor()  
 
         let cmdOnClickAnimation msg = 
 
@@ -447,7 +387,7 @@ module App_R =
                                                                             
                                     match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
                                     | true  -> Android.OS.Environment.IsExternalStorageManager
-                                    | false -> status = PermissionStatus.Granted
+                                    | false -> (=) status  PermissionStatus.Granted
         
                                     |> function
                                         | true  -> ()
@@ -690,7 +630,7 @@ module App_R =
                         logFileNameWindows                        
                         #endif
 
-                    match runIO <| TextFileLauncher.openTextFileReadOnly logFileNameDiff with
+                    match runIO <| ComparisonResultFileLauncher.openTextFileReadOnly logFileNameDiff with
                     | Some app 
                         ->                           
                         async
@@ -833,8 +773,7 @@ module App_R =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
                             }  
@@ -882,8 +821,7 @@ module App_R =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodis
                             }     
@@ -993,8 +931,7 @@ module App_R =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
@@ -1118,8 +1055,7 @@ module App_R =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
-                                    | _
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorDpo
                             }  
@@ -1234,8 +1170,7 @@ module App_R =
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2                                                       
-                                    | _
-                                        ->
+                                    | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorMdpo
                             }  

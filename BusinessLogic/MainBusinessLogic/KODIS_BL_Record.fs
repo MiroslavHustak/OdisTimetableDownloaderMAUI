@@ -147,7 +147,7 @@ module KODIS_BL_Record =
                             | err 
                                 when err = StopDownloading
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#123456W")
+                                //runIO (postToLog <| string ex.Message <| "#123456W")
                                 Error <| StopJsonDownloading
                             | err 
                                 when err = TimeoutError
@@ -326,7 +326,7 @@ module KODIS_BL_Record =
                                                                         | err 
                                                                             when err = StopDownloading
                                                                             ->
-                                                                            runIO (postToLog <| string ex.Message <| "#123456A")
+                                                                            //runIO (postToLog <| string ex.Message <| "#123456A")
                                                                             Error <| PdfError StopDownloading
                                                                         | err 
                                                                             ->
@@ -354,7 +354,7 @@ module KODIS_BL_Record =
                                                             | err 
                                                                 when err = StopDownloading
                                                                 ->
-                                                                runIO (postToLog <| string ex.Message <| "#123456B")
+                                                                //runIO (postToLog <| string ex.Message <| "#123456B")
                                                                 Error <| PdfError StopDownloading
                                                             | err 
                                                                 ->
@@ -372,7 +372,7 @@ module KODIS_BL_Record =
                                                 | err 
                                                     when err = StopDownloading
                                                     ->
-                                                    runIO (postToLog <| string ex.Message <| "#123456C")
+                                                    //runIO (postToLog <| string ex.Message <| "#123456C")
                                                     Error <| PdfError StopDownloading
                                                 | err 
                                                     ->
@@ -386,7 +386,7 @@ module KODIS_BL_Record =
                                     | err 
                                         when err = StopDownloading
                                         ->
-                                        runIO (postToLog <| string ex.Message <| "#123456D")
+                                        //runIO (postToLog <| string ex.Message <| "#123456D")
                                         [ Error <| PdfError StopDownloading ]
                                     | err 
                                         ->

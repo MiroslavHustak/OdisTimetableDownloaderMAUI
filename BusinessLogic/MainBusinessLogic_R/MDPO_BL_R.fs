@@ -134,12 +134,15 @@ module MDPO_BL = //FsHttp
                 ->     
                 let downloadWithResumeMDPO (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, MHDErrors>> =
                         
-                    async
+                    asyncResult
                         {
                             let maxRetries = 5
                             let initialBackoffMs = 1000
+
+                            let! uri = isValidHttps uri |> Result.fromBool uri LetItBeMHD //pro jistotu jeste jednou
                         
                             let rec attempt retryCount (backoffMs : int) =
+
                                 async
                                     {
                                         token.ThrowIfCancellationRequested()
@@ -296,7 +299,7 @@ module MDPO_BL = //FsHttp
                                                             match err with
                                                             | err when err = StopDownloadingMHD 
                                                                 ->
-                                                                runIO (postToLog <| string err <| "#123456G-MDPO")
+                                                                //runIO (postToLog <| string err <| "#123456G-MDPO")
                                                                 return Error StopDownloadingMHD
                                                             | err
                                                                 ->
@@ -309,11 +312,10 @@ module MDPO_BL = //FsHttp
                                                     match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                                                     | err when err = StopDownloading 
                                                         ->
-                                                        runIO (postToLog <| string ex.Message <| "#123456F-MDPO")
+                                                        //runIO (postToLog <| string ex.Message <| "#123456F-MDPO")
                                                         return Error StopDownloadingMHD
                     
-                                                    | _
-                                                        ->
+                                                    | _ ->
                                                         runIO (postToLog <| string ex.Message <| "#024-MDPO")
                                                         return Error FileDownloadErrorMHD
                                             }                  
