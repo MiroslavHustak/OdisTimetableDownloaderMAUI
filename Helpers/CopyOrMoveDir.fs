@@ -325,8 +325,6 @@ module CopyDir =
                         | Some destDir
                             ->
                             Directory.CreateDirectory destDir |> ignore
-        
-                    
                             File.Copy(fullSource, destination, overwrite)
                             return ()
                     with 

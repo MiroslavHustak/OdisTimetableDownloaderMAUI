@@ -27,8 +27,6 @@ open Settings.Messages
 open Settings.SettingsGeneral 
 
 module WebScraping_DPO =
-   
-    //************************Main code********************************************************************************
   
     type private State =  
         { 

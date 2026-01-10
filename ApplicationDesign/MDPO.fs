@@ -28,8 +28,6 @@ open Settings.SettingsGeneral
 
 module WebScraping_MDPO =
 
-    //************************Main code*******************************************************************************
-
     type private State =  
         { 
             TimetablesDownloadedAndSaved : int  //zatim nevyuzito

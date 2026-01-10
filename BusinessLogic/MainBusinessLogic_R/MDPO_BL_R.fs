@@ -134,13 +134,11 @@ module MDPO_BL = //FsHttp
                 ->     
                 let downloadWithResumeMDPO (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, MHDErrors>> =
                         
-                    asyncResult
+                    async
                         {
                             let maxRetries = 5
                             let initialBackoffMs = 1000
 
-                            let! uri = isValidHttps uri |> Result.fromBool uri LetItBeMHD //pro jistotu jeste jednou
-                        
                             let rec attempt retryCount (backoffMs : int) =
 
                                 async

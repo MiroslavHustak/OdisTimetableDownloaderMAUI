@@ -28,7 +28,6 @@ open Settings.SettingsGeneral
 //open BusinessLogic.KODIS_BL_Record4
 open BusinessLogic_R.KODIS_BL_Record4
 
-
 //**********************************
 
 // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
