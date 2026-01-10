@@ -141,11 +141,7 @@ module DPO_BL =
     
         IO (fun () 
                 ->    
-                let downloadWithResumeDPO
-                    (uri : string)
-                    (pathToFile : string)
-                    (token : CancellationToken)
-                    : Async<Result<unit, MHDErrors>> =
+                let downloadWithResumeDPO (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, MHDErrors>> =
     
                     async
                         {
@@ -231,17 +227,17 @@ module DPO_BL =
                             return! attempt 0 initialBackoffMs
                         }
     
-                let timetables =
+                let filteredTimetables =
                     runIO filteredTimetables
                     |> List.distinct
     
-                match timetables with
+                match filteredTimetables with
                 | [] ->
                     Ok ()
     
                 | _ ->
                     try
-                        let l = timetables.Length
+                        let l = filteredTimetables.Length
     
                         let counterAndProgressBar =
                             MailboxProcessor<MsgIncrement>.StartImmediate
@@ -258,7 +254,7 @@ module DPO_BL =
     
                 
                         let uri, pathToFile =
-                            timetables 
+                            filteredTimetables 
                             |> List.unzip
 
                         (token, uri, pathToFile)
@@ -268,8 +264,7 @@ module DPO_BL =
                                 async
                                     {
                                         counterAndProgressBar.Post <| Inc 1
-                                        let! r = downloadWithResumeDPO uri path token
-                                        return r
+                                        return! downloadWithResumeDPO uri path token
                                     }
                             )
                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)

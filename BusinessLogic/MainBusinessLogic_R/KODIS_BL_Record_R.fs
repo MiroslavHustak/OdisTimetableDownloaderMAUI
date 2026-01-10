@@ -190,9 +190,7 @@ module KODIS_BL_Record =
                         async 
                             {
                                 try
-                                    counterAndProgressBar.Post <| Inc 1
-                                    //token.ThrowIfCancellationRequested()
-    
+                                    counterAndProgressBar.Post <| Inc 1    
                                     return! downloadWithResume uri pathToFile
                                 with 
                                 | ex 
@@ -380,10 +378,7 @@ module KODIS_BL_Record =
                                     {
                                         try
                                             counterAndProgressBar.Post <| Inc 1
-
-                                            //token.ThrowIfCancellationRequested()
    
-                                            // my original safety check – keep it to avoid re-downloading finished PDFs)
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
    

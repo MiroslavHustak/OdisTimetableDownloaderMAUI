@@ -92,9 +92,9 @@ module MDPO_BL = //FsHttp
                                                 let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
                                                 let nodes : string = nodes
                                                 let! attr = attr.Value () |> Option.ofNullEmpty
-                                                let attrr : string = attr
+                                                let attr : string = attr
                                                            
-                                                return (nodes, attrr)
+                                                return (nodes, attr)
                                             }                                                          
                                     )                                             
                             )      

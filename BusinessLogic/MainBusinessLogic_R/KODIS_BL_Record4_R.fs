@@ -252,10 +252,7 @@ module KODIS_BL_Record4 =
                                     {
                                         try
                                             counterAndProgressBar.Post <| Inc 1
-
-                                            //token.ThrowIfCancellationRequested()
    
-                                            // my original safety check – keep it to avoid re-downloading finished PDFs)
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
    
