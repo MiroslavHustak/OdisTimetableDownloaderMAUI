@@ -1,68 +1,17 @@
 ﻿namespace Helpers
 
 open System
+open System.IO
 open System.Threading
+open System.Threading.Tasks
 
-open FsToolkit.ErrorHandling
+open System.Net.Sockets
+open System.Security.Authentication
 
 //***********************************
 
-open Types.ErrorTypes
-open Helpers.Builders
-
-module ExceptionHelpers =
-
-    let private containsCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) =
-        
-        let rec loop (stack : exn list) (acc : 'c list) : 'c list =
-
-            match stack with
-            | [] 
-                -> 
-                acc
-
-            | current :: rest 
-                ->
-                match current with
-                | null 
-                    ->
-                    loop rest (fileDownloadError :: acc)
-
-                | :? OperationCanceledException 
-                    ->
-                    let result =
-                        match token.IsCancellationRequested with
-                        | true  -> stopDownloading
-                        | false -> timeoutError
-                    loop rest (result :: acc)
-
-                | :? AggregateException as agg 
-                    ->
-                    // Flatten inner exceptions and push them onto the stack
-                    let flattened = agg.Flatten().InnerExceptions |> Seq.toList
-                    loop (flattened @ rest) acc
-
-                | _ when isNull current.InnerException 
-                    ->
-                    loop rest (fileDownloadError :: acc)
-                | _ 
-                    ->
-                    // Push inner exception onto stack
-                    loop (current.InnerException :: rest) acc
-    
-        // Start with the initial exception
-        let results = loop [ex] []
-
-        pyramidOfHell
-            {   
-                let!_ = not (results |> List.exists ((=) stopDownloading)), fun _ -> stopDownloading
-                let!_ = not (results |> List.exists ((=) timeoutError)), fun _ -> timeoutError
-                    
-                return fileDownloadError        
-            } 
-    
-    let internal isCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) = 
-        containsCancellationGeneric stopDownloading timeoutError fileDownloadError token ex 
+open Helpers.Builders      
+open System.Net.Http
             
 module Result =    
             
@@ -258,3 +207,117 @@ module Option =
         | Some value -> Result.Ok value
         | None       -> Result.Error error    
     *)
+
+module ExceptionHelpers =
+
+    let internal isCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) =
+           
+        let rec loop (stack : exn list) (acc : 'c list) : 'c list =
+
+            match stack with
+            | [] 
+                -> 
+                acc
+            | current :: rest 
+                ->
+                match current with
+                | null 
+                    ->
+                    loop rest (fileDownloadError :: acc)
+
+                | :? OperationCanceledException 
+                    ->
+                    let result =
+                        match token.IsCancellationRequested with
+                        | true  -> stopDownloading
+                        | false -> timeoutError
+                    loop rest (result :: acc)
+
+                | :? AggregateException as agg 
+                    ->
+                    // Flatten inner exceptions and push them onto the stack
+                    let flattened = agg.Flatten().InnerExceptions |> Seq.toList
+                    loop (flattened @ rest) acc
+
+                | _ when isNull current.InnerException 
+                    ->
+                    loop rest (fileDownloadError :: acc)
+                | _ 
+                    ->
+                    // Push inner exception onto stack
+                    loop (current.InnerException :: rest) acc
+       
+        // Start with the initial exception
+        let results = loop [ex] []
+
+        pyramidOfHell
+            {   
+                let!_ = not (results |> List.exists ((=) stopDownloading)), fun _ -> stopDownloading
+                let!_ = not (results |> List.exists ((=) timeoutError)), fun _ -> timeoutError
+                       
+                return fileDownloadError        
+            } 
+   
+    let internal comprehensiveTryWith (letItBe : 'c) (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (tlsHandShakeError : 'c) (token : CancellationToken) (ex : exn) =
+
+        match isCancellationGeneric stopDownloading timeoutError fileDownloadError token ex with
+        | err
+            when err = stopDownloading
+            ->
+            Error stopDownloading
+           
+        | err 
+            when err = timeoutError
+            ->
+            Error timeoutError
+           
+        | err 
+            when err = fileDownloadError
+            ->
+            // If it’s not user cancellation or timeout, continue with Android-specific analysis
+            let rec findRoot (ex : Exception) =
+                match ex.InnerException |> Option.ofNull with
+                | Some inner -> findRoot inner
+                | None  -> ex
+           
+            let root = findRoot ex
+           
+            match root with
+            | :? SocketException as sockEx 
+                when sockEx.SocketErrorCode = SocketError.NetworkUnreachable
+                ->
+                Error letItBe
+           
+            | :? SocketException as sockEx 
+                when sockEx.SocketErrorCode = SocketError.TimedOut 
+                ->
+                Error timeoutError
+           
+            // HttpClient timeout (TaskCanceledException)   
+            | :? TaskCanceledException as tcex 
+                when not tcex.CancellationToken.IsCancellationRequested
+                ->
+                Error timeoutError
+
+            // TLS handshake
+            | :? AuthenticationException as authEx 
+                ->
+                Error tlsHandShakeError
+           
+            | :? IOException as ioEx
+                ->
+                Error letItBe
+           
+            | :? SocketException as sockEx 
+                ->
+                Error letItBe
+           
+            | :? HttpRequestException
+                ->
+                Error letItBe 
+
+            | _ ->
+                Error letItBe  
+
+        | _ ->
+            Error letItBe 

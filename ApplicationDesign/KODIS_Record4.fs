@@ -57,9 +57,9 @@ module WebScraping_KODIS4 =
 
     type private Environment = 
         {
-            DeleteAllODISDirectories : string -> IO<Result<unit, JsonParsingAndPdfDownloadErrors>>
-            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> 
-            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, JsonParsingAndPdfDownloadErrors>
+            DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
+            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Result<(string * string) list, ParsingAndDownloadingErrors>> 
+            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>
         }
 
     let private environment : Environment =
@@ -74,25 +74,27 @@ module WebScraping_KODIS4 =
         let errFn err =  
 
             match err with
-            | PdfError RcError                 -> rcError
-            | PdfError NoFolderError           -> noFolderError            
-            | PdfError FileDeleteError         -> fileDeleteError 
-            | PdfError CreateFolderError4      -> createFolderError
-            | PdfError CreateFolderError2      -> createFolderError2
-            | PdfError FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
-            | PdfError FolderMovingError4      -> folderMovingError 
-            | PdfError CanopyError             -> canopyError
-            | PdfError TimeoutError            -> timeoutError
-            | PdfError PdfConnectionError      -> cancelMsg2 
-            | PdfError (ApiResponseError err)  -> apiResponseError //err je strasne dluha hlaska
-            | PdfError ApiDecodingError        -> canopyError
-            | PdfError (NetConnPdfError err)   -> err
-            | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
-            | PdfError LetItBeKodis4           -> String.Empty
-            | PdfError NoPermissionError       -> String.Empty
-            | JsonError JsonParsingError       -> jsonParsingError 
-            | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
-            | JsonError JsonDataFilteringError -> dataFilteringError 
+            | PdfDownloadError2 RcError                 -> rcError
+            | PdfDownloadError2 NoFolderError           -> noFolderError            
+            | PdfDownloadError2 FileDeleteError         -> fileDeleteError 
+            | PdfDownloadError2 CreateFolderError4      -> createFolderError
+            | PdfDownloadError2 CreateFolderError2      -> createFolderError2
+            | PdfDownloadError2 FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
+            | PdfDownloadError2 FolderMovingError4      -> folderMovingError 
+            | PdfDownloadError2 CanopyError             -> canopyError
+            | PdfDownloadError2 TimeoutError            -> timeoutError
+            | PdfDownloadError2 PdfConnectionError      -> cancelMsg2 
+            | PdfDownloadError2 (ApiResponseError err)  -> apiResponseError //err je strasne dluha hlaska
+            | PdfDownloadError2 ApiDecodingError        -> canopyError
+            | PdfDownloadError2 (NetConnPdfError err)   -> err
+            | PdfDownloadError2 StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
+            | PdfDownloadError2 LetItBeKodis4           -> String.Empty
+            | PdfDownloadError2 NoPermissionError       -> String.Empty
+            | PdfDownloadError2 TlsHandshakeError       -> String.Empty
+            | JsonParsingError2 JsonParsingError        -> jsonParsingError 
+            | JsonParsingError2 StopJsonParsing         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
+            | JsonParsingError2 JsonDataFilteringError  -> dataFilteringError 
+            | _                                         -> String.Empty
                                      
         let dirList = createNewDirectoryPaths path listOfODISVariants
             in
@@ -172,7 +174,7 @@ module WebScraping_KODIS4 =
                 Ok context2.Msg3 
         
             | Error err 
-                when err <> PdfError StopDownloading
+                when err <> PdfDownloadError2 StopDownloading
                 ->
                 Error err  
         

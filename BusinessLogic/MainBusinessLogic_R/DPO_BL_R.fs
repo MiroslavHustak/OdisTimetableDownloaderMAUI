@@ -3,6 +3,7 @@
 open System
 open System.IO
 open System.Net
+open System.Net.Http
 open System.Threading
 
 //******************************************
@@ -193,25 +194,19 @@ module DPO_BL =
                                                     use fs = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fs, token) |> Async.AwaitTask
                                                     return Ok ()
-                                                with
+                                                with 
+                                                | :? HttpRequestException as ex 
+                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                 
                                                 | ex 
-                                                    ->
-                                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                                    | StopDownloading 
-                                                        ->
-                                                        //runIO (postToLog ex.Message "#123456J-DPO")
-                                                        return Error StopDownloadingMHD
-                                                    | _ ->
-                                                        runIO (postToLog ex.Message "#3352-DPO")
-                                                        return Error FileDownloadErrorMHD
+                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             | _ ->
                                                 runIO (postToLog (string response.statusCode) "#2212-DPO")
                                                 return Error FileDownloadErrorMHD
     
                                         | Choice2Of2 ex 
                                             ->
-                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                            | StopDownloading 
+                                            match isCancellationGeneric StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
+                                            | StopDownloadingMHD 
                                                 ->
                                                 //runIO (postToLog ex.Message "#123456H-DPO")
                                                 return Error StopDownloadingMHD
@@ -221,7 +216,7 @@ module DPO_BL =
                                                 return! attempt (retryCount + 1) (backoffMs * 2)
                                             | _ ->
                                                 runIO (postToLog ex.Message "#7024-DPO")
-                                                return Error FileDownloadErrorMHD
+                                                return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
     
                             return! attempt 0 initialBackoffMs
@@ -271,16 +266,10 @@ module DPO_BL =
                         |> List.tryFind (function Error _ -> true | Ok _ -> false)
                         |> Option.defaultValue (Ok ())
                    
-                    with
+                    with 
+                    | :? HttpRequestException as ex 
+                        -> comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                 
                     | ex 
-                        ->
-                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                        | StopDownloading 
-                            ->
-                            //runIO (postToLog ex.Message "#123456E-DPO")
-                            Error StopDownloadingMHD
-                        | _ ->
-                            runIO (postToLog ex.Message "#024-6-DPO")
-                            Error FileDownloadErrorMHD
+                        -> comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
         )
     

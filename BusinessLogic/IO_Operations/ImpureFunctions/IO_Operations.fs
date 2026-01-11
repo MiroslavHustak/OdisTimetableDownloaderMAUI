@@ -36,7 +36,7 @@ module IO_Operations =
 
         IO (fun () 
                 ->  
-                let deleteIt : Reader<string list, Result<unit, JsonParsingAndPdfDownloadErrors>> = 
+                let deleteIt : Reader<string list, Result<unit, ParsingAndDownloadingErrors>> = 
         
                     reader //Reader monad for educational purposes only, no real benefit here  
                         {
@@ -61,7 +61,7 @@ module IO_Operations =
                                 | ex 
                                     ->
                                     runIO (postToLog <| string ex.Message <| "#038")
-                                    Error <| PdfError FileDeleteError
+                                    Error <| PdfDownloadError2 FileDeleteError
                         }
     
                 deleteIt listOfODISVariants  
@@ -73,7 +73,7 @@ module IO_Operations =
 
         IO (fun () 
                 ->  
-                let deleteIt : Reader<string list, Result<unit, JsonParsingAndPdfDownloadErrors>> =  
+                let deleteIt : Reader<string list, Result<unit, ParsingAndDownloadingErrors>> =  
     
                     reader //Reader monad for educational purposes only, no real benefit here  
                         {   
@@ -97,7 +97,7 @@ module IO_Operations =
                                 | ex
                                     ->
                                     runIO (postToLog <| string ex.Message <| "#039")
-                                    Error <| PdfError FileDeleteError                       
+                                    Error <| PdfDownloadError2 FileDeleteError                       
                         }
     
                 deleteIt listOfODISVariants   
@@ -154,7 +154,7 @@ module IO_Operations =
                 try
                     let dirInfo = DirectoryInfo oldTimetablesPath
 
-                    deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
+                    deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, ParsingAndDownloadingErrors>>
                     dirInfo.Delete()
 
                     (*
@@ -184,7 +184,7 @@ module IO_Operations =
                 try
                     let dirInfo = DirectoryInfo oldTimetablesPath4
 
-                    deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
+                    deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, ParsingAndDownloadingErrors>>
 
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
@@ -241,7 +241,7 @@ module IO_Operations =
                 | ex
                     ->
                     runIO (postToLog <| string ex.Message <| "#041")
-                    Error <| PdfError CreateFolderError4   
+                    Error <| PdfDownloadError2 CreateFolderError4   
         )
         
     let internal ensureMainDirectoriesExist permissionGranted =
@@ -272,10 +272,10 @@ module IO_Operations =
                     | ex
                         ->
                         runIO (postToLog <| string ex.Message <| "#042")
-                        Error <| PdfError CreateFolderError4   
+                        Error <| PdfDownloadError2 CreateFolderError4   
                 | false 
                     -> 
-                    Error <| PdfError NoPermissionError //jen quli dodrzeni typu, neni tra robit vubec nic
+                    Error <| PdfDownloadError2 NoPermissionError //jen quli dodrzeni typu, neni tra robit vubec nic
         )
 
     let internal createTP_Canopy_Folder pathDir = 
@@ -291,7 +291,7 @@ module IO_Operations =
                 | ex
                     ->
                     runIO (postToLog <| string ex.Message <| "#421")
-                    Error <| PdfError CreateFolderError2   
+                    Error <| PdfDownloadError2 CreateFolderError2   
         )
 
     let private moveFoldersAndroid11Plus source destination err1 err2 =

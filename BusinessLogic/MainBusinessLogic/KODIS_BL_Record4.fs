@@ -22,7 +22,6 @@ open Types.ErrorTypes
 open Api.Logging
 open Api.FutureLinks
 
-open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
 open Helpers.ExceptionHelpers
@@ -43,15 +42,15 @@ module KODIS_BL_Record4 =
                 ->
                 token.ThrowIfCancellationRequested() 
                                 
-                let result1 () : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
+                let result1 () : Async<Result<(string * string) list, ParsingAndDownloadingErrors>> = 
                     async
                         {
                             match! getFutureLinksFromRestApi >> runIO <| urlApi with
                             | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                            | Error err -> return Error <| PdfError err
+                            | Error err -> return Error <| PdfDownloadError2 err
                         }
     
-                let result2 () : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
+                let result2 () : Async<Result<(string * string) list, ParsingAndDownloadingErrors>> = 
                     async
                         {
                             match variant with
@@ -59,7 +58,7 @@ module KODIS_BL_Record4 =
                                 ->
                                 match! getFutureLinksFromRestApi >> runIO <| urlJson with
                                 | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                                | Error err -> return Error <| PdfError err
+                                | Error err -> return Error <| PdfDownloadError2 err
                             | _              
                                 -> 
                                 return Ok []
@@ -97,12 +96,12 @@ module KODIS_BL_Record4 =
                                 | _                   
                                     ->
                                     runIO (postToLog <| JsonDataFilteringError <| "#015")                                    
-                                    Error <| JsonError JsonDataFilteringError
+                                    Error <| JsonParsingError2 JsonDataFilteringError
 
                         | Choice2Of2 ex
                             -> 
                             runIO (postToLog <| string ex.Message <| "#016")                      
-                            return Error <| JsonError JsonDataFilteringError  
+                            return Error <| JsonParsingError2 JsonDataFilteringError  
                     }
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
@@ -124,14 +123,7 @@ module KODIS_BL_Record4 =
                                          .StartImmediate
                                              <|
                                              fun inbox 
-                                                 ->   
-                                                 use _ =
-                                                     token.Register
-                                                         (fun () 
-                                                             ->
-                                                             inbox.Post (Unchecked.defaultof<MsgIncrement>)
-                                                         )
-
+                                                 ->                                                  
                                                  let rec loop n = 
                                                     async
                                                         {
@@ -165,10 +157,7 @@ module KODIS_BL_Record4 =
                                             -> 
                                             try 
                                                 counterAndProgressBar.Post <| Inc 1
-                                                
-                                                // Artificial checkpoint po mych List.Parallel nebo Async.Parallel nedavat
-                                                //token.ThrowIfCancellationRequested () 
-    
+                                                                                                  
                                                 let pathToFileExistFirstCheck = // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem        
                                                     runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
                                                     in
@@ -231,26 +220,26 @@ module KODIS_BL_Record4 =
                                                                             when err = StopDownloading
                                                                             ->
                                                                             //runIO (postToLog <| string ex.Message <| "#123456H")
-                                                                            Error <| PdfError StopDownloading
+                                                                            Error <| PdfDownloadError2 StopDownloading
                                                                         | err 
                                                                             ->
                                                                             runIO (postToLog <| string ex.Message <| "#8024-K4")
-                                                                            Error <| PdfError err 
+                                                                            Error <| PdfDownloadError2 err 
 
                                                                 | HttpStatusCode.Forbidden 
                                                                     ->
                                                                     runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-K4") 
-                                                                    Error <| PdfError FileDownloadError
+                                                                    Error <| PdfDownloadError2 FileDownloadError
     
                                                                 | status
                                                                     ->
                                                                     runIO (postToLog <| (string status) <| "#2212-K4")
-                                                                    Error <| PdfError FileDownloadError
+                                                                    Error <| PdfDownloadError2 FileDownloadError
                                                             with 
                                                             | ex 
                                                                 -> 
                                                                 runIO (postToLog <| string ex.Message <| "#2213-K4")
-                                                                Error <| PdfError FileDownloadError
+                                                                Error <| PdfDownloadError2 FileDownloadError
 
                                                         | Choice2Of2 ex
                                                             ->
@@ -259,16 +248,16 @@ module KODIS_BL_Record4 =
                                                                 when err = StopDownloading
                                                                 ->
                                                                 //runIO (postToLog <| string ex.Message <| "#123456G")
-                                                                Error <| PdfError StopDownloading
+                                                                Error <| PdfDownloadError2 StopDownloading
                                                             | err 
                                                                 ->
                                                                 runIO (postToLog <| string ex.Message <| "#7024-K4")
-                                                                Error <| PdfError err  
+                                                                Error <| PdfDownloadError2 err  
     
                                                     | None 
                                                         ->
                                                         runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2230-K4")
-                                                        Error <| PdfError FileDownloadError      
+                                                        Error <| PdfDownloadError2 FileDownloadError      
                                             with
                                             | ex                             
                                                 -> 
@@ -277,11 +266,11 @@ module KODIS_BL_Record4 =
                                                     when err = StopDownloading
                                                     ->
                                                     //runIO (postToLog <| string ex.Message <| "#123456F")
-                                                    Error <| PdfError StopDownloading
+                                                    Error <| PdfDownloadError2 StopDownloading
                                                 | err 
                                                     ->
                                                     runIO (postToLog <| string ex.Message <| "#024-K4")
-                                                    Error <| PdfError err        
+                                                    Error <| PdfDownloadError2 err        
                                         )  
                                 with
                                 | ex                             
@@ -291,11 +280,11 @@ module KODIS_BL_Record4 =
                                         when err = StopDownloading
                                         ->
                                         //runIO (postToLog <| string ex.Message <| "#123456E")
-                                        [ Error <| PdfError StopDownloading ]
+                                        [ Error <| PdfDownloadError2 StopDownloading ]
                                     | err 
                                         ->
                                         runIO (postToLog <| string ex.Message <| "#024-6-K4")
-                                        [ Error <| PdfError err ]   
+                                        [ Error <| PdfDownloadError2 err ]   
                                 
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                             |> Option.defaultValue (Ok ())                               
@@ -309,7 +298,7 @@ module KODIS_BL_Record4 =
                             match context.dir |> Directory.Exists with //TOCTOU race condition by tady nemel byt problem
                             | false ->
                                     runIO (postToLog <| NoFolderError <| "#251-K4")
-                                    Error <| PdfError NoFolderError  
+                                    Error <| PdfDownloadError2 NoFolderError  
                             | true  ->                                   
                                     match context.list with
                                     | [] 

@@ -59,10 +59,10 @@ module WebScraping_KODIS =
     type private Environment = 
         {
             DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> IO<Result<unit, JsonDownloadErrors>>
-            DeleteAllODISDirectories : string -> IO<Result<unit, JsonParsingAndPdfDownloadErrors>>
-            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Result<string list, JsonParsingAndPdfDownloadErrors>> 
-            FilterTimetableLinks : Validity -> string -> Result<string list, JsonParsingAndPdfDownloadErrors> -> IO<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> 
-            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, JsonParsingAndPdfDownloadErrors>  //not resuming
+            DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
+            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Result<string list, ParsingAndDownloadingErrors>> 
+            FilterTimetableLinks : Validity -> string -> Result<string list, ParsingAndDownloadingErrors> -> IO<Result<(string * string) list, ParsingAndDownloadingErrors>> 
+            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>  //not resuming
         }
 
     let private environment : Environment = 
@@ -92,13 +92,14 @@ module WebScraping_KODIS =
 
                     let errFn err =                     
                         match err with
-                        | JsonDownloadError    -> jsonDownloadError
-                        | JsonConnectionError  -> cancelMsg2
-                        | NetConnJsonError err -> err
-                        | JsonTimeoutError     -> jsonDownloadError  
-                        | StopJsonDownloading  -> jsonCancel
-                        | FolderMovingError    -> folderMovingError
-                        | LetItBeKodis         -> String.Empty
+                        | JsonDownloadError     -> jsonDownloadError
+                        | JsonConnectionError   -> cancelMsg2
+                        | NetConnJsonError err  -> err
+                        | JsonTimeoutError      -> timeoutErrorJson  
+                        | StopJsonDownloading   -> jsonCancel
+                        | FolderMovingError     -> folderMovingError
+                        | JsonLetItBeKodis      -> String.Empty
+                        | JsonTlsHandshakeError -> String.Empty //TODO
                     
                     try
                         try
@@ -114,9 +115,9 @@ module WebScraping_KODIS =
                                     {
                                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                                         // nicmene priprava na zpracovani err je provedena (jeste vytvorit list s Result, ten bude v Array.last)
-                                        let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis FolderMovingError
-                                        let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis FolderMovingError
-                                        let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis FolderMovingError
+                                        let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination JsonLetItBeKodis FolderMovingError
+                                        let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination JsonLetItBeKodis FolderMovingError
+                                        let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination JsonLetItBeKodis FolderMovingError
 
                                         return Ok ()  
                                     }
@@ -132,7 +133,7 @@ module WebScraping_KODIS =
                         finally
                             ()              
                     with
-                    | _ -> Error LetItBeKodis //silently ignoring failed download operations
+                    | _ -> Error JsonLetItBeKodis //silently ignoring failed download operations
             
                     |> Result.map (fun _ -> dispatchMsg2) // spravne dispatchMsg1, ale drzi se to po celou dobu ocekavaneho dispatchMsg2
                     |> Result.mapError errFn
@@ -147,25 +148,27 @@ module WebScraping_KODIS =
                 let errFn err =  
 
                     match err with
-                    | PdfError RcError                 -> rcError
-                    | PdfError NoFolderError           -> noFolderError
-                    | PdfError FileDeleteError         -> fileDeleteError 
-                    | PdfError CreateFolderError4      -> createFolderError   
-                    | PdfError CreateFolderError2      -> createFolderError2
-                    | PdfError FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
-                    | PdfError FolderMovingError4      -> folderMovingError 
-                    | PdfError CanopyError             -> canopyError
-                    | PdfError TimeoutError            -> timeoutError
-                    | PdfError PdfConnectionError      -> cancelMsg2 
-                    | PdfError (ApiResponseError err)  -> err
-                    | PdfError ApiDecodingError        -> canopyError
-                    | PdfError (NetConnPdfError err)   -> err
-                    | PdfError StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
-                    | PdfError LetItBeKodis4           -> String.Empty
-                    | PdfError NoPermissionError       -> String.Empty
-                    | JsonError JsonParsingError       -> jsonParsingError 
-                    | JsonError StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5)
-                    | JsonError JsonDataFilteringError -> dataFilteringError 
+                    | PdfDownloadError2 RcError                 -> rcError
+                    | PdfDownloadError2 NoFolderError           -> noFolderError
+                    | PdfDownloadError2 FileDeleteError         -> fileDeleteError 
+                    | PdfDownloadError2 CreateFolderError4      -> createFolderError   
+                    | PdfDownloadError2 CreateFolderError2      -> createFolderError2
+                    | PdfDownloadError2 FileDownloadError       -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
+                    | PdfDownloadError2 FolderMovingError4      -> folderMovingError 
+                    | PdfDownloadError2 CanopyError             -> canopyError
+                    | PdfDownloadError2 TimeoutError            -> timeoutError
+                    | PdfDownloadError2 PdfConnectionError      -> cancelMsg2 
+                    | PdfDownloadError2 (ApiResponseError err)  -> err
+                    | PdfDownloadError2 ApiDecodingError        -> canopyError
+                    | PdfDownloadError2 (NetConnPdfError err)   -> err
+                    | PdfDownloadError2 StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
+                    | PdfDownloadError2 LetItBeKodis4           -> String.Empty
+                    | PdfDownloadError2 NoPermissionError       -> String.Empty
+                    | PdfDownloadError2 TlsHandshakeError       -> String.Empty //TODO
+                    | JsonParsingError2 JsonParsingError        -> jsonParsingError 
+                    | JsonParsingError2 StopJsonParsing         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5)
+                    | JsonParsingError2 JsonDataFilteringError  -> dataFilteringError                    
+                    | _                                         -> String.Empty
                                                                  
                 let result lazyList (context2 : Context2) =  
                     
@@ -181,7 +184,7 @@ module WebScraping_KODIS =
                         | ex
                             ->
                             runIO (postToLog <| string ex.Message <| "#22-2")
-                            Error <| JsonError JsonDataFilteringError 
+                            Error <| JsonParsingError2 JsonDataFilteringError 
                                                       
                     let taskDispatch param = async { return DispatchDone param } //for educational purposes
                     let taskList param = async { return ListDone param } //for educational purposes
@@ -196,7 +199,7 @@ module WebScraping_KODIS =
                          |> Async.RunSynchronously
                          |> Result.ofChoice
 
-                    let result2 : Result<(string * string) list, JsonParsingAndPdfDownloadErrors> = //for educational purposes
+                    let result2 : Result<(string * string) list, ParsingAndDownloadingErrors> = //for educational purposes
                         match result with   
                         | Ok resultsArray 
                             ->                         
@@ -207,10 +210,10 @@ module WebScraping_KODIS =
                                         | ListDone listResult -> Some listResult 
                                         | DispatchDone _      -> None
                                 )
-                            |> Option.defaultValue (Error <| JsonError JsonDataFilteringError)
+                            |> Option.defaultValue (Error <| JsonParsingError2 JsonDataFilteringError)
                         | Error _ 
                             ->  
-                            Error <| JsonError JsonDataFilteringError                                
+                            Error <| JsonParsingError2 JsonDataFilteringError                                
                    
                     (*
                     dispatchWorkIsComplete dispatchMsg1_1 // dispatchMsg2
@@ -257,7 +260,7 @@ module WebScraping_KODIS =
                         Ok context2.Msg3 
         
                     | Error err 
-                        when err <> JsonError StopJsonParsing || err <> PdfError StopDownloading
+                        when err <> JsonParsingError2 StopJsonParsing || err <> PdfDownloadError2 StopDownloading
                         ->
                         Error err  
 
@@ -316,7 +319,7 @@ module WebScraping_KODIS =
                             | ex
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#22-1")
-                                Error <| JsonError JsonParsingError
+                                Error <| JsonParsingError2 JsonParsingError
                                 //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
                         
                         //dispatchCancelVisible true

@@ -137,7 +137,8 @@ module WebScraping_DPO =
                             | FileDeleteErrorMHD       -> fileDeleteError
                             | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir) |> Result.either (fun _ -> dpoCancelMsg) (fun _ -> dpoCancelMsg1)
                             | LetItBeMHD               -> String.Empty
-                            | TestDuCase ex            -> ex
+                            | TlsHandshakeErrorMHD     -> "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.dpo.cz, nikoli této aplikace."
+                            | TimeoutErrorMHD          -> timeoutError
                         
                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                         // nicmene priprava na zpracovani err je provedena

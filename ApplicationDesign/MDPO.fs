@@ -15,6 +15,7 @@ open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
+open Helpers.ExceptionHelpers
 
 open Api.Logging
 
@@ -118,10 +119,18 @@ module WebScraping_MDPO =
                             Error FileDeleteErrorMHD  
 
                         | ex 
-                            when (string ex.Message).Contains "Timeout exceeded while getting response"
-                            ->
-                            runIO (postToLog <| string ex.Message <| "#008-X05") 
-                            Error (TestDuCase "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace.")                              
+                            -> //temporary code
+                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                            | err when err = TimeoutError 
+                                ->
+                                Error TlsHandshakeErrorMHD
+                            | _                               
+                                when (string ex.Message).Contains "Timeout exceeded while getting response"
+                                ->
+                                Error TlsHandshakeErrorMHD  
+                            | _ ->
+                                runIO (postToLog <| string ex.Message <| "#008-X05") 
+                                Error FileDownloadErrorMHD                           
                                                                   
                 pyramidOfInferno
                     {  
@@ -140,7 +149,8 @@ module WebScraping_MDPO =
                             | FileDeleteErrorMHD       -> fileDeleteError
                             | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir) |> Result.either (fun _ -> mdpoCancelMsg) (fun _ -> mdpoCancelMsg1)
                             | LetItBeMHD               -> String.Empty
-                            | TestDuCase ex            -> ex 
+                            | TlsHandshakeErrorMHD     -> "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace." 
+                            | TimeoutErrorMHD          -> timeoutError
 
                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                         // nicmene priprava na zpracovani err je provedena

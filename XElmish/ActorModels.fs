@@ -54,13 +54,16 @@ module ActorModels =
         let newCts = new CancellationTokenSource()
     
         actor.Post CancelToken
-    
+        actor.Post (Reset newCts)
+
+        (*
         async 
             {
                 do! Async.Sleep 10 // 10 ms is usually enough
                 actor.Post (Reset newCts)
             }
         |> Async.StartImmediate
+        *)
 
 
 //********************** not resumable App **************************************

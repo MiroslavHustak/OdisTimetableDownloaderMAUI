@@ -73,7 +73,7 @@ module Types =
 
     type internal TaskResults =   
        | DispatchDone of unit
-       | ListDone of Result<(string * string) list, JsonParsingAndPdfDownloadErrors> 
+       | ListDone of Result<(string * string) list, ParsingAndDownloadingErrors> 
                     
     type [<Struct>] internal MsgIncrement =
         | Inc of int  

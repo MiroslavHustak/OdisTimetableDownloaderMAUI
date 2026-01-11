@@ -3,7 +3,9 @@
 open System
 open System.IO
 open System.Net
+open System.Net.Http
 open System.Threading
+open System.Threading.Tasks
 
 //**********************************
 
@@ -196,17 +198,11 @@ module MDPO_BL = //FsHttp
                                                         |> Async.AwaitTask
                         
                                                     return Ok ()
-                                                with
+                                                with 
+                                                | :? HttpRequestException as ex 
+                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                 
                                                 | ex 
-                                                    ->
-                                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                                    | err when err = StopDownloading
-                                                        ->
-                                                        runIO (postToLog <| ex.Message <| "#MDPO-STOP")
-                                                        return Error StopDownloadingMHD
-                                                    | _ ->
-                                                        runIO (postToLog <| ex.Message <| "#MDPO-IO")
-                                                        return Error FileDownloadErrorMHD
+                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                         
                                             | HttpStatusCode.Forbidden
                                                 ->
@@ -217,9 +213,10 @@ module MDPO_BL = //FsHttp
                                                 runIO (postToLog (string response.statusCode) "#MDPO-STATUS")
                                                 return Error FileDownloadErrorMHD
                         
-                                        | Choice2Of2 ex ->
-                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                            | err when err = StopDownloading 
+                                        | Choice2Of2 ex 
+                                            ->
+                                            match isCancellationGeneric StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
+                                            | err when err = StopDownloadingMHD 
                                                 ->
                                                 runIO (postToLog <| ex.Message <| "#MDPO-CANCEL")
                                                 return Error StopDownloadingMHD
@@ -230,7 +227,7 @@ module MDPO_BL = //FsHttp
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
                                                         runIO (postToLog <| ex.Message <| "#MDPO-RETRY")
-                                                        return Error FileDownloadErrorMHD
+                                                        return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
                         
                             return! attempt 0 initialBackoffMs
@@ -305,33 +302,20 @@ module MDPO_BL = //FsHttp
                                                                 return Error err
                         
                                                 with 
-                                                | ex
-                                                    ->
-                                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                                    | err when err = StopDownloading 
-                                                        ->
-                                                        //runIO (postToLog <| string ex.Message <| "#123456F-MDPO")
-                                                        return Error StopDownloadingMHD
-                    
-                                                    | _ ->
-                                                        runIO (postToLog <| string ex.Message <| "#024-MDPO")
-                                                        return Error FileDownloadErrorMHD
+                                                | :? HttpRequestException as ex 
+                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                 
+                                                | ex 
+                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             }                  
                                     )
                     
                                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                    
-                            with
+                            
+                            with                                                    
+                            | :? HttpRequestException as ex 
+                                -> [ comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex ]
                             | ex
-                                ->
-                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                | err when err = StopDownloading 
-                                    ->
-                                    runIO (postToLog <| ex.Message <| "#MDPO-MAIN-STOP")
-                                    [ Error StopDownloadingMHD ]
-                                | _ ->
-                                    runIO (postToLog <| ex.Message <| "#MDPO-MAIN-FAIL")
-                                    [ Error FileDownloadErrorMHD ]
+                                -> [ comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex ]                         
                     )
                     
                 runIO <| downloadAndSave reportProgress token filterTimetables

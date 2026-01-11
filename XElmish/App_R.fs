@@ -149,8 +149,13 @@ module App_R =
         | ClickClearing  
         | ClearAnimation
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
+
+    let private kodisActor = localCancellationActor()
+    let private kodis4Actor = localCancellationActor()        
+    let private dpoActor = localCancellationActor()
+    let private mdpoActor = localCancellationActor()
     
-    let init () =     
+    let init () =  
      
         let monitorConnectivity (dispatch : Msg -> unit) = //obsahuje countDown2, nelze odsunout do Connectivity             
                    
@@ -258,7 +263,7 @@ module App_R =
             | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none 
 
     let init2 isConnected = 
-        
+    
         #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
         #else
@@ -326,11 +331,6 @@ module App_R =
             { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none            
 
     let update msg m =
-        
-        let kodisActor = localCancellationActor()
-        let kodis4Actor = localCancellationActor()
-        let mdpoActor = localCancellationActor()
-        let dpoActor = localCancellationActor()  
 
         let cmdOnClickAnimation msg = 
 
@@ -387,7 +387,7 @@ module App_R =
                                                                             
                                     match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
                                     | true  -> Android.OS.Environment.IsExternalStorageManager
-                                    | false -> (=) status  PermissionStatus.Granted
+                                    | false -> (=) status PermissionStatus.Granted
         
                                     |> function
                                         | true  -> ()
@@ -407,7 +407,13 @@ module App_R =
 
         | PermissionResult granted 
             ->
-            { m with PermissionGranted = granted; RestartVisible = true }, Cmd.none
+            match granted with
+            | true  ->    
+                    { m with PermissionGranted = granted; RestartVisible = false },
+                    Cmd.ofMsg Home
+            | false ->
+                    { m with PermissionGranted = granted; RestartVisible = true },
+                    Cmd.none
 
         | UpdateStatus (progressValue, totalProgress, isVisible)
             ->

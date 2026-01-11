@@ -27,7 +27,7 @@ module FilterTimetableLinks =
 
     // Array vubec rychlost nezvysilo
     
-    let internal filterTimetableLinks param (pathToDir : string) (parsedLinksResult : Result<string list, JsonParsingAndPdfDownloadErrors>) = 
+    let internal filterTimetableLinks param (pathToDir : string) (parsedLinksResult : Result<string list, ParsingAndDownloadingErrors>) = 
 
         IO (fun () //mozna overkill - je to quli Regexu, u ktereho je impurity nejednoznacna, zbytek je dle mne pragmatically pure
                 ->      
@@ -269,7 +269,7 @@ module FilterTimetableLinks =
                     }
      
                 //**********************Filtering********************************************************
-                let dataToBeFiltered : Result<RcData list, JsonParsingAndPdfDownloadErrors> = 
+                let dataToBeFiltered : Result<RcData list, ParsingAndDownloadingErrors> = 
 
                     parsedLinksResult   
                     |> Result.map

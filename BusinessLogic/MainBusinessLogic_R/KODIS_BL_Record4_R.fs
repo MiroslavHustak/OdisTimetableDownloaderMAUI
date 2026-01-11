@@ -3,6 +3,7 @@
 open System
 open System.IO
 open System.Net
+open System.Net.Http
 open System.Threading
 
 //*******************
@@ -39,15 +40,15 @@ module KODIS_BL_Record4 =
                 ->
                 token.ThrowIfCancellationRequested() 
                                 
-                let result1 () : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
+                let result1 () : Async<Result<(string * string) list, ParsingAndDownloadingErrors>> = 
                     async
                         {
                             match! getFutureLinksFromRestApi >> runIO <| urlApi with
                             | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                            | Error err -> return Error <| PdfError err
+                            | Error err -> return Error <| PdfDownloadError2 err
                         }
     
-                let result2 () : Async<Result<(string * string) list, JsonParsingAndPdfDownloadErrors>> = 
+                let result2 () : Async<Result<(string * string) list, ParsingAndDownloadingErrors>> = 
                     async
                         {
                             match variant with
@@ -55,7 +56,7 @@ module KODIS_BL_Record4 =
                                 ->
                                 match! getFutureLinksFromRestApi >> runIO <| urlJson with
                                 | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                                | Error err -> return Error <| PdfError err
+                                | Error err -> return Error <| PdfDownloadError2 err
                             | _              
                                 -> 
                                 return Ok []
@@ -93,12 +94,12 @@ module KODIS_BL_Record4 =
                                 | _                   
                                     ->
                                     runIO (postToLog <| JsonDataFilteringError <| "#015")                                    
-                                    Error <| JsonError JsonDataFilteringError
+                                    Error <| JsonParsingError2 JsonDataFilteringError
 
                         | Choice2Of2 ex
                             -> 
                             runIO (postToLog <| string ex.Message <| "#016")                      
-                            return Error <| JsonError JsonDataFilteringError  
+                            return Error <| JsonParsingError2 JsonDataFilteringError  
                     }
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
@@ -162,19 +163,8 @@ module KODIS_BL_Record4 =
                                                     use fileStream = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                     return Ok ()
-                                                with
-                                                | ex 
-                                                    ->
-                                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                                    | err 
-                                                        when err = StopDownloading
-                                                        ->
-                                                        //runIO (postToLog <| string ex.Message <| "#123456J-K4")
-                                                        return Error StopDownloading
-                                                    | err 
-                                                        ->
-                                                        runIO (postToLog <| string ex.Message <| "#3352-K4")
-                                                        return Error err 
+                                                with                                               
+                                                | ex -> return comprehensiveTryWith LetItBeKodis4 StopDownloading TimeoutError FileDownloadError TlsHandshakeError token ex
    
                                             | HttpStatusCode.Forbidden
                                                 ->
@@ -202,7 +192,7 @@ module KODIS_BL_Record4 =
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
                                                         runIO <| postToLog (string ex.Message) (sprintf "#7024-K4 (retry %d)" retryCount) 
-                                                        return Error err    
+                                                        return comprehensiveTryWith LetItBeKodis4 StopDownloading TimeoutError FileDownloadError TlsHandshakeError token ex    
                                     }
    
                             return! attempt 0 initialBackoffMs
@@ -279,50 +269,28 @@ module KODIS_BL_Record4 =
                                                         when err = StopDownloading
                                                         ->
                                                         //runIO (postToLog <| string err <| "#123456G-K4")
-                                                        return Error <| PdfError StopDownloading
+                                                        return Error <| PdfDownloadError2 StopDownloading
                                                     | err 
                                                         ->
                                                         runIO (postToLog <| string err <| "#7028-K4")
-                                                        return Error <| PdfError err  
-                                        with
-                                        | ex
-                                            ->
-                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                            | err 
-                                                when err = StopDownloading
-                                                ->
-                                                //runIO (postToLog <| string ex.Message <| "#123456F-K4")
-                                                return Error <| PdfError StopDownloading
-                                            | err 
-                                                ->
-                                                runIO (postToLog <| string ex.Message <| "#024-K4")
-                                                return Error <| PdfError err 
+                                                        return Error <| PdfDownloadError2 err  
+                                        with                                        
+                                        | ex -> return comprehensiveTryWith (PdfDownloadError2 LetItBeKodis4) (PdfDownloadError2 StopDownloading) (PdfDownloadError2 TimeoutError) (PdfDownloadError2 FileDownloadError) (PdfDownloadError2 TlsHandshakeError) token ex
                                     }                                 
                             )
 
                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
 
                     with
-                    | ex 
-                        ->
-                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                        | err 
-                            when err = StopDownloading 
-                            ->
-                            //runIO (postToLog (string ex.Message) "#123456E-K4") 
-                            [ Error (PdfError StopDownloading) ]
-                        | err 
-                            ->
-                            runIO (postToLog (ex.Message) "#024-6-K4") 
-                            [ Error (PdfError err) ]
-                               
+                    | ex -> [ comprehensiveTryWith (PdfDownloadError2 LetItBeKodis4) (PdfDownloadError2 StopDownloading) (PdfDownloadError2 TimeoutError) (PdfDownloadError2 FileDownloadError) (PdfDownloadError2 TlsHandshakeError) token ex ]
+                                                              
                     |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                     |> Option.defaultValue (Ok ())  
                         
                 match context.dir |> Directory.Exists with  //TOCTOU race condition by tady nemel byt problem
                 | false ->
                     runIO (postToLog NoFolderError "#251-K4")
-                    Error (PdfError NoFolderError)  
+                    Error (PdfDownloadError2 NoFolderError)  
                 | true  ->                                   
                     match context.list with
                     | [] 

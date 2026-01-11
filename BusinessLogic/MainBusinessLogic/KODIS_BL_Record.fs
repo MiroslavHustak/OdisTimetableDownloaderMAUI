@@ -327,26 +327,26 @@ module KODIS_BL_Record =
                                                                             when err = StopDownloading
                                                                             ->
                                                                             //runIO (postToLog <| string ex.Message <| "#123456A")
-                                                                            Error <| PdfError StopDownloading
+                                                                            Error <| PdfDownloadError2 StopDownloading
                                                                         | err 
                                                                             ->
                                                                             runIO (postToLog <| string ex.Message <| "#024-K4")
-                                                                            Error <| PdfError err                                                                 
+                                                                            Error <| PdfDownloadError2 err                                                                 
                                                                  
                                                                 | HttpStatusCode.Forbidden 
                                                                     ->
                                                                     runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211") 
-                                                                    Error <| PdfError FileDownloadError
+                                                                    Error <| PdfDownloadError2 FileDownloadError
     
                                                                 | status
                                                                     ->
                                                                     runIO (postToLog <| (string status) <| "#2212")
-                                                                    Error <| PdfError FileDownloadError
+                                                                    Error <| PdfDownloadError2 FileDownloadError
                                                             with 
                                                             | ex 
                                                                 -> 
                                                                 runIO (postToLog <| string ex.Message <| "#2213")
-                                                                Error <| PdfError FileDownloadError
+                                                                Error <| PdfDownloadError2 FileDownloadError
 
                                                         | Choice2Of2 ex
                                                             ->
@@ -355,16 +355,16 @@ module KODIS_BL_Record =
                                                                 when err = StopDownloading
                                                                 ->
                                                                 //runIO (postToLog <| string ex.Message <| "#123456B")
-                                                                Error <| PdfError StopDownloading
+                                                                Error <| PdfDownloadError2 StopDownloading
                                                             | err 
                                                                 ->
                                                                 runIO (postToLog <| string ex.Message <| "#7024")
-                                                                Error <| PdfError err            
+                                                                Error <| PdfDownloadError2 err            
                                                            
                                                     | None 
                                                         ->
                                                         runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2230")
-                                                        Error <| PdfError FileDownloadError      
+                                                        Error <| PdfDownloadError2 FileDownloadError      
                                             with
                                             | ex                             
                                                 -> 
@@ -373,11 +373,11 @@ module KODIS_BL_Record =
                                                     when err = StopDownloading
                                                     ->
                                                     //runIO (postToLog <| string ex.Message <| "#123456C")
-                                                    Error <| PdfError StopDownloading
+                                                    Error <| PdfDownloadError2 StopDownloading
                                                 | err 
                                                     ->
                                                     runIO (postToLog <| string ex.Message <| "#024")
-                                                    Error <| PdfError err             
+                                                    Error <| PdfDownloadError2 err             
                                         )  
                                 with
                                 | ex                             
@@ -387,11 +387,11 @@ module KODIS_BL_Record =
                                         when err = StopDownloading
                                         ->
                                         //runIO (postToLog <| string ex.Message <| "#123456D")
-                                        [ Error <| PdfError StopDownloading ]
+                                        [ Error <| PdfDownloadError2 StopDownloading ]
                                     | err 
                                         ->
                                         runIO (postToLog <| string ex.Message <| "#024-6")
-                                        [ Error <| PdfError err ]    
+                                        [ Error <| PdfDownloadError2 err ]    
                                 
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                             |> Option.defaultValue (Ok ())                               
@@ -405,7 +405,7 @@ module KODIS_BL_Record =
                             match context.dir |> Directory.Exists with //TOCTOU race condition by tady nemel byt problem
                             | false ->
                                     runIO (postToLog <| NoFolderError <| "#251")
-                                    Error <| PdfError NoFolderError  
+                                    Error <| PdfDownloadError2 NoFolderError  
                             | true  ->                                   
                                     match context.list with
                                     | [] 

@@ -49,9 +49,9 @@ module SettingsGeneral =
             ODIS_Variants.board.board I2 I1 
         ]    
         
-    let [<Literal>] internal timeOutInSeconds = 21 
-    let [<Literal>] internal timeOutInSeconds2 = 21
-    let [<Literal>] internal waitingForNetConn = 20 //vterin
+    let [<Literal>] internal timeOutInSeconds = 31 
+    let [<Literal>] internal timeOutInSeconds2 = 31
+    let [<Literal>] internal waitingForNetConn = 30 //vterin
 
     let [<Literal>] internal maxFileSizeKb = 10L 
 

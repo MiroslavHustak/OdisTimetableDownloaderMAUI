@@ -269,9 +269,9 @@ module ParseJsonDataFull =
                                 when err = StopDownloading
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#123456X")
-                                Error <| JsonError StopJsonParsing  
+                                Error <| JsonParsingError2 StopJsonParsing  
                             | _ ->
                                 runIO (postToLog <| string ex.Message <| "#107")
-                                Error <| JsonError JsonParsingError    
+                                Error <| JsonParsingError2 JsonParsingError   
                    // )
         )

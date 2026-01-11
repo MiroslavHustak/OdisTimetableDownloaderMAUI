@@ -15,7 +15,8 @@ module ErrorTypes =
         | FolderCopyOrMoveErrorMHD
         | StopDownloadingMHD
         | LetItBeMHD
-        | TestDuCase of string
+        | TimeoutErrorMHD
+        | TlsHandshakeErrorMHD
    
     type [<Struct>] internal JsonDownloadErrors = 
         | JsonTimeoutError
@@ -24,12 +25,15 @@ module ErrorTypes =
         | NetConnJsonError of string //string is still heap-allocated, ale tady by to nemelo vadit
         | StopJsonDownloading //cancellation
         | FolderMovingError
-        | LetItBeKodis
+        | JsonLetItBeKodis
+        | JsonTlsHandshakeError
 
     type [<Struct>] internal JsonParsingErrors = 
         | JsonParsingError
+        | JsonParsingTimeoutError
         | JsonDataFilteringError
         | StopJsonParsing //cancellation  
+        | LetItBeParsing
 
     type [<Struct>] internal PdfDownloadErrors =
         | RcError         
@@ -48,7 +52,9 @@ module ErrorTypes =
         | NetConnPdfError of string
         | StopDownloading //cancellation
         | LetItBeKodis4
+        | TlsHandshakeError
 
-    type internal JsonParsingAndPdfDownloadErrors =
-        | PdfError of PdfDownloadErrors
-        | JsonError of JsonParsingErrors
+    type internal ParsingAndDownloadingErrors =
+        | PdfDownloadError2 of PdfDownloadErrors
+        | JsonParsingError2 of JsonParsingErrors
+        | JsonDownloadError2 of JsonDownloadErrors
