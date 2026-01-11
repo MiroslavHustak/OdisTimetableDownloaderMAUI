@@ -69,17 +69,21 @@ type MauiProgram =
                                 |> ignore<ILifecycleBuilder>    
 
                             android.OnStop
-                                (fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
+                                //(fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
+                                (fun _ -> App_R.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
                             *) 
 
                             android.OnResume(
                                 fun (_activity : Android.App.Activity) 
                                     ->
-                                    match App.DispatchHolder.DispatchRef with
-                                    | Some (weakRef : System.WeakReference<Dispatch<App.Msg>>) 
+                                    //match App.DispatchHolder.DispatchRef with
+                                    match App_R.DispatchHolder.DispatchRef with
+                                    //| Some (weakRef : System.WeakReference<Dispatch<App.Msg>>) 
+                                    | Some (weakRef : System.WeakReference<Dispatch<App_R.Msg>>) 
                                         ->
                                         match weakRef.TryGetTarget() with
-                                        | true, (dispatch : Dispatch<App.Msg>)
+                                        //| true, (dispatch : Dispatch<App.Msg>)
+                                        | true, (dispatch : Dispatch<App_R.Msg>)
                                             ->                                        
                                             async 
                                                 {
@@ -102,8 +106,8 @@ type MauiProgram =
                                                         match granted with
                                                         | true 
                                                             ->
-                                                            (dispatch : Dispatch<App.Msg>) <| App.PermissionResult true
-                                                            (dispatch : Dispatch<App.Msg>) <| App.Home2
+                                                            //(dispatch : Dispatch<App.Msg>) <| App.Home2
+                                                            (dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
                                                         | false
                                                             -> 
                                                             ()

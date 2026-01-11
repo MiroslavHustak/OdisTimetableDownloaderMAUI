@@ -238,6 +238,26 @@ let map_IO_AW (action : 'a -> 'b) (list : 'a list) =
          |> Async.RunSynchronously  
          |> List.ofArray
 
+let map_IO_AW_Async (action : 'a -> Async<'b>) (list : 'a list) =
+         
+    match list with
+    | [] -> 
+        async { return [] }
+    | _  ->
+        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
+                  
+        let tasks = 
+            list
+            |> Array.ofList       
+            |> Array.map (fun item -> async { return! action item })  
+            
+        async 
+            {
+                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+                return result |> List.ofArray 
+            }     
+
+
 // Using Array.Parallel.iter //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter2_CPU_PT<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
 

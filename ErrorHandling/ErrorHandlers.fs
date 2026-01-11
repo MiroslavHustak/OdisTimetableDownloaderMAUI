@@ -213,7 +213,6 @@ module ExceptionHelpers =
     let internal isCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) =
            
         let rec loop (stack : exn list) (acc : 'c list) : 'c list =
-
             match stack with
             | [] 
                 -> 
@@ -224,7 +223,20 @@ module ExceptionHelpers =
                 | null 
                     ->
                     loop rest (fileDownloadError :: acc)
-
+                
+                // Handle TaskCanceledException FIRST (before OperationCanceledException)
+                | :? TaskCanceledException as tcex 
+                    ->
+                    let result =
+                        match token.IsCancellationRequested with
+                        | true  -> stopDownloading                          // User cancelled with YOUR token
+                        | false 
+                            when tcex.CancellationToken.IsCancellationRequested
+                                -> timeoutError  // HttpClient timeout
+                        | false -> fileDownloadError                        // Unknown cancellation
+                    loop rest (result :: acc)
+                
+                // This will now only catch OperationCanceledException that aren't TaskCanceledException
                 | :? OperationCanceledException 
                     ->
                     let result =
@@ -232,19 +244,17 @@ module ExceptionHelpers =
                         | true  -> stopDownloading
                         | false -> timeoutError
                     loop rest (result :: acc)
-
+                
                 | :? AggregateException as agg 
                     ->
-                    // Flatten inner exceptions and push them onto the stack
                     let flattened = agg.Flatten().InnerExceptions |> Seq.toList
                     loop (flattened @ rest) acc
-
+                
                 | _ when isNull current.InnerException 
                     ->
                     loop rest (fileDownloadError :: acc)
-                | _ 
-                    ->
-                    // Push inner exception onto stack
+                
+                | _ ->
                     loop (current.InnerException :: rest) acc
        
         // Start with the initial exception

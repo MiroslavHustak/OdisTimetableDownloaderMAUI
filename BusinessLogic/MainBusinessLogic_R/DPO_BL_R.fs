@@ -246,7 +246,6 @@ module DPO_BL =
                                             }
                                     loop 0
                                 )
-    
                 
                         let uri, pathToFile =
                             filteredTimetables 

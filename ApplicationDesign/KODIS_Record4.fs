@@ -67,6 +67,7 @@ module WebScraping_KODIS4 =
             DeleteAllODISDirectories = deleteAllODISDirectories   
             OperationOnDataFromJson = operationOnDataFromJson
             DownloadAndSave = fun token context -> runIO (downloadAndSave token context) //downloadAndSave >> runIO
+            //DownloadAndSave = downloadAndSave >> runIO
         }    
 
     let private stateReducer (token : CancellationToken) path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) =

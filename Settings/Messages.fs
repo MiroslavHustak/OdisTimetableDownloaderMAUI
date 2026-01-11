@@ -124,7 +124,7 @@ module Messages =
 
     let [<Literal>] internal netConnError = "Přerušené internetové připojení způsobilo přerušení stahování souborů. Stahuj vše znova."
     let [<Literal>] internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
-    let [<Literal>] internal apiResponseError = "Nelze se dostat k odkazům na JŘ umístěných na www.kodis.somee.com. Zkus stahovat JŘ po nějaké době znovu."
+    let [<Literal>] internal apiResponseError = "Nelze se dostat k odkazům na JŘ umístěným na www.kodis.somee.com. Zkontroluj připojení k internetu a spusť aplikaci znovu."
 
     let [<Literal>] internal buttonQuit = "Vypnout aplikaci" 
     let [<Literal>] internal buttonQuit2 = "Vypnout odpočítávání a aplikaci" 

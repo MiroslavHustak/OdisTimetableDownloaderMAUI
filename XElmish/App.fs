@@ -120,7 +120,6 @@ module App =
 
     type Msg = // This is exactly how NOT to do it for real UI/UX/FE
         | RequestPermission
-        | PermissionResult of bool
         | Launch
         | DataClearing
         | DataClearingMessage of string
@@ -146,7 +145,6 @@ module App =
         | ClickClearingConfirmation
         | ClickClearingCancel
         | ClickRestart
-        | ClickRequestPermission
         | ClickClearing  
         | ClearAnimation
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
@@ -232,7 +230,7 @@ module App =
                                     ->
                                     async
                                         {    
-                                            //#if WINDOWS  
+                                            #if WINDOWS  
                                             match isConnected with
                                             | true  ->
                                                     return () 
@@ -240,11 +238,11 @@ module App =
                                                     NetConnMessage >> dispatch <| noNetConn 
                                                     do! Async.Sleep 2000
                                                     return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                            //#else                                                           
-                                            //match isConnected with
-                                            //| true  -> return dispatch Home2 
-                                            //| false -> return EmergencyQuit >> dispatch <| false 
-                                            //#endif         
+                                            #else                                                           
+                                            match isConnected with
+                                            | true  -> return dispatch Home2 
+                                            | false -> return EmergencyQuit >> dispatch <| false 
+                                            #endif         
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 
@@ -422,10 +420,6 @@ module App =
         | ClickRestart 
             ->
             { m with AnimatedButton = Some buttonRestart }, cmdOnClickAnimation Home2
-            
-        | ClickRequestPermission
-            ->
-            { m with AnimatedButton = Some buttonRequestPermission }, cmdOnClickAnimation RequestPermission
            
         | ClickClearing 
             ->
@@ -467,10 +461,6 @@ module App =
             #else
             m, Cmd.none
             #endif
-
-        | PermissionResult granted 
-            ->
-            { m with PermissionGranted = granted; RestartVisible = true }, Cmd.none
 
         | UpdateStatus (progressValue, totalProgress, isVisible)
             ->
@@ -1376,7 +1366,7 @@ module App =
                                 .scaleX(animate buttonRestart m.AnimatedButton)
                                 .scaleY(animate buttonRestart m.AnimatedButton)
 
-                            Button(buttonRequestPermission, ClickRequestPermission)
+                            Button(buttonRequestPermission, RequestPermission)
                                 .centerHorizontal()
                                 .semantics(hint = "Grant permission to access storage")
                                 .padding(10.)

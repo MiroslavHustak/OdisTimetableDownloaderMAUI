@@ -55,6 +55,8 @@ module WebScraping_MDPO =
         { 
             FilterTimetables = filterTimetables 
             DownloadAndSaveTimetables = downloadAndSaveTimetables      
+            //FilterTimetables = unsafeFilterTimetables 
+            //DownloadAndSaveTimetables = unsafeDownloadAndSaveTimetables      
         }    
 
     let internal webscraping_MDPO reportProgress token pathToDir = 

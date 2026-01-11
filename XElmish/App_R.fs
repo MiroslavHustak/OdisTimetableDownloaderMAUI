@@ -119,7 +119,6 @@ module App_R =
 
     type Msg = // This is exactly how NOT to do it for real UI/UX/FE
         | RequestPermission
-        | PermissionResult of bool
         | Launch
         | DataClearing
         | DataClearingMessage of string
@@ -145,7 +144,6 @@ module App_R =
         | ClickClearingConfirmation
         | ClickClearingCancel
         | ClickRestart
-        | ClickRequestPermission
         | ClickClearing  
         | ClearAnimation
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
@@ -172,20 +170,14 @@ module App_R =
                                 fun isConnected 
                                     ->
                                     async
-                                        {    
-                                            //#if WINDOWS  
+                                        {   
                                             match isConnected with
                                             | true  ->
-                                                    return () 
+                                                    return ()
                                             | false -> 
                                                     NetConnMessage >> dispatch <| noNetConn 
                                                     do! Async.Sleep 2000
                                                     return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                            //#else                                                           
-                                            //match isConnected with
-                                            //| true  -> return dispatch Home2 
-                                            //| false -> return EmergencyQuit >> dispatch <| false 
-                                            //#endif         
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 
@@ -358,12 +350,8 @@ module App_R =
            
         | ClickRestart 
             ->
-            { m with AnimatedButton = Some buttonRestart }, cmdOnClickAnimation Home2
-            
-        | ClickRequestPermission
-            ->
-            { m with AnimatedButton = Some buttonRequestPermission }, cmdOnClickAnimation RequestPermission
-           
+            { m with AnimatedButton = Some buttonRestart }, cmdOnClickAnimation Home2            
+                   
         | ClickClearing 
             ->
             { m with AnimatedButton = Some buttonClearing }, cmdOnClickAnimation DataClearing          
@@ -372,48 +360,54 @@ module App_R =
             ->
             { m with AnimatedButton = None }, Cmd.none  
             
-        | RequestPermission
-            ->
+        | RequestPermission ->
             #if ANDROID
             let cmd : Cmd<Msg> =
-                Cmd.ofSub
-                    (fun _
-                        ->                        
-                        async   
+                Cmd.ofSub 
+                    (fun dispatch 
+                        ->
+                        async 
                             {
                                 try
-                                    let! status =
-                                        Permissions.CheckStatusAsync<Permissions.StorageRead>() |> Async.AwaitTask
-                                                                            
-                                    match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
-                                    | true  -> Android.OS.Environment.IsExternalStorageManager
-                                    | false -> (=) status PermissionStatus.Granted
+                                    let! currentStatus = 
+                                        Permissions.CheckStatusAsync<Permissions.StorageRead>() 
+                                        |> Async.AwaitTask
         
-                                    |> function
-                                        | true  -> ()
-                                        | false -> openAppSettings >> runIO <| ()
-
-                                    return ()
-
+                                    let needsRequest = 
+                                        match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
+                                        | true  -> not Android.OS.Environment.IsExternalStorageManager
+                                        | false -> currentStatus <> PermissionStatus.Granted
+        
+                                    match needsRequest with
+                                    | false -> 
+                                            // Already has permission → we can just refresh
+                                            dispatch Home2
+        
+                                    | true  ->
+                                            do openAppSettings >> runIO <| ()
+        
+                                            // Give Android time to process the permission change
+                                            do! Async.Sleep 1000
+        
+                                            // Re-check after returning from settings
+                                            let! newStatus = 
+                                                Permissions.CheckStatusAsync<Permissions.StorageRead>() 
+                                                |> Async.AwaitTask
+        
+        
+                                            match newStatus = PermissionStatus.Granted with
+                                            | true  -> return dispatch Home2
+                                            | false -> return ()   
+        
                                 with 
-                                | _ -> return ()                                
+                                | _ -> return ()
                             }
                         |> Async.StartImmediate
-                    )
-            m, cmd
+                )        
+            m, cmd        
             #else
             m, Cmd.none
             #endif
-
-        | PermissionResult granted 
-            ->
-            match granted with
-            | true  ->    
-                    { m with PermissionGranted = granted; RestartVisible = false },
-                    Cmd.ofMsg Home
-            | false ->
-                    { m with PermissionGranted = granted; RestartVisible = true },
-                    Cmd.none
 
         | UpdateStatus (progressValue, totalProgress, isVisible)
             ->
@@ -1327,13 +1321,11 @@ module App_R =
                                 .scaleX(animate buttonRestart m.AnimatedButton)
                                 .scaleY(animate buttonRestart m.AnimatedButton)
 
-                            Button(buttonRequestPermission, ClickRequestPermission)
+                            Button(buttonRequestPermission, RequestPermission)
                                 .centerHorizontal()
                                 .semantics(hint = "Grant permission to access storage")
                                 .padding(10.)
-                                .isVisible(not m.PermissionGranted)
-                                .scaleX(animate buttonRequestPermission m.AnimatedButton)
-                                .scaleY(animate buttonRequestPermission m.AnimatedButton)
+                                .isVisible(not m.PermissionGranted)                            
                             #endif
 
                             Button(buttonLauncher, Launch)

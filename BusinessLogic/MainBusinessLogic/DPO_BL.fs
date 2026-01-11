@@ -219,8 +219,6 @@ module DPO_BL =
                                             <|
                                             fun inbox 
                                                 ->
-                                                //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
-
                                                 let rec loop n = 
                                                     async
                                                         {
@@ -233,37 +231,38 @@ module DPO_BL =
                                                         }
                                                 loop 0      
             
-                            try                               
-                                filterTimetables 
-                                |> List.Parallel.map_IO_AW
-                                    (fun (link, pathToFile)
-                                        -> 
-                                        async //API of HttpClient is async based
+                            try    
+                                let uri, pathToFile =
+                                    filterTimetables 
+                                    |> List.unzip
+
+                                (token, uri, pathToFile)
+                                |||> List.Parallel.map2_IO_AW_Token_Async                        
+                                    (fun uri path
+                                        ->
+                                        async
                                             {
                                                 counterAndProgressBar.Post <| Inc 1
-                                                //token.ThrowIfCancellationRequested ()
-                                                return! runIO <| downloadFileTaskAsync link pathToFile 
+                                                return! runIO <| downloadFileTaskAsync uri path       
                                             }
-                                        |> Async.Catch
-                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                        |> Result.ofChoice
-                                    ) 
-                                 |> List.tryPick
+                                    )
+                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                |> List.tryPick
                                     (Result.either
                                         (fun _
                                             ->
                                             None
                                         )
-                                        (fun ex 
+                                        (fun err 
                                             ->                                             
-                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                            match err with
                                             | err 
-                                                when err = StopDownloading
+                                                when err = StopDownloadingMHD
                                                 ->
                                                 //runIO (postToLog <| string ex.Message <| "#123456YY")
                                                 Some (Error <| StopDownloadingMHD)
                                             | _ ->
-                                                runIO (postToLog <| string ex.Message <| "#037-10")
+                                                runIO (postToLog <| string err <| "#037-10")
                                                 Some (Error <| FileDownloadErrorMHD)   
                                         )
                                     )                                
