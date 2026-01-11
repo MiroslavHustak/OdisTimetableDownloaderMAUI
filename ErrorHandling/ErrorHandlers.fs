@@ -229,11 +229,11 @@ module ExceptionHelpers =
                     ->
                     let result =
                         match token.IsCancellationRequested with
-                        | true  -> stopDownloading                          // User cancelled with YOUR token
+                        | true  -> stopDownloading     // User cancelled with YOUR token
                         | false 
                             when tcex.CancellationToken.IsCancellationRequested
-                                -> timeoutError  // HttpClient timeout
-                        | false -> fileDownloadError                        // Unknown cancellation
+                                -> timeoutError        // HttpClient timeout
+                        | false -> fileDownloadError   // Unknown cancellation
                     loop rest (result :: acc)
                 
                 // This will now only catch OperationCanceledException that aren't TaskCanceledException
@@ -244,6 +244,19 @@ module ExceptionHelpers =
                         | true  -> stopDownloading
                         | false -> timeoutError
                     loop rest (result :: acc)
+
+                // Network-related exceptions
+                | :? System.Net.Http.HttpRequestException
+                    ->
+                    loop rest (fileDownloadError :: acc)
+                
+                | :? System.Security.Authentication.AuthenticationException
+                    ->
+                    loop rest (fileDownloadError :: acc)
+                
+                | :? System.Net.Sockets.SocketException
+                    ->
+                    loop rest (fileDownloadError :: acc) 
                 
                 | :? AggregateException as agg 
                     ->
