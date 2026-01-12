@@ -144,6 +144,8 @@ module MDPO_BL = //FsHttp
                             try
                                 async
                                     {
+                                        token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
+
                                         let response =           
                                                       
                                             pyramidOfDoom
@@ -257,22 +259,25 @@ module MDPO_BL = //FsHttp
                                                         }
                                                 loop 0     
         
-                            try
-                                filterTimetables
-                                |> Map.toList 
-                                |> List.Parallel.map_IO_AW
-                                    (fun (link, pathToFile)
-                                        -> 
+                            try                                
+                                let uri, pathToFile =
+                                    filterTimetables 
+                                    |> Map.toList 
+                                    |> List.unzip
+
+                                (token, uri, pathToFile)
+                                |||> List.Parallel.map2_IO_AW_Token_Async                        
+                                    (fun uri path
+                                        ->
                                         async
                                             {
                                                 counterAndProgressBar.Post <| Inc 1
-                                                token.ThrowIfCancellationRequested () //tady rychlejsi, nez s config_cancellationToken
-                                                return! runIO <| downloadFileTaskAsync token link pathToFile  
-                                            } 
-                                        |> Async.Catch
-                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                                        |> Result.ofChoice
-                                    )                                 
+                                                token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
+
+                                                return! runIO <| downloadFileTaskAsync token uri path    
+                                            }
+                                    )
+                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)                               
                                 |> List.tryPick
                                     (Result.either
                                         (fun _
@@ -290,9 +295,9 @@ module MDPO_BL = //FsHttp
                             with                            
                             | ex                             
                                 -> 
-                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                match isCancellationGeneric StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                 | err 
-                                    when err = StopDownloading
+                                    when err = StopDownloadingMHD
                                     ->
                                     //runIO (postToLog <| string ex.Message <| "#123456WYX")
                                     Error <| StopDownloadingMHD
@@ -537,15 +542,25 @@ module MDPO_BL = //FsHttp
                                                 loop 0     
         
                             try
-                                filterTimetables
-                                |> Map.toList 
-                                |> List.Parallel.map_IO_AW
-                                    (fun (link, pathToFile)
-                                        -> 
-                                        counterAndProgressBar.Post <| Inc 1
-                                        token.ThrowIfCancellationRequested () 
-                                        runIO <| downloadFileTask token link pathToFile
-                                    )   
+                                let uri, pathToFile =
+                                    filterTimetables 
+                                    |> Map.toList 
+                                    |> List.unzip
+
+                                (token, uri, pathToFile)
+                                |||> List.Parallel.map2_IO_AW_Token_Async                        
+                                    (fun uri path
+                                        ->
+                                        async
+                                            {
+                                                counterAndProgressBar.Post <| Inc 1
+                                                token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
+
+                                                return runIO <| downloadFileTask token uri path
+                                            }
+                                    )
+                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)                               
+                               
                                 |> List.tryPick
                                     (Result.either
                                         (fun _
@@ -563,9 +578,9 @@ module MDPO_BL = //FsHttp
                             with                            
                             | ex                             
                                 -> 
-                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                match isCancellationGeneric StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                 | err 
-                                    when err = StopDownloading
+                                    when err = StopDownloadingMHD
                                     ->
                                     //runIO (postToLog <| string ex.Message <| "#123456YYX")
                                     Error <| StopDownloadingMHD

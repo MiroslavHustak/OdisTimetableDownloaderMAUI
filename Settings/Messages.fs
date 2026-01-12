@@ -108,7 +108,7 @@ module Messages =
     let [<Literal>] internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se k internetu a spusť ji znovu."  
     let [<Literal>] internal noNetConn4 = "Není přístup k internetu, činnost aplikace byla předčasně ukončena. Vypni aplikaci, připoj se k internetu a spusť ji znovu." 
    
-    let [<Literal>] internal yesNetConn = "Přípojení k internetu funguje." 
+    let [<Literal>] internal yesNetConn = "Přípojení k internetu opět funguje." 
    
     let [<Literal>] internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
     let [<Literal>] internal ctsMsg = "Problém s detekcí internetového připojení."

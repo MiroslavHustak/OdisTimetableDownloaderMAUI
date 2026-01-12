@@ -39,12 +39,12 @@ module KODIS_BL_Record4 =
     let internal operationOnDataFromJson (token : CancellationToken) variant dir = 
     
         IO (fun () 
-                ->
-                token.ThrowIfCancellationRequested() 
-                                
+                ->                                
                 let result1 () : Async<Result<(string * string) list, ParsingAndDownloadingErrors>> = 
                     async
                         {
+                            token.ThrowIfCancellationRequested() 
+
                             match! getFutureLinksFromRestApi >> runIO <| urlApi with
                             | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
                             | Error err -> return Error <| PdfDownloadError2 err
@@ -53,6 +53,8 @@ module KODIS_BL_Record4 =
                 let result2 () : Async<Result<(string * string) list, ParsingAndDownloadingErrors>> = 
                     async
                         {
+                            token.ThrowIfCancellationRequested() 
+                            
                             match variant with
                             | FutureValidity 
                                 ->
@@ -100,8 +102,17 @@ module KODIS_BL_Record4 =
 
                         | Choice2Of2 ex
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#016")                      
-                            return Error <| JsonParsingError2 JsonDataFilteringError  
+                            match isCancellationGeneric StopJsonParsing JsonParsingTimeoutError JsonDataFilteringError token ex with
+                            | err 
+                                when err = StopJsonParsing
+                                ->
+                                //runIO (postToLog <| string ex.Message <| "#123456C")
+                                return Error <| JsonParsingError2 StopJsonParsing
+                            | err 
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#016")                      
+                                return Error <| JsonParsingError2 JsonDataFilteringError 
+                              
                     }
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
@@ -149,129 +160,96 @@ module KODIS_BL_Record4 =
                                 |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
                                 |> List.unzip        
                             
-                            return   
+                            return 
                                 try
                                     (token, uri, pathToFile)
-                                    |||> List.Parallel.map2_IO_AW_Token //context.listMappingFunction                            
+                                    |||> List.Parallel.map2_IO_AW_Token_Async //context.listMappingFunction                            
                                         (fun uri (pathToFile : string) 
                                             -> 
-                                            try 
-                                                counterAndProgressBar.Post <| Inc 1
-                                                                                                  
-                                                let pathToFileExistFirstCheck = // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem        
-                                                    runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
-                                                    in
-                                                    match pathToFileExistFirstCheck with  
-                                                    | Some _
-                                                        -> 
-                                                        let existingFileLength =                               
-                                                            runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
-                                                            |> Option.map (fun _ -> (FileInfo pathToFile).Length)
-                                                            |> Option.defaultValue 0L
-                                                 
-                                                        let get uri = 
+                                            async
+                                                {
+                                                    try 
+                                                        counterAndProgressBar.Post <| Inc 1
+                                                
+                                                        token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
     
-                                                            let headerContent1 = "Range" 
-                                                            let headerContent2 = sprintf "bytes=%d-" existingFileLength 
+                                                        let pathToFileExistFirstCheck = // bez tohoto file checking mobilni app nefunguje, TOCTOU race zatim nebyl problem        
+                                                            runIO <| checkFileCondition pathToFile (fun fileInfo -> not fileInfo.Exists) //tady potrebuji vedet, ze tam nahodou uz nebo jeste neni (melo by se to spravne vse mazat)                        
+                                                            in
+                                                            match pathToFileExistFirstCheck with  
+                                                            | Some _
+                                                                -> 
+                                                                let existingFileLength =                               
+                                                                    runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
+                                                                    |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                                                    |> Option.defaultValue 0L
+                                                 
+                                                                let get uri = 
+    
+                                                                    let headerContent1 = "Range" 
+                                                                    let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                        
-                                                            match existingFileLength > 0L with
-                                                            | true  -> 
-                                                                    http
-                                                                        {
-                                                                            GET uri
-                                                                            config_timeoutInSeconds 60 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                            config_cancellationToken token 
-                                                                            header "User-Agent" "FsHttp/Android7.1"
-                                                                            header headerContent1 headerContent2
-                                                                        }
-                                                            | false ->
-                                                                    http
-                                                                        {
-                                                                            GET uri
-                                                                            config_timeoutInSeconds 60 //pouzije se kratsi cas, pokud zaroven token a timeout
-                                                                            config_cancellationToken token 
-                                                                            header "User-Agent" "FsHttp/Android7.1"
-                                                                        }    
+                                                                    match existingFileLength > 0L with
+                                                                    | true  -> 
+                                                                            http
+                                                                                {
+                                                                                    GET uri
+                                                                                    config_timeoutInSeconds timeOutInSeconds2 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                    config_cancellationToken token 
+                                                                                    header "User-Agent" "FsHttp/Android7.1"
+                                                                                    header headerContent1 headerContent2
+                                                                                }
+                                                                    | false ->
+                                                                            http
+                                                                                {
+                                                                                    GET uri
+                                                                                    config_timeoutInSeconds timeOutInSeconds2 //pouzije se kratsi cas, pokud zaroven token a timeout
+                                                                                    config_cancellationToken token 
+                                                                                    header "User-Agent" "FsHttp/Android7.1"
+                                                                                }    
 
-                                                        let runAsyncSafe a =
-                                                            Async.Catch a
-                                                            |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-
-                                                        match get >> Request.sendAsync >> runAsyncSafe <| uri with
-                                                        | Choice1Of2 response 
-                                                            -> 
-                                                            try
-                                                                use response = response
+                                                                use! response = get >> Request.sendAsync <| uri
 
                                                                 let statusCode = response.statusCode
                                                  
                                                                 match statusCode with
                                                                 | HttpStatusCode.PartialContent | HttpStatusCode.OK // 206 // 200
                                                                     ->  
-                                                                    match (response.SaveFileAsync pathToFile) |> Async.AwaitTask |> runAsyncSafe with
-                                                                    | Choice1Of2 result 
-                                                                        -> 
-                                                                        Ok result
-
-                                                                    | Choice2Of2 ex 
-                                                                        -> 
-                                                                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                                                        | err 
-                                                                            when err = StopDownloading
-                                                                            ->
-                                                                            //runIO (postToLog <| string ex.Message <| "#123456H")
-                                                                            Error <| PdfDownloadError2 StopDownloading
-                                                                        | err 
-                                                                            ->
-                                                                            runIO (postToLog <| string ex.Message <| "#8024-K4")
-                                                                            Error <| PdfDownloadError2 err 
-
+                                                                    do! response.SaveFileAsync pathToFile |> Async.AwaitTask
+                                                                    return Ok result
+                                                                 
                                                                 | HttpStatusCode.Forbidden 
                                                                     ->
                                                                     runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-K4") 
-                                                                    Error <| PdfDownloadError2 FileDownloadError
+                                                                    return Error <| PdfDownloadError2 FileDownloadError
     
                                                                 | status
                                                                     ->
                                                                     runIO (postToLog <| (string status) <| "#2212-K4")
-                                                                    Error <| PdfDownloadError2 FileDownloadError
-                                                            with 
-                                                            | ex 
-                                                                -> 
-                                                                runIO (postToLog <| string ex.Message <| "#2213-K4")
-                                                                Error <| PdfDownloadError2 FileDownloadError
-
-                                                        | Choice2Of2 ex
+                                                                    return Error <| PdfDownloadError2 FileDownloadError                                                               
+                                                           
+                                                            | None 
+                                                                ->
+                                                                runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2230-K4")
+                                                                return Error <| PdfDownloadError2 FileDownloadError      
+                                                    with
+                                                    | ex                             
+                                                        -> 
+                                                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                                        | err 
+                                                            when err = StopDownloading
                                                             ->
-                                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                                            | err 
-                                                                when err = StopDownloading
-                                                                ->
-                                                                //runIO (postToLog <| string ex.Message <| "#123456G")
-                                                                Error <| PdfDownloadError2 StopDownloading
-                                                            | err 
-                                                                ->
-                                                                runIO (postToLog <| string ex.Message <| "#7024-K4")
-                                                                Error <| PdfDownloadError2 err  
-    
-                                                    | None 
-                                                        ->
-                                                        runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2230-K4")
-                                                        Error <| PdfDownloadError2 FileDownloadError      
-                                            with
-                                            | ex                             
-                                                -> 
-                                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                                | err 
-                                                    when err = StopDownloading
-                                                    ->
-                                                    //runIO (postToLog <| string ex.Message <| "#123456F")
-                                                    Error <| PdfDownloadError2 StopDownloading
-                                                | err 
-                                                    ->
-                                                    runIO (postToLog <| string ex.Message <| "#024-K4")
-                                                    Error <| PdfDownloadError2 err        
+                                                            //runIO (postToLog <| string ex.Message <| "#123456C")
+                                                            return Error <| PdfDownloadError2 StopDownloading
+                                                        | err 
+                                                            ->
+                                                            runIO (postToLog <| string ex.Message <| "#024-K4")
+                                                            return Error <| PdfDownloadError2 err   
+                                                }                                                
                                         )  
+
+                                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+
                                 with
                                 | ex                             
                                     -> 
@@ -279,13 +257,13 @@ module KODIS_BL_Record4 =
                                     | err 
                                         when err = StopDownloading
                                         ->
-                                        //runIO (postToLog <| string ex.Message <| "#123456E")
+                                        //runIO (postToLog <| string ex.Message <| "#123456D")
                                         [ Error <| PdfDownloadError2 StopDownloading ]
                                     | err 
                                         ->
                                         runIO (postToLog <| string ex.Message <| "#024-6-K4")
-                                        [ Error <| PdfDownloadError2 err ]   
-                                
+                                        [ Error <| PdfDownloadError2 err ]    
+
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                             |> Option.defaultValue (Ok ())                               
                          } 
@@ -297,7 +275,7 @@ module KODIS_BL_Record4 =
                         return
                             match context.dir |> Directory.Exists with //TOCTOU race condition by tady nemel byt problem
                             | false ->
-                                    runIO (postToLog <| NoFolderError <| "#251-K4")
+                                    runIO (postToLog <| NoFolderError <| "#251")
                                     Error <| PdfDownloadError2 NoFolderError  
                             | true  ->                                   
                                     match context.list with
@@ -307,7 +285,12 @@ module KODIS_BL_Record4 =
                                     | _ 
                                         -> 
                                         match downloadAndSaveTimetables token context with
-                                        | Ok _       -> Ok String.Empty                                        
-                                        | Error case -> Error case 
+                                        | Ok _ 
+                                            -> 
+                                            Ok String.Empty
+                                        
+                                        | Error case 
+                                            -> 
+                                            Error case 
                     }       
         )

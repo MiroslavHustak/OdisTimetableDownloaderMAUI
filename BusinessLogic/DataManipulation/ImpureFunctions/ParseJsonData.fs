@@ -76,75 +76,85 @@ module ParseJsonData =
 
                                     let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel computing done separatelly
                                         (token, pathToJsonList3 |> List.filter (not << isNull)) //just in case
-                                        ||> List.Parallel.map_CPU_AW_Token 
+                                        ||> List.Parallel.map_CPU_AW_Token_Async 
                                             (fun pathToJson 
-                                                ->                                               
-                                                // Artificial checkpoint po mych List.Parallel nebo Async.Parallel nedavat
-                                                //token.ThrowIfCancellationRequested () 
-                                                
-                                                counterAndProgressBar.Post <| Inc 1                                               
-                                                
-                                                try
-                                                    readAllText >> runIO <| pathToJson   
-                                                    |> JsonProvider2.Parse // The biggest performance drag    
-                                                with
-                                                | _ -> JsonProvider2.Parse tempJson2
+                                                ->   
+                                                async
+                                                    {
+                                                        try
+                                                            counterAndProgressBar.Post <| Inc 1    
+                                                            token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
+
+                                                            let! result = readAllTextAsync >> runIO <| pathToJson 
+
+                                                            return result |> JsonProvider2.Parse
+                                                             // The biggest performance drag    
+                                                        with
+                                                        | _ -> return JsonProvider2.Parse tempJson2
+                                                    }
                                             )
+                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                                         |> List.filter (not << isNull)  //just in case
                                             
                                     return 
                                         (token, pathToJsonList3, kodisJsonSamples) 
-                                        |||> List.Parallel.map2_CPU2_AW_Token 
+                                        |||> List.Parallel.map2_CPU2_AW_Token_Async 
                                             (fun pathToJson kodisJsonSample
-                                                ->  
-                                                // Artificial checkpoint po mych List.Parallel nebo Async.Parallel nedavat
-                                                //token.ThrowIfCancellationRequested () 
+                                                ->   
+                                                async
+                                                    {
+                                                        try
+                                                            counterAndProgressBar.Post <| Inc 1
+
+                                                            token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
                                                 
-                                                counterAndProgressBar.Post <| Inc 1
+                                                            //JsonProvider's results are of Array type => Array is used
                                                 
-                                                //JsonProvider's results are of Array type => Array is used
+                                                            let timetables =
+                                                                option 
+                                                                    {
+                                                                        let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull 
+                                                                        let! data = sample.Data |> Option.ofNull                                                             
+                                                                        return 
+                                                                            data
+                                                                            |> Array.filter (not << isNull)
+                                                                            |> Array.Parallel.map 
+                                                                                (fun (item : JsonProvider2.Datum) -> item.Timetable)
+                                                                    }
+                                                                |> Option.defaultValue Array.empty   
                                                 
-                                                let timetables =
-                                                    option 
-                                                        {
-                                                            let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull 
-                                                            let! data = sample.Data |> Option.ofNull                                                             
-                                                            return 
-                                                                data
-                                                                |> Array.filter (not << isNull)
-                                                                |> Array.Parallel.map 
-                                                                    (fun (item : JsonProvider2.Datum) -> item.Timetable)
-                                                        }
-                                                    |> Option.defaultValue Array.empty   
+                                                            let vyluky =
+                                                                option 
+                                                                    {
+                                                                        let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull 
+                                                                        let! data = sample.Data |> Option.ofNull                                                             
+                                                                        return 
+                                                                            data
+                                                                            |> Array.filter (not << isNull)
+                                                                            |> Array.Parallel.map 
+                                                                                (fun (item : JsonProvider2.Datum) -> item.Vyluky)
+                                                                            |> Array.concat
+                                                                    }
+                                                                |> Option.defaultValue Array.empty
                                                 
-                                                let vyluky =
-                                                    option 
-                                                        {
-                                                            let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull 
-                                                            let! data = sample.Data |> Option.ofNull                                                             
-                                                            return 
-                                                                data
-                                                                |> Array.filter (not << isNull)
-                                                                |> Array.Parallel.map 
-                                                                    (fun (item : JsonProvider2.Datum) -> item.Vyluky)
-                                                                |> Array.concat
-                                                        }
-                                                    |> Option.defaultValue Array.empty
-                                                
-                                                let attachments =
-                                                    option 
-                                                        {
-                                                            let! arr = vyluky |> Option.ofNull                                                             
-                                                            return
-                                                                arr
-                                                                |> Array.filter (not << isNull)
-                                                                |> Array.collect (fun (item : JsonProvider2.Vyluky) -> item.Attachments)
-                                                                |> Array.choose (fun item -> item.Url |> Option.ofNullEmptySpace)
-                                                        }
-                                                    |> Option.defaultValue Array.empty
+                                                            let attachments =
+                                                                option 
+                                                                    {
+                                                                        let! arr = vyluky |> Option.ofNull                                                             
+                                                                        return
+                                                                            arr
+                                                                            |> Array.filter (not << isNull)
+                                                                            |> Array.collect (fun (item : JsonProvider2.Vyluky) -> item.Attachments)
+                                                                            |> Array.choose (fun item -> item.Url |> Option.ofNullEmptySpace)
+                                                                    }
+                                                                |> Option.defaultValue Array.empty
                                              
-                                                Array.append timetables attachments   
+                                                            return Array.append timetables attachments  
+                                                        with
+                                                        |_ -> return [||] //silently swallowing an error
+                                                    }
                                             ) 
+                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)  
                                         |> List.toArray 
                                         |> Array.concat    
                                         |> Seq.ofArray

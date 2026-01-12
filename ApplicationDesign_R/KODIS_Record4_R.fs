@@ -1,4 +1,4 @@
-﻿namespace ApplicationDesign4
+﻿namespace ApplicationDesign4_R
 
 open System
 open System.Threading
@@ -25,7 +25,7 @@ open IO_Operations.CreatingPathsAndNames
 open Settings.Messages
 open Settings.SettingsGeneral
 
-open BusinessLogic.KODIS_BL_Record4
+open BusinessLogic_R.KODIS_BL_Record4
 
 //**********************************
 
@@ -65,7 +65,7 @@ module WebScraping_KODIS4 =
         { 
             DeleteAllODISDirectories = deleteAllODISDirectories   
             OperationOnDataFromJson = operationOnDataFromJson
-            DownloadAndSave = downloadAndSave >> runIO
+            DownloadAndSave = fun token context -> runIO (downloadAndSave token context) //downloadAndSave >> runIO
         }    
 
     let private stateReducer (token : CancellationToken) path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
@@ -135,12 +135,12 @@ module WebScraping_KODIS4 =
                 destination = oldTimetablesPath4 
             }        
        
-        let result (context2 : Context2) =           
-           
+        let result (context2 : Context2) =   
+        
+            //dispatchCancelVisible false    
+                             
             let dir = context2.DirList |> List.item context2.VariantInt  
             let list = runIO <| operationOnDataFromJson token context2.Variant dir 
-
-            dispatchWorkIsComplete String.Empty
 
             //dispatchRestartVisible false 
         
@@ -164,10 +164,10 @@ module WebScraping_KODIS4 =
                         | true  -> context List.Parallel.map2_IO_AW
                         | false -> context List.map2
         
-                        |> environment.DownloadAndSave token                         
+                        |> environment.DownloadAndSave token     
         
             | Ok _
-                ->                  
+                ->   
                 dispatchIterationMessage context2.Msg2
                 System.Threading.Thread.Sleep(6000) 
                 Ok context2.Msg3 

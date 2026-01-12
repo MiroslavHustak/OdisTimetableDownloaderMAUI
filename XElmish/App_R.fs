@@ -68,10 +68,10 @@ open Helpers.ExceptionHelpers
 open AndroidUIHelpers    
 #endif
 
-open ApplicationDesign.WebScraping_DPO
-open ApplicationDesign.WebScraping_MDPO
-open ApplicationDesign.WebScraping_KODIS
-open ApplicationDesign4.WebScraping_KODIS4
+open ApplicationDesign_R.WebScraping_DPO
+open ApplicationDesign_R.WebScraping_MDPO
+open ApplicationDesign_R.WebScraping_KODIS
+open ApplicationDesign4_R.WebScraping_KODIS4
 
 (*     
     AndroidManifest.xml : Remember to review and update it if necessary. 

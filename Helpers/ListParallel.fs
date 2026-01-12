@@ -223,6 +223,33 @@ let map_CPU_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a 
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> Array.toList
 
+let map_CPU_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken) (list : 'a list) : Async<'b list> =
+
+    match list with
+    | [] ->  
+        async { return [] }
+    | _ ->
+        let maxDegree = Environment.ProcessorCount   // or reuse numberOfThreads (List.length list)       
+
+        let tasks = 
+            list
+            |> Array.ofList   
+            |> Array.map
+                (fun item 
+                    ->
+                    async 
+                        {
+                            token.ThrowIfCancellationRequested ()
+                            return! action item
+                        }
+                )   
+
+        async 
+            {
+                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+                return result |> List.ofArray 
+            } 
+
 let map_IO_AW (action : 'a -> 'b) (list : 'a list) =
 
     match list with
@@ -255,8 +282,34 @@ let map_IO_AW_Async (action : 'a -> Async<'b>) (list : 'a list) =
             {
                 let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
                 return result |> List.ofArray 
-            }     
-
+            }  
+            
+let map_IO_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken) (list : 'a list) =
+     
+    match list with
+    | [] -> 
+        async { return [] }
+    | _  ->
+        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
+              
+        let tasks = 
+            list
+            |> Array.ofList   
+            |> Array.map
+                (fun item 
+                    ->
+                    async 
+                        {
+                            token.ThrowIfCancellationRequested ()
+                            return! action item
+                        }
+                )        
+        
+        async 
+            {
+                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+                return result |> List.ofArray 
+            }   
 
 // Using Array.Parallel.iter //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter2_CPU_PT<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
@@ -371,12 +424,11 @@ let iter2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : Can
         async 
             {
                 let! results = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
-                results |> ignore<'c array> 
-                return ()
+                return results |> ignore<'c array> 
             }     
 
 // Using Array.Parallel.map  //TODO otestovat rychlost ve srovnani s Async.Parallel
-let map2_CPU_PT<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list =
+let map2_CPU_PT<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list = //PT pool of threads
 
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -442,7 +494,7 @@ let map2_CPU2_AW_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : Cancellat
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> Array.toList
 
-let map2_CPU2_AW_Token_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : Async<'c list> =
+let map2_CPU2_AW_Token_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> Async<'c>) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : Async<'c list> =
 
     match xs1, xs2 with
     | [], _ | _, [] 
@@ -465,7 +517,7 @@ let map2_CPU2_AW_Token_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : Can
                     async 
                         {
                             token.ThrowIfCancellationRequested ()
-                            return mapping x y
+                            return! mapping x y
                         }
                 )  
         async 

@@ -230,6 +230,7 @@ module App =
                                     ->
                                     async
                                         {    
+                                            (*
                                             #if WINDOWS  
                                             match isConnected with
                                             | true  ->
@@ -242,7 +243,12 @@ module App =
                                             match isConnected with
                                             | true  -> return dispatch Home2 
                                             | false -> return EmergencyQuit >> dispatch <| false 
-                                            #endif         
+                                            #endif  
+                                            *)
+
+                                            match isConnected with
+                                            | true  -> return NetConnMessage >> dispatch <| yesNetConn                                             
+                                            | false -> return EmergencyQuit >> dispatch <| false 
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 
@@ -604,14 +610,14 @@ module App =
                     }
                 |> Async.StartImmediate
           
-            #if WINDOWS
-            m, Cmd.none          
-            #endif
+            //#if WINDOWS
+            //m, Cmd.none          
+            //#endif
 
-            #if ANDROID
+            //#if ANDROID
             { 
                 m with 
-                    ProgressMsg = String.Empty
+                    ProgressMsg = noNetConn3
                     NetConnMsg = noNetConn4
                     ProgressIndicator = Idle
                     Progress = 0.0   
@@ -628,7 +634,7 @@ module App =
                     Label2Visible = true  
                     InternetIsConnected = isConnected          
             }, Cmd.ofSub executeQuit
-            #endif           
+            //#endif           
 
         | Home2  
             -> 
@@ -939,7 +945,7 @@ module App =
                                 try
                                     let! hardWork =                             
                                         async 
-                                            {                                                      
+                                            {       
                                                 let reportProgress (progressValue, totalProgress) =     
 
                                                     match token.IsCancellationRequested with

@@ -258,6 +258,8 @@ module DPO_BL =
                                 async
                                     {
                                         counterAndProgressBar.Post <| Inc 1
+                                        token.ThrowIfCancellationRequested() 
+
                                         return! downloadWithResumeDPO uri path token
                                     }
                             )

@@ -1,4 +1,4 @@
-﻿namespace ApplicationDesign
+﻿namespace ApplicationDesign_R
 
 open System
 open System.IO
@@ -18,7 +18,7 @@ open Helpers.Builders
 
 open Api.Logging
 
-open BusinessLogic.DPO_BL   
+open BusinessLogic_R.DPO_BL  
 
 open IO_Operations.IO_Operations
 

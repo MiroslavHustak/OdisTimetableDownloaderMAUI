@@ -273,6 +273,8 @@ module MDPO_BL = //FsHttp
                                             {
                                                 try
                                                     counterAndProgressBar.Post <| Inc 1
+
+                                                    token.ThrowIfCancellationRequested() 
                         
                                                     let pathExists =
                                                         runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)

@@ -1,4 +1,4 @@
-﻿namespace ApplicationDesign
+﻿namespace ApplicationDesign_R
 
 open System
 open System.IO
@@ -13,11 +13,13 @@ open Types.ErrorTypes
 open Types.Grid3Algebra
 open Types.Haskell_IO_Monad_Simulation
 
+open Helpers
 open Helpers.Builders
+open Helpers.ExceptionHelpers
 
 open Api.Logging
 
-open BusinessLogic.MDPO_BL   
+open BusinessLogic_R.MDPO_BL  
 
 open IO_Operations.IO_Operations
 
@@ -44,20 +46,15 @@ module WebScraping_MDPO =
 
     type private Environment = 
         {
-            SafeFilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
-            SafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
-            UnsafeFilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
-            UnsafeDownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
+            FilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
+            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
         }
 
     let private environment : Environment =
         { 
-            SafeFilterTimetables = safeFilterTimetables 
-            SafeDownloadAndSaveTimetables = safeDownloadAndSaveTimetables      
-            UnsafeFilterTimetables = unsafeFilterTimetables 
-            UnsafeDownloadAndSaveTimetables = unsafeDownloadAndSaveTimetables       
+            FilterTimetables = filterTimetables 
+            DownloadAndSaveTimetables = downloadAndSaveTimetables    
         }    
-
 
     let internal webscraping_MDPO reportProgress token pathToDir = 
 
@@ -97,54 +94,42 @@ module WebScraping_MDPO =
                             runIO (postToLog <| string ex.Message <| "#007")
                             Error FileDownloadErrorMHD //dpoMsg1                  
            
-                    | FilterDownloadSave   //Quli problemum s certifikatem www.mdpo.cz zatim try with bloky vsade, kaj se da
-                        ->                                      
-                        try                     
-                            let pathToSubdir =
-                                dirList pathToDir 
-                                |> List.tryHead 
-                                |> Option.defaultValue String.Empty
-                                in
-                                match pathToSubdir |> Directory.Exists with 
-                                | false ->
-                                        runIO (postToLog <| FileDeleteErrorMHD <| "#008-1")
-                                        Error FileDeleteErrorMHD                             
-                                | true  -> 
-                                        let filterTmtb = environment.SafeFilterTimetables pathToSubdir token
-                                        runIO <| environment.SafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb                                       
-                        with
-                        | ex 
-                            ->
-                            runIO (postToLog <| ex.Message <| "#008") //net_http_ssl_connection_failed
-
-                            try
-                                let pathToSubdir =
-                                    dirList pathToDir 
-                                    |> List.tryHead 
-                                    |> Option.defaultValue String.Empty
-                                    in
-                                    match pathToSubdir |> Directory.Exists with 
-                                    | false ->
-                                            runIO (postToLog <| FileDeleteErrorMHD <| "#009-1") 
-                                            Error FileDeleteErrorMHD                             
-                                    | true  ->                                             
-                                            let filterTmtb = environment.UnsafeFilterTimetables pathToSubdir token  
+                    | FilterDownloadSave   
+                        ->  
+                        let downloadTimetables pathToDir = 
+                            result 
+                                {
+                                    let! firstSubDir = 
+                                        dirList pathToDir
+                                        |> List.tryHead
+                                        |> Option.toResult FileDownloadErrorMHD
                                     
-                                            (runIO <| environment.UnsafeDownloadAndSaveTimetables reportProgress token pathToSubdir filterTmtb)
-                                            |> function
-                                                | Ok _     
-                                                    -> 
-                                                    Error TlsHandshakeErrorMHD
-                                                | Error err
-                                                    ->
-                                                    runIO (postToLog <| err <| "#009-2") 
-                                                    Error err       
-                                            //a temporary solution until the maintainers of mdpo.cz start doing something with the certifications :-)
-                            with
-                            | ex 
+                                    let filter = environment.FilterTimetables firstSubDir token
+                        
+                                    return! runIO <| environment.DownloadAndSaveTimetables reportProgress token firstSubDir filter
+                                }
+                        
+                        try        
+                           downloadTimetables pathToDir
+                        with
+                        | :? DirectoryNotFoundException 
+                            ->
+                            runIO (postToLog "Timetable directory not found or was deleted" "#008-10")
+                            Error FileDeleteErrorMHD  
+
+                        | ex 
+                            -> //temporary code
+                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                            | err when err = TimeoutError 
                                 ->
-                                runIO (postToLog <| ex.Message <| "#009")
-                                Error TlsHandshakeErrorMHD                        
+                                Error TlsHandshakeErrorMHD
+                            | _                               
+                                when (string ex.Message).Contains "Timeout exceeded while getting response"
+                                ->
+                                Error TlsHandshakeErrorMHD  
+                            | _ ->
+                                runIO (postToLog <| string ex.Message <| "#008-X05") 
+                                Error FileDownloadErrorMHD                           
                                                                   
                 pyramidOfInferno
                     {  

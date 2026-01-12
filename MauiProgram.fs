@@ -40,8 +40,8 @@ type MauiProgram =
 
                 MauiApp
                     .CreateBuilder()
-                    //.UseFabulousApp(App.program) //not resumable
-                    .UseFabulousApp(App_R.program) //resumable
+                    .UseFabulousApp(App.program) //not resumable
+                    //.UseFabulousApp(App_R.program) //resumable
                     .ConfigureFonts(
                         fun (fonts : IFontCollection)
                             ->
@@ -64,26 +64,27 @@ type MauiProgram =
                                 fun _
                                     ->
                                     //App.cancellationActor.Post Types.Types.CancelCurrent   //not my intent  
+                                    //App_R.cancellationActor.Post Types.Types.CancelCurrent   //not my intent  
                                     ()
                                 )
                                 |> ignore<ILifecycleBuilder>    
 
                             android.OnStop
                                 //(fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
-                                (fun _ -> App_R.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
+                                //(fun _ -> App_R.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
                             *) 
 
                             android.OnResume(
                                 fun (_activity : Android.App.Activity) 
                                     ->
-                                    //match App.DispatchHolder.DispatchRef with
-                                    match App_R.DispatchHolder.DispatchRef with
-                                    //| Some (weakRef : System.WeakReference<Dispatch<App.Msg>>) 
-                                    | Some (weakRef : System.WeakReference<Dispatch<App_R.Msg>>) 
+                                    match App.DispatchHolder.DispatchRef with
+                                    //match App_R.DispatchHolder.DispatchRef with
+                                    | Some (weakRef : System.WeakReference<Dispatch<App.Msg>>) 
+                                    //| Some (weakRef : System.WeakReference<Dispatch<App_R.Msg>>) 
                                         ->
                                         match weakRef.TryGetTarget() with
-                                        //| true, (dispatch : Dispatch<App.Msg>)
-                                        | true, (dispatch : Dispatch<App_R.Msg>)
+                                        | true, (dispatch : Dispatch<App.Msg>)
+                                        //| true, (dispatch : Dispatch<App_R.Msg>)
                                             ->                                        
                                             async 
                                                 {
@@ -106,8 +107,8 @@ type MauiProgram =
                                                         match granted with
                                                         | true 
                                                             ->
-                                                            //(dispatch : Dispatch<App.Msg>) <| App.Home2
-                                                            (dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
+                                                            (dispatch : Dispatch<App.Msg>) <| App.Home2
+                                                            //(dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
                                                         | false
                                                             -> 
                                                             ()

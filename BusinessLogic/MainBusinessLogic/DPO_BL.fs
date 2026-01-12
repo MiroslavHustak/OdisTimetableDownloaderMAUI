@@ -149,6 +149,7 @@ module DPO_BL =
                                 {                      
                                     try         
                                         // not <| File.Exists pathToFile TOCTOU race -> try-with will catch
+                                        token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
                                                                                
                                         use client = new HttpClient()
 
@@ -243,6 +244,8 @@ module DPO_BL =
                                         async
                                             {
                                                 counterAndProgressBar.Post <| Inc 1
+                                                token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
+
                                                 return! runIO <| downloadFileTaskAsync uri path       
                                             }
                                     )
@@ -271,9 +274,9 @@ module DPO_BL =
                             with                            
                             | ex                             
                                 -> 
-                                match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                match isCancellationGeneric StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                 | err 
-                                    when err = StopDownloading
+                                    when err = StopDownloadingMHD
                                     ->
                                     //runIO (postToLog <| string ex.Message <| "#123456Y")
                                     Error <| StopDownloadingMHD

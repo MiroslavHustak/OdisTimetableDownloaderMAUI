@@ -184,6 +184,8 @@ module KODIS_BL_Record =
                             {
                                 try
                                     counterAndProgressBar.Post <| Inc 1    
+                                    token.ThrowIfCancellationRequested() 
+
                                     return! downloadWithResume uri pathToFile
                                 with
                                 | :? HttpRequestException as ex 
@@ -344,6 +346,8 @@ module KODIS_BL_Record =
                                     {
                                         try
                                             counterAndProgressBar.Post <| Inc 1
+
+                                            token.ThrowIfCancellationRequested() 
    
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)

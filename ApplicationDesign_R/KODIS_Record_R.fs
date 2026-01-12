@@ -1,7 +1,6 @@
-﻿namespace ApplicationDesign
+﻿namespace ApplicationDesign_R
 
 open System
-open System.IO
 open System.Threading
 
 //**********************************
@@ -14,7 +13,7 @@ open Types.Haskell_IO_Monad_Simulation
 
 open FsToolkit.ErrorHandling
 
-open BusinessLogic.KODIS_BL_Record //not resuming
+open BusinessLogic_R.KODIS_BL_Record //resuming
 open BusinessLogic.TP_Canopy_Difference
 
 open Helpers
@@ -71,7 +70,7 @@ module WebScraping_KODIS =
             ParseJsonStructure = parseJsonStructure // JsonData.ParseJsonDataFull.digThroughJsonStructure
             
             FilterTimetableLinks = filterTimetableLinks  
-            DownloadAndSave = downloadAndSave >> runIO //not resuming
+            DownloadAndSave = fun token context -> runIO (downloadAndSave token context) //resuming
         }    
 
     let internal stateReducerCmd1 (token : CancellationToken) reportProgress =
@@ -173,7 +172,6 @@ module WebScraping_KODIS =
                     let dir = context2.DirList |> List.item context2.VariantInt 
                     
                     // Paralelni dispatch vubec nepomuze, aby se dispatchMsg2 objevil, ale kod ponechavam for educational purposes
-                    (*
                     let dispatch () = dispatchWorkIsComplete dispatchMsg1_1
                         
                     let list1 () = 
@@ -213,9 +211,9 @@ module WebScraping_KODIS =
                         | Error _ 
                             ->  
                             Error <| JsonParsingError2 JsonDataFilteringError                                
-                   *)
                    
-                    dispatchWorkIsComplete dispatchMsg1_1  //dispatchMsg2
+                    (*
+                    dispatchWorkIsComplete dispatchMsg1_1 // dispatchMsg2
 
                     let list2 = 
                         try  
@@ -224,10 +222,11 @@ module WebScraping_KODIS =
                         | ex
                             ->
                             runIO (postToLog <| string ex.Message <| "#22-2")
-                            Error <| JsonParsingError2 JsonDataFilteringError                     
-                    
-                    match list2 with                    
-                    //match result2 with
+                            Error <| JsonError JsonDataFilteringError                     
+                     *)
+
+                    //match list2 with                    
+                    match result2 with
                     | Ok list
                         when
                             list <> List.empty

@@ -37,12 +37,12 @@ module KODIS_BL_Record4 =
     let internal operationOnDataFromJson (token : CancellationToken) variant dir = 
     
         IO (fun () 
-                ->
-                token.ThrowIfCancellationRequested() 
-                                
+                ->           
                 let result1 () : Async<Result<(string * string) list, ParsingAndDownloadingErrors>> = 
                     async
                         {
+                            token.ThrowIfCancellationRequested() 
+
                             match! getFutureLinksFromRestApi >> runIO <| urlApi with
                             | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
                             | Error err -> return Error <| PdfDownloadError2 err
@@ -51,6 +51,8 @@ module KODIS_BL_Record4 =
                 let result2 () : Async<Result<(string * string) list, ParsingAndDownloadingErrors>> = 
                     async
                         {
+                            token.ThrowIfCancellationRequested() 
+
                             match variant with
                             | FutureValidity 
                                 ->
@@ -98,8 +100,16 @@ module KODIS_BL_Record4 =
 
                         | Choice2Of2 ex
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#016")                      
-                            return Error <| JsonParsingError2 JsonDataFilteringError  
+                            match isCancellationGeneric StopJsonParsing JsonParsingTimeoutError JsonDataFilteringError token ex with
+                            | err 
+                                when err = StopJsonParsing
+                                ->
+                                //runIO (postToLog <| string ex.Message <| "#123456C")
+                                return Error <| JsonParsingError2 StopJsonParsing
+                            | err 
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#016")                      
+                                return Error <| JsonParsingError2 JsonDataFilteringError 
                     }
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
@@ -114,6 +124,8 @@ module KODIS_BL_Record4 =
                         {
                             let maxRetries = 5                            
                             let initialBackoffMs = 1000
+
+                            token.ThrowIfCancellationRequested() 
    
                             let rec attempt retryCount (backoffMs : int) = 
 
@@ -242,6 +254,8 @@ module KODIS_BL_Record4 =
                                     {
                                         try
                                             counterAndProgressBar.Post <| Inc 1
+
+                                            token.ThrowIfCancellationRequested() 
    
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
