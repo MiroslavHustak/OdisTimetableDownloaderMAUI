@@ -210,6 +210,12 @@ module Option =
 
 module ExceptionHelpers =
 
+    type ExceptionClassification =
+        | TlsError2
+        | TimeoutError2  
+        | NetworkError2
+        | UnknownError2   
+
     let internal isCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) =
            
         let rec loop (stack : exn list) (acc : 'c list) : 'c list =
@@ -280,67 +286,143 @@ module ExceptionHelpers =
                        
                 return fileDownloadError        
             } 
-   
-    let internal comprehensiveTryWith (letItBe : 'c) (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (tlsHandShakeError : 'c) (token : CancellationToken) (ex : exn) =
 
-        match isCancellationGeneric stopDownloading timeoutError fileDownloadError token ex with
-        | err
-            when err = stopDownloading
-            ->
-            Error stopDownloading
-           
-        | err 
-            when err = timeoutError
-            ->
-            Error timeoutError
-           
-        | err 
-            when err = fileDownloadError
-            ->
-            // If it’s not user cancellation or timeout, continue with Android-specific analysis
-            let rec findRoot (ex : Exception) =
+    let internal comprehensiveTryWith (letItBe : 'c) (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (tlsHandShakeError : 'c) (token : CancellationToken) (ex : exn) =  
+    
+        let priority =
+            function
+                | TlsError2     -> 3
+                | TimeoutError2 -> 2
+                | NetworkError2 -> 1
+                | UnknownError2 -> 0
+    
+        let rec collectExceptions (ex : Exception) =
+            match ex with
+            | :? AggregateException as aex ->
+                // Flatten AggregateException from Task.WhenAll, Async.Parallel, etc.
+                aex.InnerExceptions 
+                |> Seq.collect collectExceptions 
+                |> List.ofSeq
+            | ex ->
                 match ex.InnerException |> Option.ofNull with
-                | Some inner -> findRoot inner
-                | None  -> ex
-           
-            let root = findRoot ex
-           
-            match root with
-            | :? SocketException as sockEx 
-                when sockEx.SocketErrorCode = SocketError.NetworkUnreachable
+                | Some inner 
+                    -> ex :: collectExceptions inner
+                | None
+                    -> [ ex ]
+    
+        let classifyException (e : Exception) : ExceptionClassification option =
+            match e with
+            // TLS/SSL errors
+            | :? AuthenticationException
+                -> 
+                Some TlsError2
+        
+            // TaskCanceledException - correct handling
+            | :? TaskCanceledException
                 ->
-                Error letItBe
-           
-            | :? SocketException as sockEx 
-                when sockEx.SocketErrorCode = SocketError.TimedOut 
+                match token.IsCancellationRequested with
+                | true  -> None  // Our cancellation, not a timeout
+                | false -> Some TimeoutError2  // HTTP client timeout
+        
+            // Socket errors
+            | :? SocketException as se ->
+                match se.SocketErrorCode with
+                | SocketError.TimedOut 
+                    -> 
+                    Some TimeoutError2
+                | SocketError.NetworkUnreachable
+                | SocketError.HostUnreachable
+                | SocketError.ConnectionRefused
+                | SocketError.ConnectionAborted
+                | SocketError.NetworkDown
+                | SocketError.HostNotFound
+                | SocketError.ConnectionReset
+                    -> 
+                    Some NetworkError2
+                | _ -> 
+                    Some NetworkError2
+        
+            // IO and HTTP errors
+            | :? IOException 
+                -> 
+                Some NetworkError2
+            | :? HttpRequestException 
+                -> 
+                Some NetworkError2
+        
+            // Android platform-specific message patterns (last resort)
+            | e ->
+                let msg = e.Message
+                match msg with
+                // TLS - specific terms only, not broad "SSL"/"TLS"
+                | msg when msg.Contains("handshake", StringComparison.Ordinal) 
+                        || msg.Contains("certificate", StringComparison.Ordinal)
+                        || msg.Contains("trust anchor", StringComparison.Ordinal) 
+                    ->
+                    Some TlsError2
+            
+                // Timeout - specific patterns
+                | msg when msg.Contains("timed out", StringComparison.Ordinal)
+                    ->
+                    Some TimeoutError2
+            
+                // Network - specific patterns
+                | msg when msg.Contains("network unreachable", StringComparison.Ordinal)
+                        || msg.Contains("connection refused", StringComparison.Ordinal)
+                        || msg.Contains("no route to host", StringComparison.Ordinal)
+                    ->
+                    Some NetworkError2
+            
+                | _ -> 
+                    None
+        let classifyChain (chain : Exception list) : ExceptionClassification * Exception option =
+            match chain |> List.choose classifyException with
+            | [] 
+                -> 
+                (UnknownError2, chain |> List.tryHead)
+            | classifications 
+                -> 
+                let highest = classifications |> List.maxBy priority
+                (highest, None)  // Known classification, no need to log original
+    
+        let mapClassificationToError = 
+            function
+                | TlsError2     -> tlsHandShakeError
+                | TimeoutError2 -> timeoutError
+                | NetworkError2 -> fileDownloadError
+                | UnknownError2 -> fileDownloadError
+    
+        match isCancellationGeneric stopDownloading timeoutError fileDownloadError token ex with
+        | err 
+            when err = stopDownloading
+            -> 
+            Error stopDownloading
+        
+        | err
+            when err = timeoutError 
+            -> 
+            Error timeoutError
+        
+        | err
+            when err = fileDownloadError 
+            ->
+            let classification, unknownEx = 
+                ex 
+                |> collectExceptions 
+                |> classifyChain
+        
+            // Logging side-effect at the boundary only (point 3)
+            match classification, unknownEx with
+            | UnknownError2, Some originalEx
                 ->
-                Error timeoutError
-           
-            // HttpClient timeout (TaskCanceledException)   
-            | :? TaskCanceledException as tcex 
-                when not tcex.CancellationToken.IsCancellationRequested
-                ->
-                Error timeoutError
-
-            // TLS handshake
-            | :? AuthenticationException as authEx 
-                ->
-                Error tlsHandShakeError
-           
-            | :? IOException as ioEx
-                ->
-                Error letItBe
-           
-            | :? SocketException as sockEx 
-                ->
-                Error letItBe
-           
-            | :? HttpRequestException
-                ->
-                Error letItBe 
-
+                //runIO (postToLog (sprintf "Unknown exception: %s - %s" (originalEx.GetType().Name) originalEx.Message) #UNKNOWN-ERROR")
+                ()
             | _ ->
-                Error letItBe  
-
-        | _ ->
-            Error letItBe 
+                ()
+        
+            classification
+            |> mapClassificationToError
+            |> Error
+    
+        | _ -> 
+            Error fileDownloadError
