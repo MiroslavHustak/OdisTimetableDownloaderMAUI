@@ -185,6 +185,54 @@ module App_R =
                         }
                 )
             |> Async.StartImmediate  
+
+        let monitorConnectivity2 (dispatch : Msg -> unit) =
+            
+            // Debounce actor to prevent rapid-fire messages
+            // let debounceActor =
+                MailboxProcessor<bool>
+                    .StartImmediate
+                        (fun inbox 
+                            ->
+                            let rec loop lastState (lastChangeTime : DateTime) =
+                                async
+                                    {
+                                        let! isConnected = inbox.Receive()
+                                        let now = DateTime.Now
+                                
+                                        // Only process if state changed AND 2 seconds passed
+                                        match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 2.0 with
+                                        | true, true 
+                                            ->
+                                            // State changed and debounce period elapsed
+                                            match isConnected with
+                                            | false ->
+                                                    NetConnMessage >> dispatch <| noNetConn
+                                                    runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                            | true ->
+                                                    // Connection restored
+                                                    dispatch (NetConnMessage "Some message")
+                                    
+                                            return! loop isConnected now
+                                
+                                        | true, false
+                                            ->
+                                            // State changed but too soon - ignore
+                                            return! loop lastState lastChangeTime
+                                
+                                        | false, _
+                                            ->
+                                            // State unchanged
+                                            return! loop lastState lastChangeTime
+                                    }
+                        
+                            loop true DateTime.MinValue  // Start assuming connected
+                    )
+            
+            // Register handler ONCE
+            //runIO <| initConnectivityListener (fun isConnected ->
+            //    debounceActor.Post isConnected
+            // )
        
         #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
