@@ -3,9 +3,7 @@
 open System
 open System.IO
 open System.Net
-open System.Net.Http
 open System.Threading
-open System.Threading.Tasks
 
 //**********************************
 
@@ -138,7 +136,7 @@ module MDPO_BL = //FsHttp
                         
                     async
                         {
-                            let maxRetries = 5
+                            let maxRetries = 500
                             let initialBackoffMs = 1000
 
                             let rec attempt retryCount (backoffMs : int) =
@@ -198,11 +196,13 @@ module MDPO_BL = //FsHttp
                                                         |> Async.AwaitTask
                         
                                                     return Ok ()
-                                                with 
-                                                | :? HttpRequestException as ex 
-                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                 
+                                                with                                                 
                                                 | ex 
-                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                                                    -> 
+                                                    return 
+                                                       comprehensiveTryWith
+                                                           LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                                           FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                         
                                             | HttpStatusCode.Forbidden
                                                 ->
@@ -227,7 +227,10 @@ module MDPO_BL = //FsHttp
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
                                                         runIO (postToLog <| ex.Message <| "#MDPO-RETRY")
-                                                        return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                                                        return 
+                                                            comprehensiveTryWith 
+                                                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
                         
                             return! attempt 0 initialBackoffMs
@@ -303,21 +306,30 @@ module MDPO_BL = //FsHttp
                                                                 runIO (postToLog <| string err <| "#7028-MDPO")
                                                                 return Error err
                         
-                                                with 
-                                                | :? HttpRequestException as ex 
-                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                 
+                                                with           
                                                 | ex 
-                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                                                    ->
+                                                    return
+                                                        comprehensiveTryWith 
+                                                            LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                                            FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             }                  
                                     )
                     
                                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                             
-                            with                                                    
-                            | :? HttpRequestException as ex 
-                                -> [ comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex ]
+                            with 
                             | ex
-                                -> [ comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex ]                         
+                                ->
+                                [ 
+                                    comprehensiveTryWith 
+                                        LetItBeMHD 
+                                        StopDownloadingMHD 
+                                        TimeoutErrorMHD 
+                                        FileDownloadErrorMHD 
+                                        TlsHandshakeErrorMHD 
+                                        token ex 
+                                ]                         
                     )
                     
                 runIO <| downloadAndSave reportProgress token filterTimetables

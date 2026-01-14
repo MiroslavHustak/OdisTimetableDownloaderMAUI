@@ -118,7 +118,12 @@ module WebScraping_MDPO =
                             Error FileDeleteErrorMHD  
 
                         | ex 
-                            -> //temporary code
+                            -> 
+                            comprehensiveTryWith
+                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
+                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex    
+                            (*
+                            //temporary code
                             match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
                             | err when err = TimeoutError 
                                 ->
@@ -129,7 +134,8 @@ module WebScraping_MDPO =
                                 Error TlsHandshakeErrorMHD  
                             | _ ->
                                 runIO (postToLog <| string ex.Message <| "#008-X05") 
-                                Error FileDownloadErrorMHD                           
+                                Error FileDownloadErrorMHD  
+                          *)
                                                                   
                 pyramidOfInferno
                     {  

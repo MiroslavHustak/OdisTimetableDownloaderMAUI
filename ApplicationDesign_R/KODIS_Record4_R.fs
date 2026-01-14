@@ -169,7 +169,6 @@ module WebScraping_KODIS4 =
             | Ok _
                 ->   
                 dispatchIterationMessage context2.Msg2
-                //System.Threading.Thread.Sleep(6000) 
                 Ok context2.Msg3 
         
             | Error err 

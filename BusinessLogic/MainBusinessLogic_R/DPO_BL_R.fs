@@ -3,7 +3,6 @@
 open System
 open System.IO
 open System.Net
-open System.Net.Http
 open System.Threading
 
 //******************************************
@@ -146,7 +145,7 @@ module DPO_BL =
     
                     async
                         {
-                            let maxRetries = 5
+                            let maxRetries = 500
                             let initialBackoffMs = 1000
     
                             let rec attempt retryCount (backoffMs : int) =
@@ -194,11 +193,13 @@ module DPO_BL =
                                                     use fs = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fs, token) |> Async.AwaitTask
                                                     return Ok ()
-                                                with 
-                                                | :? HttpRequestException as ex 
-                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                 
+                                                with                                                                                  
                                                 | ex 
-                                                    -> return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                                                    -> 
+                                                    return
+                                                        comprehensiveTryWith
+                                                            LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
+                                                            FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
                                             | _ ->
                                                 runIO (postToLog (string response.statusCode) "#2212-DPO")
                                                 return Error FileDownloadErrorMHD
@@ -216,7 +217,10 @@ module DPO_BL =
                                                 return! attempt (retryCount + 1) (backoffMs * 2)
                                             | _ ->
                                                 runIO (postToLog ex.Message "#7024-DPO")
-                                                return comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                                                return 
+                                                    comprehensiveTryWith
+                                                        LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
+                                                        FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
                                     }
     
                             return! attempt 0 initialBackoffMs
@@ -236,7 +240,8 @@ module DPO_BL =
     
                         let counterAndProgressBar =
                             MailboxProcessor<MsgIncrement>.StartImmediate
-                                (fun inbox ->
+                                (fun inbox 
+                                    ->
                                     let rec loop n =
                                         async
                                             {
@@ -263,14 +268,15 @@ module DPO_BL =
                                         return! downloadWithResumeDPO uri path token
                                     }
                             )
+
                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                         |> List.tryFind (function Error _ -> true | Ok _ -> false)
                         |> Option.defaultValue (Ok ())
                    
-                    with 
-                    | :? HttpRequestException as ex 
-                        -> comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                 
+                    with                                            
                     | ex 
-                        -> comprehensiveTryWith LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                        -> 
+                        comprehensiveTryWith
+                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
+                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
         )
-    

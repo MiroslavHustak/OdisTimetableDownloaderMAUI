@@ -241,7 +241,7 @@ module WebScraping_KODIS =
                                
                                 dispatchIterationMessage context2.Msg1
                               
-                                //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
+                                //nepouzivano, ale ponechano jako template record s generic types (mrkni se na function signature)
                                 //**********************************************************************
                                 match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
                                 | true  -> context List.Parallel.map2_IO_AW
@@ -253,7 +253,6 @@ module WebScraping_KODIS =
                     | Ok _
                         ->  
                         dispatchIterationMessage context2.Msg2    
-                        System.Threading.Thread.Sleep(6000)     
                         Ok context2.Msg3 
         
                     | Error err 

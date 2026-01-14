@@ -15,6 +15,7 @@ open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
+open Helpers.ExceptionHelpers
 
 open Api.Logging
 
@@ -113,11 +114,13 @@ module WebScraping_DPO =
                         with
                         | :? DirectoryNotFoundException ->
                             runIO (postToLog "Timetable directory not found or was deleted" "#011-1")
-                            Error FileDeleteErrorMHD  // nebo lépe: DirectoryMissingErrorMHD
+                            Error FileDeleteErrorMHD  
                         | ex 
                             ->
                             runIO (postToLog <| string ex.Message <| "#011")
-                            Error FileDownloadErrorMHD
+                            comprehensiveTryWith 
+                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                        
                 pyramidOfInferno
                     {  
