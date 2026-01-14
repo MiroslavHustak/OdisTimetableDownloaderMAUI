@@ -31,6 +31,7 @@ type MauiProgram =
 
     // MAUI World
 
+    //(*
     static member CreateMauiApp(): MauiApp =
 
         try
@@ -40,7 +41,6 @@ type MauiProgram =
 
                 MauiApp
                     .CreateBuilder()
-                    //.UseFabulousApp(App.program) //not resumable
                     .UseFabulousApp(App_R.program) //resumable
                     .ConfigureFonts(
                         fun (fonts : IFontCollection)
@@ -63,27 +63,22 @@ type MauiProgram =
                             android.OnPause(
                                 fun _
                                     ->
-                                    //App.cancellationActor.Post Types.Types.CancelCurrent   //not my intent  
                                     //App_R.cancellationActor.Post Types.Types.CancelCurrent   //not my intent  
                                     ()
                                 )
                                 |> ignore<ILifecycleBuilder>    
 
                             android.OnStop
-                                //(fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
                                 //(fun _ -> App_R.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
                             *) 
 
                             android.OnResume(
                                 fun (_activity : Android.App.Activity) 
                                     ->
-                                    //match App.DispatchHolder.DispatchRef with
                                     match App_R.DispatchHolder.DispatchRef with
-                                    //| Some (weakRef : System.WeakReference<Dispatch<App.Msg>>) 
                                     | Some (weakRef : System.WeakReference<Dispatch<App_R.Msg>>) 
                                         ->
                                         match weakRef.TryGetTarget() with
-                                        //| true, (dispatch : Dispatch<App.Msg>)
                                         | true, (dispatch : Dispatch<App_R.Msg>)
                                             ->                                        
                                             async 
@@ -107,7 +102,6 @@ type MauiProgram =
                                                         match granted with
                                                         | true 
                                                             ->
-                                                            //(dispatch : Dispatch<App.Msg>) <| App.Home2
                                                             (dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
                                                         | false
                                                             -> 
@@ -141,3 +135,110 @@ type MauiProgram =
             ->
             runIO (postToLog (string ex.Message) "#3008")
             MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception
+    //*)
+
+    (*
+    static member CreateMauiApp(): MauiApp =
+
+           try
+               ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 
+
+               let builder : MauiAppBuilder =
+
+                   MauiApp
+                       .CreateBuilder()
+                       .UseFabulousApp(App.program) //not resumable
+                       .ConfigureFonts(
+                           fun (fonts : IFontCollection)
+                               ->
+                               fonts
+                                   .AddFont("OpenSans-Regular.ttf", "OpenSansRegular")
+                                   .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
+                               |> ignore<IFontCollection>
+                       )
+
+               #if ANDROID
+               builder.ConfigureLifecycleEvents(
+                   fun (events : ILifecycleBuilder) 
+                       ->
+                       events.AddAndroid(
+                           fun (android : IAndroidLifecycleBuilder) 
+                               ->
+                               (*
+                               // When app goes to background 
+                               android.OnPause(
+                                   fun _
+                                       ->
+                                       //App.cancellationActor.Post Types.Types.CancelCurrent   //not my intent  
+                                       ()
+                                   )
+                                   |> ignore<ILifecycleBuilder>    
+
+                               android.OnStop
+                                   //(fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
+                               *) 
+
+                               android.OnResume(
+                                   fun (_activity : Android.App.Activity) 
+                                       ->
+                                       match App.DispatchHolder.DispatchRef with
+                                       | Some (weakRef : System.WeakReference<Dispatch<App.Msg>>) 
+                                           ->
+                                           match weakRef.TryGetTarget() with
+                                           | true, (dispatch : Dispatch<App.Msg>)
+                                               ->                                        
+                                               async 
+                                                   {
+                                                       try
+                                                           let! (granted : bool) =
+                                                               async
+                                                                   {
+                                                                       match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
+                                                                       | true 
+                                                                           ->
+                                                                           return Android.OS.Environment.IsExternalStorageManager
+                                                                       | false
+                                                                           ->
+                                                                           let! (status : PermissionStatus) =
+                                                                               Permissions.CheckStatusAsync<Permissions.StorageRead>()
+                                                                               |> Async.AwaitTask
+                                                                           return status = PermissionStatus.Granted
+                                                                     }
+           
+                                                           match granted with
+                                                           | true 
+                                                               ->
+                                                               (dispatch : Dispatch<App.Msg>) <| App.Home2
+                                                           | false
+                                                               -> 
+                                                               ()
+                                                       with
+                                                       | ex -> runIO (postToLog (string ex.Message) "#3002")
+
+                                                       return ()
+                                                   }
+
+                                               |> Async.StartImmediate 
+
+                                           | false, _ 
+                                               ->
+                                               () //runIO (postToLog "For testing purposes" "#3001")
+
+                                       | None 
+                                           ->
+                                           () //runIO (postToLog "For testing purposes" "#3000")
+
+                                   ) |> ignore<IAndroidLifecycleBuilder>
+                           ) |> ignore<ILifecycleBuilder>
+                   ) |> ignore<MauiAppBuilder>
+
+               #endif        
+          
+               builder.Build()
+
+           with
+           | ex
+               ->
+               runIO (postToLog (string ex.Message) "#3008")
+               MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception
+       *) 

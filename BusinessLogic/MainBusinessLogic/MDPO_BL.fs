@@ -50,7 +50,7 @@ module MDPO_BL = //FsHttp
         
                                         let! htmlContent = Response.toStringAsync (Some 100000) response   
                                         
-                                        return Some <| HtmlDocument.Parse htmlContent // Parse the HTML content using FSharp.Data                        
+                                        return Some << HtmlDocument.Parse <| htmlContent // Parse the HTML content using FSharp.Data                        
                                     with
                                     | ex 
                                         -> 

@@ -49,7 +49,7 @@ module MDPO_BL = //FsHttp
                                         let! html =
                                             Response.toStringAsync (Some 100000) response
     
-                                        return Some (HtmlDocument.Parse html)
+                                        return Some << HtmlDocument.Parse <| html  
                                     with
                                     | _ -> return None
                                 }

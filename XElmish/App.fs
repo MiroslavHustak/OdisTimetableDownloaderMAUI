@@ -64,6 +64,7 @@ open IO_Operations.IO_Operations
 open Helpers
 open Helpers.Connectivity
 open Helpers.ExceptionHelpers
+open Helpers.ConnectivityWithDebouncing
 
 #if ANDROID
 open AndroidUIHelpers    
@@ -213,8 +214,43 @@ module App =
         let ctsInitial = new CancellationTokenSource()
             in
             globalCancellationActor.Post <| UpdateState2 (false, ctsInitial) //inicializace
+
+        let connectivityDebouncer (dispatch : Msg -> unit) = 
+        
+                    let debounceActor =
+        
+                        MailboxProcessor<bool>.StartImmediate
+                            (fun inbox
+                                ->
+                                let rec loop lastState (lastChangeTime : DateTime) =
+                                    async 
+                                        {
+                                            let! isConnected = inbox.Receive()
+                                            let now = DateTime.Now
                 
-        let monitorConnectivity (dispatch : Msg -> unit) = //obsahuje countDown2, nelze odsunout do Connectivity             
+                                            match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.5 with
+                                            | true, true 
+                                                ->
+                                                match isConnected with
+                                                | false ->
+                                                        NetConnMessage >> dispatch <| noNetConn
+                                                        runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                                | true  ->
+                                                        dispatch (NetConnMessage yesNetConn)
+                
+                                                return! loop isConnected now
+                
+                                            | _ ->
+                                                return! loop lastState lastChangeTime
+                                        }
+                
+                                loop true DateTime.MinValue
+                        )
+                
+                    runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)
+                
+        // not used any longer, kept for educational purposes  
+        let monitorConnectivity (dispatch : Msg -> unit) =              
                    
             AsyncSeq.initInfinite (fun _ -> true)
             |> AsyncSeq.mapi (fun index _ -> index)    // index for educational purposes
@@ -300,7 +336,35 @@ module App =
                     MdpoVisible = false
                     AnimatedButton = None
             } 
+
+        let isInitiallyConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+        
+        match runIO <| ensureMainDirectoriesExist with 
+        | Ok _ 
+            -> 
+            try               
+                let m =
+                    match isInitiallyConnected with
+                    | true  -> initialModel
+                    | false -> initialModelNoConn
+        
+                m, Cmd.ofSub (fun dispatch -> connectivityDebouncer dispatch |> ignore)
+        
+            with
+            | ex 
+                ->
+                #if WINDOWS
+                runIO (postToLog <| string ex.Message <| "#3-1") 
+                #endif
+                { initialModel with NetConnMsg = ctsMsg }, Cmd.none
+        
+        | Error _
+            ->
+            match initialModel.PermissionGranted with
+            | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
+            | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none 
             
+        (* 
         match runIO <| ensureMainDirectoriesExist with 
         | Ok _ 
             -> 
@@ -324,6 +388,7 @@ module App =
             match initialModel.PermissionGranted with
             | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
             | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none 
+        *)
 
     let init2 isConnected = 
 
@@ -375,7 +440,35 @@ module App =
                     AnimatedButton = None
                     InternetIsConnected = false
             }   
+
+        let isNowConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+        
+        match runIO <| ensureMainDirectoriesExist with 
+        | Ok _ 
+            -> 
+            try                      
+                let m =
+                    match isNowConnected with
+                    | true  -> initialModel
+                    | false -> initialModelNoConn
+        
+                m, Cmd.none
+        
+            with
+            | ex 
+                ->
+                #if WINDOWS
+                runIO (postToLog <| string ex.Message <| "#3-1") 
+                #endif
+                { initialModel with NetConnMsg = ctsMsg }, Cmd.none
+        
+        | Error _
+            ->
+            match initialModel.PermissionGranted with
+            | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
+            | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none    
             
+        (*  
         match runIO <| ensureMainDirectoriesExist with
         | Ok _ 
             -> 
@@ -395,7 +488,8 @@ module App =
         | Error err 
             ->  
             match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#003") | false -> ()
-            { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none            
+            { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none        
+        *)
 
     let update msg m =
 
