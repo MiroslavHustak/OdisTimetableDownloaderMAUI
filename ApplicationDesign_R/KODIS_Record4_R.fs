@@ -89,7 +89,7 @@ module WebScraping_KODIS4 =
             | PdfDownloadError2 StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
             | PdfDownloadError2 LetItBeKodis4           -> String.Empty
             | PdfDownloadError2 NoPermissionError       -> String.Empty
-            | PdfDownloadError2 TlsHandshakeError       -> String.Empty
+            | PdfDownloadError2 TlsHandshakeError       -> tlsHandShakeErrorKodis4
             | JsonParsingError2 JsonParsingError        -> jsonParsingError 
             | JsonParsingError2 StopJsonParsing         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
             | JsonParsingError2 JsonDataFilteringError  -> dataFilteringError 
@@ -169,7 +169,7 @@ module WebScraping_KODIS4 =
             | Ok _
                 ->   
                 dispatchIterationMessage context2.Msg2
-                System.Threading.Thread.Sleep(6000) 
+                //System.Threading.Thread.Sleep(6000) 
                 Ok context2.Msg3 
         
             | Error err 

@@ -230,12 +230,12 @@ module ExceptionHelpers =
                     ->
                     loop rest (fileDownloadError :: acc)
                 
-                // Handle TaskCanceledException FIRST (before OperationCanceledException)
+                // Handle TaskCanceledException before OperationCanceledException
                 | :? TaskCanceledException as tcex 
                     ->
                     let result =
                         match token.IsCancellationRequested with
-                        | true  -> stopDownloading     // User cancelled with YOUR token
+                        | true  -> stopDownloading     // User cancelled with my token
                         | false 
                             when tcex.CancellationToken.IsCancellationRequested
                                 -> timeoutError        // HttpClient timeout
@@ -317,14 +317,12 @@ module ExceptionHelpers =
                 -> 
                 Some TlsError2
         
-            // TaskCanceledException - correct handling
             | :? TaskCanceledException
                 ->
                 match token.IsCancellationRequested with
                 | true  -> None  // Our cancellation, not a timeout
                 | false -> Some TimeoutError2  // HTTP client timeout
         
-            // Socket errors
             | :? SocketException as se ->
                 match se.SocketErrorCode with
                 | SocketError.TimedOut 
@@ -342,7 +340,6 @@ module ExceptionHelpers =
                 | _ -> 
                     Some NetworkError2
         
-            // IO and HTTP errors
             | :? IOException 
                 -> 
                 Some NetworkError2

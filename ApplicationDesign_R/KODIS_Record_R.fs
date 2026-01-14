@@ -96,7 +96,7 @@ module WebScraping_KODIS =
                         | StopJsonDownloading   -> jsonCancel
                         | FolderMovingError     -> folderMovingError
                         | JsonLetItBeKodis      -> String.Empty
-                        | JsonTlsHandshakeError -> String.Empty //TODO
+                        | JsonTlsHandshakeError -> tlsHandShakeErrorKodis
                     
                     try
                         try
@@ -161,7 +161,7 @@ module WebScraping_KODIS =
                     | PdfDownloadError2 StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
                     | PdfDownloadError2 LetItBeKodis4           -> String.Empty
                     | PdfDownloadError2 NoPermissionError       -> String.Empty
-                    | PdfDownloadError2 TlsHandshakeError       -> String.Empty //TODO
+                    | PdfDownloadError2 TlsHandshakeError       -> tlsHandShakeErrorKodis
                     | JsonParsingError2 JsonParsingError        -> jsonParsingError 
                     | JsonParsingError2 StopJsonParsing         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5)
                     | JsonParsingError2 JsonDataFilteringError  -> dataFilteringError                    

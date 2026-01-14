@@ -135,6 +135,11 @@ module Messages =
     let [<Literal>] internal criticalElmishErrorKodis4 = "Kritická chyba při stahování JŘ KODIS. Vypni aplikaci a spusť ji znovu."
     let [<Literal>] internal criticalElmishErrorKodis = "Kritická chyba při stahování JŘ KODIS. Vypni aplikaci a spusť ji znovu."
     let [<Literal>] internal criticalElmishErrorKodisJson = "Kritická chyba při stahování JSON souborů pro JŘ KODIS. Vypni aplikaci a spusť ji znovu."
+    
+    let [<Literal>] internal tlsHandShakeErrorKodis = "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.kodis.cz, nikoli této aplikace." 
+    let [<Literal>] internal tlsHandShakeErrorKodis4 = "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.kodis.cz, nikoli této aplikace." 
+    let [<Literal>] internal tlsHandShakeErrorDpo = "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.dpo.cz, nikoli této aplikace." 
+    let [<Literal>] internal tlsHandShakeErrorMdpo = "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace."     
 
     let internal appInfoInvoker = 
         sprintf "%s %s"

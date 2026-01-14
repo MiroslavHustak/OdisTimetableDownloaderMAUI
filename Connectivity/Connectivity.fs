@@ -1,13 +1,17 @@
 ﻿namespace Helpers
 
-module Connectivity =  
+open System
+open Microsoft.Maui.Networking
 
-    open Microsoft.Maui.Networking
-    
-    //**********************************
-                
-    open Types.Types    
-    open Types.Haskell_IO_Monad_Simulation
+//**********************************
+               
+open Types.Types 
+open Types.ErrorTypes
+
+open ExceptionHelpers
+open Types.Haskell_IO_Monad_Simulation
+
+module Connectivity =  
 
     let private actor = //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
 
@@ -70,6 +74,150 @@ module Connectivity =
             
                 Connectivity.ConnectivityChanged.Add connectivityChangedHandler
         )
+
+module ConnectivityWithDebouncing =
+       
+    let internal startConnectivityMonitoring (debounceMs : int) (onConnectivityChange : bool -> unit) =
+        
+        IO (fun () ->
+            // Debouncing actor -> debouncing rule used here: “Only react if the state stays stable for N milliseconds.”
+            let monitorActor =
+
+                MailboxProcessor<ConnectivityMonitorMsg>
+                    .StartImmediate
+                        (fun inbox
+                            ->
+                            let rec loop lastState (pendingTimer : System.Threading.CancellationTokenSource option) =
+                                async 
+                                    {
+                                        match! inbox.Receive() with
+                                        | StopConnectivityMonitoring 
+                                            ->
+                                            // Cancel any pending timer
+                                            pendingTimer |> Option.iter (fun cts -> cts.Cancel())
+                                            return ()
+                                
+                                        | StateChanged newState
+                                            ->
+                                            // Cancel previous pending change
+                                            pendingTimer |> Option.iter (fun cts -> cts.Cancel())
+                                    
+                                            match newState <> lastState with
+                                            | true  ->
+                                                    // State changed - start debounce timer
+                                                    let cts = new System.Threading.CancellationTokenSource()
+                                                                                        
+                                                    async
+                                                        {
+                                                            try
+                                                                do! Async.Sleep debounceMs
+                                                    
+                                                                // Timer elapsed - notify change
+                                                                match not cts.Token.IsCancellationRequested with
+                                                                | true  -> onConnectivityChange newState
+                                                                | false -> ()
+                                                            with
+                                                            | _ -> ()  // ignore cancellation & exceptions
+                                                        }
+
+                                                    |> fun a -> Async.Start(a, cts.Token )                                               
+                                        
+                                                    return! loop newState (Some cts)
+
+                                            | false ->
+                                                    // State unchanged
+                                                    return! loop lastState pendingTimer
+                                    }
+                        
+                            loop true None
+                    )
+            
+            // Event handler
+            let handler (args : ConnectivityChangedEventArgs) =
+                try  
+                    let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
+                    monitorActor.Post (StateChanged isConnected)
+                with
+                | _ -> ()
+            
+            Connectivity.ConnectivityChanged.Add handler
+            
+            // Fire initial state
+            let initialState = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+            monitorActor.Post (StateChanged initialState)
+            
+            // Return disposable to stop monitoring //.NET interop //Creates an anonymous object implementing an interface
+            { 
+                new IDisposable with
+                    member _.Dispose() =
+                        monitorActor.Post StopConnectivityMonitoring
+                        (monitorActor :> IDisposable).Dispose()
+            }
+        )   
+
+        (*
+        OS event
+        └─ actor receives
+            └─ cancel old timer
+                └─ wait debounceMs
+                    └─ if uninterrupted → notify app
+
+        Layer 1
+
+        OS connectivity events (raw, noisy)
+        Wi-Fi ───┐    ┌─── none ──┐ ┌── Wi-Fi
+                 │    │            │ │
+                 │    │            │ │
+        Time →   ─────┼────────────┼──────────────
+
+        OS event ──► startConnectivityMonitoring ──(200 ms debounce)─► stable events
+        Wi-Fi ───┐
+                 │
+        none ────┘
+        Wi-Fi ─────────────────────────────► Stable "Connected" event
+
+        Layer 2
+
+        Stable event ──► debounceActor ──► app reaction
+        true ─────────────────────► Dispatch "Connected"
+        false ───────────────────► Dispatch "No Connection" + start countdown
+
+
+        Combined flow diagram (simplified)
+
+        OS Connectivity Events (Wi-Fi / None / Wi-Fi / None)
+                    │
+                    ▼
+        startConnectivityMonitoring (200 ms debounce) //OS-level debounce: 200 ms → filters micro-flickers. Must be much shorter than all operational timeouts.
+                    │
+                    ▼
+        Stable Connectivity Events (true / false)
+                    │
+                    ▼
+        debounceActor (0.2s app logic debounce)  Must be much shorter than all operational timeouts.
+                    │
+                    ▼
+        App reacts:
+            - Dispatch UI messages
+            - Start/stop quit/restart countdown
+
+        Key notes from this diagram
+        
+        Two separate debounce layers:
+        
+        Layer 1: removes OS noise.
+        
+        Layer 2: ensures app logic isn’t spammed.
+        
+        Layer 2 never sees raw OS flicker, only already debounced signals.
+        
+        Timers cancel safely in both layers, avoiding race conditions.
+        
+        Makes the UI stable and countdowns reliable.  
+
+        Note: Combined debounce (OS + App) = 0.4 s → < 2% of 30 s countdown → fast and safe.
+        Debounce times should be < 5% of your shortest operational timeout.
+        *)
 
 module CheckNetConnection =  
     

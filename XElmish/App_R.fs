@@ -62,6 +62,7 @@ open IO_Operations.IO_Operations
 
 open Helpers
 open Helpers.Connectivity
+open Helpers.ConnectivityWithDebouncing
 open Helpers.ExceptionHelpers
 
 #if ANDROID
@@ -153,10 +154,45 @@ module App_R =
     let private dpoActor = localCancellationActor()
     let private mdpoActor = localCancellationActor()
     
-    let init () =  
-     
-        let monitorConnectivity (dispatch : Msg -> unit) = //obsahuje countDown2, nelze odsunout do Connectivity             
-                   
+    let init () =          
+
+        let connectivityDebouncer (dispatch : Msg -> unit) =
+
+            let debounceActor =
+
+                MailboxProcessor<bool>.StartImmediate
+                    (fun inbox
+                        ->
+                        let rec loop lastState (lastChangeTime : DateTime) =
+                            async 
+                                {
+                                    let! isConnected = inbox.Receive()
+                                    let now = DateTime.Now
+        
+                                    match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.5 with
+                                    | true, true 
+                                        ->
+                                        match isConnected with
+                                        | false ->
+                                                NetConnMessage >> dispatch <| noNetConn
+                                                runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                        | true  ->
+                                                dispatch (NetConnMessage yesNetConn)
+        
+                                        return! loop isConnected now
+        
+                                    | _ ->
+                                        return! loop lastState lastChangeTime
+                                }
+        
+                        loop true DateTime.MinValue
+                )
+        
+            runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)
+        
+        // not used any longer, kept for educational purposes
+        let monitorConnectivity (dispatch : Msg -> unit) =         
+           
             AsyncSeq.initInfinite (fun _ -> true)
             |> AsyncSeq.mapi (fun index _ -> index)    // index for educational purposes
             |> AsyncSeq.takeWhile ((=) true << (>=) 0) // indefinite sequence // ((=) true << fun index -> index >= 0) 
@@ -180,60 +216,12 @@ module App_R =
                                                     return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
-                                
-                            do! Async.Sleep 100   
+                        
+                            do! Async.Sleep 100  //rapid-fire messages ← NEW handler every iteration, 600 handlers per minute
                         }
                 )
             |> Async.StartImmediate  
 
-        let monitorConnectivity2 (dispatch : Msg -> unit) =
-            
-            // Debounce actor to prevent rapid-fire messages
-            // let debounceActor =
-                MailboxProcessor<bool>
-                    .StartImmediate
-                        (fun inbox 
-                            ->
-                            let rec loop lastState (lastChangeTime : DateTime) =
-                                async
-                                    {
-                                        let! isConnected = inbox.Receive()
-                                        let now = DateTime.Now
-                                
-                                        // Only process if state changed AND 2 seconds passed
-                                        match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 2.0 with
-                                        | true, true 
-                                            ->
-                                            // State changed and debounce period elapsed
-                                            match isConnected with
-                                            | false ->
-                                                    NetConnMessage >> dispatch <| noNetConn
-                                                    runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                            | true ->
-                                                    // Connection restored
-                                                    dispatch (NetConnMessage "Some message")
-                                    
-                                            return! loop isConnected now
-                                
-                                        | true, false
-                                            ->
-                                            // State changed but too soon - ignore
-                                            return! loop lastState lastChangeTime
-                                
-                                        | false, _
-                                            ->
-                                            // State unchanged
-                                            return! loop lastState lastChangeTime
-                                    }
-                        
-                            loop true DateTime.MinValue  // Start assuming connected
-                    )
-            
-            // Register handler ONCE
-            //runIO <| initConnectivityListener (fun isConnected ->
-            //    debounceActor.Post isConnected
-            // )
-       
         #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
         #else
@@ -276,16 +264,21 @@ module App_R =
                     DpoVisible = false
                     MdpoVisible = false
                     AnimatedButton = None
-            } 
-            
+            }              
+
+        let isInitiallyConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+
         match runIO <| ensureMainDirectoriesExist with 
         | Ok _ 
             -> 
-            try  
-                runIO <| connectivityListener () //jen si zvykam na monadic composition / ROP-style function composition, pattern matching ma samozrejme o 1 radek mene :-)
-                |> Option.ofBool 
-                |> Option.map (fun _ -> initialModel, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch))
-                |> Option.defaultWith (fun _ -> initialModelNoConn, Cmd.ofSub (fun dispatch -> monitorConnectivity dispatch))              
+            try               
+                let m =
+                    match isInitiallyConnected with
+                    | true  -> initialModel
+                    | false -> initialModelNoConn
+
+                m, Cmd.ofSub (fun dispatch -> connectivityDebouncer dispatch |> ignore)
+
             with
             | ex 
                 ->
@@ -294,10 +287,8 @@ module App_R =
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
-        | Error err 
-            ->  
-            // match connectivityListener >> runIO <| () with true -> () | false ->  runIO (postToLog <| err <| "#002")  
-            
+        | Error _
+            ->
             match initialModel.PermissionGranted with
             | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
             | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none 
@@ -347,28 +338,34 @@ module App_R =
                     MdpoVisible = false
                     AnimatedButton = None
                     InternetIsConnected = false
-            }   
+            }  
             
-        match runIO <| ensureMainDirectoriesExist with
+        let isNowConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+
+        match runIO <| ensureMainDirectoriesExist with 
         | Ok _ 
             -> 
-            try        
-                runIO <| connectivityListener () //jen si zvykam na monadic composition / ROP-style function composition, pattern matching ma samozrejme o 1 radek mene :-)
-                |> Option.ofBool 
-                |> Option.map (fun _ -> initialModel, Cmd.none)
-                |> Option.defaultWith (fun _ -> initialModelNoConn, Cmd.none)   
+            try                      
+                let m =
+                    match isNowConnected with
+                    | true  -> initialModel
+                    | false -> initialModelNoConn
+
+                m, Cmd.none
+
             with
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#1") 
+                runIO (postToLog <| string ex.Message <| "#3-1") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
-        | Error err 
-            ->  
-            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#003") | false -> ()
-            { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none            
+        | Error _
+            ->
+            match initialModel.PermissionGranted with
+            | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
+            | false -> { initialModel with ProgressMsg = appInfoInvoker }, Cmd.none       
 
     let update msg m =
 
@@ -866,7 +863,8 @@ module App_R =
                                 | ex
                                     ->
                                     match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                    | err when err = StopDownloading 
+                                    | err 
+                                        when err = StopDownloading 
                                         ->
                                         dispatch Home2   
                                     | _ ->
@@ -976,12 +974,13 @@ module App_R =
                                 | ex
                                     ->
                                     match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                                    | err when err = StopDownloading 
+                                    | err 
+                                        when err = StopDownloading 
                                         ->
                                         dispatch Home2   
                                     | _ ->
                                         runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
-                                        NetConnMessage >> dispatch <| criticalElmishErrorKodis4
+                                        NetConnMessage >> dispatch <| criticalElmishErrorKodis                                          
                             }  
 
                     let delayedCmd5 (dispatch : Msg -> unit) : Async<unit> =    
@@ -1122,7 +1121,7 @@ module App_R =
                                         | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                         | false -> return! delayedCmd token dispatch                               
                             } 
-                        |> Async.StartImmediate
+                        |> Async.StartImmediate //StartImmediate required for dispatching to Elmish safely.
 
                     match connectivityListener >> runIO >> Option.ofBool <| () with
                     | Some _

@@ -148,7 +148,7 @@ module WebScraping_MDPO =
                             | FileDeleteErrorMHD       -> fileDeleteError
                             | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir) |> Result.either (fun _ -> mdpoCancelMsg) (fun _ -> mdpoCancelMsg1)
                             | LetItBeMHD               -> String.Empty
-                            | TlsHandshakeErrorMHD     -> "Stažení se nezdařilo kvůli chybné konfiguraci serveru. Problém je na straně provozovatele www.mdpo.cz, nikoli této aplikace." 
+                            | TlsHandshakeErrorMHD     -> tlsHandShakeErrorMdpo
                             | TimeoutErrorMHD          -> timeoutError
 
                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,

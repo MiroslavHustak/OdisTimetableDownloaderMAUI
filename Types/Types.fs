@@ -59,6 +59,10 @@ module FreeMonad =
 
 module Types =    
 
+    type internal ConnectivityMonitorMsg =
+        | StateChanged of bool
+        | StopConnectivityMonitoring
+
     type internal CancellationMessageLocal =
         | GetToken of AsyncReplyChannel<CancellationToken option>
         | CancelToken

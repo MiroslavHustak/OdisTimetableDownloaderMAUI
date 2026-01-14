@@ -32,7 +32,7 @@ module KODIS_BL_Record =
     
         IO (fun () ->
     
-            let total = jsonLinkList |> List.length
+            let l = jsonLinkList |> List.length
     
             let counterAndProgressBar =
                 MailboxProcessor<MsgIncrement>.StartImmediate
@@ -43,9 +43,10 @@ module KODIS_BL_Record =
                                 {
                                     try
                                         let! Inc i = inbox.Receive()
-                                        reportProgress (float n, float total)
+                                        reportProgress (float n, float l)
                                         return! loop (n + i)
-                                    with ex -> runIO (postToLog <| string ex.Message <| "#900-MP-Json")
+                                    with
+                                    | ex -> runIO (postToLog <| string ex.Message <| "#900-MP-Json")
                                 }
                         loop 0
                 )
@@ -54,7 +55,7 @@ module KODIS_BL_Record =
 
                 async
                     {
-                        let maxRetries = 5
+                        let maxRetries = 500
                         let initialBackoffMs = 1000
 
                         let rec attempt retryCount (backoffMs : int) =
@@ -93,8 +94,7 @@ module KODIS_BL_Record =
                                         ->
                                         use response = response
 
-                                        match existingFileLength, response.statusCode with
-                                        // IMPORTANT JSON safeguard:
+                                        match existingFileLength, response.statusCode with                                        
                                         // Server ignored Range → full response → must restart download
                                         | length, HttpStatusCode.OK
                                             when length > 0L
@@ -137,11 +137,13 @@ module KODIS_BL_Record =
 
                                                 do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                 return Ok ()
-                                            with
-                                            | :? HttpRequestException as ex 
-                                                -> return comprehensiveTryWith JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError JsonTlsHandshakeError token ex
-                                            | ex
-                                                -> return comprehensiveTryWith JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError JsonTlsHandshakeError token ex  
+                                            with                                               
+                                            | ex 
+                                                -> 
+                                                return
+                                                    comprehensiveTryWith 
+                                                        JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
+                                                        JsonDownloadError JsonTlsHandshakeError token ex  
 
                                         | _, HttpStatusCode.Forbidden
                                             ->
@@ -169,7 +171,10 @@ module KODIS_BL_Record =
                                                     return! attempt (retryCount + 1) (backoffMs * 2)
                                             | false ->
                                                     runIO <| postToLog (string ex.Message) (sprintf "#7024-Json (retry %d)" retryCount)
-                                                    return comprehensiveTryWith JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError JsonTlsHandshakeError token ex
+                                                    return 
+                                                        comprehensiveTryWith 
+                                                            JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
+                                                            JsonDownloadError JsonTlsHandshakeError token ex
                                 }
 
                         return! attempt 0 initialBackoffMs
@@ -187,22 +192,26 @@ module KODIS_BL_Record =
                                     token.ThrowIfCancellationRequested() 
 
                                     return! downloadWithResume uri pathToFile
-                                with
-                                | :? HttpRequestException as ex 
-                                    -> return comprehensiveTryWith JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError JsonTlsHandshakeError token ex
-                                | ex
-                                    -> return comprehensiveTryWith JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError JsonTlsHandshakeError token ex  
+                                with                                               
+                                | ex 
+                                    -> 
+                                    return
+                                        comprehensiveTryWith 
+                                            JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
+                                            JsonDownloadError JsonTlsHandshakeError token ex 
                             }
                     )
+
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
                 |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                 |> Option.defaultValue (Ok ())
 
-            with
-            | :? HttpRequestException as ex 
-                -> comprehensiveTryWith JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError JsonTlsHandshakeError token ex
-            | ex
-                -> comprehensiveTryWith JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError JsonTlsHandshakeError token ex  
+            with                                               
+            | ex 
+                -> 
+                comprehensiveTryWith 
+                    JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
+                    JsonDownloadError JsonTlsHandshakeError token ex
         )    
     
     let internal downloadAndSave token context =  
@@ -264,11 +273,13 @@ module KODIS_BL_Record =
                                                     use fileStream = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                     return Ok ()
-                                                with
-                                                | :? HttpRequestException as ex 
-                                                    -> return comprehensiveTryWith LetItBeKodis4 StopDownloading TimeoutError FileDownloadError TlsHandshakeError token ex
+                                                with                                               
                                                 | ex
-                                                    -> return comprehensiveTryWith LetItBeKodis4 StopDownloading TimeoutError FileDownloadError TlsHandshakeError token ex
+                                                    ->
+                                                    return 
+                                                        comprehensiveTryWith 
+                                                            LetItBeKodis4 StopDownloading TimeoutError 
+                                                            FileDownloadError TlsHandshakeError token ex
    
                                             | HttpStatusCode.Forbidden
                                                 ->
@@ -296,7 +307,10 @@ module KODIS_BL_Record =
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
                                                         runIO <| postToLog (string ex.Message) (sprintf "#7024 (retry %d)" retryCount) 
-                                                        return comprehensiveTryWith LetItBeKodis4 StopDownloading TimeoutError FileDownloadError TlsHandshakeError token ex 
+                                                        return 
+                                                            comprehensiveTryWith
+                                                                LetItBeKodis4 StopDownloading TimeoutError
+                                                                FileDownloadError TlsHandshakeError token ex  
                                     }
    
                             return! attempt 0 initialBackoffMs
@@ -380,22 +394,35 @@ module KODIS_BL_Record =
                                                         ->
                                                         runIO (postToLog <| string err <| "#7028")
                                                         return Error <| PdfDownloadError2 err  
-                                        with
-                                        | :? HttpRequestException as ex 
-                                            -> return comprehensiveTryWith (PdfDownloadError2 LetItBeKodis4) (PdfDownloadError2 StopDownloading) (PdfDownloadError2 TimeoutError) (PdfDownloadError2 FileDownloadError) (PdfDownloadError2 TlsHandshakeError) token ex
+                                        with                                        
                                         | ex
-                                            -> return comprehensiveTryWith (PdfDownloadError2 LetItBeKodis4) (PdfDownloadError2 StopDownloading) (PdfDownloadError2 TimeoutError) (PdfDownloadError2 FileDownloadError) (PdfDownloadError2 TlsHandshakeError) token ex      
+                                            -> 
+                                            return 
+                                                comprehensiveTryWith
+                                                    (PdfDownloadError2 LetItBeKodis4)
+                                                    (PdfDownloadError2 StopDownloading)
+                                                    (PdfDownloadError2 TimeoutError) 
+                                                    (PdfDownloadError2 FileDownloadError) 
+                                                    (PdfDownloadError2 TlsHandshakeError)
+                                                    token ex
                                     }                                 
                             )
 
                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
                     
                     with
-                    | :? HttpRequestException as ex 
-                        -> [ comprehensiveTryWith (PdfDownloadError2 LetItBeKodis4) (PdfDownloadError2 StopDownloading) (PdfDownloadError2 TimeoutError) (PdfDownloadError2 FileDownloadError) (PdfDownloadError2 TlsHandshakeError) token ex ]
-                    | ex
-                        -> [ comprehensiveTryWith (PdfDownloadError2 LetItBeKodis4) (PdfDownloadError2 StopDownloading) (PdfDownloadError2 TimeoutError) (PdfDownloadError2 FileDownloadError) (PdfDownloadError2 TlsHandshakeError) token ex ]
-                               
+                    | ex 
+                        -> 
+                        [
+                            comprehensiveTryWith 
+                                (PdfDownloadError2 LetItBeKodis4)
+                                (PdfDownloadError2 StopDownloading)
+                                (PdfDownloadError2 TimeoutError)
+                                (PdfDownloadError2 FileDownloadError)
+                                (PdfDownloadError2 TlsHandshakeError)
+                                token ex 
+                        ]
+
                     |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                     |> Option.defaultValue (Ok ())  
                         

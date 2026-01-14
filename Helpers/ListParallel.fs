@@ -603,7 +603,7 @@ let map2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : Canc
             {
                 let! results = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
                 return results |> Array.toList
-            }     
+            } 
 
 // *********************************************************************
 // EXPERIMENTAL: Code quotations variants — DO NOT USE IN PRODUCTION

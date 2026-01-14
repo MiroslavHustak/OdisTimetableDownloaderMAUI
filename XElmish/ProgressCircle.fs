@@ -9,13 +9,13 @@ module ProgressCircle =
 
     open Types.Haskell_IO_Monad_Simulation
 
-    //Anonymous Object Creation 
+    //Anonymous Object Creation  //object expressions ({ new ... with ... }) are the F# way to implement OOP interfaces anonymously.
     let internal progressCircle (progress : float) =
 
         IO (fun () 
                 ->
                 { 
-                    new IDrawable with
+                    new IDrawable with // Anonymous object implementing the IDrawable interface
 
                         member _.Draw(canvas : ICanvas, dirtyRect : RectF) =
 

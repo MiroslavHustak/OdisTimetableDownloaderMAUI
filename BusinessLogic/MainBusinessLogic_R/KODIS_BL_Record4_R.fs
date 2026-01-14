@@ -100,7 +100,12 @@ module KODIS_BL_Record4 =
 
                         | Choice2Of2 ex
                             -> 
-                            match isCancellationGeneric StopJsonParsing JsonParsingTimeoutError JsonDataFilteringError token ex with
+                            let cond = 
+                                isCancellationGeneric 
+                                    StopJsonParsing JsonParsingTimeoutError
+                                    JsonDataFilteringError token ex
+
+                            match cond with
                             | err 
                                 when err = StopJsonParsing
                                 ->
@@ -122,7 +127,7 @@ module KODIS_BL_Record4 =
                
                     async 
                         {
-                            let maxRetries = 5                            
+                            let maxRetries = 500                            
                             let initialBackoffMs = 1000
 
                             token.ThrowIfCancellationRequested() 
@@ -176,7 +181,12 @@ module KODIS_BL_Record4 =
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                     return Ok ()
                                                 with                                               
-                                                | ex -> return comprehensiveTryWith LetItBeKodis4 StopDownloading TimeoutError FileDownloadError TlsHandshakeError token ex
+                                                | ex 
+                                                    -> 
+                                                    return 
+                                                        comprehensiveTryWith 
+                                                            LetItBeKodis4 StopDownloading TimeoutError 
+                                                            FileDownloadError TlsHandshakeError token ex
    
                                             | HttpStatusCode.Forbidden
                                                 ->
@@ -196,7 +206,7 @@ module KODIS_BL_Record4 =
                                                 ->
                                                 //runIO (postToLog <| string ex.Message <| "#123456H-K4")
                                                 return Error StopDownloading
-                                            | err 
+                                            | _ 
                                                 ->
                                                 match retryCount < maxRetries with
                                                 | true  ->
@@ -204,7 +214,10 @@ module KODIS_BL_Record4 =
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
                                                         runIO <| postToLog (string ex.Message) (sprintf "#7024-K4 (retry %d)" retryCount) 
-                                                        return comprehensiveTryWith LetItBeKodis4 StopDownloading TimeoutError FileDownloadError TlsHandshakeError token ex    
+                                                        return 
+                                                            comprehensiveTryWith
+                                                                LetItBeKodis4 StopDownloading TimeoutError
+                                                                FileDownloadError TlsHandshakeError token ex    
                                     }
    
                             return! attempt 0 initialBackoffMs
@@ -213,24 +226,24 @@ module KODIS_BL_Record4 =
                 let downloadAndSaveTimetables (token : CancellationToken) context =                                         
          
                     let l = context.list |> List.length
-                            in
-                            let counterAndProgressBar =
-                                MailboxProcessor<MsgIncrement>
-                                    .StartImmediate
-                                        <|
-                                        fun inbox 
-                                            ->   
-                                            let rec loop n = 
-                                                async
-                                                    {
-                                                        try
-                                                            let! Inc i = inbox.Receive()
-                                                            context.reportProgress (float n, float l)
-                                                            return! loop (n + i)
-                                                        with
-                                                        | ex -> runIO (postToLog <| ex.Message <| "#903-MP-K4")
-                                                    }
-                                            loop 0
+                           
+                    let counterAndProgressBar =
+                        MailboxProcessor<MsgIncrement>
+                            .StartImmediate
+                                <|
+                                fun inbox 
+                                    ->   
+                                    let rec loop n = 
+                                        async
+                                            {
+                                                try
+                                                    let! Inc i = inbox.Receive()
+                                                    context.reportProgress (float n, float l)
+                                                    return! loop (n + i)
+                                                with
+                                                | ex -> runIO (postToLog <| ex.Message <| "#903-MP-K4")
+                                            }
+                                    loop 0
                                                  
                     //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                     let removeDuplicatePathPairs uri pathToFile =
@@ -289,29 +302,48 @@ module KODIS_BL_Record4 =
                                                         runIO (postToLog <| string err <| "#7028-K4")
                                                         return Error <| PdfDownloadError2 err  
                                         with                                        
-                                        | ex -> return comprehensiveTryWith (PdfDownloadError2 LetItBeKodis4) (PdfDownloadError2 StopDownloading) (PdfDownloadError2 TimeoutError) (PdfDownloadError2 FileDownloadError) (PdfDownloadError2 TlsHandshakeError) token ex
+                                        | ex
+                                            -> 
+                                            return 
+                                                comprehensiveTryWith
+                                                    (PdfDownloadError2 LetItBeKodis4)
+                                                    (PdfDownloadError2 StopDownloading)
+                                                    (PdfDownloadError2 TimeoutError) 
+                                                    (PdfDownloadError2 FileDownloadError) 
+                                                    (PdfDownloadError2 TlsHandshakeError)
+                                                    token ex
                                     }                                 
                             )
 
                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
 
                     with
-                    | ex -> [ comprehensiveTryWith (PdfDownloadError2 LetItBeKodis4) (PdfDownloadError2 StopDownloading) (PdfDownloadError2 TimeoutError) (PdfDownloadError2 FileDownloadError) (PdfDownloadError2 TlsHandshakeError) token ex ]
+                    | ex 
+                        -> 
+                        [
+                            comprehensiveTryWith 
+                                (PdfDownloadError2 LetItBeKodis4)
+                                (PdfDownloadError2 StopDownloading)
+                                (PdfDownloadError2 TimeoutError)
+                                (PdfDownloadError2 FileDownloadError)
+                                (PdfDownloadError2 TlsHandshakeError)
+                                token ex 
+                        ]
                                                               
                     |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                     |> Option.defaultValue (Ok ())  
                         
                 match context.dir |> Directory.Exists with  //TOCTOU race condition by tady nemel byt problem
                 | false ->
-                    runIO (postToLog NoFolderError "#251-K4")
-                    Error (PdfDownloadError2 NoFolderError)  
+                        runIO (postToLog NoFolderError "#251-K4")
+                        Error (PdfDownloadError2 NoFolderError)  
                 | true  ->                                   
-                    match context.list with
-                    | [] 
-                        -> 
-                        Ok String.Empty     
-                    | _ -> 
-                        match downloadAndSaveTimetables token context with
-                        | Ok _       -> Ok String.Empty
-                        | Error case -> Error case                         
+                        match context.list with
+                        | [] 
+                            -> 
+                            Ok String.Empty    
+                        | _ -> 
+                            match downloadAndSaveTimetables token context with
+                            | Ok _       -> Ok String.Empty 
+                            | Error case -> Error case                         
         )

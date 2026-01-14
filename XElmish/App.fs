@@ -252,7 +252,7 @@ module App =
                                         }
                                     |> Async.StartImmediate //nelze Async.Start 
                                 
-                            do! Async.Sleep 100   
+                            do! Async.Sleep 2000   
                         }
                 )
             |> Async.StartImmediate  
