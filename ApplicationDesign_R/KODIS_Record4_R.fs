@@ -87,7 +87,7 @@ module WebScraping_KODIS4 =
             | PdfDownloadError2 ApiDecodingError        -> canopyError
             | PdfDownloadError2 (NetConnPdfError err)   -> err
             | PdfDownloadError2 StopDownloading         -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
-            | PdfDownloadError2 LetItBeKodis4           -> String.Empty
+            | PdfDownloadError2 LetItBeKodis4           -> "letItBeKodis4"
             | PdfDownloadError2 NoPermissionError       -> String.Empty
             | PdfDownloadError2 TlsHandshakeError       -> tlsHandShakeErrorKodis4
             | JsonParsingError2 JsonParsingError        -> jsonParsingError 

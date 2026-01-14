@@ -386,8 +386,8 @@ module ExceptionHelpers =
             function
                 | TlsError2     -> tlsHandShakeError
                 | TimeoutError2 -> timeoutError
-                | NetworkError2 -> fileDownloadError
-                | UnknownError2 -> fileDownloadError
+                | NetworkError2 -> letItBe
+                | UnknownError2 -> letItBe
     
         match isCancellationGeneric stopDownloading timeoutError fileDownloadError token ex with
         | err 
@@ -401,7 +401,7 @@ module ExceptionHelpers =
             Error timeoutError
         
         | err
-            when err = fileDownloadError 
+            when err = letItBe 
             ->
             let classification, unknownEx = 
                 ex 

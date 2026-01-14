@@ -143,6 +143,7 @@
     <Compile Include="Settings\SettingsDPO.fs" />
     <Compile Include="Settings\SettingsKODIS.fs" />
     <Compile Include="Settings\SettingsMDPO.fs" />
+    <Compile Include="Applicatives\Applicatives.fs" />
     <Compile Include="ComputationExpressions\CEBuilders.fs" />
     <Compile Include="ErrorHandling\ErrorHandlers.fs" />
     <Compile Include="Helpers\IO_Monad_Experiments\IO_Monad.fs" />

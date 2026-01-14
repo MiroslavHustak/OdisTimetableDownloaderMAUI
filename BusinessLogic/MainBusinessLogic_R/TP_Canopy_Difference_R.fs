@@ -7,12 +7,10 @@ open FsToolkit.ErrorHandling
 
 //*******************
 
-open Helpers.Serialization
-open Helpers.DirFileHelper
-
 open Api.Logging
+open Helpers.Serialization
 open Settings.SettingsGeneral
-
+open Applicatives.ResultApplicative
 open Types.Haskell_IO_Monad_Simulation
 
 module TP_Canopy_Difference = 
@@ -43,6 +41,23 @@ module TP_Canopy_Difference =
                         Set.empty<string>
             )
 
+        let fileNamesApplicative pathToFile =
+        
+            IO (fun () 
+                    ->  
+                    try
+                        Directory.EnumerateFiles pathToFile
+                        |> Seq.map Path.GetFileName
+                        |> Set.ofSeq
+                        |> Ok
+                    with
+                    | ex 
+                        ->
+                        //runIO (postToLog <| string ex.Message <| "#Canopy01")
+                        // Set.empty<string>
+                        Error "Applicative's educational test"
+            )
+
         let getDirNames pathToDir =
 
             IO (fun () 
@@ -65,6 +80,32 @@ module TP_Canopy_Difference =
         
                     Set.difference fileNamesTP fileNamesCanopy |> Set.toList, Set.difference fileNamesCanopy fileNamesTP |> Set.toList
             )
+       
+        let getUniqueFileNamesApplicative folderPathTP folderPathCanopy =
+           
+           IO (fun ()
+                ->
+                // Two independent IO actions (each may succeed or fail)
+                // Running them immediately here → Result types
+                let tpResult = runIO (fileNamesApplicative folderPathTP)
+                let canopyResult = runIO (fileNamesApplicative folderPathCanopy)
+        
+                // Core of applicative style – combining two independent results
+                (fun tp canopy -> tp, canopy) // ← ordinary function (Set → Set → tuple)
+                <!> tpResult                  // ← first application: function <*> first value
+                <*> canopyResult              // ← second application: previous <*> second value
+
+                // After the two <*> we have: Result<(Set<string> * Set<string>), string>
+                // If ANY of the two results was Error → the whole expression becomes Error
+        
+                |> Result.map 
+                    (fun (tp, canopy)  // tp and canopy are now guaranteed Sets (because we're in the Ok branch)
+                        ->  
+                        Set.difference tp canopy |> Set.toList,
+                        Set.difference canopy tp |> Set.toList
+                    )
+                |> Result.defaultValue ([],[])  
+            )
                 
         let result folderPathTP folderPathCanopy =
 
@@ -77,7 +118,7 @@ module TP_Canopy_Difference =
                     ||> Seq.map2
                         (fun pathTP pathCanopy
                             ->
-                            let uniqueFileNamesTP, uniqueFileNamesCanopy = runIO <| getUniqueFileNames pathTP pathCanopy 
+                            let uniqueFileNamesTP, uniqueFileNamesCanopy = runIO <| getUniqueFileNamesApplicative pathTP pathCanopy 
                             showResults uniqueFileNamesTP uniqueFileNamesCanopy
                         )
                     |> Seq.collect id   
