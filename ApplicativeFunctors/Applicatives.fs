@@ -13,6 +13,7 @@ module ResultApplicative =
     let internal (<!>) f x = apply (pure' f) x
     let internal (<*>) f x = apply f x
 
+    // <*> or <!> is the applicative apply operator.  
     // <!> → it's a kind of "force plain function into applicative land"    
     // <*> → visually suggests: "take function from left context, apply to right context"
 

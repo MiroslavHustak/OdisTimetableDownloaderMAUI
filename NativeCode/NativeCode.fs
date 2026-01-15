@@ -10,6 +10,8 @@ module Native =
 
     // .NET declarations calling exported functions from native DLLs from Rust
 
+    //********************* RUST **********************
+
     [<DllImport("string_combine_dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)>]
     extern IntPtr combine_strings(IntPtr s1, IntPtr s2)
 
@@ -43,6 +45,8 @@ module Native =
     // .NET declarations calling exported functions from native DLLs from C++
   
     // type ProgressCallback = delegate of float * float -> unit
+
+    //********************* C++ **********************
     
     [<DllImport(@"CppHelpers.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl)>]
     extern int CopyDirContent64(

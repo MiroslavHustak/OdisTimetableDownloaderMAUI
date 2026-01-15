@@ -25,11 +25,11 @@ module ApiTransformLayer =
                             response, 
                                 fun err 
                                     -> 
-                                    runIO <| postToLogFile () (sprintf "%s Error%s" <| string ApiResponseError <| "#1001")
+                                    runIO <| postToLogFile () "#1001"
                                     |> Async.Ignore<'a>
                                     |> Async.StartImmediate
                         
-                                    Error <| ApiResponseError err  
+                                    Error ApiResponseError  
 
                         let decoder : Decoder<string list> = Decode.field "list" (Decode.list Decode.string)
 
@@ -37,7 +37,7 @@ module ApiTransformLayer =
                             response.GetLinks |> Decode.fromString decoder, 
                                 fun _
                                     -> 
-                                    runIO <| postToLogFile () (sprintf "%s Error%s" <| string ApiDecodingError <| "#100")
+                                    runIO <| postToLogFile () "#100"
                                     |> Async.Ignore<'a>
                                     |> Async.StartImmediate
                             

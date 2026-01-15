@@ -47,7 +47,7 @@ module ErrorTypes =
         | CanopyError
         | TimeoutError
         | PdfConnectionError
-        | ApiResponseError of string
+        | ApiResponseError
         | ApiDecodingError
         | NetConnPdfError of string
         | StopDownloading //cancellation

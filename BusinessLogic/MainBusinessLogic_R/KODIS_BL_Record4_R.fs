@@ -133,7 +133,10 @@ module KODIS_BL_Record4 =
                                 let! r = a
                                 return r |> Result.mapError List.singleton
                             with
-                            | _ -> return Error [ JsonParsingError2 JsonDataFilteringError ]
+                            | ex                                 
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#016")
+                                return Error [ JsonParsingError2 JsonDataFilteringError ]
                         }
     
                 let process1 () =
