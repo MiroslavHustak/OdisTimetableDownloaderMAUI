@@ -13,41 +13,41 @@ module ActorModels =
 
     let internal localCancellationActor () =
     
-            MailboxProcessor<CancellationMessageLocal>.StartImmediate
-                (fun inbox 
-                    ->
-                    let rec loop (cts : CancellationTokenSource) =
-                        async 
-                            {
-                                match! inbox.Receive() with
-                                | GetToken reply
-                                    ->
-                                    let tokenOpt =
-                                        match cts.IsCancellationRequested with
-                                        | true  -> None
-                                        | false -> Some cts.Token
-                                    reply.Reply tokenOpt 
-                                    return! loop cts
+        MailboxProcessor<CancellationMessageLocal>.StartImmediate
+            (fun inbox 
+                ->
+                let rec loop (cts : CancellationTokenSource) =
+                    async 
+                        {
+                            match! inbox.Receive() with
+                            | GetToken reply
+                                ->
+                                let tokenOpt =
+                                    match cts.IsCancellationRequested with
+                                    | true  -> None
+                                    | false -> Some cts.Token
+                                reply.Reply tokenOpt 
+                                return! loop cts
     
-                                | CancelToken
-                                    ->
-                                    cts.Cancel()
-                                    return! loop cts
+                            | CancelToken
+                                ->
+                                cts.Cancel()
+                                return! loop cts
     
-                                | Reset newCts 
-                                    ->
-                                    cts.Dispose()
-                                    return! loop newCts
+                            | Reset newCts 
+                                ->
+                                cts.Dispose()
+                                return! loop newCts
     
-                                | Stop reply 
-                                    ->
-                                    cts.Cancel()
-                                    cts.Dispose()
-                                    reply.Reply ()
-                            }
+                            | Stop reply 
+                                ->
+                                cts.Cancel()
+                                cts.Dispose()
+                                reply.Reply ()
+                        }
     
-                    loop (new CancellationTokenSource())
-                )
+                loop (new CancellationTokenSource())
+            )
 
     let internal cancelLocalActor (actor : MailboxProcessor<CancellationMessageLocal>) =
         
@@ -73,53 +73,53 @@ module ActorModels =
            //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
            //the mailbox will not raise an exception on its own. 
                            
-           MailboxProcessor<CancellationMessageGlobal>
-               .StartImmediate
-                   <|
-                   fun inbox
-                       ->
-                       let rec loop (cancelRequested : bool) (cts : CancellationTokenSource) =
+        MailboxProcessor<CancellationMessageGlobal>
+            .StartImmediate
+                <|
+                fun inbox
+                    ->
+                    let rec loop (cancelRequested : bool) (cts : CancellationTokenSource) =
                        
-                           async 
-                               {
-                                   match! inbox.Receive() with
-                                   | UpdateState2 (newState, newCts)
-                                       ->
-                                       match newState with
-                                       | true  ->
-                                               cts.Cancel()
-                                               cts.Dispose()
-                                       | false -> 
-                                               cts.Dispose() 
+                        async 
+                            {
+                                match! inbox.Receive() with
+                                | UpdateState2 (newState, newCts)
+                                    ->
+                                    match newState with
+                                    | true  ->
+                                            cts.Cancel()
+                                            cts.Dispose()
+                                    | false -> 
+                                            cts.Dispose() 
 
-                                       return! loop newState newCts
+                                    return! loop newState newCts
            
-                                   | CheckState2 reply
-                                       ->
-                                       let tokenOpt = 
-                                           match cts.IsCancellationRequested with
-                                           | true  -> None
-                                           | false -> Some cts.Token
+                                | CheckState2 reply
+                                    ->
+                                    let tokenOpt = 
+                                        match cts.IsCancellationRequested with
+                                        | true  -> None
+                                        | false -> Some cts.Token
                                        
-                                       reply.Reply tokenOpt
+                                    reply.Reply tokenOpt
 
-                                       return! loop cancelRequested cts
+                                    return! loop cancelRequested cts
 
-                                   | CancelCurrent //zatim nevyuzito
-                                       ->
-                                       cts.Cancel()
-                                       // Do NOT dispose or replace — keep the same CTS
-                                       // When user starts new work, init2 will replace it normally
-                                       return! loop true cts  
+                                | CancelCurrent //zatim nevyuzito
+                                    ->
+                                    cts.Cancel()
+                                    // Do NOT dispose or replace — keep the same CTS
+                                    // When user starts new work, init2 will replace it normally
+                                    return! loop true cts  
            
-                                   | Stop2 reply 
-                                       ->
-                                       match cancelRequested with
-                                       | true  -> cts.Cancel()  
-                                       | false -> () 
+                                | Stop2 reply 
+                                    ->
+                                    match cancelRequested with
+                                    | true  -> cts.Cancel()  
+                                    | false -> () 
                                        
-                                       cts.Dispose()
-                                       reply.Reply ()
-                               }
+                                    cts.Dispose()
+                                    reply.Reply ()
+                            }
 
-                       loop false (new CancellationTokenSource())  
+                    loop false (new CancellationTokenSource())  
