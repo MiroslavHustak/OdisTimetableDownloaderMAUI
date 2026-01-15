@@ -111,7 +111,8 @@ OdisTimetableDownloaderMAUI (Solution)
     ├── AndroidSpecificCode.fs
 │   ├── ProgressCircle.fs
 │   ├── Counters.fs
-│   └── App.fs
+    ├── App.fs
+│   └── App_R.fs
 ├── Resources/
 │   ├── AppIcon/
 │   │   └── appicon.svg
