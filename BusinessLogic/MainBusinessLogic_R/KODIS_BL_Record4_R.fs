@@ -257,7 +257,7 @@ module KODIS_BL_Record4 =
    
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
-   
+                                            
                                             match pathToFileExistFirstCheck with
                                             | Some _ 
                                                 ->
