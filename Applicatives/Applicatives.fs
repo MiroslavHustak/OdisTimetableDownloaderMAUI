@@ -33,14 +33,6 @@ module CummulativeResultApplicative =
     let internal (<***>) f x = applyC f x
 
     let internal liftErrorToList (r : Result<'a, 'e>) : Result<'a, 'e list> = Result.mapError List.singleton r
-
-    let inline (<*>) fR xR =
-                       match fR, xR with
-                       | Ok f, Ok x -> Ok (f x)
-                       | Error e1, Error e2 -> Error (e1 @ e2)
-                       | Error e, _ | _, Error e -> Error e
-               
-                   let inline (<!>) f x = Result.map f x
            
     (*
     // 1. Classic operator style 
