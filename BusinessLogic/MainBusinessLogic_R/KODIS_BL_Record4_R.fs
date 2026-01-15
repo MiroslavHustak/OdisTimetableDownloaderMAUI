@@ -98,11 +98,12 @@ module KODIS_BL_Record4 =
                                     runIO (postToLog <| JsonDataFilteringError <| "#015")                                    
                                     Error <| JsonParsingError2 JsonDataFilteringError
 
-                        | Choice2Of2 ex
+                        | Choice2Of2 ex //tady nedavej comprehensiveTryWith, neb potrebujeme chytit error, kdy se nedostaneme na endpoint na kodis.somee.com
                             -> 
                             let cond = 
                                 isCancellationGeneric 
-                                    StopJsonParsing JsonParsingTimeoutError
+                                    LetItBeParsing StopJsonParsing
+                                    JsonParsingTimeoutError
                                     JsonDataFilteringError token ex
 
                             match cond with
@@ -110,8 +111,8 @@ module KODIS_BL_Record4 =
                                 when err = StopJsonParsing
                                 ->
                                 //runIO (postToLog <| string ex.Message <| "#123456C")
-                                return Error <| JsonParsingError2 StopJsonParsing
-                            | err 
+                                return Error <| JsonParsingError2 StopJsonParsing                            
+                            | _ 
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#016")                      
                                 return Error <| JsonParsingError2 JsonDataFilteringError 
@@ -200,7 +201,7 @@ module KODIS_BL_Record4 =
    
                                         | Choice2Of2 ex 
                                             ->
-                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                            match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
                                                 when err = StopDownloading
                                                 ->

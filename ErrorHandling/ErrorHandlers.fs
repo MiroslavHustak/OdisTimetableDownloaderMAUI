@@ -216,7 +216,7 @@ module ExceptionHelpers =
         | NetworkError2
         | UnknownError2   
 
-    let internal isCancellationGeneric (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) =
+    let internal isCancellationGeneric (letItBe : 'c) (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (token : CancellationToken) (ex : exn) =
            
         let rec loop (stack : exn list) (acc : 'c list) : 'c list =
             match stack with
@@ -298,12 +298,14 @@ module ExceptionHelpers =
     
         let rec collectExceptions (ex : Exception) =
             match ex with
-            | :? AggregateException as aex ->
+            | :? AggregateException as aex
+                ->
                 // Flatten AggregateException from Task.WhenAll, Async.Parallel, etc.
                 aex.InnerExceptions 
                 |> Seq.collect collectExceptions 
                 |> List.ofSeq
-            | ex ->
+            | ex
+                ->
                 match ex.InnerException |> Option.ofNull with
                 | Some inner 
                     -> ex :: collectExceptions inner
@@ -323,7 +325,8 @@ module ExceptionHelpers =
                 | true  -> None  // Our cancellation, not a timeout
                 | false -> Some TimeoutError2  // HTTP client timeout
         
-            | :? SocketException as se ->
+            | :? SocketException as se 
+                ->
                 match se.SocketErrorCode with
                 | SocketError.TimedOut 
                     -> 
@@ -343,6 +346,7 @@ module ExceptionHelpers =
             | :? IOException 
                 -> 
                 Some NetworkError2
+
             | :? HttpRequestException 
                 -> 
                 Some NetworkError2
@@ -389,7 +393,7 @@ module ExceptionHelpers =
                 | NetworkError2 -> letItBe
                 | UnknownError2 -> letItBe
     
-        match isCancellationGeneric stopDownloading timeoutError fileDownloadError token ex with
+        match isCancellationGeneric letItBe stopDownloading timeoutError fileDownloadError token ex with
         | err 
             when err = stopDownloading
             -> 
@@ -422,4 +426,11 @@ module ExceptionHelpers =
             |> Error
     
         | _ -> 
-            Error fileDownloadError
+            Error letItBe
+
+        |> function
+            | err 
+                when err = Error letItBe
+                -> Ok ()  
+            | err
+                -> err

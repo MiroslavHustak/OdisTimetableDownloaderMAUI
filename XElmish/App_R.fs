@@ -814,7 +814,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
@@ -862,7 +862,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                     | err 
                                         when err = StopDownloading 
                                         ->
@@ -973,7 +973,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                     | err 
                                         when err = StopDownloading 
                                         ->
@@ -1098,7 +1098,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
@@ -1213,7 +1213,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2                                                       

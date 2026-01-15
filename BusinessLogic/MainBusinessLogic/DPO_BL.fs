@@ -274,7 +274,7 @@ module DPO_BL =
                             with                            
                             | ex                             
                                 -> 
-                                match isCancellationGeneric StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
+                                match isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                 | err 
                                     when err = StopDownloadingMHD
                                     ->

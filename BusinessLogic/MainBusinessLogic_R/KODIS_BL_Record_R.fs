@@ -157,7 +157,7 @@ module KODIS_BL_Record =
 
                                     | Choice2Of2 ex
                                         ->
-                                        match isCancellationGeneric StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with
+                                        match isCancellationGeneric JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with
                                         | err
                                             when err = StopJsonDownloading
                                             ->
@@ -293,7 +293,7 @@ module KODIS_BL_Record =
    
                                         | Choice2Of2 ex 
                                             ->
-                                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                            match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
                                                 when err = StopDownloading
                                                 ->

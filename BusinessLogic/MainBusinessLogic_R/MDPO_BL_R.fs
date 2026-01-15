@@ -215,7 +215,7 @@ module MDPO_BL = //FsHttp
                         
                                         | Choice2Of2 ex 
                                             ->
-                                            match isCancellationGeneric StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
+                                            match isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | err when err = StopDownloadingMHD 
                                                 ->
                                                 runIO (postToLog <| ex.Message <| "#MDPO-CANCEL")

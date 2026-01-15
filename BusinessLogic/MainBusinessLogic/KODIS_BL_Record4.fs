@@ -102,12 +102,12 @@ module KODIS_BL_Record4 =
 
                         | Choice2Of2 ex
                             -> 
-                            match isCancellationGeneric StopJsonParsing JsonParsingTimeoutError JsonDataFilteringError token ex with
+                            match isCancellationGeneric LetItBeParsing StopJsonParsing JsonParsingTimeoutError JsonDataFilteringError token ex with
                             | err 
                                 when err = StopJsonParsing
                                 ->
                                 //runIO (postToLog <| string ex.Message <| "#123456C")
-                                return Error <| JsonParsingError2 StopJsonParsing
+                                return Error <| JsonParsingError2 StopJsonParsing                            
                             | err 
                                 ->
                                 runIO (postToLog <| string ex.Message <| "#016")                      
@@ -235,7 +235,7 @@ module KODIS_BL_Record4 =
                                                     with
                                                     | ex                             
                                                         -> 
-                                                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                                        match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                                         | err 
                                                             when err = StopDownloading
                                                             ->
@@ -253,7 +253,7 @@ module KODIS_BL_Record4 =
                                 with
                                 | ex                             
                                     -> 
-                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                     | err 
                                         when err = StopDownloading
                                         ->

@@ -126,7 +126,7 @@ module KODIS_BL_Record =
                                 with
                                 | ex 
                                     -> // Cancellation pro json  downloading funguje jen s vnitrnim try with blokem
-                                    match isCancellationGeneric StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with
+                                    match isCancellationGeneric JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with
                                     | err 
                                         when err = StopJsonDownloading
                                         ->
@@ -313,7 +313,7 @@ module KODIS_BL_Record =
                                                     with
                                                     | ex                             
                                                         -> 
-                                                        match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                                        match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                                         | err 
                                                             when err = StopDownloading
                                                             ->
@@ -331,7 +331,7 @@ module KODIS_BL_Record =
                                 with
                                 | ex                             
                                     -> 
-                                    match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
+                                    match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
                                     | err 
                                         when err = StopDownloading
                                         ->

@@ -206,7 +206,7 @@ module DPO_BL =
     
                                         | Choice2Of2 ex 
                                             ->
-                                            match isCancellationGeneric StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
+                                            match isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | StopDownloadingMHD 
                                                 ->
                                                 //runIO (postToLog ex.Message "#123456H-DPO")

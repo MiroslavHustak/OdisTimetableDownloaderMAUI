@@ -1,7 +1,6 @@
 ﻿namespace ApplicationDesign
 
 open System
-open System.IO
 open System.Threading
 
 //**********************************
