@@ -91,60 +91,60 @@ module TP_Canopy_Difference =
         // This shows a basic applicative that can be extended to error accumulation.
         let getUniqueFileNamesApplicative folderPathTP folderPathCanopy =
            
-           IO (fun ()
-                ->
-                // Two independent IO actions (each may succeed or fail)
-                // Running them immediately here → Result types
-                let tpResult = runIO (fileNamesApplicative folderPathTP)
-                let canopyResult = runIO (fileNamesApplicative folderPathCanopy)
+            IO (fun ()
+                    ->
+                    // Two independent IO actions (each may succeed or fail)
+                    // Running them immediately here → Result types
+                    let tpResult = runIO (fileNamesApplicative folderPathTP)
+                    let canopyResult = runIO (fileNamesApplicative folderPathCanopy)
         
-                // Core of applicative style – combining two independent results
-                (fun tp canopy -> tp, canopy) // ← ordinary function (Set → Set → tuple)
-                <!> tpResult                  // ← first application: function <*> first value
-                <*> canopyResult              // ← second application: previous <*> second value
+                    // Core of applicative style – combining two independent results
+                    (fun tp canopy -> tp, canopy) // ← ordinary function (Set → Set → tuple)
+                    <!> tpResult                  // ← first application: function <*> first value
+                    <*> canopyResult              // ← second application: previous <*> second value
         
-                |> Result.map 
-                    (fun (tp, canopy) 
-                        ->
-                        Set.difference tp canopy |> Set.toList,
-                        Set.difference canopy tp |> Set.toList
-                    )
-                |> Result.defaultValue ([],[])  // ← only for educational comparison, normally remove the line and let the caller handle the Error case properly
-           )
+                    |> Result.map 
+                        (fun (tp, canopy) 
+                            ->
+                            Set.difference tp canopy |> Set.toList,
+                            Set.difference canopy tp |> Set.toList
+                        )
+                    |> Result.defaultValue ([],[])  // ← only for educational comparison, normally remove the line and let the caller handle the Error case properly
+            )
 
         // Applicative with error accumulation
         // All three independent Result-producing operations are evaluated.
         // All errors are accumulated using a list.
         let getUniqueFileNamesApplicative3 folderPathTP folderPathCanopy1 folderPathCanopy2 =
-                
-            // Wrap all IO results in lists for accumulation
-            let tpResult =
-                runIO (fileNamesApplicative folderPathTP)
-                |> liftErrorToList
+
+            IO (fun ()
+                    ->    
+                    let tpResult =
+                        runIO (fileNamesApplicative folderPathTP)
+                        |> liftErrorToList
         
-            let canopy1Result =
-                runIO (fileNamesApplicative folderPathCanopy1)
-                |> liftErrorToList
+                    let canopy1Result =
+                        runIO (fileNamesApplicative folderPathCanopy1)
+                        |> liftErrorToList
         
-            let canopy2Result =
-                runIO (fileNamesApplicative folderPathCanopy2)
-                |> liftErrorToList
+                    let canopy2Result =
+                        runIO (fileNamesApplicative folderPathCanopy2)
+                        |> liftErrorToList
+
+                    (fun tp c1 c2 -> tp, c1, c2)
+                    <!!!> tpResult
+                    <***> canopy1Result
+                    <***> canopy2Result
         
-            IO (fun () ->
-                (fun tp c1 c2 -> tp, c1, c2)
-                <!!!> tpResult
-                <***> canopy1Result
-                <***> canopy2Result
+                    |> Result.map (fun (tp, c1, c2) ->
+                        // All three are guaranteed to be Ok here
+                        let onlyInTP      = Set.difference tp c1 |> Set.difference <| c2 |> Set.toList
+                        let onlyInCanopy1 = Set.difference c1 tp |> Set.difference <| c2 |> Set.toList
+                        let onlyInCanopy2 = Set.difference c2 tp |> Set.difference <| c1 |> Set.toList
         
-                |> Result.map (fun (tp, c1, c2) ->
-                    // All three are guaranteed to be Ok here
-                    let onlyInTP      = Set.difference tp c1 |> Set.difference <| c2 |> Set.toList
-                    let onlyInCanopy1 = Set.difference c1 tp |> Set.difference <| c2 |> Set.toList
-                    let onlyInCanopy2 = Set.difference c2 tp |> Set.difference <| c1 |> Set.toList
-        
-                    onlyInTP, onlyInCanopy1, onlyInCanopy2
-                )
-                // |> Result.defaultValue ([], [], [])  // optional for testing
+                        onlyInTP, onlyInCanopy1, onlyInCanopy2
+                    )
+                    // |> Result.defaultValue ([], [], [])  // optional for testing
             )
 
         // Applicative with error accumulation
@@ -191,12 +191,13 @@ module TP_Canopy_Difference =
                         <!!!> result1
                         <***> result2
                         <***> result3
+
                         |> Result.map
                             (fun (r1, r2, r3) 
                                 ->
-                                let onlyInOp1 = r1 x y + r2  x y + r3 x y  //doing something with the results
-                                let onlyInOp2 = r1 x y * r2  x y * r3 x y  //doing something with the results
-                                let onlyInOp3 = r1 x y / r2  x y / r3 x y  //doing something with the results
+                                let onlyInOp1 = r1 x y + r2 x y + r3 x y  //doing something with the results
+                                let onlyInOp2 = r1 x y * r2 x y * r3 x y  //doing something with the results
+                                let onlyInOp3 = r1 x y / r2 x y / r3 x y  //doing something with the results
                                 onlyInOp1, onlyInOp2, onlyInOp3
                             )
                 }  
@@ -205,46 +206,51 @@ module TP_Canopy_Difference =
         // All three independent exception-throwing operations are run in parallel.
         // Exceptions are caught and converted to Result values, and all errors are accumulated. 
         let getUniqueFileNamesApplicative3Parallel_Catch path = //long running .NET processess with exceptions
-        
-            async 
-                {
-                    //simulate long running exceptions-throwing operations from .NET  
-                    let op1 path = Path.GetFullPath path              
-                    let op2 path = Path.GetFullPath path                
-                    let op3 path = Path.GetFullPath path
+            
+            IO (fun ()
+                    ->  
+                    async 
+                        {
+                            //simulate long running exceptions-throwing operations from .NET  
+                            let op1 path = Path.GetFullPath path              
+                            let op2 path = Path.GetFullPath path                
+                            let op3 path = Path.GetFullPath path
                         
-                    let asyncToAccumulatingResult (a : Async<'a>) : Async<Result<'a, string list>> =
-                        a
-                        |> Async.Catch
-                        |> Async.map (Result.ofChoice >> Result.mapError (fun ex -> [ ex.Message ]))
+                            let asyncToAccumulatingResult (a : Async<'a>) : Async<Result<'a, string list>> =
+                                a
+                                |> Async.Catch
+                                |> Async.map
+                                    (Result.ofChoice >> Result.mapError (fun ex -> [ ex.Message ]))
         
-                    let! results =
-                        [|
-                            async { return op1 path }
-                            async { return op2 path }
-                            async { return op3 path }
-                        |]
-                        |> Array.map asyncToAccumulatingResult
-                        |> Async.Parallel
+                            let! results =
+                                [|
+                                    async { return op1 path }
+                                    async { return op2 path }
+                                    async { return op3 path }
+                                |]
+                                |> Array.map asyncToAccumulatingResult
+                                |> Async.Parallel
         
-                    let result1 = results |> Array.item 0 
-                    let result2 = results |> Array.item 1 
-                    let result3 = results |> Array.item 2 
+                            let result1 = results |> Array.item 0 
+                            let result2 = results |> Array.item 1 
+                            let result3 = results |> Array.item 2 
         
-                    return
-                        (fun r1 r2 r3 -> r1, r2, r3)
-                        <!!!> result1
-                        <***> result2
-                        <***> result3
-                        |> Result.map
-                            (fun (r1, r2, r3) 
-                                ->
-                                let onlyInOp1 = sprintf "%s%s%s" r1 r2 r3              //doing something with the results
-                                let onlyInOp2 = String.length r2                       //doing something with the results
-                                let onlyInOp3 = r3 |> String.map System.Char.ToUpper   //doing something with the results
-                                onlyInOp1, onlyInOp2, onlyInOp3
-                            )
-                }
+                            return
+                                (fun r1 r2 r3 -> r1, r2, r3)
+                                <!!!> result1
+                                <***> result2
+                                <***> result3
+
+                                |> Result.map
+                                    (fun (r1, r2, r3) 
+                                        ->
+                                        let onlyInOp1 = sprintf "%s%s%s" r1 r2 r3              //doing something with the results
+                                        let onlyInOp2 = String.length r2                       //doing something with the results
+                                        let onlyInOp3 = r3 |> String.map System.Char.ToUpper   //doing something with the results
+                                        onlyInOp1, onlyInOp2, onlyInOp3
+                                    )
+                        }
+            )
                 
         let result folderPathTP folderPathCanopy =
 

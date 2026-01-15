@@ -3,7 +3,6 @@
 open System
 open System.IO
 open System.Net
-open System.Net.Http
 open System.Threading
 
 //*******************
@@ -18,6 +17,8 @@ open Types
 open Types.Types
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
+
+open Applicatives.CummulativeResultApplicative
 
 open Api.Logging
 open Api.FutureLinks
@@ -117,6 +118,70 @@ module KODIS_BL_Record4 =
                                 runIO (postToLog <| string ex.Message <| "#016")                      
                                 return Error <| JsonParsingError2 JsonDataFilteringError 
                     }
+                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+        )    
+
+    let internal operationOnDataFromJson2 (token : CancellationToken) variant dir =
+
+        IO (fun () 
+                ->
+                let normaliseAsyncResult (token : CancellationToken) (a : Async<Result<'a, ParsingAndDownloadingErrors>>) =
+                    async 
+                        {
+                            try
+                                token.ThrowIfCancellationRequested()
+                                let! r = a
+                                return r |> Result.mapError List.singleton
+                            with
+                            | _ -> return Error [ JsonParsingError2 JsonDataFilteringError ]
+                        }
+    
+                let process1 () =
+                    async
+                        {
+                            token.ThrowIfCancellationRequested()
+
+                            match! getFutureLinksFromRestApi >> runIO <| urlApi with
+                            | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
+                            | Error err -> return Error <| PdfDownloadError2 err
+                        }
+    
+                let process2 () =
+                    async
+                        {
+                            token.ThrowIfCancellationRequested()
+
+                            match variant with
+                            | FutureValidity 
+                                ->
+                                match! getFutureLinksFromRestApi >> runIO <| urlJson with
+                                | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
+                                | Error err -> return Error <| PdfDownloadError2 err
+                            | _ 
+                                ->
+                                return Ok []
+                        }
+    
+                async
+                    {
+                        let! results =
+                            [|
+                                normaliseAsyncResult token (process1 ())
+                                normaliseAsyncResult token (process2 ())
+                            |]
+                            |> Async.Parallel
+    
+                        let result1 = Array.head results
+                        let result2 = Array.last results
+    
+                        return
+                            (fun l1 l2 -> l1 @ l2)
+                            <!!!> result1
+                            <***> result2
+
+                            |> Result.map List.distinct
+                    }
+
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
 
