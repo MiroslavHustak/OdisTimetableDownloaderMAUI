@@ -273,24 +273,14 @@ module KODIS_BL_Record4 =
                         let! context = fun env -> env
              
                         return
-                            match context.dir |> Directory.Exists with //TOCTOU race condition by tady nemel byt problem
-                            | false ->
-                                    runIO (postToLog <| NoFolderError <| "#251")
-                                    Error <| PdfDownloadError2 NoFolderError  
-                            | true  ->                                   
-                                    match context.list with
-                                    | [] 
-                                        -> 
-                                        Ok String.Empty     
-                                    | _ 
-                                        -> 
-                                        match downloadAndSaveTimetables token context with
-                                        | Ok _ 
-                                            -> 
-                                            Ok String.Empty
-                                        
-                                        | Error case 
-                                            -> 
-                                            Error case 
+                           pyramidOfDamnation //TOCTOU race condition by tady nemel byt problem       
+                               {
+                                   let! _ = context.dir |> Directory.Exists, Error (PdfDownloadError2 NoFolderError)
+                                   let! _ = context.list <> List.Empty, Ok String.Empty
+                               
+                                   return
+                                       downloadAndSaveTimetables token context
+                                       |> Result.map (fun _ -> String.Empty)       
+                               }           
                     }       
         )

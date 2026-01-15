@@ -42,6 +42,11 @@ module Result =
         | true  -> Ok ok  
         | false -> Error err
 
+    let internal toBool =                               
+        function   
+        | Ok _    -> true  
+        | Error _ -> false
+
     (*
     let defaultWith defaultFn res =
         match res with

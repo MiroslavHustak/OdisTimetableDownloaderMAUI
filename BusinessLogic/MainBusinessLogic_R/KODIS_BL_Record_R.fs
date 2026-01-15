@@ -21,6 +21,7 @@ open Types.Haskell_IO_Monad_Simulation
 open Api.Logging
 open Settings.SettingsGeneral
 
+open Helpers.Builders
 open Helpers.DirFileHelper
 open Helpers.ExceptionHelpers
 
@@ -375,25 +376,22 @@ module KODIS_BL_Record =
                                             | None 
                                                 ->
                                                 // File does not exist (or was deleted) → download (with resume if partial)
-                                                let result = downloadWithResume uri pathToFile token                                                    
-                                                          
-                                                match! result with
-                                                | Ok _    
-                                                    -> 
-                                                    return Ok ()
-
-                                                | Error err 
-                                                    ->
-                                                    match err with
-                                                    | err 
-                                                        when err = StopDownloading
-                                                        ->
-                                                        //runIO (postToLog <| string err <| "#123456G")
-                                                        return Error <| PdfDownloadError2 StopDownloading
-                                                    | err 
-                                                        ->
-                                                        runIO (postToLog <| string err <| "#7028")
-                                                        return Error <| PdfDownloadError2 err  
+                                                let! result = downloadWithResume uri pathToFile token 
+                                                
+                                                return
+                                                    result
+                                                    |> Result.mapError(
+                                                        function
+                                                            | err 
+                                                                when err = StopDownloading
+                                                                ->
+                                                                //runIO (postToLog <| string err <| "#123456G")
+                                                                PdfDownloadError2 StopDownloading
+                                                            | err 
+                                                                ->
+                                                                runIO (postToLog <| string err <| "#7028")
+                                                                PdfDownloadError2  err 
+                                                        )                                               
                                         with                                        
                                         | ex
                                             -> 
@@ -426,17 +424,13 @@ module KODIS_BL_Record =
                     |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                     |> Option.defaultValue (Ok ())  
                         
-                match context.dir |> Directory.Exists with  //TOCTOU race condition by tady nemel byt problem
-                | false ->
-                        runIO (postToLog NoFolderError "#251")
-                        Error (PdfDownloadError2 NoFolderError)  
-                | true  ->                                   
-                        match context.list with
-                        | [] 
-                            -> 
-                            Ok String.Empty     
-                        | _ -> 
-                            match downloadAndSaveTimetables token context with
-                            | Ok _       -> Ok String.Empty
-                            | Error case -> Error case                         
+                pyramidOfDamnation //TOCTOU race condition by tady nemel byt problem       
+                    {
+                        let! _ = context.dir |> Directory.Exists, Error (PdfDownloadError2 NoFolderError)
+                        let! _ = context.list <> List.Empty, Ok String.Empty
+                        
+                        return
+                            downloadAndSaveTimetables token context
+                            |> Result.map (fun _ -> String.Empty)       
+                    }                  
         )
