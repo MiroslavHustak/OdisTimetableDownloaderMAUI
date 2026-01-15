@@ -52,6 +52,8 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── SettingsDPO.fs
 │   ├── SettingsKODIS.fs
 │   └── SettingsMDPO.fs
+├── ApplicativeFunctors/
+│   └── Applicatives.fs
 ├── ComputationExpressions/
 │   └── CEBuilders.fs
 ├── ErrorHandling/
@@ -93,17 +95,17 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │   └── ImpureFunctions/
 │   │       ├── FutureLinks.fs
 │   │       └── IO_Operations.fs
-│   ├── MainBusinessLogic/
-│   │   ├── DPO_BL.fs
-│   │   ├── MDPO_BL.fs
-│   │   ├── KODIS_BL_Record.fs
-│   │   ├── KODIS_BL_Record4.fs
-│   │   └── TP_Canopy_Difference.fs
-├── ApplicationDesign/
-│   ├── DPO.fs
-│   ├── MDPO.fs
-│   ├── KODIS_Record.fs
-│   └── KODIS_Record4.fs
+│   ├── MainBusinessLogic_R/
+│   │   ├── DPO_BL_R.fs
+│   │   ├── MDPO_BL_R.fs
+│   │   ├── KODIS_BL_Record_R.fs
+│   │   ├── KODIS_BL_Record4_R.fs
+│   │   └── TP_Canopy_Difference_R.fs
+├── ApplicationDesign_R/
+│   ├── DPO_R.fs
+│   ├── MDPO_R.fs
+│   ├── KODIS_Record_R.fs
+│   └── KODIS_Record4_R.fs
 ├── XElmish/ (minimal design for stress testing only)
     ├── HardRestart.fs
     ├── AndroidSpecificCode.fs
