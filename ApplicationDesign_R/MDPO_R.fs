@@ -119,7 +119,7 @@ module WebScraping_MDPO =
 
                         | ex 
                             -> 
-                            comprehensiveTryWith
+                            comprehensiveTryWithMHD
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex    
                             (*

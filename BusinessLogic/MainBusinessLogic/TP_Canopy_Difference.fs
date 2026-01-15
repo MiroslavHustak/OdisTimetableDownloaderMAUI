@@ -84,7 +84,7 @@ module TP_Canopy_Difference =
                     Set.difference fileNamesTP fileNamesCanopy |> Set.toList, Set.difference fileNamesCanopy fileNamesTP |> Set.toList
             )
         
-        //Ostatni applicatives s popisem je v BusinessLogic_R.TP_Canopy_Difference
+        //Ostatni applicatives s popisem jsou v BusinessLogic_R.TP_Canopy_Difference
         let getUniqueFileNamesApplicative folderPathTP folderPathCanopy =
            
            IO (fun ()

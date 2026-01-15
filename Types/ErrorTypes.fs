@@ -58,3 +58,9 @@ module ErrorTypes =
         | PdfDownloadError2 of PdfDownloadErrors
         | JsonParsingError2 of JsonParsingErrors
         | JsonDownloadError2 of JsonDownloadErrors
+
+    type internal ExceptionClassification =
+        | TlsError2
+        | TimeoutError2  
+        | NetworkError2
+        | UnknownError2  

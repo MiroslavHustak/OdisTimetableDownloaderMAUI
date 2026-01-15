@@ -200,7 +200,7 @@ module MDPO_BL = //FsHttp
                                                 | ex 
                                                     -> 
                                                     return 
-                                                       comprehensiveTryWith
+                                                       comprehensiveTryWithMHD
                                                            LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                            FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                         
@@ -228,7 +228,7 @@ module MDPO_BL = //FsHttp
                                                 | false ->
                                                         runIO (postToLog <| ex.Message <| "#MDPO-RETRY")
                                                         return 
-                                                            comprehensiveTryWith 
+                                                            comprehensiveTryWithMHD 
                                                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
@@ -310,7 +310,7 @@ module MDPO_BL = //FsHttp
                                                 | ex 
                                                     ->
                                                     return
-                                                        comprehensiveTryWith 
+                                                        comprehensiveTryWithMHD 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             }                  
@@ -322,7 +322,7 @@ module MDPO_BL = //FsHttp
                             | ex
                                 ->
                                 [ 
-                                    comprehensiveTryWith 
+                                    comprehensiveTryWithMHD 
                                         LetItBeMHD 
                                         StopDownloadingMHD 
                                         TimeoutErrorMHD 

@@ -197,7 +197,7 @@ module DPO_BL =
                                                 | ex 
                                                     -> 
                                                     return
-                                                        comprehensiveTryWith
+                                                        comprehensiveTryWithMHD
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
                                             | _ ->
@@ -218,7 +218,7 @@ module DPO_BL =
                                             | _ ->
                                                 runIO (postToLog ex.Message "#7024-DPO")
                                                 return 
-                                                    comprehensiveTryWith
+                                                    comprehensiveTryWithMHD
                                                         LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
                                                         FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
                                     }
@@ -276,7 +276,7 @@ module DPO_BL =
                     with                                            
                     | ex 
                         -> 
-                        comprehensiveTryWith
+                        comprehensiveTryWithMHD
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
         )

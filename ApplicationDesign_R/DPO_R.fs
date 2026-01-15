@@ -118,7 +118,7 @@ module WebScraping_DPO =
                         | ex 
                             ->
                             runIO (postToLog <| string ex.Message <| "#011")
-                            comprehensiveTryWith 
+                            comprehensiveTryWithMHD 
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                        
