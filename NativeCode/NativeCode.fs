@@ -44,9 +44,7 @@ module Native =
 
     // .NET declarations calling exported functions from native DLLs from C++
   
-    // type ProgressCallback = delegate of float * float -> unit
-
-    //********************* C++ **********************
+     //********************* C++ **********************
     
     [<DllImport(@"CppHelpers.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl)>]
     extern int CopyDirContent64(
