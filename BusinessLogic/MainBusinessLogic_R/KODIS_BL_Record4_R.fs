@@ -36,57 +36,62 @@ module KODIS_BL_Record4 =
     // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
     // 16-12-2024 Nic neni trvalejsiho, nez neco docasneho ...
     // 31-12-2025 ... kdo by to byl rekl, ze se nic nezmeni   
+
+    let private normaliseAsyncResult (token : CancellationToken) (a : Async<Result<'a, ParsingAndDownloadingErrors>>) =
+
+        async 
+            {
+                try
+                    token.ThrowIfCancellationRequested()
+                    let! r = a
+                    return r |> Result.mapError List.singleton
+                with
+                | ex                                 
+                    ->
+                    runIO (postToLog <| string ex.Message <| "#016")
+                    return Error [ JsonParsingError2 JsonDataFilteringError ]
+            }
     
-    let internal operationOnDataFromJson2 (token : CancellationToken) variant dir =
+    let private process1 (token : CancellationToken) variant dir =
+
+        async
+            {
+                token.ThrowIfCancellationRequested()
+
+                match! getFutureLinksFromRestApi >> runIO <| urlApi with
+                | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
+                | Error err -> return Error <| PdfDownloadError2 err
+            }
+    
+    let private process2 (token : CancellationToken) variant dir =
+
+        async
+            {
+                token.ThrowIfCancellationRequested()
+
+                match variant with
+                | FutureValidity 
+                    ->
+                    match! getFutureLinksFromRestApi >> runIO <| urlJson with
+                    | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
+                    | Error err -> return Error <| PdfDownloadError2 err
+                | _ 
+                    ->
+                    return Ok []
+            }
+    
+    let internal operationOnDataFromJson2 (token : CancellationToken) variant dir = // for educational purposes
 
         IO (fun () 
                 ->
-                let normaliseAsyncResult (token : CancellationToken) (a : Async<Result<'a, ParsingAndDownloadingErrors>>) =
-                    async 
-                        {
-                            try
-                                token.ThrowIfCancellationRequested()
-                                let! r = a
-                                return r |> Result.mapError List.singleton
-                            with
-                            | ex                                 
-                                ->
-                                runIO (postToLog <| string ex.Message <| "#016")
-                                return Error [ JsonParsingError2 JsonDataFilteringError ]
-                        }
-    
-                let process1 () =
-                    async
-                        {
-                            token.ThrowIfCancellationRequested()
-
-                            match! getFutureLinksFromRestApi >> runIO <| urlApi with
-                            | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                            | Error err -> return Error <| PdfDownloadError2 err
-                        }
-    
-                let process2 () =
-                    async
-                        {
-                            token.ThrowIfCancellationRequested()
-
-                            match variant with
-                            | FutureValidity 
-                                ->
-                                match! getFutureLinksFromRestApi >> runIO <| urlJson with
-                                | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                                | Error err -> return Error <| PdfDownloadError2 err
-                            | _ 
-                                ->
-                                return Ok []
-                        }
-    
                 async
                     {
+                        token.ThrowIfCancellationRequested() 
+
                         let! results =
                             [|
-                                normaliseAsyncResult token (process1 ())
-                                normaliseAsyncResult token (process2 ())
+                                normaliseAsyncResult token (process1 token variant dir)
+                                normaliseAsyncResult token (process2 token variant dir)
                             |]
                             |> Async.Parallel
     
@@ -110,51 +115,10 @@ module KODIS_BL_Record4 =
                 ->
                 async 
                     {
-
-                        let normaliseAsyncResult (token : CancellationToken) (a : Async<Result<'a, ParsingAndDownloadingErrors>>) =
-                            async 
-                                {
-                                    try
-                                        token.ThrowIfCancellationRequested()
-                                        let! r = a
-                                        return r |> Result.mapError List.singleton
-                                    with
-                                    | ex                                 
-                                        ->
-                                        runIO (postToLog <| string ex.Message <| "#016")
-                                        return Error [ JsonParsingError2 JsonDataFilteringError ]
-                                }
-    
-                        let process1 () =
-                            async
-                                {
-                                    token.ThrowIfCancellationRequested()
-
-                                    match! getFutureLinksFromRestApi >> runIO <| urlApi with
-                                    | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                                    | Error err -> return Error <| PdfDownloadError2 err
-                                }
-    
-                        let process2 () =
-                            async
-                                {
-                                    token.ThrowIfCancellationRequested()
-
-                                    match variant with
-                                    | FutureValidity 
-                                        ->
-                                        match! getFutureLinksFromRestApi >> runIO <| urlJson with
-                                        | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                                        | Error err -> return Error <| PdfDownloadError2 err
-                                    | _ 
-                                        ->
-                                        return Ok []
-                                }
-
                         token.ThrowIfCancellationRequested() 
     
-                        let! r1 = normaliseAsyncResult token (process1 ())
-                        let! r2 = normaliseAsyncResult token (process2 ())
+                        let! r1 = normaliseAsyncResult token (process1 token variant dir)
+                        let! r2 = normaliseAsyncResult token (process2 token variant dir)
     
                         return
                             validation

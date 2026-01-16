@@ -64,7 +64,7 @@ module WebScraping_KODIS4 =
     let private environment : Environment =
         { 
             DeleteAllODISDirectories = deleteAllODISDirectories   
-            OperationOnDataFromJson = operationOnDataFromJson2
+            OperationOnDataFromJson = operationOnDataFromJson4
             DownloadAndSave = fun token context -> runIO (downloadAndSave token context) //downloadAndSave >> runIO
         }    
 
@@ -140,7 +140,7 @@ module WebScraping_KODIS4 =
             //dispatchCancelVisible false    
                              
             let dir = context2.DirList |> List.item context2.VariantInt  
-            let list = runIO <| operationOnDataFromJson2 token context2.Variant dir 
+            let list = runIO <| environment.OperationOnDataFromJson token context2.Variant dir 
 
             //dispatchRestartVisible false 
         
