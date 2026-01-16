@@ -16,8 +16,6 @@ open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 
 //*************************************************************
 
-open Types.ErrorTypes
-open Helpers.ExceptionHelpers
 open Settings.SettingsGeneral
 
 //************************************************************************

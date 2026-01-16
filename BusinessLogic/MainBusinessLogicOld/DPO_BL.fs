@@ -213,24 +213,24 @@ module DPO_BL =
                             let filterTimetables = runIO <| filterTimetables
 
                             let l = filterTimetables |> List.length
-                                in
-                                let counterAndProgressBar =
-                                    MailboxProcessor<MsgIncrement>
-                                        .StartImmediate
-                                            <|
-                                            fun inbox 
-                                                ->
-                                                let rec loop n = 
-                                                    async
-                                                        {
-                                                            try
-                                                                let! Inc i = inbox.Receive()
-                                                                reportProgress (float n, float l)
-                                                                return! loop (n + i)
-                                                            with
-                                                            | ex -> runIO (postToLog <| string ex.Message <| "#900DPO-MP")
-                                                        }
-                                                loop 0      
+                                
+                            let counterAndProgressBar =
+                                MailboxProcessor<MsgIncrement>
+                                    .StartImmediate
+                                        <|
+                                        fun inbox 
+                                            ->
+                                            let rec loop n = 
+                                                async
+                                                    {
+                                                        try
+                                                            let! Inc i = inbox.Receive()
+                                                            reportProgress (float n, float l)
+                                                            return! loop (n + i)
+                                                        with
+                                                        | ex -> runIO (postToLog <| string ex.Message <| "#900DPO-MP")
+                                                    }
+                                            loop 0      
             
                             try    
                                 let uri, pathToFile =

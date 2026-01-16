@@ -91,7 +91,7 @@ module WebScraping_MDPO =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#007")
+                            runIO (postToLog <| string ex.Message <| "#0001-MDPO")
                             Error FileDownloadErrorMHD //dpoMsg1                  
            
                     | FilterDownloadSave   
@@ -112,31 +112,17 @@ module WebScraping_MDPO =
                         try        
                            downloadTimetables pathToDir
                         with
-                        | :? DirectoryNotFoundException 
+                        | :? DirectoryNotFoundException as ex 
                             ->
-                            runIO (postToLog "Timetable directory not found or was deleted" "#008-10")
+                            runIO (postToLog <| string ex.Message <| "#0002-MDPO")
                             Error FileDeleteErrorMHD  
-
                         | ex 
                             -> 
+                            // runIO (postToLog <| string ex.Message <| "#0003-MDPO") // commented out so that cancellation is not logged
                             comprehensiveTryWithMHD
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
-                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex    
-                            (*
-                            //temporary code
-                            match isCancellationGeneric StopDownloading TimeoutError FileDownloadError token ex with
-                            | err when err = TimeoutError 
-                                ->
-                                Error TlsHandshakeErrorMHD
-                            | _                               
-                                when (string ex.Message).Contains "Timeout exceeded while getting response"
-                                ->
-                                Error TlsHandshakeErrorMHD  
-                            | _ ->
-                                runIO (postToLog <| string ex.Message <| "#008-X05") 
-                                Error FileDownloadErrorMHD  
-                          *)
-                                                                  
+                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex   
+
                 pyramidOfInferno
                     {  
                         let errFn err =  

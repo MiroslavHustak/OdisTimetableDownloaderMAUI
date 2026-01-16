@@ -60,7 +60,7 @@ module IO_Operations =
                                     Ok ()   // nothing to delete 
                                 | ex 
                                     ->
-                                    runIO (postToLog <| string ex.Message <| "#038")
+                                    runIO (postToLog <| string ex.Message <| "#0001-IO") 
                                     Error <| PdfDownloadError2 FileDeleteError
                         }
     
@@ -96,7 +96,7 @@ module IO_Operations =
                                     Ok ()   // nothing to delete 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| "#039")
+                                    runIO (postToLog <| string ex.Message <| "#0002-IO") 
                                     Error <| PdfDownloadError2 FileDeleteError                       
                         }
     
@@ -122,7 +122,7 @@ module IO_Operations =
                     Ok ()   // nothing to delete 
                 | ex
                     ->
-                    runIO (postToLog <| string ex.Message <| "#040")
+                    runIO (postToLog <| string ex.Message <| "#0003-IO") 
                     Error FileDownloadErrorMHD //dpoMsg1  
         )   
     
@@ -143,7 +143,7 @@ module IO_Operations =
                     ()   // nothing to delete 
                 | ex
                     ->
-                    () // runIO (postToLog <| string ex.Message <| "#040-1")
+                    () //runIO (postToLog <| string ex.Message <| "#0004-IO") 
                     //proste se nic nestane, tak se nesmazou, no...
         )  
         
@@ -174,7 +174,7 @@ module IO_Operations =
                     ()   // nothing to delete 
                 | ex
                     ->
-                    runIO (postToLog <| string ex.Message <| "#1040")
+                    runIO (postToLog <| string ex.Message <| "#0005-IO") 
         )
                           
     let internal deleteOld4 () = //Async.Catch is in App.fs
@@ -212,7 +212,7 @@ module IO_Operations =
                     ()   // nothing to delete 
                 | ex
                     ->
-                    runIO (postToLog <| string ex.Message <| "#1041")  
+                    runIO (postToLog <| string ex.Message <| "#0006-IO")  
         )
       
     let internal createFolders dirList =  
@@ -240,7 +240,7 @@ module IO_Operations =
                 with 
                 | ex
                     ->
-                    runIO (postToLog <| string ex.Message <| "#041")
+                    runIO (postToLog <| string ex.Message <| "#0007-IO") 
                     Error <| PdfDownloadError2 CreateFolderError4   
         )
         
@@ -271,7 +271,7 @@ module IO_Operations =
                     with 
                     | ex
                         ->
-                        runIO (postToLog <| string ex.Message <| "#042")
+                        runIO (postToLog <| string ex.Message <| "#0008-IO") 
                         Error <| PdfDownloadError2 CreateFolderError4   
                 | false 
                     -> 
@@ -290,7 +290,7 @@ module IO_Operations =
                 with 
                 | ex
                     ->
-                    runIO (postToLog <| string ex.Message <| "#421")
+                    runIO (postToLog <| string ex.Message <| "#0009-IO") 
                     Error <| PdfDownloadError2 CreateFolderError2   
         )
 
@@ -306,7 +306,7 @@ module IO_Operations =
                     with 
                     | ex
                         ->
-                        //runIO (postToLog ex.Message "#444-source-probe")
+                        runIO (postToLog <| string ex.Message <| "#0010-IO") 
                         Error err1 //LetItBe...
     
                 let ensureDestination () =
@@ -317,7 +317,7 @@ module IO_Operations =
                     with
                     | ex 
                         ->
-                        runIO (postToLog ex.Message "#444-create-dest-ex") 
+                        runIO (postToLog <| string ex.Message <| "#00011-IO") 
                         Error err2
     
                 result
@@ -340,13 +340,13 @@ module IO_Operations =
                             return ()
                         | Error moveErr
                             ->
-                            runIO (postToLog moveErr "#444-move-files") 
+                            runIO (postToLog <| string moveErr <| "#0012-IO") 
                             return! Error err2
                     }
                 |> Result.mapError
                     (fun finalErr 
                         ->
-                        //runIO (postToLog (string finalErr) "#444-final-error") 
+                        runIO (postToLog <| string finalErr <| "#0013-IO") 
                         finalErr
                     )
         )    
@@ -375,7 +375,7 @@ module IO_Operations =
                                                     dirInfo.Exists |> Result.fromBool () err2,
                                                         fun _
                                                             ->
-                                                            runIO (postToLog <| err2 <| "#444-1")
+                                                            runIO (postToLog <| string err2 <| "#0014-IO") 
                                                             Error err2
                                                 let! _ =
                                                     runFreeMonad
@@ -383,7 +383,7 @@ module IO_Operations =
                                                     copyOrMoveFiles { source = source; destination = destination } Move,
                                                         fun _ 
                                                             ->
-                                                            runIO (postToLog <| err2 <| "#444-2")
+                                                            runIO (postToLog <| string err2 <| "#0015-IO") 
                                                             Error err2
                                     
                                                 return Ok ()
@@ -391,7 +391,7 @@ module IO_Operations =
                                     with 
                                     | ex 
                                         ->
-                                        runIO (postToLog <| ex.Message <| "#444-3")
+                                        runIO (postToLog <| string ex.Message <| "#0016-IO") 
                                         Error err2                       
                    
                         let! _ = 
@@ -400,7 +400,7 @@ module IO_Operations =
                             copyOrMoveFiles { source = source; destination = destination } Move,   
                                 fun err
                                     ->
-                                    runIO (postToLog <| err <| "#444-48")
+                                    runIO (postToLog <| string err <| "#0017-IO") 
                                     Error err2
                                  
                         return Ok ()
@@ -424,7 +424,7 @@ module IO_Operations =
             ->
             IO (fun () 
                     ->  
-                    runIO (postToLog <| string ex.Message <| "#444-ex") 
+                    runIO (postToLog <| string ex.Message <| "#0018-IO") 
                     Error err2   
             )   
 
@@ -432,41 +432,79 @@ module IO_Operations =
     
         IO (fun () 
                 ->
+                let normaliseAsyncResult (token : CancellationToken) (a : Async<Result<'a, PdfDownloadErrors>>) =
+
+                    async 
+                        {
+                            try
+                                token.ThrowIfCancellationRequested()
+                                let! r = a
+                                return r |> Result.mapError List.singleton
+                            with
+                            | ex                                 
+                                ->
+                                runIO (postToLog <| string ex.Message <| "#0019-IO")
+                                return Error [ FolderMovingError4 ]
+                        }
+
                 // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                 // nicmene priprava na zpracovani err je provedena  
                 let moveTask1 () = 
                     async
                         {
                             let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis4 FolderMovingError4
-                            return Ok () 
+                            return Ok [] 
                         }
             
                 let moveTask2 () = 
                     async 
                         {    
                             let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis4 FolderMovingError4
-                            return Ok ()  
+                            return Ok []  
                         }
     
                 let moveTask3 () = 
                     async
                         {
                             let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis4 FolderMovingError4
-                            return Ok ()  
+                            return Ok []  
                         }   
-                                
+                    
                 //runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel start")
-            
-                [| 
-                    moveTask1 ()
-                    moveTask2 ()
-                    moveTask3 ()
-                |]
-                |> Async.Parallel  
-                |> Async.Catch   //silently ignoring failed move operations //// becomes Async<Result<Result<_,_>[], exn>>
-                |> Async.Ignore<Choice<Result<unit, string> array, exn>>  //silently ignoring failed move operations                   
-                |> (fun a -> Async.RunSynchronously(a, cancellationToken = token))  
-                |> Ok
+                
+                let result = 
+                    async
+                        {
+
+                            let! results = 
+                                [| 
+                                
+                                    normaliseAsyncResult token (moveTask1())
+                                    normaliseAsyncResult token (moveTask2())
+                                    normaliseAsyncResult token (moveTask3())
+                                |]
+                                |> Async.Parallel
+
+                            let result1 = Array.head results
+                            let result2 = Array.item 1 results               
+                            let result3 = Array.last results
     
+                            return
+                                validation
+                                    {
+                                        let! links1 = result1
+                                        and! links2 = result2
+                                        and! links3 = result3
+
+                                        return links1 @ links2 @ links3 |> List.distinct 
+                                    }
+                        }
+
+                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+
+                runIO (postToLog <| sprintf "%A" result <| "#0020-IO")   
+
+                Ok ()  //Applicative-style validation intended for logging only              
+
                 // runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel end")  
         )

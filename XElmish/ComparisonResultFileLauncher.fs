@@ -7,6 +7,7 @@ open FsToolkit.ErrorHandling
 
 open Helpers
 open Types.Haskell_IO_Monad_Simulation
+open Api.Logging
 
 module ComparisonResultFileLauncher =  
    
@@ -30,15 +31,19 @@ module ComparisonResultFileLauncher =
                                                        Title = file.Name,
                                                        File = ReadOnlyFile file.FullName  // This is read-only
                                                    )  
-                                           
-                                           let! result = Launcher.Default.OpenAsync request |> Async.AwaitTask
-                                           
-                                           return result
+                                                   
+                                           return! Launcher.Default.OpenAsync request |> Async.AwaitTask
                                        with 
-                                       | _ -> return false
+                                       | ex 
+                                           ->
+                                           runIO (postToLog <| string ex.Message <| "#0001FileLauncher")
+                                           return false
                                    }                          
                            return safeAsync 
                        with
-                       | _ -> return! None
+                       | ex 
+                           ->
+                           runIO (postToLog <| string ex.Message <| "#0002FileLauncher") 
+                           return! None
                    }
        )

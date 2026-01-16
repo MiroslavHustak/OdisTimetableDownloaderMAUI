@@ -196,12 +196,13 @@ module DPO_BL =
                                                 with                                                                                  
                                                 | ex 
                                                     -> 
+                                                    //runIO (postToLog <| string ex.Message <| "#0001-DPOBL") //in order not to log cancellation
                                                     return
                                                         comprehensiveTryWithMHD
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
                                             | _ ->
-                                                runIO (postToLog (string response.statusCode) "#2212-DPO")
+                                                runIO (postToLog (string response.statusCode) "#0002-DPOBL")
                                                 return Error FileDownloadErrorMHD
     
                                         | Choice2Of2 ex 
@@ -209,14 +210,14 @@ module DPO_BL =
                                             match isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | StopDownloadingMHD 
                                                 ->
-                                                //runIO (postToLog ex.Message "#123456H-DPO")
+                                                //runIO (postToLog <| string ex.Message <| "#0003-DPOBL") //in order not to log cancellation
                                                 return Error StopDownloadingMHD
                                             | _ when retryCount < maxRetries 
                                                 ->
                                                 do! Async.Sleep backoffMs
                                                 return! attempt (retryCount + 1) (backoffMs * 2)
                                             | _ ->
-                                                runIO (postToLog ex.Message "#7024-DPO")
+                                                runIO (postToLog <| string ex.Message <| "#0004-DPOBL") 
                                                 return 
                                                     comprehensiveTryWithMHD
                                                         LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
@@ -239,18 +240,22 @@ module DPO_BL =
                         let l = filteredTimetables.Length
     
                         let counterAndProgressBar =
-                            MailboxProcessor<MsgIncrement>.StartImmediate
-                                (fun inbox 
-                                    ->
-                                    let rec loop n =
-                                        async
-                                            {
-                                                let! Inc i = inbox.Receive()
-                                                reportProgress (float n, float l)
-                                                return! loop (n + i)
-                                            }
-                                    loop 0
-                                )
+                            MailboxProcessor<MsgIncrement>
+                                .StartImmediate
+                                    (fun inbox 
+                                        ->
+                                        let rec loop n =
+                                            async
+                                                {
+                                                    try
+                                                        let! Inc i = inbox.Receive()
+                                                        reportProgress (float n, float l)
+                                                        return! loop (n + i)
+                                                    with
+                                                    | ex -> () //runIO (postToLog <| string ex.Message <| "#0007-MDPOBL") 
+                                                }
+                                        loop 0
+                                    )
                 
                         let uri, pathToFile =
                             filteredTimetables 
@@ -276,6 +281,7 @@ module DPO_BL =
                     with                                            
                     | ex 
                         -> 
+                        //runIO (postToLog <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
                         comprehensiveTryWithMHD
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  

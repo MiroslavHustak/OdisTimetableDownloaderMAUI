@@ -48,7 +48,7 @@ module KODIS_BL_Record4 =
                 with
                 | ex                                 
                     ->
-                    runIO (postToLog <| string ex.Message <| "#016")
+                    runIO (postToLog <| string ex.Message <| "#0001-K4BL")
                     return Error [ JsonParsingError2 JsonDataFilteringError ]
             }
     
@@ -59,8 +59,13 @@ module KODIS_BL_Record4 =
                 token.ThrowIfCancellationRequested()
 
                 match! getFutureLinksFromRestApi >> runIO <| urlApi with
-                | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                | Error err -> return Error <| PdfDownloadError2 err
+                | Ok value  
+                    -> 
+                    return runIO <| filterTimetableLinks variant dir (Ok value)
+                | Error err 
+                    -> 
+                    runIO (postToLog <| string err <| "#0002-K4BL")
+                    return Error <| PdfDownloadError2 err
             }
     
     let private process2 (token : CancellationToken) variant dir =
@@ -73,8 +78,13 @@ module KODIS_BL_Record4 =
                 | FutureValidity 
                     ->
                     match! getFutureLinksFromRestApi >> runIO <| urlJson with
-                    | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
-                    | Error err -> return Error <| PdfDownloadError2 err
+                    | Ok value  
+                        -> 
+                        return runIO <| filterTimetableLinks variant dir (Ok value)
+                    | Error err
+                        -> 
+                        runIO (postToLog <| string err <| "#0003-K4BL")
+                        return Error <| PdfDownloadError2 err
                 | _ 
                     ->
                     return Ok []
@@ -204,6 +214,7 @@ module KODIS_BL_Record4 =
                                                 with                                               
                                                 | ex 
                                                     -> 
+                                                    // runIO (postToLog <| string ex.Message <| "#0004-K4BL")  //in order not to log cancellation
                                                     return 
                                                         comprehensiveTryWith 
                                                             LetItBeKodis4 StopDownloading TimeoutError 
@@ -211,12 +222,12 @@ module KODIS_BL_Record4 =
    
                                             | HttpStatusCode.Forbidden
                                                 ->
-                                                runIO <| postToLog () (sprintf "%s Forbidden 403 #2211-K4" uri) 
+                                                runIO <| postToLog () (sprintf "%s Forbidden 403 #0005-K4BL" uri) 
                                                 return Error FileDownloadError
    
                                             | status
                                                 ->
-                                                runIO <| postToLog (string status) "#2212-K4" 
+                                                runIO <| postToLog (string status) "#0006-K4BL" 
                                                 return Error FileDownloadError
    
                                         | Choice2Of2 ex 
@@ -225,7 +236,7 @@ module KODIS_BL_Record4 =
                                             | err 
                                                 when err = StopDownloading
                                                 ->
-                                                //runIO (postToLog <| string ex.Message <| "#123456H-K4")
+                                                //runIO (postToLog <| string ex.Message <| "#0007-K4BL")  //in order not to log cancellation
                                                 return Error StopDownloading
                                             | _ 
                                                 ->
@@ -234,7 +245,7 @@ module KODIS_BL_Record4 =
                                                         do! Async.Sleep backoffMs
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
-                                                        runIO <| postToLog (string ex.Message) (sprintf "#7024-K4 (retry %d)" retryCount) 
+                                                        runIO <| postToLog (string ex.Message) (sprintf "#0008-K4BL (retry %d)" retryCount) 
                                                         return 
                                                             comprehensiveTryWith
                                                                 LetItBeKodis4 StopDownloading TimeoutError
@@ -262,7 +273,7 @@ module KODIS_BL_Record4 =
                                                     context.reportProgress (float n, float l)
                                                     return! loop (n + i)
                                                 with
-                                                | ex -> runIO (postToLog <| ex.Message <| "#903-MP-K4")
+                                                | ex -> () //runIO (postToLog <| string ex.Message <| "#0009-K4BL")
                                             }
                                     loop 0
                                                  
@@ -312,16 +323,17 @@ module KODIS_BL_Record4 =
                                                             | err 
                                                                 when err = StopDownloading
                                                                 ->
-                                                                //runIO (postToLog <| string err <| "#123456G-K4")
+                                                                //runIO (postToLog <| string err <| "#0009-K4BL") //in order not to log cancellation
                                                                 PdfDownloadError2 StopDownloading
                                                             | err 
                                                                 ->
-                                                                runIO (postToLog <| string err <| "#7028-K4")
+                                                                runIO (postToLog <| string err <| "#0010-K4BL")
                                                                 PdfDownloadError2  err 
                                                         )                                               
                                         with                                        
                                         | ex
                                             -> 
+                                            //runIO (postToLog <| string ex.Message <| "#0011-K4BL")  //in order not to log cancellation
                                             return 
                                                 comprehensiveTryWith
                                                     (PdfDownloadError2 LetItBeKodis4)
@@ -338,6 +350,7 @@ module KODIS_BL_Record4 =
                     with
                     | ex 
                         -> 
+                        //runIO (postToLog <| string ex.Message <| "#0012-K4BL")  //in order not to log cancellation
                         [
                             comprehensiveTryWith 
                                 (PdfDownloadError2 LetItBeKodis4)

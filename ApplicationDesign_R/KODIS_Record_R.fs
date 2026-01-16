@@ -130,7 +130,10 @@ module WebScraping_KODIS =
                         finally
                             ()              
                     with
-                    | _ -> Error JsonLetItBeKodis //silently ignoring failed download operations
+                    | ex 
+                        ->
+                        runIO (postToLog <| string ex.Message <| "#0001-K")
+                        Error JsonLetItBeKodis //silently ignoring failed download operations
             
                     |> Result.map (fun _ -> dispatchMsg2) // spravne dispatchMsg1, ale drzi se to po celou dobu ocekavaneho dispatchMsg2
                     |> Result.mapError errFn
@@ -180,7 +183,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog <| string ex.Message <| "#22-2")
+                            runIO (postToLog <| string ex.Message <| "#0002-K")
                             Error <| JsonParsingError2 JsonDataFilteringError 
                                                       
                     let taskDispatch param = async { return DispatchDone param } //for educational purposes
@@ -262,7 +265,7 @@ module WebScraping_KODIS =
 
                     | Error err                    
                         ->
-                        runIO (postToLog <| err <| "#006")
+                        runIO (postToLog <| string err <| "#0002-K")
                         Error err 
                        
                 let dirList = createNewDirectoryPaths path listOfODISVariants
@@ -314,7 +317,7 @@ module WebScraping_KODIS =
                             with
                             | ex
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#22-1")
+                                runIO (postToLog <| string ex.Message <| "#0003-K")
                                 Error <| JsonParsingError2 JsonParsingError
                                 //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
                         

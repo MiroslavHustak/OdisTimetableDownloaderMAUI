@@ -217,37 +217,37 @@ module App =
 
         let connectivityDebouncer (dispatch : Msg -> unit) = 
         
-                    let debounceActor =
-        
-                        MailboxProcessor<bool>.StartImmediate
-                            (fun inbox
-                                ->
-                                let rec loop lastState (lastChangeTime : DateTime) =
-                                    async 
-                                        {
-                                            let! isConnected = inbox.Receive()
-                                            let now = DateTime.Now
+            let debounceActor =        
+                MailboxProcessor<bool>
+                    .StartImmediate
+                        (fun inbox
+                            ->
+                            let rec loop lastState (lastChangeTime : DateTime) =
+                                async 
+                                    {
+                                        let! isConnected = inbox.Receive()
+                                        let now = DateTime.Now
                 
-                                            match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.5 with
-                                            | true, true 
-                                                ->
-                                                match isConnected with
-                                                | false ->
-                                                        NetConnMessage >> dispatch <| noNetConn
-                                                        runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                                | true  ->
-                                                        dispatch (NetConnMessage yesNetConn)
+                                        match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.5 with
+                                        | true, true 
+                                            ->
+                                            match isConnected with
+                                            | false ->
+                                                    NetConnMessage >> dispatch <| noNetConn
+                                                    runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                            | true  ->
+                                                    dispatch (NetConnMessage yesNetConn)
                 
-                                                return! loop isConnected now
+                                            return! loop isConnected now
                 
-                                            | _ ->
-                                                return! loop lastState lastChangeTime
-                                        }
+                                        | _ ->
+                                            return! loop lastState lastChangeTime
+                                    }
                 
-                                loop true DateTime.MinValue
-                        )
+                            loop true DateTime.MinValue
+                )
                 
-                    runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)
+            runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)
                 
         // not used any longer, kept for educational purposes  
         let monitorConnectivity (dispatch : Msg -> unit) =              
@@ -354,7 +354,7 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#3-1") 
+                runIO (postToLog <| string ex.Message <| "#0002App") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
         
@@ -377,7 +377,7 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#3-1") 
+                runIO (postToLog <| string ex.Message <| "#0001") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
@@ -458,7 +458,7 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#3-1") 
+                runIO (postToLog <| string ex.Message <| "#0003App") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
         
@@ -481,13 +481,13 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#1") 
+                runIO (postToLog <| string ex.Message <| "#0004App") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
         | Error err 
             ->  
-            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#003") | false -> ()
+            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#0005App") | false -> ()
             { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none        
         *)
 

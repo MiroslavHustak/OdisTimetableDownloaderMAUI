@@ -159,34 +159,34 @@ module App_R =
         let connectivityDebouncer (dispatch : Msg -> unit) =
 
             let debounceActor =
-
-                MailboxProcessor<bool>.StartImmediate
-                    (fun inbox
-                        ->
-                        let rec loop lastState (lastChangeTime : DateTime) =
-                            async 
-                                {
-                                    let! isConnected = inbox.Receive()
-                                    let now = DateTime.Now
+                MailboxProcessor<bool>
+                    .StartImmediate
+                        (fun inbox
+                            ->
+                            let rec loop lastState (lastChangeTime : DateTime) =
+                                async 
+                                    {
+                                        let! isConnected = inbox.Receive()
+                                        let now = DateTime.Now
         
-                                    match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.5 with
-                                    | true, true 
-                                        ->
-                                        match isConnected with
-                                        | false ->
-                                                NetConnMessage >> dispatch <| noNetConn
-                                                runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                        | true  ->
-                                                dispatch (NetConnMessage yesNetConn)
+                                        match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.5 with
+                                        | true, true 
+                                            ->
+                                            match isConnected with
+                                            | false ->
+                                                    NetConnMessage >> dispatch <| noNetConn
+                                                    runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                            | true  ->
+                                                    dispatch (NetConnMessage yesNetConn)
         
-                                        return! loop isConnected now
+                                            return! loop isConnected now
         
-                                    | _ ->
-                                        return! loop lastState lastChangeTime
-                                }
+                                        | _ ->
+                                            return! loop lastState lastChangeTime
+                                    }
         
-                        loop true DateTime.MinValue
-                )
+                            loop true DateTime.MinValue
+                    )
         
             runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)
         
@@ -283,7 +283,7 @@ module App_R =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#3-1") 
+                runIO (postToLog <| string ex.Message <| "#0001App_R") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
@@ -357,7 +357,7 @@ module App_R =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#3-1") 
+                runIO (postToLog <| string ex.Message <| "#0002App_R") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 

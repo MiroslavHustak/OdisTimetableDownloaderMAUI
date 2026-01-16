@@ -45,32 +45,32 @@ module ParseJsonData =
                                     let! pathToJsonList3 = fun env -> env 
 
                                     let l = pathToJsonList3 |> List.length
-                                        in
-                                        let counterAndProgressBar =
-                                            MailboxProcessor<MsgIncrement>
-                                                .StartImmediate
-                                                    <|
-                                                    fun inbox 
-                                                        ->
-                                                        (*
-                                                        use _ =
-                                                            token.Register
-                                                                (fun () 
-                                                                    ->
-                                                                    inbox.Post (Unchecked.defaultof<MsgIncrement>)
-                                                                )
-                                                        *)
-                                                        let rec loop n = 
-                                                            async
-                                                                {
-                                                                    try
-                                                                        let! Inc i = inbox.Receive()
-                                                                        reportProgress (float n, float l)
-                                                                        return! loop (n + i)
-                                                                    with
-                                                                    | ex -> runIO (postToLog <| ex.Message <| "#911-MP")
-                                                                }
-                                                        loop 0
+                                       
+                                    let counterAndProgressBar =
+                                        MailboxProcessor<MsgIncrement>
+                                            .StartImmediate
+                                                <|
+                                                fun inbox 
+                                                    ->
+                                                    (*
+                                                    use _ =
+                                                        token.Register
+                                                            (fun () 
+                                                                ->
+                                                                inbox.Post (Unchecked.defaultof<MsgIncrement>)
+                                                            )
+                                                    *)
+                                                    let rec loop n = 
+                                                        async
+                                                            {
+                                                                try
+                                                                    let! Inc i = inbox.Receive()
+                                                                    reportProgress (float n, float l)
+                                                                    return! loop (n + i)
+                                                                with
+                                                                | ex -> () //runIO (postToLog <| string ex.Message <| "#0001-ParseJson")
+                                                            }
+                                                    loop 0
 
                                     let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 
@@ -90,7 +90,7 @@ module ParseJsonData =
                                                             return result |> JsonProvider2.Parse
                                                              // The biggest performance drag    
                                                         with
-                                                        | _ -> return JsonProvider2.Parse tempJson2
+                                                        | _ -> return JsonProvider2.Parse tempJson2 //silently swallowing exn 
                                                     }
                                             )
                                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
@@ -151,7 +151,7 @@ module ParseJsonData =
                                              
                                                             return Array.append timetables attachments  
                                                         with
-                                                        |_ -> return [||] //silently swallowing an error
+                                                        | _ -> return [||] //silently swallowing exn 
                                                     }
                                             ) 
                                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)  
@@ -190,10 +190,10 @@ module ParseJsonData =
                             | err 
                                 when err = StopDownloading
                                 ->
-                                //runIO (postToLog <| string ex.Message <| "#123456X")
+                                //runIO (postToLog <| string ex.Message <| "#0002-ParseJson")  //in order not to log cancellation
                                 Error <| JsonParsingError2 StopJsonParsing  
                             | _ ->
-                                runIO (postToLog <| string ex.Message <| "#107")
+                                runIO (postToLog <| string ex.Message <| "#0002-ParseJson")  
                                 Error <| JsonParsingError2 JsonParsingError    
                  // )
         )

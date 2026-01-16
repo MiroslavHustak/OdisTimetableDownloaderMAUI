@@ -145,7 +145,8 @@
     <Compile Include="Settings\SettingsMDPO.fs" />
     <Compile Include="ApplicativeFunctors\Applicatives.fs" />
     <Compile Include="ComputationExpressions\CEBuilders.fs" />
-    <Compile Include="ErrorHandling\ErrorHandlers.fs" />
+    <Compile Include="OptionResultExtensions\ResultExtensions.fs" />
+    <Compile Include="OptionResultExtensions\OptionExtensions.fs" />
     <Compile Include="Helpers\IO_Monad_Experiments\IO_Monad.fs" />
     <Compile Include="Helpers\CopyOrMoveDir.fs" />
     <Compile Include="Helpers\Helpers.fs" />
@@ -161,6 +162,7 @@
     <Compile Include="DataModelling\TransformationLayers.fs" />
     <Compile Include="Logging\LogEntries.fs" />
     <Compile Include="Logging\Logging.fs" />
+    <Compile Include="ExceptionHandling\ExceptionHandlers.fs" />
     <Compile Include="BusinessLogic\DataManipulation\PureFunctions\SortRecordData.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\ParseJsonDataFull.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\ParseJsonData.fs" />

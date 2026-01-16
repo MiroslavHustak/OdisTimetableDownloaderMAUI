@@ -76,7 +76,10 @@ module WebScraping_DPO =
                         try
                             runIO <| moveFolders configMHD.source configMHD.destination LetItBeMHD FolderCopyOrMoveErrorMHD
                         with
-                        | _ -> Error LetItBeMHD //silently ignoring failed move operations
+                        | ex 
+                            ->
+                            runIO (postToLog <| string ex.Message <| "#0001-DPO")
+                            Error LetItBeMHD //silently ignoring failed move operations
 
                     | DeleteOneODISDirectory 
                         ->    
@@ -91,7 +94,7 @@ module WebScraping_DPO =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#010")
+                            runIO (postToLog <| string ex.Message <| "#0002-DPO")
                             Error FileDownloadErrorMHD //dpoMsg1
 
                     | FilterDownloadSave
@@ -112,12 +115,13 @@ module WebScraping_DPO =
                         try       
                             downloadTimetables pathToDir                         
                         with
-                        | :? DirectoryNotFoundException ->
-                            runIO (postToLog "Timetable directory not found or was deleted" "#011-1")
+                        | :? DirectoryNotFoundException as ex
+                            ->
+                            runIO (postToLog <| string ex.Message <| "#0003-DPO")
                             Error FileDeleteErrorMHD  
                         | ex 
                             ->
-                            runIO (postToLog <| string ex.Message <| "#011")
+                            // runIO (postToLog <| string ex.Message <| "#0004-DPO") // commented out so that cancellation is not logged
                             comprehensiveTryWithMHD 
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex

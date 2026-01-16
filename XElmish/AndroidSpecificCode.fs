@@ -7,6 +7,10 @@ open System.Threading
 
 open FsToolkit.ErrorHandling
 
+//***********************************************
+
+open Api.Logging
+
 open Helpers
 open Helpers.Builders
 
@@ -88,7 +92,7 @@ module AndroidUIHelpers =
                         with
                         | ex 
                             -> 
-                            string ex.Message |> ignore<string> // TODO: logfile
+                            runIO (postToLog <| string ex.Message <| "#0001Android") 
                             return false  
                     }
         )
@@ -123,7 +127,7 @@ module AndroidUIHelpers =
                 with
                 | ex
                     -> 
-                    string ex.Message |> ignore<string> // TODO: logfile
+                    runIO (postToLog <| string ex.Message <| "#0002Android")
                     None  
            )
     
@@ -148,7 +152,7 @@ module AndroidUIHelpers =
                 with
                 | ex 
                     ->
-                    string ex.Message |> ignore<string> // TODO: logfile
+                    runIO (postToLog <| string ex.Message <| "#0003Android")
                     None    
            )
     
@@ -193,10 +197,8 @@ module AndroidUIHelpers =
                         }
                         |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                 with
-                | ex 
-                    ->
-                    string ex.Message |> ignore<string> // Log error
-                    ()
+                | ex -> runIO (postToLog <| string ex.Message <| "#0004Android")
+                
         )
 
 #endif

@@ -35,26 +35,26 @@ module KODIS_BL_Record =
         IO (fun () 
                 -> 
                 let l = jsonLinkList |> List.length
-                    in
-                    let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>
-                            .StartImmediate
-                                <|
-                                fun inbox 
-                                    ->         
-                                    //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
+                    
+                let counterAndProgressBar =
+                    MailboxProcessor<MsgIncrement>
+                        .StartImmediate
+                            <|
+                            fun inbox 
+                                ->         
+                                //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
                                     
-                                    let rec loop n = 
-                                        async
-                                            {
-                                                try
-                                                    let! Inc i = inbox.Receive()
-                                                    reportProgress (float n, float l)
-                                                    return! loop (n + i)
-                                                with
-                                                | ex -> runIO (postToLog <| string ex.Message <| "#900-MP")
-                                            }
-                                    loop 0      
+                                let rec loop n = 
+                                    async
+                                        {
+                                            try
+                                                let! Inc i = inbox.Receive()
+                                                reportProgress (float n, float l)
+                                                return! loop (n + i)
+                                            with
+                                            | ex -> runIO (postToLog <| string ex.Message <| "#900-MP")
+                                        }
+                                loop 0      
               
                 (token, jsonLinkList, pathToJsonList)
                 |||> List.Parallel.map2_IO_AW_Token_Async 
@@ -159,26 +159,26 @@ module KODIS_BL_Record =
                             let! context = fun env -> env 
          
                             let l = context.list |> List.length
-                                 in
-                                 let counterAndProgressBar =
-                                     MailboxProcessor<MsgIncrement>
-                                         .StartImmediate
-                                             <|
-                                             fun inbox 
-                                                 ->   
-                                                 //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
+                               
+                            let counterAndProgressBar =
+                                MailboxProcessor<MsgIncrement>
+                                    .StartImmediate
+                                        <|
+                                        fun inbox 
+                                            ->   
+                                            //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
                                                  
-                                                 let rec loop n = 
-                                                    async
-                                                        {
-                                                            try
-                                                                let! Inc i = inbox.Receive()
-                                                                context.reportProgress (float n, float l)
-                                                                return! loop (n + i)
-                                                            with
-                                                            | ex -> runIO (postToLog <| ex.Message <| "#901-MP")
-                                                        }
-                                                 loop 0
+                                            let rec loop n = 
+                                                async
+                                                    {
+                                                        try
+                                                            let! Inc i = inbox.Receive()
+                                                            context.reportProgress (float n, float l)
+                                                            return! loop (n + i)
+                                                        with
+                                                        | ex -> runIO (postToLog <| ex.Message <| "#901-MP")
+                                                    }
+                                            loop 0
                                                  
                             //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                             let removeDuplicatePathPairs uri pathToFile =

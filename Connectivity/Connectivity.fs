@@ -6,9 +6,6 @@ open Microsoft.Maui.Networking
 //**********************************
                
 open Types.Types 
-open Types.ErrorTypes
-
-open ExceptionHelpers
 open Types.Haskell_IO_Monad_Simulation
 
 module Connectivity =  
@@ -79,80 +76,77 @@ module ConnectivityWithDebouncing =
        
     let internal startConnectivityMonitoring (debounceMs : int) (onConnectivityChange : bool -> unit) =
         
-        IO (fun () ->
-            // Debouncing actor -> debouncing rule used here: “Only react if the state stays stable for N milliseconds.”
-            let monitorActor =
-
-                MailboxProcessor<ConnectivityMonitorMsg>
-                    .StartImmediate
-                        (fun inbox
-                            ->
-                            let rec loop lastState (pendingTimer : System.Threading.CancellationTokenSource option) =
-                                async 
-                                    {
-                                        match! inbox.Receive() with
-                                        | StopConnectivityMonitoring 
-                                            ->
-                                            // Cancel any pending timer
-                                            pendingTimer |> Option.iter (fun cts -> cts.Cancel())
-                                            return ()
-                                
-                                        | StateChanged newState
-                                            ->
-                                            // Cancel previous pending change
-                                            pendingTimer |> Option.iter (fun cts -> cts.Cancel())
-                                    
-                                            match newState <> lastState with
-                                            | true  ->
-                                                    // State changed - start debounce timer
-                                                    let cts = new System.Threading.CancellationTokenSource()
-                                                                                        
-                                                    async
-                                                        {
-                                                            try
-                                                                do! Async.Sleep debounceMs
-                                                    
-                                                                // Timer elapsed - notify change
-                                                                match not cts.Token.IsCancellationRequested with
-                                                                | true  -> onConnectivityChange newState
-                                                                | false -> ()
-                                                            with
-                                                            | _ -> ()  // ignore cancellation & exceptions
-                                                        }
-
-                                                    |> fun a -> Async.Start(a, cts.Token )                                               
-                                        
-                                                    return! loop newState (Some cts)
-
-                                            | false ->
-                                                    // State unchanged
-                                                    return! loop lastState pendingTimer
-                                    }
+        IO (fun ()
+                ->
+                // Debouncing actor -> debouncing rule used here: “Only react if the state stays stable for N milliseconds.”
+                let monitorActor =
+                    MailboxProcessor<ConnectivityMonitorMsg>
+                        .StartImmediate
+                            (fun inbox 
+                                ->
+                                let rec loop lastState = 
                         
-                            loop true None
-                    )
+                                    async
+                                        {
+                                            let! msg = inbox.Receive()
+
+                                            match msg with
+                                            | StopConnectivityMonitoring
+                                                ->
+                                                return ()
+
+                                            | StateChanged newState 
+                                                when newState <> lastState 
+                                                ->
+                                                // Wait for the debounce interval while still listening to the mailbox
+                                                let! maybeNextMsg = inbox.TryReceive debounceMs
+
+                                                match maybeNextMsg with
+                                                | Some (StateChanged newerState)
+                                                    ->
+                                                    // Another state change occurred during debounce → restart waiting
+                                                    return! loop newerState
+
+                                                | Some StopConnectivityMonitoring 
+                                                    ->
+                                                    return ()
+
+                                                | _ ->
+                                                    // No change during debounce → state is stable → notify
+                                                    onConnectivityChange newState
+                                                    return! loop newState
+
+                                            | StateChanged _
+                                                ->
+                                                // Same state as before → ignore
+                                                return! loop lastState
+                                        }
+
+                                // Initial state
+                                loop (Connectivity.NetworkAccess = NetworkAccess.Internet)
+                            )
             
-            // Event handler
-            let handler (args : ConnectivityChangedEventArgs) =
-                try  
-                    let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
-                    monitorActor.Post (StateChanged isConnected)
-                with
-                | _ -> ()
+                // Event handler
+                let handler (args : ConnectivityChangedEventArgs) =
+                    try  
+                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
+                        monitorActor.Post (StateChanged isConnected)
+                    with
+                    | _ -> ()
             
-            Connectivity.ConnectivityChanged.Add handler
+                Connectivity.ConnectivityChanged.Add handler
             
-            // Fire initial state
-            let initialState = (=) Connectivity.NetworkAccess NetworkAccess.Internet
-            monitorActor.Post (StateChanged initialState)
+                // Fire initial state
+                let initialState = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                monitorActor.Post (StateChanged initialState)
             
-            // Return disposable to stop monitoring //.NET interop //Creates an anonymous object implementing an interface
-            { 
-                new IDisposable with
-                    member _.Dispose() =
-                        monitorActor.Post StopConnectivityMonitoring
-                        (monitorActor :> IDisposable).Dispose()
-            }
+                // Return disposable to stop monitoring //.NET interop //Creates an anonymous object implementing an interface
+                { 
+                    new IDisposable with
+                        member _.Dispose() =
+                            monitorActor.Post StopConnectivityMonitoring
+                            (monitorActor :> IDisposable).Dispose()
+                }
         )   
 
         (*
@@ -210,6 +204,8 @@ module ConnectivityWithDebouncing =
         Layer 2: ensures app logic isn’t spammed.
         
         Layer 2 never sees raw OS flicker, only already debounced signals.
+
+        Layer 2 uses non-blocking timeout-based debounce (MailboxProcessor.TryReceive) → always responsive, no frozen mailbox during waiting period    
         
         Timers cancel safely in both layers, avoiding race conditions.
         

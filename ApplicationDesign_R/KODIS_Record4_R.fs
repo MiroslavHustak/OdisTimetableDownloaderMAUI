@@ -179,21 +179,24 @@ module WebScraping_KODIS4 =
             | Error list 
                 when list |> List.exists (fun item -> item = PdfDownloadError2 ApiResponseError)
                 ->
+                runIO (postToLog <| string ApiResponseError <| "#0001-K4")
                 Error <| PdfDownloadError2 ApiResponseError  
 
             | Error list 
                 when list |> List.exists (fun item -> item = PdfDownloadError2 ApiDecodingError)
                 ->
+                runIO (postToLog <| string ApiDecodingError <| "#0002-K4")
                 Error <| PdfDownloadError2 ApiDecodingError  
 
             | Error list 
                 when list |> List.exists (fun item -> item = PdfDownloadError2 FileDownloadError)
                 ->
+                runIO (postToLog <| string FileDownloadError <| "#0003-K4")
                 Error <| PdfDownloadError2 FileDownloadError  
         
             | Error err                    
                 ->
-                runIO (postToLog <| sprintf "%A" err <| "#006-1")
+                runIO (postToLog <| sprintf "%A" err <| "#0004-K4")
                 Error <| PdfDownloadError2 LetItBeKodis4                     
         
         pyramidOfInferno

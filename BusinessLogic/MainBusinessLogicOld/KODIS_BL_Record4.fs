@@ -128,24 +128,24 @@ module KODIS_BL_Record4 =
                             let! context = fun env -> env 
          
                             let l = context.list |> List.length
-                                 in
-                                 let counterAndProgressBar =
-                                     MailboxProcessor<MsgIncrement>
-                                         .StartImmediate
-                                             <|
-                                             fun inbox 
-                                                 ->                                                  
-                                                 let rec loop n = 
-                                                    async
-                                                        {
-                                                            try
-                                                                let! Inc i = inbox.Receive()
-                                                                context.reportProgress (float n, float l)
-                                                                return! loop (n + i)
-                                                            with
-                                                            | ex -> runIO (postToLog <| ex.Message <| "#903-MP")
-                                                        }
-                                                 loop 0
+                                 
+                            let counterAndProgressBar =
+                                MailboxProcessor<MsgIncrement>
+                                    .StartImmediate
+                                        <|
+                                        fun inbox 
+                                            ->                                                  
+                                            let rec loop n = 
+                                                async
+                                                    {
+                                                        try
+                                                            let! Inc i = inbox.Receive()
+                                                            context.reportProgress (float n, float l)
+                                                            return! loop (n + i)
+                                                        with
+                                                        | ex -> runIO (postToLog <| ex.Message <| "#903-MP")
+                                                    }
+                                            loop 0
                                                  
                             //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                             let removeDuplicatePathPairs uri pathToFile =

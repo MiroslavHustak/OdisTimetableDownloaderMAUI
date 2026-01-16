@@ -238,26 +238,26 @@ module MDPO_BL = //FsHttp
                             let filterTimetables = runIO filterTimetables
 
                             let l = filterTimetables |> Map.count
-                                in
-                                let counterAndProgressBar =
-                                    MailboxProcessor<MsgIncrement>
-                                        .StartImmediate
-                                            <|
-                                            fun inbox 
-                                                ->
-                                                //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
+                                
+                            let counterAndProgressBar =
+                                MailboxProcessor<MsgIncrement>
+                                    .StartImmediate
+                                        <|
+                                        fun inbox 
+                                            ->
+                                            //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
                                                 
-                                                let rec loop n = 
-                                                    async
-                                                        {
-                                                            try
-                                                                let! Inc i = inbox.Receive()
-                                                                reportProgress (float n, float l)
-                                                                return! loop (n + i)
-                                                            with
-                                                            | ex -> runIO (postToLog <| string ex.Message <| "#900MDPO-MP")
-                                                        }
-                                                loop 0     
+                                            let rec loop n = 
+                                                async
+                                                    {
+                                                        try
+                                                            let! Inc i = inbox.Receive()
+                                                            reportProgress (float n, float l)
+                                                            return! loop (n + i)
+                                                        with
+                                                        | ex -> runIO (postToLog <| string ex.Message <| "#900MDPO-MP")
+                                                    }
+                                            loop 0     
         
                             try                                
                                 let uri, pathToFile =
@@ -520,26 +520,26 @@ module MDPO_BL = //FsHttp
                             let filterTimetables = runIO filterTimetables
 
                             let l = filterTimetables |> Map.count
-                                in
-                                let counterAndProgressBar =
-                                    MailboxProcessor<MsgIncrement>
-                                        .StartImmediate
-                                            <|
-                                            fun inbox 
-                                                ->
-                                                //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
+                               
+                            let counterAndProgressBar =
+                                MailboxProcessor<MsgIncrement>
+                                    .StartImmediate
+                                        <|
+                                        fun inbox 
+                                            ->
+                                            //use _ = token.Register (fun () -> inbox.Post (Unchecked.defaultof<MsgIncrement>))
 
-                                                let rec loop n = 
-                                                    async
-                                                        {
-                                                            try
-                                                                let! Inc i = inbox.Receive()
-                                                                reportProgress (float n, float l)
-                                                                return! loop (n + i)
-                                                            with
-                                                            | ex -> runIO (postToLog <| string ex.Message <| "#900DPOunsafe-MP")
-                                                        }
-                                                loop 0     
+                                            let rec loop n = 
+                                                async
+                                                    {
+                                                        try
+                                                            let! Inc i = inbox.Receive()
+                                                            reportProgress (float n, float l)
+                                                            return! loop (n + i)
+                                                        with
+                                                        | ex -> runIO (postToLog <| string ex.Message <| "#900DPOunsafe-MP")
+                                                    }
+                                            loop 0     
         
                             try
                                 let uri, pathToFile =

@@ -6,48 +6,48 @@ open System.Threading
 
 open Types.Types
 
-
 module ActorModels =  
 
 //********************** resumable App_R **************************************
 
     let internal localCancellationActor () =
     
-        MailboxProcessor<CancellationMessageLocal>.StartImmediate
-            (fun inbox 
-                ->
-                let rec loop (cts : CancellationTokenSource) =
-                    async 
-                        {
-                            match! inbox.Receive() with
-                            | GetToken reply
-                                ->
-                                let tokenOpt =
-                                    match cts.IsCancellationRequested with
-                                    | true  -> None
-                                    | false -> Some cts.Token
-                                reply.Reply tokenOpt 
-                                return! loop cts
+        MailboxProcessor<CancellationMessageLocal>
+            .StartImmediate
+                (fun inbox 
+                    ->
+                    let rec loop (cts : CancellationTokenSource) =
+                        async 
+                            {
+                                match! inbox.Receive() with
+                                | GetToken reply
+                                    ->
+                                    let tokenOpt =
+                                        match cts.IsCancellationRequested with
+                                        | true  -> None
+                                        | false -> Some cts.Token
+                                    reply.Reply tokenOpt 
+                                    return! loop cts
     
-                            | CancelToken
-                                ->
-                                cts.Cancel()
-                                return! loop cts
+                                | CancelToken
+                                    ->
+                                    cts.Cancel()
+                                    return! loop cts
     
-                            | Reset newCts 
-                                ->
-                                cts.Dispose()
-                                return! loop newCts
+                                | Reset newCts 
+                                    ->
+                                    cts.Dispose()
+                                    return! loop newCts
     
-                            | Stop reply 
-                                ->
-                                cts.Cancel()
-                                cts.Dispose()
-                                reply.Reply ()
-                        }
+                                | Stop reply 
+                                    ->
+                                    cts.Cancel()
+                                    cts.Dispose()
+                                    reply.Reply ()
+                            }
     
-                loop (new CancellationTokenSource())
-            )
+                    loop (new CancellationTokenSource())
+                )
 
     let internal cancelLocalActor (actor : MailboxProcessor<CancellationMessageLocal>) =
         

@@ -27,9 +27,9 @@ open Helpers.ExceptionHelpers
 
 module ParseJsonDataFull =  
 
-    //************* Zatim pouzivani pozastaneno, kontroluj zas od casu Json od KODISu ************    
+    //************* Zatim pouzivani pozastaneno, kontroluj cas od casu Json od KODISu ************    
 
-    //*************************Helpers************************************************************
+    //************* V pripade opetovneho pouziti zrobit applicative-style validation *************
 
     let private tempJsonIO = 
 
@@ -58,7 +58,7 @@ module ParseJsonDataFull =
                         a, b
                     | Ok _ | Error _ 
                         -> 
-                        runIO (postToLog <| "jsonEmpty" <| "#107-22")
+                        runIO (postToLog <| String.Empty <| "#0001-ParseJsonFull")  
                         jsonEmpty, jsonEmpty  
         )
       
@@ -268,10 +268,10 @@ module ParseJsonDataFull =
                             | err 
                                 when err = StopDownloading
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#123456X")
+                                //runIO (postToLog <| string ex.Message <| "#0002-ParseJsonFull")  //in order not to log cancellation
                                 Error <| JsonParsingError2 StopJsonParsing  
                             | _ ->
-                                runIO (postToLog <| string ex.Message <| "#107")
+                                runIO (postToLog <| string ex.Message <| "#0003-ParseJsonFull") 
                                 Error <| JsonParsingError2 JsonParsingError   
                    // )
         )
