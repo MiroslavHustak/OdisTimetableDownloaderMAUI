@@ -33,7 +33,7 @@ module Builders =
     //**************************************************************************************
         
     //[<Struct>] does not help
-    type internal MyBuilder = MyBuilder with //This CE is a monad-like control-flow helper, not a monad
+    type internal MyBuilder = MyBuilder with //This CE is a monad-style control-flow helper, not a monad
         member _.Recover(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
             match m with
             | (false, handleFalse)
@@ -51,7 +51,7 @@ module Builders =
 
     //**************************************************************************************
    
-    type Builder2 = Builder2 with    // This CE is a monad-like control-flow helper, not a lawful monad
+    type Builder2 = Builder2 with    // This CE is a monad-style control-flow helper, not a lawful monad
         member _.Recover((m, recovery), nextFunc) =
             match m with
             | Some v -> nextFunc v
@@ -67,7 +67,7 @@ module Builders =
     
     //**************************************************************************************
        
-    type internal MyBuilder3 = MyBuilder3 with  // This CE is a monad-like control-flow helper, not a lawful monad
+    type internal MyBuilder3 = MyBuilder3 with  // This CE is a monad-style control-flow helper, not a lawful monad
         member _.Recover(m, nextFunc) = 
             match m with
             | (Ok v, _)           
@@ -83,7 +83,7 @@ module Builders =
 
     //**************************************************************************************
 
-    type internal MyBuilder5 = MyBuilder5 with   // This CE is a monad-like control-flow helper, not a lawful monad
+    type internal MyBuilder5 = MyBuilder5 with   // This CE is a monad-style control-flow helper, not a lawful monad
          member _.Recover(m : bool * 'a, nextFunc : unit -> 'a) : 'a =
              match m with
              | (false, value)
@@ -134,7 +134,7 @@ module Builders =
 
     type IOMonad = IOMonad with
 
-        member _.Bind(io: IO_Monad<'a>, binder: 'a -> IO_Monad<'b>) : IO_Monad<'b> =
+        member _.Bind(io : IO_Monad<'a>, binder : 'a -> IO_Monad<'b>) : IO_Monad<'b> =
             IO_Monad 
                 (fun world 
                     ->
@@ -143,7 +143,7 @@ module Builders =
                     runIO_helper (binder a) world'
                 )
 
-        member _.Delay(f: unit -> IO_Monad<'a>) : IO_Monad<'a> =
+        member _.Delay(f : unit -> IO_Monad<'a>) : IO_Monad<'a> =
             IO_Monad 
                 (fun world
                     ->
@@ -152,7 +152,7 @@ module Builders =
                 )
         
         // For do! notation with sequencing (ignoring result)
-        member this.Combine(io1: IO_Monad<unit>, io2: IO_Monad<'a>) : IO_Monad<'a> =
+        member this.Combine(io1 : IO_Monad<unit>, io2 : IO_Monad<'a>) : IO_Monad<'a> =
             this.Bind(io1, fun () -> io2)
             
         member _.Zero() : IO_Monad<unit> = 
@@ -161,7 +161,7 @@ module Builders =
         member _.Return(x) : IO_Monad<'a> =
             IO_Monad (fun world -> world, x)
         
-        member _.ReturnFrom(io: IO_Monad<'a>) = io
+        member _.ReturnFrom(io : IO_Monad<'a>) = io
         
     let internal IOMonad = IOMonad
 
@@ -201,31 +201,122 @@ module Builders =
 
 
     // ************** Educational code *****************
-    // Simplified library definition code for result {} and option {} CE
-    // Pouze pro ukazku monadickeho Bind (kod v FsToolkit.ErrorHandling je rozsahlejsi)
+    // Simplified library definition code for result {}, asyncResult {}, asyncOption {} and option {} CE builders
+    // Pouze pro ukazku monadickeho Bind (kompletni kod v FsToolkit.ErrorHandling je rozsahlejsi)
  
-    type ResultBuilder<'e>() =
-        member _.Bind(m: Result<'a,'e>, f: 'a -> Result<'b,'e>) : Result<'b,'e> =
+    type ResultBuilder = ResultBuilder with 
+        member _.Bind(m : Result<'a,'e>, f : 'a -> Result<'b,'e>) : Result<'b,'e> =
             match m with
             | Ok v -> f v
             | Error e -> Error e
-        member _.Return(x: 'a) : Result<'a,'e> = Ok x
-        member _.ReturnFrom(x: Result<'a,'e>) : Result<'a,'e> = x
+        member _.Return(x : 'a) : Result<'a,'e> = Ok x
+        member _.ReturnFrom(x : Result<'a,'e>) : Result<'a,'e> = x
         member _.Zero() : Result<unit,'e> = Ok ()
-        member _.Delay(f: unit -> Result<'a,'e>) = f()
-        member _.Using(resource: #System.IDisposable, binder: #System.IDisposable -> option<'a>) =
+        member _.Delay(f : unit -> Result<'a,'e>) = f()
+        member _.Using(resource : #System.IDisposable, binder : #System.IDisposable -> option<'a>) =
             use r = resource
             binder r
 
-    type OptionBuilder() =
-        member _.Bind(m: option<'a>, f: 'a -> option<'b>) : option<'b> =
+    type OptionBuilder = OptionBuilder with
+        member _.Bind(m : option<'a>, f : 'a -> option<'b>) : option<'b> =
                   match m with
                   | Some v -> f v
                   | None -> None
-        member _.Return(x: 'a) : option<'a> = Some x    
-        member _.ReturnFrom(x: option<'a>) : option<'a> = x     
+        member _.Return(x : 'a) : option<'a> = Some x    
+        member _.ReturnFrom(x : option<'a>) : option<'a> = x     
         member _.Zero() : option<unit> = None
-        member _.Delay(f: unit -> option<'a>) = f()
-        member _.Using(resource: #System.IDisposable, binder: #System.IDisposable -> option<'a>) =
+        member _.Delay(f : unit -> option<'a>) = f()
+        member _.Using(resource : #System.IDisposable, binder : #System.IDisposable -> option<'a>) =
             use r = resource
             binder r
+
+    type AsyncResultBuilder = AsyncResultBuilder with    
+        member _.Bind(m : Async<Result<'a,'e>>, f : 'a -> Async<Result<'b,'e>>) : Async<Result<'b,'e>> =
+            async {
+                let! res = m
+                match res with
+                | Ok v -> return! f v
+                | Error e -> return Error e
+            }
+        member _.Return(x : 'a) : Async<Result<'a,'e>> = async { return Ok x }           
+        member _.ReturnFrom(x : Async<Result<'a,'e>>) : Async<Result<'a,'e>> = x  
+        member _.Zero() : Async<Result<unit,'e>> = async { return Ok () }
+        member _.Delay(f : unit -> Async<Result<'a,'e>>) : Async<Result<'a,'e>> = async.Delay f
+        member _.Combine(r1 : Async<Result<unit,'e>>, r2 : Async<Result<'a,'e>>) : Async<Result<'a,'e>> =
+            async 
+                {
+                    let! res = r1
+                    match res with
+                    | Ok () -> return! r2
+                    | Error e -> return Error e
+                }    
+        member _.TryWith(body : unit -> Async<Result<'a,'e>>, handler : exn -> Async<Result<'a,'e>>) =
+            async 
+                {
+                    try return! body()
+                    with
+                    | ex -> return! handler ex
+                }    
+        member _.TryFinally(body : unit -> Async<Result<'a,'e>>, compensation : unit -> unit) =
+            async
+                {
+                    try return! body()
+                    finally compensation()
+                }    
+        member _.Using(resource : #System.IDisposable, binder : #System.IDisposable -> Async<Result<'a,'e>>) =
+            async 
+                {
+                    use r = resource
+                    return! binder r
+                }
+    
+        // optional helper for mapping synchronous results inside the CE
+        member _.BindReturn(m : Async<Result<'a,'e>>, f : 'a -> 'b) : Async<Result<'b,'e>> =
+            async 
+                {
+                    let! res = m
+                    match res with
+                    | Ok v -> return Ok (f v)
+                    | Error e -> return Error e
+                }
+
+    type AsyncOptionBuilder = AsyncOptionBuilder with
+        member _.Bind(m : Async<option<'a>>, f : 'a -> Async<option<'b>>) : Async<option<'b>> =
+            async
+                {
+                    let! res = m
+                    match res with
+                    | Some v -> return! f v
+                    | None -> return None
+                }
+        member _.Return(x : 'a) : Async<option<'a>> = async { return Some x }
+        member _.ReturnFrom(x : Async<option<'a>>) : Async<option<'a>> = x
+        member _.Zero() : Async<option<unit>> = async { return Some () }    
+        member _.Delay(f : unit -> Async<option<'a>>) = async.Delay f    
+        member _.Combine(a : Async<option<unit>>, b : Async<option<'a>>) =
+            async
+                {
+                    let! r = a
+                    match r with
+                    | Some () -> return! b
+                    | None -> return None
+                }    
+        member _.TryWith(body : unit -> Async<option<'a>>, handler : exn -> Async<option<'a>>) =
+            async 
+                {
+                    try return! body()
+                    with 
+                    | ex -> return! handler ex
+                }    
+        member _.TryFinally(body : unit -> Async<option<'a>>, compensation : unit -> unit) =
+            async 
+                {
+                    try return! body()
+                    finally compensation()
+                }    
+        member _.Using(resource : #System.IDisposable, binder : #System.IDisposable -> Async<option<'a>>) =
+            async 
+                {
+                    use r = resource
+                    return! binder r
+                }

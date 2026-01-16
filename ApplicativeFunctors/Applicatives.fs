@@ -1,6 +1,6 @@
 ﻿namespace Applicatives
 
-module ResultApplicative =
+module ResultApplicative = //genuine applicative functor
 
     let private pure' x = Ok x
 
@@ -17,7 +17,7 @@ module ResultApplicative =
     // <!> → it's a kind of "force plain function into applicative land"    
     // <*> → visually suggests: "take function from left context, apply to right context"
 
-module CummulativeResultApplicative =
+module CummulativeResultApplicative = //tohle neni strikne genuine applicative functor, ale neco jako applicative-style functor
 
     let private pureC' x = Ok x
     
