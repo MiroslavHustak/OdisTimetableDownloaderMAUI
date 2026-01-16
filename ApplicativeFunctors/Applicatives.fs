@@ -1,5 +1,7 @@
 ﻿namespace Applicatives
 
+open FsToolkit.ErrorHandling
+
 module ResultApplicative = //genuine applicative functor
 
     let private pure' x = Ok x
