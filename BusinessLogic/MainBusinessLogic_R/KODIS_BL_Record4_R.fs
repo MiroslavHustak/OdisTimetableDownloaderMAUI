@@ -117,14 +117,21 @@ module KODIS_BL_Record4 =
                     {
                         token.ThrowIfCancellationRequested() 
     
-                        let! r1 = normaliseAsyncResult token (process1 token variant dir)
-                        let! r2 = normaliseAsyncResult token (process2 token variant dir)
+                        let! results =
+                            [|
+                                normaliseAsyncResult token (process1 token variant dir)
+                                normaliseAsyncResult token (process2 token variant dir)
+                            |]
+                            |> Async.Parallel
+    
+                        let result1 = Array.head results
+                        let result2 = Array.last results
     
                         return
                             validation
                                 {
-                                    let! links1 = r1
-                                    and! links2 = r2
+                                    let! links1 = result1
+                                    and! links2 = result2
     
                                     return links1 @ links2 |> List.distinct
                                 }
