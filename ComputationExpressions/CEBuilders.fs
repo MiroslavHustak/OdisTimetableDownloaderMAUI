@@ -198,3 +198,34 @@ module Builders =
         member _.Zero() = []
 
     let internal xor = XorBuilder
+
+
+    // ************** Educational code *****************
+    // Simplified library definition code for result {} and option {} CE
+    // Pouze pro ukazku monadickeho Bind (kod v FsToolkit.ErrorHandling je rozsahlejsi)
+ 
+    type ResultBuilder<'e>() =
+        member _.Bind(m: Result<'a,'e>, f: 'a -> Result<'b,'e>) : Result<'b,'e> =
+            match m with
+            | Ok v -> f v
+            | Error e -> Error e
+        member _.Return(x: 'a) : Result<'a,'e> = Ok x
+        member _.ReturnFrom(x: Result<'a,'e>) : Result<'a,'e> = x
+        member _.Zero() : Result<unit,'e> = Ok ()
+        member _.Delay(f: unit -> Result<'a,'e>) = f()
+        member _.Using(resource: #System.IDisposable, binder: #System.IDisposable -> option<'a>) =
+            use r = resource
+            binder r
+
+    type OptionBuilder() =
+        member _.Bind(m: option<'a>, f: 'a -> option<'b>) : option<'b> =
+                  match m with
+                  | Some v -> f v
+                  | None -> None
+        member _.Return(x: 'a) : option<'a> = Some x    
+        member _.ReturnFrom(x: option<'a>) : option<'a> = x     
+        member _.Zero() : option<unit> = None
+        member _.Delay(f: unit -> option<'a>) = f()
+        member _.Using(resource: #System.IDisposable, binder: #System.IDisposable -> option<'a>) =
+            use r = resource
+            binder r
