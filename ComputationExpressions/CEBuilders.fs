@@ -33,13 +33,14 @@ module Builders =
     //**************************************************************************************
         
     //[<Struct>] does not help
-    type internal MyBuilder = MyBuilder with 
-        member _.Bind(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
+    type internal MyBuilder = MyBuilder with //This CE is a monad-like control-flow helper, not a monad
+        member _.Recover(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
             match m with
             | (false, handleFalse)
                 -> handleFalse()
             | (true, _)
                 -> nextFunc()    
+        member this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion      
         member _.Return x : 'a = x   
         member _.ReturnFrom x : 'a = x 
         member _.Using(x : 'a, _body: 'a -> 'b) : 'b = _body x    
@@ -50,11 +51,12 @@ module Builders =
 
     //**************************************************************************************
    
-    type Builder2 = Builder2 with    
-        member _.Bind((m, recovery), nextFunc) =
+    type Builder2 = Builder2 with    // This CE is a monad-like control-flow helper, not a lawful monad
+        member _.Recover((m, recovery), nextFunc) =
             match m with
             | Some v -> nextFunc v
             | None   -> recovery    
+        member this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion        
         member _.Return x : 'a = x   
         member _.ReturnFrom x : 'a = x
         member _.Using(resource, binder) =
@@ -65,8 +67,8 @@ module Builders =
     
     //**************************************************************************************
        
-    type internal MyBuilder3 = MyBuilder3 with   
-        member _.Recover(m, nextFunc) = //neni monada, nesplnuje vsechny 3 monadicke zakony   
+    type internal MyBuilder3 = MyBuilder3 with  // This CE is a monad-like control-flow helper, not a lawful monad
+        member _.Recover(m, nextFunc) = 
             match m with
             | (Ok v, _)           
                 -> nextFunc v 
@@ -80,28 +82,15 @@ module Builders =
     let internal pyramidOfInferno = MyBuilder3  
 
     //**************************************************************************************
-       
-    type internal MyBuilder4 = MyBuilder4 with 
-        member _.Bind(m, nextFunc) =
-            match m with
-            | Ok v 
-                -> nextFunc v  
-            | Error e
-                -> Error e           
-        member _.Return x = x   //oproti result CE nema OK
-        member _.ReturnFrom x : 'a = x
-        
-    let internal pyramidOfAbbys = MyBuilder4  //nepouzivano, nahrazeno result CE z FsToolkit.ErrorHandling s return!
 
-    //**************************************************************************************
-
-    type internal MyBuilder5 = MyBuilder5 with    
-         member _.Bind(m : bool * 'a, nextFunc : unit -> 'a) : 'a =
+    type internal MyBuilder5 = MyBuilder5 with   // This CE is a monad-like control-flow helper, not a lawful monad
+         member _.Recover(m : bool * 'a, nextFunc : unit -> 'a) : 'a =
              match m with
              | (false, value)
                  -> value
              | (true, _)
-                 -> nextFunc()    
+                 -> nextFunc() 
+         member this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion              
          member _.Return x : 'a = x   
          member _.ReturnFrom x : 'a = x 
          member _.Using(x : 'a, _body: 'a -> 'b) : 'b = _body x    
@@ -122,7 +111,6 @@ module Builders =
             use r = resource
             binder r
     
-    // Instantiate the adapted CE
     let internal option2 = OptionAdaptedBuilder
       
     //**************************************************************************************
@@ -210,32 +198,3 @@ module Builders =
         member _.Zero() = []
 
     let internal xor = XorBuilder
-    
-    (*         
-    ┌─────────────────────────────┬───────────────────────────────┬─────────────────────┬───────────────────┬─────────┐
-    │ Kind                        │ Examples in F# stdlib         │ Type of yield / let!│ Must preserve     │ Lawful? │
-    │                             │                               │                     │ wrapper?          │         │
-    ├─────────────────────────────┼───────────────────────────────┼─────────────────────┼───────────────────┼─────────┤
-    │ Wrapped / Container style   │ option { }, async { },        │ option<'a>          │ Yes               │ YES     │
-    │                             │ Choice<'a,'b> { }, Result { } │ Async<'a>, etc.     │                   │         │
-    ├─────────────────────────────┼───────────────────────────────┼─────────────────────┼───────────────────┼─────────┤
-    │ Kleisli / Continuation      │ seq { }, list { },            │ plain 'a            │ No (only          │ YES     │
-    │ style (collapse-to-value)   │ array { }, task { },          │                     │ observable        │         │
-    │                             │ your recover / conditional    │                     │ behaviour matters)│         │
-    │                             │ builders                      │                     │                   │         │
-    └─────────────────────────────┴───────────────────────────────┴─────────────────────┴───────────────────┴─────────┘
-       
-    Key insight:
-        • In the Kleisli/continuation style (seq, list, your recover builder, etc.)
-            the monad laws are judged ONLY by observable results, NOT by internal
-            representation or hidden metadata that does not affect future behaviour.
-       
-        • Right identity holds if  m >>= return   produces the same values/effects
-            as m — even if internal thunks, enumerators, or recovery values differ.
-       
-        • This is exactly how the F# standard library implements seq { }, list { },
-            array { } and task { } — all are 100% lawful monads despite returning
-            plain values from Return and Bind.  
-
-     //Thunks are primarily used to delay a calculation until its result is needed, or to insert operations at the beginning or end of the other subroutine. 
-    *)   
