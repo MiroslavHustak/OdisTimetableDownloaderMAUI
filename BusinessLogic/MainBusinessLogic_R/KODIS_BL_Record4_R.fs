@@ -48,6 +48,7 @@ module KODIS_BL_Record4 =
                 with
                 | ex                                 
                     ->
+                    token.ThrowIfCancellationRequested()
                     runIO (postToLog <| string ex.Message <| "#0001-K4BL")
                     return Error [ JsonParsingError2 JsonDataFilteringError ]
             }
@@ -64,6 +65,7 @@ module KODIS_BL_Record4 =
                     return runIO <| filterTimetableLinks variant dir (Ok value)
                 | Error err 
                     -> 
+                    token.ThrowIfCancellationRequested()
                     runIO (postToLog <| string err <| "#0002-K4BL")
                     return Error <| PdfDownloadError2 err
             }
@@ -87,7 +89,7 @@ module KODIS_BL_Record4 =
                         return Error <| PdfDownloadError2 err
                 | _ 
                     ->
-                    return Ok []
+                    return Ok [] //zadna dalsi varianta uz tady neni, Ok[] je dummy
             }
     
     let internal operationOnDataFromJson2 (token : CancellationToken) variant dir = // for educational purposes
@@ -119,14 +121,22 @@ module KODIS_BL_Record4 =
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
 
-    let internal operationOnDataFromJson4 (token : CancellationToken) variant dir = 
+    let internal operationOnDataFromJson4 (token : CancellationToken) variant dir =
 
-        IO (fun ()
-                ->
-                async 
-                    {
-                        token.ThrowIfCancellationRequested() 
+        let maxRetries = 4
+        let delay = 1000
+
+        let inline checkCancel (token : CancellationToken) =
+            token.ThrowIfCancellationRequested()
+            ()
+
+        let rec retryParallel maxRetries (delay : int) =  //cely blok, neni tra to robit jak u downloads, bo payload je jen 100-200 KB
+            
+            async 
+                {
+                    checkCancel token
     
+                    try
                         let! results =
                             [|
                                 normaliseAsyncResult token (process1 token variant dir)
@@ -142,18 +152,35 @@ module KODIS_BL_Record4 =
                                 {
                                     let! links1 = result1
                                     and! links2 = result2
-    
                                     return links1 @ links2 |> List.distinct
                                 }
-                    }
+    
+                    with
+                    | ex 
+                        when maxRetries > 0
+                            ->
+                            //runIO (postToLog <| string ex.Message <| "#0044-K4BL")
+                            do! Async.Sleep delay
 
-                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-        )
+                            return! retryParallel (maxRetries - 1) (delay * 2)
+                    | ex
+                        ->
+                        checkCancel token
+                        runIO (postToLog <| string ex.Message <| "#0004-K4BL")
+                          
+                        return Validation.error <| PdfDownloadError2 FileDownloadError
+                }
+    
+        IO (fun () -> retryParallel maxRetries delay |> (fun a -> Async.RunSynchronously(a, cancellationToken = token)))    
 
     let internal downloadAndSave token context =  
    
         IO (fun ()
                 ->
+                let inline checkCancel (token : CancellationToken) =
+                    token.ThrowIfCancellationRequested()
+                    ()
+
                 let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                
                     async 
@@ -161,13 +188,13 @@ module KODIS_BL_Record4 =
                             let maxRetries = 500                            
                             let initialBackoffMs = 1000
 
-                            token.ThrowIfCancellationRequested() 
+                            checkCancel token
    
                             let rec attempt retryCount (backoffMs : int) = 
 
                                 async 
                                     {
-                                        token.ThrowIfCancellationRequested()
+                                        checkCancel token
    
                                         let existingFileLength =                               
                                             runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
@@ -214,6 +241,7 @@ module KODIS_BL_Record4 =
                                                 with                                               
                                                 | ex 
                                                     -> 
+                                                    checkCancel token
                                                     // runIO (postToLog <| string ex.Message <| "#0004-K4BL")  //in order not to log cancellation
                                                     return 
                                                         comprehensiveTryWith 
@@ -291,6 +319,8 @@ module KODIS_BL_Record4 =
                         |> List.unzip           
                                
                     try
+                        checkCancel token
+
                         (token, uri, pathToFile)
                         |||> List.Parallel.map2_IO_AW_Token_Async                                    
                             (fun uri (pathToFile : string) 
@@ -298,7 +328,7 @@ module KODIS_BL_Record4 =
                                 async
                                     {
                                         try
-                                            token.ThrowIfCancellationRequested() 
+                                            checkCancel token 
                                             counterAndProgressBar.Post <| Inc 1
    
                                             let pathToFileExistFirstCheck =
@@ -332,6 +362,7 @@ module KODIS_BL_Record4 =
                                         with                                        
                                         | ex
                                             -> 
+                                            checkCancel token
                                             //runIO (postToLog <| string ex.Message <| "#0011-K4BL")  //in order not to log cancellation
                                             return 
                                                 comprehensiveTryWith
@@ -349,6 +380,7 @@ module KODIS_BL_Record4 =
                     with
                     | ex 
                         -> 
+                        checkCancel token
                         //runIO (postToLog <| string ex.Message <| "#0012-K4BL")  //in order not to log cancellation
                         [
                             comprehensiveTryWith 

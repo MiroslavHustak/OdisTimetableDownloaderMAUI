@@ -58,7 +58,7 @@ module FutureLinks =
                             | _ -> 
                                 runIO <| postToLogFile () (sprintf "0001-FLK4 %d" (int response.statusCode)) 
                                 |> Async.Ignore<ResponsePost>
-                                |> Async.StartImmediate   
+                                |> Async.Start 
                        
                                 return Error ApiResponseError
                         with
