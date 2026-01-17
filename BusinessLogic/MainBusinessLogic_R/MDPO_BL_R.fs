@@ -207,9 +207,9 @@ module MDPO_BL = //FsHttp
                                                     -> 
                                                     //runIO (postToLog <| string ex.Message <| "#0003-MDPOBL")  //in order not to log cancellation
                                                     return 
-                                                       comprehensiveTryWithMHD
-                                                           LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
-                                                           FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                                                        comprehensiveTryWithMHD 
+                                                            LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                                            FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                         
                                             | HttpStatusCode.Forbidden
                                                 ->
@@ -332,12 +332,8 @@ module MDPO_BL = //FsHttp
                                 //runIO (postToLog <| string ex.Message <| "#0011-MDPOBL") //in order not to log cancellation
                                 [ 
                                     comprehensiveTryWithMHD 
-                                        LetItBeMHD 
-                                        StopDownloadingMHD 
-                                        TimeoutErrorMHD 
-                                        FileDownloadErrorMHD 
-                                        TlsHandshakeErrorMHD 
-                                        token ex 
+                                        LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                        FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                 ]                         
                     )
                     

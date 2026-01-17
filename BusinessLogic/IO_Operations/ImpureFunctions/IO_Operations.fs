@@ -123,7 +123,7 @@ module IO_Operations =
                 | ex
                     ->
                     runIO (postToLog <| string ex.Message <| "#0003-IO") 
-                    Error FileDownloadErrorMHD //dpoMsg1  
+                    Error FileDeleteErrorMHD //dpoMsg1  
         )   
     
     let internal deleteAllJsonFilesInDirectory pathToDir =
@@ -472,37 +472,38 @@ module IO_Operations =
                     
                 //runIO (postToLog <| DateTime.Now.ToString("HH:mm:ss:fff") <| "Parallel start")
                 
-                let result = 
-                    async
-                        {
+                
+                async
+                    {
 
-                            let! results = 
-                                [| 
+                        let! results = 
+                            [| 
                                 
-                                    normaliseAsyncResult token (moveTask1())
-                                    normaliseAsyncResult token (moveTask2())
-                                    normaliseAsyncResult token (moveTask3())
-                                |]
-                                |> Async.Parallel
+                                normaliseAsyncResult token (moveTask1())
+                                normaliseAsyncResult token (moveTask2())
+                                normaliseAsyncResult token (moveTask3())
+                            |]
+                            |> Async.Parallel
 
-                            let result1 = Array.head results
-                            let result2 = Array.item 1 results               
-                            let result3 = Array.last results
+                        let result1 = Array.head results
+                        let result2 = Array.item 1 results               
+                        let result3 = Array.last results
     
-                            return
-                                validation
-                                    {
-                                        let! links1 = result1
-                                        and! links2 = result2
-                                        and! links3 = result3
+                        return
+                            validation
+                                {
+                                    let! links1 = result1
+                                    and! links2 = result2
+                                    and! links3 = result3
 
-                                        return links1 @ links2 @ links3 |> List.distinct 
-                                    }
-                        }
+                                    return links1 @ links2 @ links3 |> List.distinct 
+                                }
+                    }
 
-                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-
-                runIO (postToLog <| sprintf "%A" result <| "#0020-IO")   
+                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                |> function
+                    | Ok []  -> ()
+                    | result -> runIO (postToLog <| sprintf "%A" result <| "#0020-IO")   
 
                 Ok ()  //Applicative-style validation intended for logging only              
 

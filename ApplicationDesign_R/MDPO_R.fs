@@ -4,6 +4,8 @@ open System
 open System.IO
 open System.Threading
 
+open Xamarin.Essentials
+
 open FsToolkit.ErrorHandling
 
 //**********************************
@@ -81,18 +83,19 @@ module WebScraping_MDPO =
                     | DeleteOneODISDirectory
                         ->  
                         runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir
-
+                       
+                       
                     | CreateFolders         
                         -> 
                         try                                          
                             dirList pathToDir
-                            |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore<DirectoryInfo>)   
-                            |> Ok
+                            |> List.iter (fun dir -> Directory.CreateDirectory dir |> ignore<DirectoryInfo>)                              
+                            |> Ok                           
                         with
                         | ex 
                             -> 
                             runIO (postToLog <| string ex.Message <| "#0001-MDPO")
-                            Error FileDownloadErrorMHD //dpoMsg1                  
+                            Error FileDownloadErrorMHD
            
                     | FilterDownloadSave   
                         ->  
@@ -119,9 +122,9 @@ module WebScraping_MDPO =
                         | ex 
                             -> 
                             // runIO (postToLog <| string ex.Message <| "#0003-MDPO") // commented out so that cancellation is not logged
-                            comprehensiveTryWithMHD
-                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
-                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex   
+                            comprehensiveTryWithMHD 
+                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
 
                 pyramidOfInferno
                     {  

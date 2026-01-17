@@ -4,6 +4,8 @@ open System
 open System.IO
 open System.Threading
 
+open Xamarin.Essentials
+
 open FsToolkit.ErrorHandling
 
 //**********************************
@@ -83,8 +85,8 @@ module WebScraping_DPO =
 
                     | DeleteOneODISDirectory 
                         ->    
-                        runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir                                    
-                                    
+                        runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir
+                     
                     | CreateFolders         
                         -> 
                         try                                          
@@ -95,7 +97,7 @@ module WebScraping_DPO =
                         | ex 
                             -> 
                             runIO (postToLog <| string ex.Message <| "#0002-DPO")
-                            Error FileDownloadErrorMHD //dpoMsg1
+                            Error FileDownloadErrorMHD
 
                     | FilterDownloadSave
                         ->     
@@ -121,7 +123,7 @@ module WebScraping_DPO =
                             Error FileDeleteErrorMHD  
                         | ex 
                             ->
-                            // runIO (postToLog <| string ex.Message <| "#0004-DPO") // commented out so that cancellation is not logged
+                            //runIO (postToLog <| string ex.Message <| "#0004-DPO") // commented out so that cancellation is not logged
                             comprehensiveTryWithMHD 
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
@@ -145,7 +147,7 @@ module WebScraping_DPO =
                             | LetItBeMHD               -> String.Empty
                             | TlsHandshakeErrorMHD     -> tlsHandShakeErrorDpo
                             | TimeoutErrorMHD          -> timeoutError
-                        
+                           
                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                         // nicmene priprava na zpracovani err je provedena
                         stateReducer token stateDefault CopyOldTimetables environment |> ignore<Result<unit, MHDErrors>> //silently ignoring failed move operations

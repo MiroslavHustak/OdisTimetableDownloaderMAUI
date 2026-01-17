@@ -160,10 +160,18 @@ module ExceptionHelpers =
                 | _ -> 
                     Some NetworkError2
         
-            | :? IOException as ex
+            | :? IOException as ex 
                 -> 
                 runIO (postToLog <| string ex.Message <| "#0009-ExceptionHandlers")
-                Some NetworkError2
+
+                match ex with
+                | :? DirectoryNotFoundException
+                | :? FileNotFoundException
+                | :? DriveNotFoundException 
+                    ->
+                    None   
+                | _ ->
+                    Some NetworkError2
 
             | :? HttpRequestException 
                 -> 
@@ -214,7 +222,7 @@ module ExceptionHelpers =
                 | TlsError2     -> tlsHandShakeError
                 | TimeoutError2 -> timeoutError
                 | NetworkError2 -> letItBe
-                | UnknownError2 -> letItBe
+                | UnknownError2 -> fileDownloadError
     
         match isCancellationGeneric letItBe stopDownloading timeoutError fileDownloadError token ex with
         | err 
@@ -255,7 +263,7 @@ module ExceptionHelpers =
         |> function
             | err 
                 when err = Error letItBe
-                -> Ok ()  
+                -> Error fileDownloadError //temporary code for stress testing  
             | err
                 -> err
 
@@ -287,7 +295,7 @@ module ExceptionHelpers =
                        ->
                        runIO (postToLog <| string ex.Message <| "#0014-ExceptionHandlers")
                        [ ex ]
-       
+                 
            let classifyException (e : Exception) : ExceptionClassification option =
                match e with
                // TLS/SSL errors
@@ -324,7 +332,15 @@ module ExceptionHelpers =
                | :? IOException as ex 
                    -> 
                    runIO (postToLog <| string ex.Message <| "#0016-ExceptionHandlers")
-                   Some NetworkError2
+
+                   match ex with
+                   | :? DirectoryNotFoundException
+                   | :? FileNotFoundException
+                   | :? DriveNotFoundException 
+                       ->
+                       None   
+                   | _ ->
+                       Some NetworkError2
 
                | :? HttpRequestException 
                    -> 
@@ -373,7 +389,7 @@ module ExceptionHelpers =
                function
                    | TlsError2     -> tlsHandShakeError
                    | TimeoutError2 -> timeoutError
-                   | NetworkError2 -> fileDownloadError
+                   | NetworkError2 -> letItBe
                    | UnknownError2 -> fileDownloadError
        
            match isCancellationGeneric letItBe stopDownloading timeoutError fileDownloadError token ex with
@@ -411,3 +427,10 @@ module ExceptionHelpers =
            | _ -> 
                runIO (postToLog <| string ex.Message <| "#0018-ExceptionHandlers")
                Error fileDownloadError
+          
+           |> function
+               | err 
+                   when err = Error letItBe
+                   -> Error fileDownloadError //temporary code for stress testing  
+               | err
+                   -> err

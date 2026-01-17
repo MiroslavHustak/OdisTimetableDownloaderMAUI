@@ -132,7 +132,7 @@ module WebScraping_KODIS =
                     with
                     | ex 
                         ->
-                        runIO (postToLog <| string ex.Message <| "#0001-K")
+                        runIO (postToLog <| string ex.Message <| "#0001-K")  //catches Json cancellation
                         Error JsonLetItBeKodis //silently ignoring failed download operations
             
                     |> Result.map (fun _ -> dispatchMsg2) // spravne dispatchMsg1, ale drzi se to po celou dobu ocekavaneho dispatchMsg2

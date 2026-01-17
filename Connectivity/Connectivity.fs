@@ -36,6 +36,7 @@ module Connectivity =
             
                     loop false // Start the loop with whatever initial value 
 
+    // nepouzivano                   
     let internal connectivityListener () = //impure
 
         IO (fun () 
@@ -57,6 +58,7 @@ module Connectivity =
                 actor.PostAndReply (fun replyChannel -> CheckState replyChannel)
         )        
 
+    // nepouzivano   
     let internal connectivityListener2 onConnectivityChange = //impure
 
         IO (fun () 

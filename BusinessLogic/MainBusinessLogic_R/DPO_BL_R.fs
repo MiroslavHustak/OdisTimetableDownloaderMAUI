@@ -198,9 +198,9 @@ module DPO_BL =
                                                     -> 
                                                     //runIO (postToLog <| string ex.Message <| "#0001-DPOBL") //in order not to log cancellation
                                                     return
-                                                        comprehensiveTryWithMHD
-                                                            LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
-                                                            FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
+                                                        comprehensiveTryWithMHD 
+                                                            LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                                            FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             | _ ->
                                                 runIO (postToLog (string response.statusCode) "#0002-DPOBL")
                                                 return Error FileDownloadErrorMHD
@@ -208,7 +208,7 @@ module DPO_BL =
                                         | Choice2Of2 ex 
                                             ->
                                             match isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
-                                            | StopDownloadingMHD 
+                                            | err when err = StopDownloadingMHD 
                                                 ->
                                                 //runIO (postToLog <| string ex.Message <| "#0003-DPOBL") //in order not to log cancellation
                                                 return Error StopDownloadingMHD
@@ -219,9 +219,9 @@ module DPO_BL =
                                             | _ ->
                                                 runIO (postToLog <| string ex.Message <| "#0004-DPOBL") 
                                                 return 
-                                                    comprehensiveTryWithMHD
-                                                        LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
-                                                        FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
+                                                    comprehensiveTryWithMHD 
+                                                        LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                                                        FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
     
                             return! attempt 0 initialBackoffMs
@@ -281,8 +281,8 @@ module DPO_BL =
                     with                                            
                     | ex 
                         -> 
-                        //runIO (postToLog <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
-                        comprehensiveTryWithMHD
-                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD
-                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex  
+                        runIO (postToLog <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
+                        comprehensiveTryWithMHD 
+                            LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
+                            FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
         )

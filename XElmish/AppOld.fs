@@ -909,7 +909,7 @@ module App =
                                             | Ok result -> return WorkIsComplete >> dispatch <| (result, false)  
                                             | Error err -> return WorkIsComplete >> dispatch <| (err, false)     
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
+                                            WorkIsComplete >> dispatch <| (String.Empty, Connectivity.NetworkAccess = NetworkAccess.Internet) 
                                             return dispatch Home2   
                                 with 
                                 | ex
@@ -955,9 +955,9 @@ module App =
                           
                                     match token.IsCancellationRequested with
                                     | false ->
-                                            return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                            return WorkIsComplete >> dispatch <| (result,  Connectivity.NetworkAccess = NetworkAccess.Internet)    
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
+                                            WorkIsComplete >> dispatch <| (String.Empty,  Connectivity.NetworkAccess = NetworkAccess.Internet) 
                                             return dispatch Home2  
                                 with 
                                 | ex
@@ -982,7 +982,7 @@ module App =
                             }
                         |> Async.StartImmediate                   
 
-                    match connectivityListener >> runIO >> Option.ofBool <| () with
+                    match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
                     | Some _
                         ->             
                         { 
@@ -1065,9 +1065,9 @@ module App =
 
                                     match token.IsCancellationRequested with
                                     | false ->
-                                            return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                            return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (String.Empty, connectivityListener >> runIO <| ()) 
+                                            WorkIsComplete >> dispatch <| (String.Empty, Connectivity.NetworkAccess = NetworkAccess.Internet) 
                                             return dispatch Home2  
                                 with 
                                 | ex
@@ -1106,7 +1106,7 @@ module App =
                             }
                         |> Async.StartImmediate                     
 
-                    match connectivityListener >> runIO >> Option.ofBool <| () with
+                    match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
                     | Some _
                         ->             
                         { 
@@ -1189,9 +1189,9 @@ module App =
                               
                                     match token.IsCancellationRequested with
                                     | false ->
-                                            return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                            return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
+                                            WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet) 
                                             return dispatch Home2                                          
                                 with 
                                 | ex
@@ -1221,7 +1221,7 @@ module App =
                             } 
                         |> Async.StartImmediate
 
-                    match connectivityListener >> runIO >> Option.ofBool <| () with
+                    match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
                     | Some _
                         ->             
                         { 
@@ -1304,9 +1304,9 @@ module App =
                            
                                     match token.IsCancellationRequested with
                                     | false ->
-                                            return WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ())    
+                                            return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (result, connectivityListener >> runIO <| ()) 
+                                            WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet) 
                                             return dispatch Home2  
                                 with 
                                 | ex
@@ -1336,7 +1336,7 @@ module App =
                             }
                         |> Async.StartImmediate
 
-                    match connectivityListener >> runIO >> Option.ofBool <| () with
+                    match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
                     | Some _
                         ->             
                         { 
