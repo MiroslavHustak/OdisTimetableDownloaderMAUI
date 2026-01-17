@@ -148,6 +148,7 @@ module App_R =
         | ClickClearing  
         | ClearAnimation
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
+        | Dummy
 
     let private kodisActor = localCancellationActor()
     let private kodis4Actor = localCancellationActor()        
@@ -161,7 +162,7 @@ module App_R =
             let debounceActor =
 
                 MailboxProcessor<bool>
-                    .StartImmediate
+                    .StartImmediate //tady OK  
                         (fun inbox
                             ->
                             let rec loop lastState (lastChangeTime : DateTime) =
@@ -374,7 +375,7 @@ module App_R =
 
             Cmd.batch
                 [
-                    Cmd.ofAsyncMsg
+                    Cmd.ofAsyncMsg  //starts on PT
                         (
                             async
                                 {
@@ -386,6 +387,9 @@ module App_R =
                 ]            
 
         match msg with   
+        | Dummy 
+            -> 
+            m, Cmd.none
         | ClickClearingConfirmation
             ->
             { m with AnimatedButton = Some buttonClearingConfirmation }, cmdOnClickAnimation AllowDataClearing            
@@ -409,9 +413,8 @@ module App_R =
         | RequestPermission ->
             #if ANDROID
             let cmd : Cmd<Msg> =
-                Cmd.ofSub 
-                    (fun dispatch 
-                        ->
+                Cmd.ofAsyncMsg
+                    (
                         async 
                             {
                                 try
@@ -427,7 +430,7 @@ module App_R =
                                     match needsRequest with
                                     | false -> 
                                             // Already has permission → we can just refresh
-                                            dispatch Home2
+                                            return Home2
         
                                     | true  ->
                                             do openAppSettings >> runIO <| ()
@@ -441,14 +444,13 @@ module App_R =
                                                 |> Async.AwaitTask
         
                                             match newStatus = PermissionStatus.Granted with
-                                            | true  -> return dispatch Home2
-                                            | false -> return ()   
+                                            | true  -> return Home2
+                                            | false -> return Dummy   
         
                                 with 
-                                | _ -> return ()
+                                | _ -> return Dummy
                             }
-                        |> Async.StartImmediate
-                )        
+                    )        
             m, cmd        
             #else
             m, Cmd.none
@@ -532,28 +534,15 @@ module App_R =
 
         | Quit  
             ->              
-            #if WINDOWS 
-            (*
+            #if WINDOWS           
             let cmd () : Cmd<Msg> =
                 async 
                     {
                         let! _ = runIO (Api.Logging.saveJsonToFileAsync ())
-                        return <Msg> -> nechce se mi zavadet Dummy Msg
+                        return Dummy
                     }
                 |> Cmd.ofAsyncMsg                    
-            *) 
-            let cmd () : Cmd<Msg> =
-                Cmd.ofSub 
-                    (fun _ 
-                        ->
-                        async 
-                            {
-                                let! _ = runIO (Api.Logging.saveJsonToFileAsync ())
-                                return ()
-                            }
-                        |> Async.StartImmediate
-                    )
-
+          
             kodisActor.PostAndReply(fun reply -> Stop reply)
             kodis4Actor.PostAndReply(fun reply -> Stop reply)
             mdpoActor.PostAndReply(fun reply -> Stop reply)
@@ -585,21 +574,14 @@ module App_R =
 
         | EmergencyQuit isConnected
             ->
-            let delayedQuit (dispatch : Msg -> unit) = 
+            let emergencyQuitCmd : Cmd<Msg> =                
                 async
                     {
-                        do! Async.Sleep 300000 //za dany cas mu to vypneme automaticky // 5 minut
-                        //do! Async.AwaitTask (System.Threading.Tasks.Task.Delay(System.Threading.Timeout.InfiniteTimeSpan))                        
-                        return dispatch IntermediateQuitCase
-                    }
-            
-            let executeQuit (dispatch : Msg -> unit) = 
-                async
-                    {
-                        return! delayedQuit dispatch
-                    }
-                |> Async.StartImmediate
-          
+                        do! Async.Sleep 300000  // 5 minutes            
+                        return IntermediateQuitCase
+                    } 
+                |> Cmd.ofAsyncMsg 
+              
             #if WINDOWS
             m, Cmd.none          
             #endif
@@ -623,7 +605,7 @@ module App_R =
                     LabelVisible = true
                     Label2Visible = true  
                     InternetIsConnected = isConnected          
-            }, Cmd.ofSub executeQuit
+            }, emergencyQuitCmd
             #endif           
 
         | Home2  
@@ -710,36 +692,39 @@ module App_R =
             
         | AllowDataClearing 
             ->
-            let delayedCmd (dispatch : Msg -> unit) : Async<unit> =
-
-                async
-                    {
-                        try
-                            let! results =
-                                [
-                                    async { return deleteOld >> runIO <| () }
-                                    async { return deleteOld4 >> runIO <| () }
-                                ]
-                                |> Async.Parallel
-                                |> Async.Catch
-                            
-                            results
-                            |> Result.ofChoice
-                            |> function
-                                | Ok [| _; _ |] -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg2
-                                | Ok _          -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3
-                                | Error _       -> DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3        
+            let clearDataCmd : Cmd<Msg> =
+                Cmd.ofSub 
+                    (fun dispatch 
+                        ->
+                        async
+                            {
+                                try
+                                    do! Async.SwitchToThreadPool() //early → prevents UI freeze during file deletion
             
-                            return! Async.Sleep 1000
-
-                        with 
-                        | ex
-                            ->
-                            runIO (postToLog <| string ex.Message <| " #XElmish_ClearData")
-                            DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3
-                    }
-                     
-            let execute dispatch = async { return! delayedCmd dispatch } |> Async.StartImmediate         
+                                    let! results =
+                                        [
+                                            async { return deleteOld >> runIO <| () }
+                                            async { return deleteOld4 >> runIO <| () }
+                                        ]
+                                        |> Async.Parallel
+                                        |> Async.Catch
+            
+                                    let message =
+                                        match results |> Result.ofChoice with
+                                        | Ok [| _; _ |] -> deleteOldTimetablesMsg2
+                                        | _             -> deleteOldTimetablesMsg3
+            
+                                    DataClearingMessage message |> dispatch
+            
+                                    return! Async.Sleep 1000               
+                                with
+                                | ex 
+                                    ->
+                                    runIO (postToLog (string ex.Message) "#XElmish_ClearData")
+                                    return DataClearingMessage deleteOldTimetablesMsg3 |> dispatch
+                            }
+                        |> Async.Start
+                )
 
             { 
                 m with
@@ -748,8 +733,7 @@ module App_R =
                     CloudVisible = false
                     LabelVisible = true
                     Label2Visible = true
-            }, 
-            Cmd.ofSub execute
+            }, clearDataCmd
 
         | CancelDataClearing
             ->
@@ -787,6 +771,8 @@ module App_R =
                         async
                             {
                                 try
+                                    do! Async.SwitchToThreadPool()
+
                                     let! hardWork =                                                              
                                         async 
                                             {                                            
@@ -828,6 +814,8 @@ module App_R =
                         async 
                             {   
                                 try
+                                    do! Async.SwitchToThreadPool()
+
                                     let! hardWork =                             
                                         async 
                                             {   
@@ -881,7 +869,7 @@ module App_R =
                                 | true  -> return ()
                                 | false -> return! delayedCmd2 token dispatch
                             }
-                        |> Async.StartImmediate                   
+                        |> Async.Start                 
 
                     match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
                     | Some _
@@ -938,6 +926,8 @@ module App_R =
                         async 
                             {    
                                 try
+                                    do! Async.SwitchToThreadPool()
+
                                     let! hardWork =                             
                                         async 
                                             {                                                      
@@ -988,7 +978,7 @@ module App_R =
                         async 
                             {    
                                 try
-                                    match! stateReducerCmd5 >> runIO <| () with
+                                    match! stateReducerCmd5 >> runIO <| () with  //cannot block the UI thread for long enough to be visible, Async.SwitchToThreadPool() not needed
                                     | Ok _      -> return NetConnMessage >> dispatch <| String.Empty
                                     | Error err -> return NetConnMessage >> dispatch <| err
                                     
@@ -1006,7 +996,7 @@ module App_R =
                                 do! delayedCmd2 token dispatch
                                 return! delayedCmd5 dispatch                           
                             }
-                        |> Async.StartImmediate                     
+                        |> Async.Start                     
 
                     match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
                     | Some _
@@ -1063,6 +1053,9 @@ module App_R =
                         async
                             {
                                 try
+                                    // Move away from UI thread as soon as possible
+                                    do! Async.SwitchToThreadPool()
+
                                     NetConnMessage >> dispatch <| String.Empty 
                                                           
                                     let! hardWork =                            
@@ -1121,7 +1114,7 @@ module App_R =
                                         | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                         | false -> return! delayedCmd token dispatch                               
                             } 
-                        |> Async.StartImmediate //StartImmediate required for dispatching to Elmish safely.
+                        |> Async.Start
 
                     match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
                     | Some _
@@ -1178,6 +1171,8 @@ module App_R =
                         async
                             {
                                 try
+                                    do! Async.SwitchToThreadPool()  // Move away from UI thread as soon as possible
+
                                     NetConnMessage >> dispatch <| String.Empty 
                                                           
                                     let! hardWork =                            
@@ -1236,7 +1231,7 @@ module App_R =
                                         | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                         | false -> return! delayedCmd token dispatch 
                             }
-                        |> Async.StartImmediate
+                        |> Async.Start
 
                     match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
                     | Some _
