@@ -18,13 +18,13 @@ open BusinessLogic.TP_Canopy_Difference
 
 open Helpers
 open Helpers.Builders
-
-open Api.Logging
+open Helpers.ExceptionHelpers
 
 open IO_Operations
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
 
+open Api.Logging
 open JsonData.ParseJsonData  
 open Filtering.FilterTimetableLinks  
 
@@ -132,8 +132,10 @@ module WebScraping_KODIS =
                     with
                     | ex 
                         ->
-                        runIO (postToLog <| string ex.Message <| "#0001-K")  //catches Json cancellation
-                        Error JsonLetItBeKodis //silently ignoring failed download operations
+                        //runIO (postToLog <| string ex.Message <| "#0001-K")  
+                        comprehensiveTryWith 
+                            JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
+                            JsonDownloadError JsonTlsHandshakeError token ex 
             
                     |> Result.map (fun _ -> dispatchMsg2) // spravne dispatchMsg1, ale drzi se to po celou dobu ocekavaneho dispatchMsg2
                     |> Result.mapError errFn

@@ -31,196 +31,209 @@ module KODIS_BL_Record =
 
     let internal downloadAndSaveJson jsonLinkList pathToJsonList (token : CancellationToken) reportProgress =
     
-        IO (fun () ->
+        IO (fun () 
+                ->
+                let inline checkCancel (token : CancellationToken) =
+                    token.ThrowIfCancellationRequested()
+                    ()
     
-            let l = jsonLinkList |> List.length
+                let l = jsonLinkList |> List.length
     
-            let counterAndProgressBar =
-                MailboxProcessor<MsgIncrement>
-                    .StartImmediate
-                        (fun inbox 
-                            ->
-                            let rec loop n =
-                                async 
-                                    {
-                                        try
-                                            let! Inc i = inbox.Receive()
-                                            reportProgress (float n, float l)
-                                            return! loop (n + i)
-                                        with
-                                        | ex -> () //runIO (postToLog <| string ex.Message <| "#0001-KBLJson")
-                                    }
-                            loop 0
-                    )
-    
-            let downloadWithResume (uri : string) (pathToFile : string) : Async<Result<unit, JsonDownloadErrors>> =
-
-                async
-                    {
-                        let maxRetries = 500
-                        let initialBackoffMs = 1000
-
-                        let rec attempt retryCount (backoffMs : int) =
-
-                            async
-                                {
-                                    token.ThrowIfCancellationRequested()
-
-                                    let existingFileLength =
-                                        runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
-                                        |> Option.map (fun _ -> (FileInfo pathToFile).Length)
-                                        |> Option.defaultValue 0L
-
-                                    let request =
-                                        match existingFileLength > 0L with
-                                        | true  ->
-                                                http
-                                                    {
-                                                        GET uri
-                                                        config_timeoutInSeconds timeOutInSeconds2
-                                                        config_cancellationToken token
-                                                        header "User-Agent" "FsHttp/Android7.1"
-                                                        header "Range" (sprintf "bytes=%d-" existingFileLength)
-                                                    }
-                                        | false ->
-                                                http
-                                                    {
-                                                        GET uri
-                                                        config_timeoutInSeconds timeOutInSeconds2
-                                                        config_cancellationToken token
-                                                        header "User-Agent" "FsHttp/Android7.1"
-                                                    }
-
-                                    match! Request.sendAsync >> Async.Catch <| request with
-                                    | Choice1Of2 response
-                                        ->
-                                        use response = response
-
-                                        match existingFileLength, response.statusCode with                                        
-                                        // Server ignored Range → full response → must restart download
-                                        | length, HttpStatusCode.OK
-                                            when length > 0L
-                                            ->
+                let counterAndProgressBar =
+                    MailboxProcessor<MsgIncrement>
+                        .StartImmediate
+                            (fun inbox 
+                                ->
+                                let rec loop n =
+                                    async 
+                                        {
                                             try
-                                                File.Delete pathToFile
-                                                return! attempt retryCount backoffMs
+                                                let! Inc i = inbox.Receive()
+                                                reportProgress (float n, float l)
+                                                return! loop (n + i)
                                             with
-                                            | ex
-                                                ->
-                                                runIO (postToLog <| string ex.Message <| "#0002-KBLJson")
-                                                return Error JsonDownloadError
+                                            | ex -> () //runIO (postToLog <| string ex.Message <| "#0001-KBLJson")
+                                        }
+                                loop 0
+                        )
+    
+                let downloadWithResume (uri : string) (pathToFile : string) : Async<Result<unit, JsonDownloadErrors>> =
 
-                                        | _, HttpStatusCode.OK
-                                        | _, HttpStatusCode.PartialContent
-                                            ->
-                                            try
-                                                use! stream =
-                                                    response.content.ReadAsStreamAsync()
-                                                    |> Async.AwaitTask
+                    async
+                        {
+                            let maxRetries = 500
+                            let initialBackoffMs = 1000
 
-                                                use fileStream =
-                                                    match existingFileLength > 0L with
-                                                    | true  ->
-                                                            new FileStream
-                                                                (
-                                                                    pathToFile,
-                                                                    FileMode.Append,
-                                                                    FileAccess.Write,
-                                                                    FileShare.None
-                                                                )
-                                                    | false ->
-                                                            new FileStream
-                                                                (
-                                                                    pathToFile,
-                                                                    FileMode.Create,
-                                                                    FileAccess.Write,
-                                                                    FileShare.None
-                                                                )
+                            let rec attempt retryCount (backoffMs : int) =
 
-                                                do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
-                                                return Ok ()
-                                            with                                               
-                                            | ex 
-                                                -> 
-                                                return
-                                                    comprehensiveTryWith 
-                                                        JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
-                                                        JsonDownloadError JsonTlsHandshakeError token ex  
+                                async
+                                    {
+                                        checkCancel token
 
-                                        | _, HttpStatusCode.Forbidden
-                                            ->
-                                            runIO <| postToLog () (sprintf "%s Forbidden 403 #0003-KBLJson" uri)
-                                            return Error JsonDownloadError
+                                        let existingFileLength =
+                                            runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
+                                            |> Option.map (fun _ -> (FileInfo pathToFile).Length)
+                                            |> Option.defaultValue 0L
 
-                                        | status
-                                            ->
-                                            runIO (postToLog (string status) "#0004-KBLJson")
-                                            return Error JsonDownloadError
-
-                                    | Choice2Of2 ex
-                                        ->
-                                        match isCancellationGeneric JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with
-                                        | err
-                                            when err = StopJsonDownloading
-                                            ->
-                                            //runIO (postToLog <| string ex.Message <| "#0005-KBLJson")  //in order not to log cancellation
-                                            return Error StopJsonDownloading
-                                        | err
-                                            ->
-                                            match retryCount < maxRetries with
+                                        let request =
+                                            match existingFileLength > 0L with
                                             | true  ->
-                                                    do! Async.Sleep backoffMs
-                                                    return! attempt (retryCount + 1) (backoffMs * 2)
+                                                    http
+                                                        {
+                                                            GET uri
+                                                            config_timeoutInSeconds timeOutInSeconds2
+                                                            config_cancellationToken token
+                                                            header "User-Agent" "FsHttp/Android7.1"
+                                                            header "Range" (sprintf "bytes=%d-" existingFileLength)
+                                                        }
                                             | false ->
-                                                    runIO <| postToLog (string ex.Message) (sprintf "#0006-KBLJson (retry %d)" retryCount)
-                                                    return 
+                                                    http
+                                                        {
+                                                            GET uri
+                                                            config_timeoutInSeconds timeOutInSeconds2
+                                                            config_cancellationToken token
+                                                            header "User-Agent" "FsHttp/Android7.1"
+                                                        }
+
+                                        match! Request.sendAsync >> Async.Catch <| request with
+                                        | Choice1Of2 response
+                                            ->
+                                            use response = response
+
+                                            match existingFileLength, response.statusCode with                                        
+                                            // Server ignored Range → full response → must restart download
+                                            | length, HttpStatusCode.OK
+                                                when length > 0L
+                                                ->
+                                                try
+                                                    File.Delete pathToFile
+                                                    return! attempt retryCount backoffMs
+                                                with
+                                                | ex
+                                                    ->
+                                                    runIO (postToLog <| string ex.Message <| "#0002-KBLJson")
+                                                    return Error JsonDownloadError
+
+                                            | _, HttpStatusCode.OK
+                                            | _, HttpStatusCode.PartialContent
+                                                ->
+                                                try
+                                                    use! stream =
+                                                        response.content.ReadAsStreamAsync()
+                                                        |> Async.AwaitTask
+
+                                                    use fileStream =
+                                                        match existingFileLength > 0L with
+                                                        | true  ->
+                                                                new FileStream
+                                                                    (
+                                                                        pathToFile,
+                                                                        FileMode.Append,
+                                                                        FileAccess.Write,
+                                                                        FileShare.None
+                                                                    )
+                                                        | false ->
+                                                                new FileStream
+                                                                    (
+                                                                        pathToFile,
+                                                                        FileMode.Create,
+                                                                        FileAccess.Write,
+                                                                        FileShare.None
+                                                                    )
+
+                                                    do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
+                                                    return Ok ()
+                                                with                                               
+                                                | ex 
+                                                    -> 
+                                                    checkCancel token
+                                                    return
                                                         comprehensiveTryWith 
                                                             JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
-                                                            JsonDownloadError JsonTlsHandshakeError token ex
-                                }
+                                                            JsonDownloadError JsonTlsHandshakeError token ex  
 
-                        return! attempt 0 initialBackoffMs
-                    }
+                                            | _, HttpStatusCode.Forbidden
+                                                ->
+                                                runIO <| postToLog () (sprintf "%s Forbidden 403 #0003-KBLJson" uri)
+                                                return Error JsonDownloadError
+
+                                            | status
+                                                ->
+                                                runIO (postToLog (string status) "#0004-KBLJson")
+                                                return Error JsonDownloadError
+
+                                        | Choice2Of2 ex
+                                            ->
+                                            match isCancellationGeneric JsonLetItBeKodis StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with
+                                            | err
+                                                when err = StopJsonDownloading
+                                                ->
+                                                //runIO (postToLog <| string ex.Message <| "#0005-KBLJson")  //in order not to log cancellation
+                                                return Error StopJsonDownloading
+                                            | err
+                                                ->
+                                                match retryCount < maxRetries with
+                                                | true  ->
+                                                        do! Async.Sleep backoffMs
+                                                        return! attempt (retryCount + 1) (backoffMs * 2)
+                                                | false ->
+                                                        runIO <| postToLog (string ex.Message) (sprintf "#0006-KBLJson (retry %d)" retryCount)
+                                                        return 
+                                                            comprehensiveTryWith 
+                                                                JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
+                                                                JsonDownloadError JsonTlsHandshakeError token ex
+                                    }
+
+                            return! attempt 0 initialBackoffMs
+                        }
                     
-            try
-                (token, jsonLinkList, pathToJsonList)
-                |||> List.Parallel.map2_IO_AW_Token_Async 
-                    (fun uri pathToFile 
-                        ->
-                        async 
-                            {
-                                try
-                                    token.ThrowIfCancellationRequested() 
-                                    counterAndProgressBar.Post <| Inc 1    
+                try
+                    checkCancel token
 
-                                    return! downloadWithResume uri pathToFile
-                                with                                               
-                                | ex 
-                                    -> 
-                                    //runIO (postToLog <| string ex.Message <| "#0007-KBLJson")  //in order not to log cancellation
-                                    return
-                                        comprehensiveTryWith 
-                                            JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
-                                            JsonDownloadError JsonTlsHandshakeError token ex 
-                            }
-                    )
+                    (token, jsonLinkList, pathToJsonList)
+                    |||> List.Parallel.map2_IO_AW_Token_Async 
+                        (fun uri pathToFile 
+                            ->
+                            async 
+                                {
+                                    try
+                                        checkCancel token
+                                        counterAndProgressBar.Post <| Inc 1    
 
-                |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
-                |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                |> Option.defaultValue (Ok ())
+                                        return! downloadWithResume uri pathToFile
+                                    with                                               
+                                    | ex 
+                                        -> 
+                                        checkCancel token
+                                        //runIO (postToLog <| string ex.Message <| "#0007-KBLJson")  //in order not to log cancellation
+                                        return
+                                            comprehensiveTryWith 
+                                                JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
+                                                JsonDownloadError JsonTlsHandshakeError token ex 
+                                }
+                        )
 
-            with                                               
-            | ex 
-                -> 
-                comprehensiveTryWith 
-                    JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
-                    JsonDownloadError JsonTlsHandshakeError token ex
+                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
+                    |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                    |> Option.defaultValue (Ok ())
+
+                with                                               
+                | ex 
+                    -> 
+                    checkCancel token
+                    comprehensiveTryWith 
+                        JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
+                        JsonDownloadError JsonTlsHandshakeError token ex
         )    
     
     let internal downloadAndSave token context =  
    
         IO (fun ()
                 ->
+                let inline checkCancel (token : CancellationToken) =
+                    token.ThrowIfCancellationRequested()
+                    ()
+
                 let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                
                     async 
@@ -232,7 +245,7 @@ module KODIS_BL_Record =
 
                                 async 
                                     {
-                                        token.ThrowIfCancellationRequested()
+                                        checkCancel token
    
                                         let existingFileLength =                               
                                             runIO <| checkFileCondition pathToFile (fun fileInfo -> fileInfo.Exists)
@@ -279,6 +292,7 @@ module KODIS_BL_Record =
                                                 with                                               
                                                 | ex
                                                     ->
+                                                    checkCancel token
                                                     //runIO (postToLog <| string ex.Message <| "#0008-KBL")  //in order not to log cancellation
                                                     return 
                                                         comprehensiveTryWith 
@@ -356,6 +370,8 @@ module KODIS_BL_Record =
                         |> List.unzip           
                                
                     try
+                        checkCancel token
+
                         (token, uri, pathToFile)
                         |||> List.Parallel.map2_IO_AW_Token_Async                                    
                             (fun uri (pathToFile : string) 
@@ -363,7 +379,7 @@ module KODIS_BL_Record =
                                 async
                                     {
                                         try
-                                            token.ThrowIfCancellationRequested() 
+                                            checkCancel token 
                                             counterAndProgressBar.Post <| Inc 1
    
                                             let pathToFileExistFirstCheck =
@@ -397,6 +413,7 @@ module KODIS_BL_Record =
                                         with                                        
                                         | ex
                                             -> 
+                                            checkCancel token
                                             //runIO (postToLog <| string ex.Message <| "#0016-KBL")  //in order not to log cancellation
                                             return 
                                                 comprehensiveTryWith
@@ -414,6 +431,7 @@ module KODIS_BL_Record =
                     with
                     | ex 
                         -> 
+                        checkCancel token
                         //runIO (postToLog <| string ex.Message <| "#0017-KBL")  //in order not to log cancellation
                         [
                             comprehensiveTryWith 
