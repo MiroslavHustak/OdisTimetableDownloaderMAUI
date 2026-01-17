@@ -141,6 +141,10 @@ module DPO_BL =
     
         IO (fun () 
                 ->    
+                let inline checkCancel (token : CancellationToken) =
+                    token.ThrowIfCancellationRequested()
+                    ()
+
                 let downloadWithResumeDPO (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, MHDErrors>> =
     
                     async
@@ -284,7 +288,7 @@ module DPO_BL =
                     with                                            
                     | ex 
                         -> 
-                        checkCancel token
+                        checkCancel token //toto reaguje pro vypnutem internetu pred aktivaci downloadAndSaveTimetables
                         //runIO (postToLog <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
                         comprehensiveTryWithMHD 
                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 

@@ -78,7 +78,7 @@ module WebScraping_MDPO =
                         try
                             runIO <| moveFolders configMHD.source configMHD.destination LetItBeMHD FolderCopyOrMoveErrorMHD
                         with
-                        | _ -> Error LetItBeMHD //silently ignoring failed move operations
+                        | _ -> Ok () //silently ignoring failed move operations
                   
                     | DeleteOneODISDirectory
                         ->  
