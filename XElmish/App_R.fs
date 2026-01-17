@@ -715,14 +715,18 @@ module App_R =
                                         | _             -> deleteOldTimetablesMsg3
             
                                     DataClearingMessage message |> dispatch
-            
-                                    return! Async.Sleep 1000               
+
+                                    do! Async.Sleep 1000 
+                                    
+                                    return ()              
                                 with
                                 | ex 
                                     ->
                                     runIO (postToLog (string ex.Message) "#XElmish_ClearData")
                                     return DataClearingMessage deleteOldTimetablesMsg3 |> dispatch
                             }
+                        // Async.StartImmediately starts execution on the current thread (likely the UI thread in Elmish),
+                        // it only yields to other work when it hits the first async operation.
                         |> Async.Start
                 )
 
