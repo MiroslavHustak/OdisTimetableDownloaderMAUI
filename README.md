@@ -43,9 +43,9 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── NativeCode.fs
 ├── Types/
 │   ├── TDD.fs
+│   ├── ErrorTypes.fs
 │   ├── Types.fs
-│   ├── TypeAlgebra.fs
-│   └── ErrorTypes.fs
+│   └── Grid3Algebra.fs  
 ├── Settings/
 │   ├── Messages.fs
 │   ├── SettingsGeneral.fs
@@ -56,24 +56,25 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── Applicatives.fs
 ├── ComputationExpressions/
 │   └── CEBuilders.fs
-├── ErrorHandling/
-│   └── ErrorHandlers.fs
+├── OptionResultExtensions/ 
+│   ├── ResultExtensions.fs
+│   └── OptionExtensions.fs
 ├── Helpers/
 │   ├── IO_Monad_Experiments/
 │   │   └── IO_Monad.fs
 │   ├── CopyOrMoveDir.fs
 │   ├── Helpers.fs
 │   ├── Serialization.fs
-│   ├── Parsing.fs│   
+│   ├── Parsers.fs 
 │   └── ListParallel.fs
-├── Monads/   
-│   ├── FreeMonads/       
+├── Monads/
+│   ├── FreeMonads/
 │   │   ├── CmdLineWorkflows.fs
 │   │   └── FreeMonad.fs
 │   └── StateMonads/
 │       └── StateMonad.fs
 ├── Connectivity/
-│   └── Connectivity.fs    
+│   └── Connectivity.fs
 ├── DataModelling/
 │   ├── DataModels.fs
 │   ├── DataTransferModels.fs
@@ -81,6 +82,8 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Logging/
 │   ├── LogEntries.fs
 │   └── Logging.fs
+├── ExceptionHandling/ 
+│   └── ExceptionHandlers.fs  
 ├── BusinessLogic/
 │   ├── DataManipulation/
 │   │   ├── PureFunctions/
@@ -90,74 +93,51 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │       ├── ParseJsonData.fs
 │   │       └── FilterTimetableLinks.fs
 │   ├── IO_Operations/
-│   │   ├── PureFunctions/
+│   │   ├── PureHelpers/ 
 │   │   │   └── CreatePathsAndNames.fs
 │   │   └── ImpureFunctions/
 │   │       ├── FutureLinks.fs
 │   │       └── IO_Operations.fs
-│   ├── MainBusinessLogic_R/
-│   │   ├── DPO_BL_R.fs
-│   │   ├── MDPO_BL_R.fs
-│   │   ├── KODIS_BL_Record_R.fs
-│   │   ├── KODIS_BL_Record4_R.fs
-│   │   └── TP_Canopy_Difference_R.fs
+│   ├── MainBusinessLogicOld/   
+│   │   └── ..... //not relevant 
+│   └── MainBusinessLogic_R/
+│       ├── DPO_BL_R.fs
+│       ├── MDPO_BL_R.fs
+│       ├── KODIS_BL_Record_R.fs
+│       ├── KODIS_BL_Record4_R.fs
+│       └── TP_Canopy_Difference_R.fs
+├── ApplicationDesignOld/ 
+│   └── ..... //not relevant
 ├── ApplicationDesign_R/
 │   ├── DPO_R.fs
 │   ├── MDPO_R.fs
 │   ├── KODIS_Record_R.fs
 │   └── KODIS_Record4_R.fs
-├── XElmish/ (minimal design for stress testing only)
-    ├── HardRestart.fs
-    ├── AndroidSpecificCode.fs
+├── XElmish/
+│   ├── ComparisonResultFileLauncher.fs 
+│   ├── HardRestart.fs
+│   ├── ActorModels.fs 
+│   ├── AndroidSpecificCode.fs
 │   ├── ProgressCircle.fs
 │   ├── Counters.fs
-    ├── App.fs
-│   └── App_R.fs
-├── Resources/
-│   ├── AppIcon/
-│   │   └── appicon.svg
-│   ├── Fonts/
-│   │   └── * (all font files)
-│   ├── Images/
-│   │   ├── dotnet_bot.svg
-│   │   └── * (other image files)
-│   ├── Raw/
-│   │   └── * (raw assets)
-│   └── Splash/
-│       └── splash.svg
+│   ├── App_R.fs 
+│   └── ..... //not relevant 
+├── Resources/   
+│   └── ..... //not relevant       
 ├── Platforms/
 │   ├── Android/
 │   │   ├── Resources/
 │   │   │   ├── xml/
 │   │   │   │   └── network_security_config.xml
-│   │   │   ├── values/
-│   │   │   │   └── colors.xml
+│   │   │   └── values/
+│   │   │       └── colors.xml
 │   │   ├── Assets/
-│   │   │   └── **/* (all asset files, excluding hidden folders)
-│   │   └── AndroidManifest.xml
-│   ├── iOS/
-│   │   └── Info.plist
-│   ├── macCatalyst/
-│   │   └── Info.plist
-│   └── Windows/
-│       ├── app.manifest
-│       └── Package.appxmanifest
-├── logs/ (empty folder)
-├── bin/
-│   └── Release/
-│       └── net8.0-windows10.0.19041.0/
-│           └── win10-x64/ (empty folder)
-├── Monadic_composition.txt
-├── TODO_list.txt
-├── CppHelpers.dll (external, copied to output)
-├── string_combine_dll.dll (external, copied to output)
-├── MauiProgram.fs
-├── MainActivity.fs (Android-specific)
-├── MainApplication.fs (Android-specific)
-├── AppDelegate.fs (iOS and macCatalyst-specific)
-├── Program.fs (iOS and macCatalyst-specific)
-├── App.fs (Windows-specific)
-├── Main.fs (Windows-specific)
-└── Project References/
-    └── EmbeddedTP.fsproj
+│   │   │   └── ..... //not relevant 
+│   │   ├── AndroidManifest.xml
+│   │   ├── MainActivity.fs
+│   │   └── MainApplication.fs   
+│   └── Windows/│    
+│       ├── App.fs
+│       └── Main.fs
+└── MauiProgram.fs
 ``` </pre>
