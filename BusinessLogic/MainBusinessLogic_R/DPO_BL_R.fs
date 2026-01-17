@@ -152,7 +152,7 @@ module DPO_BL =
 
                                 async
                                     {
-                                        token.ThrowIfCancellationRequested()
+                                        checkCancel token
     
                                         let existingFileLength =
                                             runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
@@ -196,6 +196,7 @@ module DPO_BL =
                                                 with                                                                                  
                                                 | ex 
                                                     -> 
+                                                    checkCancel token
                                                     //runIO (postToLog <| string ex.Message <| "#0001-DPOBL") //in order not to log cancellation
                                                     return
                                                         comprehensiveTryWithMHD 
@@ -260,6 +261,8 @@ module DPO_BL =
                         let uri, pathToFile =
                             filteredTimetables 
                             |> List.unzip
+                        
+                        checkCancel token
 
                         (token, uri, pathToFile)
                         |||> List.Parallel.map2_IO_AW_Token_Async                        
@@ -267,8 +270,8 @@ module DPO_BL =
                                 ->
                                 async
                                     {
+                                        checkCancel token
                                         counterAndProgressBar.Post <| Inc 1
-                                        token.ThrowIfCancellationRequested() 
 
                                         return! downloadWithResumeDPO uri path token
                                     }
@@ -281,7 +284,8 @@ module DPO_BL =
                     with                                            
                     | ex 
                         -> 
-                        runIO (postToLog <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
+                        checkCancel token
+                        //runIO (postToLog <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
                         comprehensiveTryWithMHD 
                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex

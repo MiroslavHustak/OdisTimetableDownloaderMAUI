@@ -93,14 +93,13 @@ module Logging =
                 try
                     runIO <| postToLogFile () (sprintf "%s Error%s" <| string msg <| errCode) 
                     |> Async.Ignore<ResponsePost>
-                    |> Async.StartImmediate        
+                    |> Async.Start   
                 with
                 |_ -> () //kdyz nefunguje KODIS API, zhavaruje aji logfile, ktery z endpoints bere / uklada na nej message
         )
 
     //*************************************************************************** 
-    #if WINDOWS   
-
+    #if WINDOWS  
     let internal saveJsonToFileAsync () =
 
         IO (fun () 
@@ -140,5 +139,4 @@ module Logging =
                         | ex-> return! Error <| string ex.Message 
                     }
         )
-
     #endif

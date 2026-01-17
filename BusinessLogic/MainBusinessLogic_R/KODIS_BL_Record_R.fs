@@ -190,8 +190,8 @@ module KODIS_BL_Record =
                         async 
                             {
                                 try
-                                    counterAndProgressBar.Post <| Inc 1    
                                     token.ThrowIfCancellationRequested() 
+                                    counterAndProgressBar.Post <| Inc 1    
 
                                     return! downloadWithResume uri pathToFile
                                 with                                               
@@ -363,9 +363,8 @@ module KODIS_BL_Record =
                                 async
                                     {
                                         try
-                                            counterAndProgressBar.Post <| Inc 1
-
                                             token.ThrowIfCancellationRequested() 
+                                            counterAndProgressBar.Post <| Inc 1
    
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)

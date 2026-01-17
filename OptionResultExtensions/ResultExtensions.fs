@@ -3,7 +3,8 @@
 open System
             
 module Result =    
-            
+          
+    //Applicative functor      
     let internal sequence aListOfResults = //gets the first error - see the book Domain Modelling Made Functional
         let prepend firstR restR =
             match firstR, restR with

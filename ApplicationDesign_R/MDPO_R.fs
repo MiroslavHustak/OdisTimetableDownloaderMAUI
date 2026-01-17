@@ -82,8 +82,7 @@ module WebScraping_MDPO =
                   
                     | DeleteOneODISDirectory
                         ->  
-                        runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir
-                       
+                        runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) pathToDir                       
                        
                     | CreateFolders         
                         -> 
@@ -121,10 +120,10 @@ module WebScraping_MDPO =
                             Error FileDeleteErrorMHD  
                         | ex 
                             -> 
-                            // runIO (postToLog <| string ex.Message <| "#0003-MDPO") // commented out so that cancellation is not logged
+                            runIO (postToLog <| string ex.Message <| "#0003-MDPO") // commented out so that cancellation is not logged
                             comprehensiveTryWithMHD 
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
-                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                    
 
                 pyramidOfInferno
                     {  

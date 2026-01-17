@@ -1,38 +1,8 @@
 ﻿namespace Helpers
 
 module Builders =
-
-    //**************************************************************************************
-
-    // A minimal IO<'a> computation expression in F# that mimics Haskell's IO monad
-
-    open Types.Haskell_IO_Monad_Simulation
         
-    type internal IOBuilder = IOBuilder with  //for testing purposes only, not used in the code from Aug 9, 2025 onwards
-        member _.Bind(m : IO<'a>, f : 'a -> IO<'b>) : IO<'b> =
-            IO (fun ()
-                    ->
-                    let a = runIO m
-                    runIO (f a)
-            )
-        member _.Zero(x : 'a) : IO<'a> = IO (fun () -> x)
-        member _.Return(x : 'a) : IO<'a> = IO (fun () -> x)
-        member _.ReturnFrom(x : 'a) = x    
-
-    let internal io = IOBuilder
-
-    (*
-    getLine :: IO String
-    getLine = 
-        getChar >>= \c ->
-            if c == '\n'
-                then return ""
-                else getLine >>= \l -> return (c : l)
-    *)
-
-    //**************************************************************************************
-        
-    //[<Struct>] does not help
+    //[<Struct>] does not help here
     type internal MyBuilder = MyBuilder with //This CE is a monad-style control-flow helper, not a monad
         member _.Recover(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
             match m with

@@ -22,8 +22,6 @@ open Settings.SettingsGeneral
 
 // !!!! APPLY TRY-WITH BLOCKS WHEN USING FUNCTIONS FROM List.Parallel !!!!!
 
-//************************************************************************
-
 // *****************************Helpers***********************************
 
 let private expr (param : 'a) = Expr.Value param  
@@ -83,13 +81,10 @@ let private maxDegreeOfParallelismWM =
         | length 
             when length < myIdeaOfASmallList 
             -> Small
-
         | length
             when length >= myIdeaOfASmallList && length <= myIdeaOfALargelList 
             -> Medium
-
-        | _ 
-            -> Large
+        | _ -> Large
     
     function
         | Small  -> maxDegreeOfParallelismThrottled
@@ -108,17 +103,13 @@ let private maxDegreeOfParallelismAdaptedAndroid =
         | length 
             when length < myIdeaOfASmallList || not isAtLeastAndroid11 //Build.VERSION.SdkInt < BuildVersionCodes.R 
             -> Small
-
         | length
             when (length >= myIdeaOfASmallList && length <= myIdeaOfALargelList) && isAtLeastAndroid11 //Build.VERSION.SdkInt >= BuildVersionCodes.R 
             -> Medium
-
         | length
             when length >= myIdeaOfALargelList && isAtLeastAndroid11 //Build.VERSION.SdkInt >= BuildVersionCodes.R 
             -> Large
-
-        | _ 
-            -> Medium
+        | _ -> Medium
     
     function
         | Small  -> maxDegreeOfParallelismThrottled
@@ -135,7 +126,6 @@ let private maxDegreeOfParallelismAdaptedAndroid =
 
 // Arrays cannot raise exceptions as the lists the arrays are converted from cannot be nullable
 
-// Using Array.Parallel.iter  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter_CPU_PT (action : 'a -> unit) (list : 'a list) : unit =
 
     match list with

@@ -65,14 +65,14 @@ module Option =
             }
 
     let internal ofNullEmptySpace (value : 'nullableValue) = //NullOrEmpty, NullOrWhiteSpace
-           pyramidOfDoom //nelze option {}
-               {
-                   let!_ = (not <| System.Object.ReferenceEquals(value, null)) |> fromBool Some, None 
-                   let value = string value 
-                   let! _ = (not <| String.IsNullOrWhiteSpace(value)) |> fromBool Some, None
+        pyramidOfDoom //nelze option {}
+            {
+                let!_ = (not <| System.Object.ReferenceEquals(value, null)) |> fromBool Some, None 
+                let value = string value 
+                let! _ = (not <| String.IsNullOrWhiteSpace(value)) |> fromBool Some, None
        
-                   return Some value
-               }
+                return Some value
+            }
 
     let internal toResult err = 
         function   

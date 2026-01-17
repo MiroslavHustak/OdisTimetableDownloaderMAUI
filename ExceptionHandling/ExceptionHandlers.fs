@@ -260,10 +260,11 @@ module ExceptionHelpers =
             runIO (postToLog <| string ex.Message <| "#0012-ExceptionHandlers")
             Error letItBe
 
+        //temporary code for stress testing  
         |> function
             | err 
                 when err = Error letItBe
-                -> Error fileDownloadError //temporary code for stress testing  
+                -> Error letItBe  
             | err
                 -> err
 
@@ -428,9 +429,10 @@ module ExceptionHelpers =
                runIO (postToLog <| string ex.Message <| "#0018-ExceptionHandlers")
                Error fileDownloadError
           
+           //temporary code for stress testing  
            |> function
                | err 
                    when err = Error letItBe
-                   -> Error fileDownloadError //temporary code for stress testing  
+                   -> Error letItBe 
                | err
                    -> err

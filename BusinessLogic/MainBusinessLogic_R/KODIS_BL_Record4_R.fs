@@ -298,9 +298,8 @@ module KODIS_BL_Record4 =
                                 async
                                     {
                                         try
-                                            counterAndProgressBar.Post <| Inc 1
-
                                             token.ThrowIfCancellationRequested() 
+                                            counterAndProgressBar.Post <| Inc 1
    
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)

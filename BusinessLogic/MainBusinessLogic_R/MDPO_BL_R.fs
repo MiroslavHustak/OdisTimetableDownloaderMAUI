@@ -138,6 +138,10 @@ module MDPO_BL = //FsHttp
         
         IO (fun () 
                 ->     
+                let inline checkCancel (token : CancellationToken) =
+                    token.ThrowIfCancellationRequested()
+                    ()
+
                 let downloadWithResumeMDPO (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, MHDErrors>> =
                         
                     async
@@ -149,7 +153,7 @@ module MDPO_BL = //FsHttp
 
                                 async
                                     {
-                                        token.ThrowIfCancellationRequested()
+                                        checkCancel token
                         
                                         let existingLength =
                                             runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
@@ -205,6 +209,7 @@ module MDPO_BL = //FsHttp
                                                 with                                                 
                                                 | ex 
                                                     -> 
+                                                    checkCancel token
                                                     //runIO (postToLog <| string ex.Message <| "#0003-MDPOBL")  //in order not to log cancellation
                                                     return 
                                                         comprehensiveTryWithMHD 
@@ -217,7 +222,7 @@ module MDPO_BL = //FsHttp
                                                 return Error FileDownloadErrorMHD
                         
                                             | _ ->
-                                                runIO (postToLog (string response.statusCode) "#0004-MDPOBL")
+                                                runIO (postToLog (string response.statusCode) "#0044-MDPOBL")
                                                 return Error FileDownloadErrorMHD
                         
                                         | Choice2Of2 ex 
@@ -274,7 +279,9 @@ module MDPO_BL = //FsHttp
                                     filterTimetables 
                                     |> Map.toList
                                     |> List.unzip
-                    
+                                
+                                checkCancel token 
+
                                 (token, uri, pathToFile)
                                 |||> List.Parallel.map2_IO_AW_Token_Async
                                     (fun uri pathToFile 
@@ -282,9 +289,8 @@ module MDPO_BL = //FsHttp
                                         async
                                             {
                                                 try
+                                                    checkCancel token 
                                                     counterAndProgressBar.Post <| Inc 1
-
-                                                    token.ThrowIfCancellationRequested() 
                         
                                                     let pathExists =
                                                         runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
@@ -299,10 +305,13 @@ module MDPO_BL = //FsHttp
                                                         match! downloadWithResumeMDPO uri pathToFile token with
                                                         | Ok _ 
                                                             ->
+                                                            checkCancel token 
                                                             return Ok ()
                     
                                                         | Error err
                                                             ->
+                                                            checkCancel token
+
                                                             match err with
                                                             | err when err = StopDownloadingMHD 
                                                                 ->
@@ -316,6 +325,7 @@ module MDPO_BL = //FsHttp
                                                 with           
                                                 | ex 
                                                     ->
+                                                    checkCancel token
                                                     //runIO (postToLog <| string ex.Message <| "#0010-MDPOBL") //in order not to log cancellation
                                                     return
                                                         comprehensiveTryWithMHD 
@@ -329,6 +339,7 @@ module MDPO_BL = //FsHttp
                             with 
                             | ex
                                 ->
+                                checkCancel token 
                                 //runIO (postToLog <| string ex.Message <| "#0011-MDPOBL") //in order not to log cancellation
                                 [ 
                                     comprehensiveTryWithMHD 
