@@ -325,7 +325,7 @@ let iter2_CPU_AW<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b 
         -> 
         ()
     | _ ->
-        let maxDegree = Environment.ProcessorCount   // typical choice for CPU-bound work
+        let maxDegree = Environment.ProcessorCount  
 
         List.zip xs1 xs2
         |> Array.ofList
@@ -445,7 +445,7 @@ let map2_CPU2_AW<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : '
         ->
         []
     | _ ->
-        let maxDegree = Environment.ProcessorCount   // standard choice for CPU-bound tasks
+        let maxDegree = Environment.ProcessorCount   
 
         List.zip xs1 xs2
         |> Array.ofList
@@ -465,7 +465,7 @@ let map2_CPU2_AW_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : Cancellat
         ->
         []
     | _ ->
-        let maxDegree = Environment.ProcessorCount   // standard choice for CPU-bound tasks
+        let maxDegree = Environment.ProcessorCount   
 
         List.zip xs1 xs2
         |> Array.ofList
@@ -494,7 +494,7 @@ let map2_CPU2_AW_Token_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> Async<'c>) (toke
         async { return [] }
 
     | _ ->
-        let maxDegree = Environment.ProcessorCount   // standard choice for CPU-bound tasks
+        let maxDegree = Environment.ProcessorCount   
 
         let tasks = 
             List.zip xs1 xs2

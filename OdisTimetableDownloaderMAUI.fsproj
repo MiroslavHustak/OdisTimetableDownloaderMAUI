@@ -194,8 +194,8 @@
     <Compile Include="XElmish\AndroidSpecificCode.fs" />
     <Compile Include="XElmish\ProgressCircle.fs" />
     <Compile Include="XElmish\Counters.fs" />
-    <Compile Include="XElmish\App_R.fs" />
     <Compile Include="XElmish\AppOld.fs" />
+    <Compile Include="XElmish\App_R.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
