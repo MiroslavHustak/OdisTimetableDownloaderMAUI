@@ -351,7 +351,7 @@ module KODIS_BL_Record =
                                                 try
                                                     let! Inc i = inbox.Receive()
                                                     match variant = FutureValidity || n = 2 with 
-                                                    | true  -> do! putFutureLinksToRestApi >> runIO <| context.list //temporary solution until KODIS make things right
+                                                    | true  -> do! runIO  <| putFutureLinksToRestApi token context.list //temporary solution until KODIS make things right
                                                     | false -> ()
                                                     context.reportProgress (float n, float l)
                                                     return! loop (n + i)

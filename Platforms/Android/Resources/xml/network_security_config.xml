@@ -5,6 +5,3 @@
 	    <domain includeSubdomains="true">kodis.somee.com</domain>
 	</domain-config>
 </network-security-config>
-
-
-

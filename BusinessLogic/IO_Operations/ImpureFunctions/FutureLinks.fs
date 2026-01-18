@@ -1,7 +1,8 @@
 ﻿namespace Api
 
-open System
 open System.Net
+open System.Net.Http
+open System.Threading
 
 //************************************************************
 
@@ -10,10 +11,6 @@ open Thoth.Json.Net
 open FsToolkit.ErrorHandling
 
 //************************************************************
-
-open Helpers.Builders
-open Helpers.DirFileHelper
-open Helpers.ExceptionHelpers
 
 open Types
 open Types.ErrorTypes
@@ -41,16 +38,17 @@ module FutureLinks =
     let private decoderPut : Decoder<ResponsePut> =
 
         Decode.object
-            (fun get ->
-                      {
-                          Message1 = get.Required.Field "Message1" Decode.string
-                          Message2 = get.Required.Field "Message2" Decode.string
-                      }
+            (fun get
+                ->
+                {
+                    Message1 = get.Required.Field "Message1" Decode.string
+                    Message2 = get.Required.Field "Message2" Decode.string
+                }
             )
 
     //******************************************************************
 
-    let internal getFutureLinksFromRestApi url = 
+    let internal getFutureLinksFromRestApi (token : CancellationToken) url = 
 
         IO (fun () 
                 ->         
@@ -62,6 +60,8 @@ module FutureLinks =
                                     {
                                         GET url
                                         header "X-API-KEY" apiKeyTest 
+                                        config_timeoutInSeconds 31
+                                        config_cancellationToken token
                                     }
                                 |> Request.sendAsync
                 
@@ -80,13 +80,15 @@ module FutureLinks =
                         | ex 
                             ->
                             runIO (postToLog2 <| string ex.Message <| "#0002-FLK4")
+                            runIO (postToLog2 <| (string <| ex.GetType().FullName) <| "#0021-FLK4")
+                            runIO (postToLog2 <| string ex.StackTrace <| "#0022-FLK4")
                             return Error ApiResponseError
                     }
         )
 
-    //******************* For Kodis4 **************************
+    //******************* For Kodis4 only **************************
 
-    let internal putFutureLinksToRestApi list = 
+    let internal putFutureLinksToRestApi (token : CancellationToken) list = 
 
         IO (fun () 
                 ->          
@@ -97,7 +99,7 @@ module FutureLinks =
                 let s2 = links |> List.map (sprintf "\"%s\"") |> String.concat ","
                 let s3 = "] }"
         
-                let jsonPayload = sprintf "%s%s%s" s1 s2 s3   
+                let jsonPayload = sprintf "%s%s%s" s1 s2 s3  
            
                 async
                     {
@@ -107,6 +109,20 @@ module FutureLinks =
                                     {
                                         PUT urlJson
                                         header "X-API-KEY" apiKeyTest 
+                                        config_timeoutInSeconds 31
+                                        config_cancellationToken token
+                                        config_transformHttpClient
+                                            (fun _
+                                                ->
+                                                #if ANDROID
+                                                let unsafeHandler = new JavaInteroperabilityCode.UnsafeAndroidClientHandler()  
+                                                #else
+                                                let unsafeHandler = new HttpClientHandler() //nelze use //docasne reseni
+                                                unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)   
+                                                #endif
+                                                let unsafeClient = new HttpClient(unsafeHandler) 
+                                                unsafeClient
+                                            )
                                         body 
                                         json jsonPayload
                                     }
@@ -117,7 +133,7 @@ module FutureLinks =
                                 -> 
                                 let! jsonMsg = Response.toTextAsync response
                         
-                                // I don't need to deal with potential errors, info about them is sufficient
+                                // I don't need to deal with potential errors, info about them is sufficient.
                                 return 
                                     Decode.fromString decoderPut jsonMsg
                                     |> Result.mapError
@@ -140,7 +156,8 @@ module FutureLinks =
                         | ex 
                             ->
                             runIO (postToLog2 <| string ex.Message <| "#0005-FLK4")
+                            runIO (postToLog2 <| (string <| ex.GetType().FullName) <| "#0051-FLK4")
+                            runIO (postToLog2 <| string ex.StackTrace <| "#0052-FLK4")
                             return () //silently swallowing errors
                     } 
         )
-        

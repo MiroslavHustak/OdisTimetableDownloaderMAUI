@@ -992,7 +992,6 @@ module App_R =
                     let executeSequentially dispatch = 
                         async 
                             {          
-                                //RestartVisible >> dispatch <| false
                                 do! delayedCmd2 token dispatch
                                 return! delayedCmd5 dispatch                           
                             }

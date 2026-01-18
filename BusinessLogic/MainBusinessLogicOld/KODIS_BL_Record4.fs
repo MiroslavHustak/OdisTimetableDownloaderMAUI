@@ -45,7 +45,7 @@ module KODIS_BL_Record4 =
                         {
                             token.ThrowIfCancellationRequested() 
 
-                            match! getFutureLinksFromRestApi >> runIO <| urlApi with
+                            match! runIO <| getFutureLinksFromRestApi token urlApi with
                             | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
                             | Error err -> return Error <| PdfDownloadError2 err
                         }
@@ -58,7 +58,7 @@ module KODIS_BL_Record4 =
                             match variant with
                             | FutureValidity 
                                 ->
-                                match! getFutureLinksFromRestApi >> runIO <| urlJson with
+                                match! runIO <| getFutureLinksFromRestApi token urlJson with
                                 | Ok value  -> return runIO <| filterTimetableLinks variant dir (Ok value)
                                 | Error err -> return Error <| PdfDownloadError2 err
                             | _              
