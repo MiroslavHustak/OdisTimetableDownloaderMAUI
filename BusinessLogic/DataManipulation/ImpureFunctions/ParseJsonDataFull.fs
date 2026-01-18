@@ -58,7 +58,7 @@ module ParseJsonDataFull =
                         a, b
                     | Ok _ | Error _ 
                         -> 
-                        runIO (postToLog <| String.Empty <| "#0001-ParseJsonFull")  
+                        runIO (postToLog2 <| String.Empty <| "#0001-ParseJsonFull")  
                         jsonEmpty, jsonEmpty  
         )
       
@@ -268,10 +268,10 @@ module ParseJsonDataFull =
                             | err 
                                 when err = StopDownloading
                                 ->
-                                //runIO (postToLog <| string ex.Message <| "#0002-ParseJsonFull")  //in order not to log cancellation
+                                //runIO (postToLog2 <| string ex.Message <| "#0002-ParseJsonFull")  //in order not to log cancellation
                                 Error <| JsonParsingError2 StopJsonParsing  
                             | _ ->
-                                runIO (postToLog <| string ex.Message <| "#0003-ParseJsonFull") 
+                                runIO (postToLog2 <| string ex.Message <| "#0003-ParseJsonFull") 
                                 Error <| JsonParsingError2 JsonParsingError   
                    // )
         )

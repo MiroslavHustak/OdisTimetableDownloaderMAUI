@@ -36,14 +36,14 @@ module ComparisonResultFileLauncher =
                                        with 
                                        | ex 
                                            ->
-                                           runIO (postToLog <| string ex.Message <| "#0001FileLauncher")
+                                           runIO (postToLog2 <| string ex.Message <| "#0001FileLauncher")
                                            return false
                                    }                          
                            return safeAsync 
                        with
                        | ex 
                            ->
-                           runIO (postToLog <| string ex.Message <| "#0002FileLauncher") 
+                           runIO (postToLog2 <| string ex.Message <| "#0002FileLauncher") 
                            return! None
                    }
        )

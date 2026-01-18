@@ -95,7 +95,7 @@ module App_R =
         | Idle 
         | InProgress of float * float
 
-    type Model = // This is exactly how NOT to do it for real UI/UX/FE
+    type Model = // This is exactly how NOT to do it for real UI/UX/FE.
         {
             PermissionGranted : bool
             ProgressMsg : string
@@ -118,7 +118,7 @@ module App_R =
             AnimatedButton : string option // Tracks animated button
         }
 
-    type Msg = // This is exactly how NOT to do it for real UI/UX/FE
+    type Msg = // This is exactly how NOT to do it for real UI/UX/FE.
         | RequestPermission
         | Launch
         | DataClearing
@@ -192,7 +192,7 @@ module App_R =
         
             runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)
         
-        // not used any longer, kept for educational purposes
+        // no longer used, kept for educational purposes
         let monitorConnectivity (dispatch : Msg -> unit) =         
            
             AsyncSeq.initInfinite (fun _ -> true)
@@ -285,7 +285,7 @@ module App_R =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#0001App_R") 
+                runIO (postToLog2 <| string ex.Message <| "#0001App_R") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
@@ -359,7 +359,7 @@ module App_R =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#0002App_R") 
+                runIO (postToLog2 <| string ex.Message <| "#0002App_R") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
@@ -722,7 +722,7 @@ module App_R =
                                 with
                                 | ex 
                                     ->
-                                    runIO (postToLog (string ex.Message) "#XElmish_ClearData")
+                                    runIO (postToLog2 (string ex.Message) "#XElmish_ClearData")
                                     return DataClearingMessage deleteOldTimetablesMsg3 |> dispatch
                             }
                         // Async.StartImmediately starts execution on the current thread (likely the UI thread in Elmish),
@@ -809,7 +809,7 @@ module App_R =
                                         ->
                                         dispatch Home2   
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
                             }  
 
@@ -860,7 +860,7 @@ module App_R =
                                         ->
                                         dispatch Home2   
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodis
                             }     
 
@@ -973,7 +973,7 @@ module App_R =
                                         ->
                                         dispatch Home2   
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodis                                          
                             }  
 
@@ -989,7 +989,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
+                                    runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                                     NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
                    
@@ -1100,7 +1100,7 @@ module App_R =
                                         ->
                                         dispatch Home2   
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorDpo
                             }  
                      
@@ -1217,7 +1217,7 @@ module App_R =
                                         ->
                                         dispatch Home2                                                       
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorMdpo
                             }  
                   

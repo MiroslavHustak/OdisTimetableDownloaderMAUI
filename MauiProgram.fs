@@ -107,7 +107,7 @@ type MauiProgram =
                                                             -> 
                                                             ()
                                                     with
-                                                    | ex -> runIO (postToLog (string ex.Message) "#3002")
+                                                    | ex -> runIO (postToLog2 (string ex.Message) "#3002")
 
                                                     return ()
                                                 }
@@ -116,11 +116,11 @@ type MauiProgram =
 
                                         | false, _ 
                                             ->
-                                            () //runIO (postToLog "For testing purposes" "#3001")
+                                            () //runIO (postToLog2 "For testing purposes" "#3001")
 
                                     | None 
                                         ->
-                                        () //runIO (postToLog "For testing purposes" "#3000")
+                                        () //runIO (postToLog2 "For testing purposes" "#3000")
 
                                 ) |> ignore<IAndroidLifecycleBuilder>
                         ) |> ignore<ILifecycleBuilder>
@@ -133,7 +133,7 @@ type MauiProgram =
         with
         | ex
             ->
-            runIO (postToLog (string ex.Message) "#3008")
+            runIO (postToLog2 (string ex.Message) "#3008")
             MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception
     //*)
 
@@ -213,7 +213,7 @@ type MauiProgram =
                                                                -> 
                                                                ()
                                                        with
-                                                       | ex -> runIO (postToLog (string ex.Message) "#3002")
+                                                       | ex -> runIO (postToLog2 (string ex.Message) "#3002")
 
                                                        return ()
                                                    }
@@ -222,11 +222,11 @@ type MauiProgram =
 
                                            | false, _ 
                                                ->
-                                               () //runIO (postToLog "For testing purposes" "#3001")
+                                               () //runIO (postToLog2 "For testing purposes" "#3001")
 
                                        | None 
                                            ->
-                                           () //runIO (postToLog "For testing purposes" "#3000")
+                                           () //runIO (postToLog2 "For testing purposes" "#3000")
 
                                    ) |> ignore<IAndroidLifecycleBuilder>
                            ) |> ignore<ILifecycleBuilder>
@@ -239,6 +239,6 @@ type MauiProgram =
            with
            | ex
                ->
-               runIO (postToLog (string ex.Message) "#3008")
+               runIO (postToLog2 (string ex.Message) "#3008")
                MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception
        *) 

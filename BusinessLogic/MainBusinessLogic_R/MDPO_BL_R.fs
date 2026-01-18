@@ -53,7 +53,7 @@ module MDPO_BL = //FsHttp
                                     with
                                     | ex 
                                         ->
-                                        runIO (postToLog <| string ex.Message <| "#0001-MDPOBL")  
+                                        runIO (postToLog2 <| string ex.Message <| "#0001-MDPOBL")  
                                         return None
                                 }
                         )
@@ -78,7 +78,7 @@ module MDPO_BL = //FsHttp
                                         return document
                                     | None
                                         ->
-                                        runIO (postToLog <| "HtmlDocument Error" <| "#0002-MDPOBL") 
+                                        runIO (postToLog2 <| "HtmlDocument Error" <| "#0002-MDPOBL") 
                                         return FSharp.Data.HtmlDocument.Load url //tohle vyhodi net_http_ssl_connection_failed pro mdpo.cz     
                                 }
                             |> (fun a -> Async.RunSynchronously(a, cancellationToken = token))
@@ -210,7 +210,7 @@ module MDPO_BL = //FsHttp
                                                 | ex 
                                                     -> 
                                                     checkCancel token
-                                                    //runIO (postToLog <| string ex.Message <| "#0003-MDPOBL")  //in order not to log cancellation
+                                                    //runIO (postToLog2 <| string ex.Message <| "#0003-MDPOBL")  //in order not to log cancellation
                                                     return 
                                                         comprehensiveTryWithMHD 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
@@ -218,11 +218,11 @@ module MDPO_BL = //FsHttp
                         
                                             | HttpStatusCode.Forbidden
                                                 ->
-                                                runIO (postToLog () (sprintf "%s Forbidden 403 #0004-MDPOBL" uri))
+                                                runIO (postToLog2 () (sprintf "%s Forbidden 403 #0004-MDPOBL" uri))
                                                 return Error FileDownloadErrorMHD
                         
                                             | _ ->
-                                                runIO (postToLog (string response.statusCode) "#0044-MDPOBL")
+                                                runIO (postToLog2 (string response.statusCode) "#0005-MDPOBL")
                                                 return Error FileDownloadErrorMHD
                         
                                         | Choice2Of2 ex 
@@ -230,7 +230,7 @@ module MDPO_BL = //FsHttp
                                             match isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | err when err = StopDownloadingMHD 
                                                 ->
-                                                //runIO (postToLog <| string ex.Message <| "#0005-MDPOBL") //in order not to log cancellation
+                                                //runIO (postToLog2 <| string ex.Message <| "#0005-MDPOBL") //in order not to log cancellation
                                                 return Error StopDownloadingMHD
                                             | _ ->
                                                 match retryCount < maxRetries with
@@ -238,7 +238,7 @@ module MDPO_BL = //FsHttp
                                                         do! Async.Sleep backoffMs
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
-                                                        runIO (postToLog <| string ex.Message <| "#0006-MDPOBL") 
+                                                        runIO (postToLog2 <| string ex.Message <| "#0006-MDPOBL") 
                                                         return 
                                                             comprehensiveTryWithMHD 
                                                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
@@ -269,7 +269,7 @@ module MDPO_BL = //FsHttp
                                                             reportProgress (float n, float l)
                                                             return! loop (n + i)
                                                         with
-                                                        | ex -> () //runIO (postToLog <| string ex.Message <| "#0007-MDPOBL") 
+                                                        | _ -> () 
                                                     }
                                             loop 0
                                         )
@@ -315,18 +315,18 @@ module MDPO_BL = //FsHttp
                                                             match err with
                                                             | err when err = StopDownloadingMHD 
                                                                 ->
-                                                                //runIO (postToLog <| string err <| "#0008-MDPOBL") //in order not to log cancellation
+                                                                //runIO (postToLog2 <| string err <| "#0007-MDPOBL") //in order not to log cancellation
                                                                 return Error StopDownloadingMHD
                                                             | err
                                                                 ->
-                                                                runIO (postToLog <| string err <| "#0009-MDPOBL") 
+                                                                runIO (postToLog2 <| string err <| "#0008-MDPOBL") 
                                                                 return Error err
                         
                                                 with           
                                                 | ex 
                                                     ->
                                                     checkCancel token
-                                                    //runIO (postToLog <| string ex.Message <| "#0010-MDPOBL") //in order not to log cancellation
+                                                    //runIO (postToLog2 <| string ex.Message <| "#0009-MDPOBL") //in order not to log cancellation
                                                     return
                                                         comprehensiveTryWithMHD 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
@@ -340,7 +340,7 @@ module MDPO_BL = //FsHttp
                             | ex
                                 ->
                                 checkCancel token 
-                                //runIO (postToLog <| string ex.Message <| "#0011-MDPOBL") //in order not to log cancellation
+                                //runIO (postToLog2 <| string ex.Message <| "#0010-MDPOBL") //in order not to log cancellation
                                 [ 
                                     comprehensiveTryWithMHD 
                                         LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 

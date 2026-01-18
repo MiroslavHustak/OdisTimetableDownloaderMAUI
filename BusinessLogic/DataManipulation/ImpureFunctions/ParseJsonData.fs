@@ -68,7 +68,7 @@ module ParseJsonData =
                                                                     reportProgress (float n, float l)
                                                                     return! loop (n + i)
                                                                 with
-                                                                | ex -> () //runIO (postToLog <| string ex.Message <| "#0001-ParseJson")
+                                                                | ex -> () 
                                                             }
                                                     loop 0
 
@@ -190,10 +190,10 @@ module ParseJsonData =
                             | err 
                                 when err = StopDownloading
                                 ->
-                                //runIO (postToLog <| string ex.Message <| "#0002-ParseJson")  //in order not to log cancellation
+                                //runIO (postToLog2 <| string ex.Message <| "#0002-ParseJson")  //in order not to log cancellation
                                 Error <| JsonParsingError2 StopJsonParsing  
                             | _ ->
-                                runIO (postToLog <| string ex.Message <| "#0002-ParseJson")  
+                                runIO (postToLog2 <| string ex.Message <| "#0002-ParseJson")  
                                 Error <| JsonParsingError2 JsonParsingError    
                  // )
         )

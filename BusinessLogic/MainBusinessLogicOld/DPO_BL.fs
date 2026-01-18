@@ -201,7 +201,7 @@ module DPO_BL =
                                     with                                                         
                                     | ex
                                         ->
-                                        runIO (postToLog <| string ex.Message <| "#035")
+                                        runIO (postToLog2 <| string ex.Message <| "#035")
                                         return Error FileDownloadErrorMHD 
                                 } 
                     )
@@ -228,7 +228,7 @@ module DPO_BL =
                                                             reportProgress (float n, float l)
                                                             return! loop (n + i)
                                                         with
-                                                        | ex -> runIO (postToLog <| string ex.Message <| "#900DPO-MP")
+                                                        | ex -> runIO (postToLog2 <| string ex.Message <| "#900DPO-MP")
                                                     }
                                             loop 0      
             
@@ -262,10 +262,10 @@ module DPO_BL =
                                             | err 
                                                 when err = StopDownloadingMHD
                                                 ->
-                                                //runIO (postToLog <| string ex.Message <| "#123456YY")
+                                                //runIO (postToLog2 <| string ex.Message <| "#123456YY")
                                                 Some (Error <| StopDownloadingMHD)
                                             | _ ->
-                                                runIO (postToLog <| string err <| "#037-10")
+                                                runIO (postToLog2 <| string err <| "#037-10")
                                                 Some (Error <| FileDownloadErrorMHD)   
                                         )
                                     )                                
@@ -278,10 +278,10 @@ module DPO_BL =
                                 | err 
                                     when err = StopDownloadingMHD
                                     ->
-                                    //runIO (postToLog <| string ex.Message <| "#123456Y")
+                                    //runIO (postToLog2 <| string ex.Message <| "#123456Y")
                                     Error <| StopDownloadingMHD
                                 | _ ->
-                                    runIO (postToLog <| string ex.Message <| "#037")
+                                    runIO (postToLog2 <| string ex.Message <| "#037")
                                     Error <| FileDownloadErrorMHD   
                     )
 

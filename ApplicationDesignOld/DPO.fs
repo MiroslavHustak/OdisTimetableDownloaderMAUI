@@ -90,7 +90,7 @@ module WebScraping_DPO =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#010")
+                            runIO (postToLog2 <| string ex.Message <| "#010")
                             Error FileDownloadErrorMHD //dpoMsg1
 
                     | FilterDownloadSave
@@ -112,11 +112,11 @@ module WebScraping_DPO =
                             downloadTimetables pathToDir                         
                         with
                         | :? DirectoryNotFoundException ->
-                            runIO (postToLog "Timetable directory not found or was deleted" "#011-1")
+                            runIO (postToLog2 "Timetable directory not found or was deleted" "#011-1")
                             Error FileDeleteErrorMHD  // nebo lépe: DirectoryMissingErrorMHD
                         | ex 
                             ->
-                            runIO (postToLog <| string ex.Message <| "#011")
+                            runIO (postToLog2 <| string ex.Message <| "#011")
                             Error FileDownloadErrorMHD
                        
                 pyramidOfInferno

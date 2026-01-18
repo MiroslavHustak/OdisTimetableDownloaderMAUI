@@ -87,17 +87,17 @@ module KODIS_BL_Record4 =
 
                                 | [ Error err; _ ]    
                                     -> 
-                                    runIO (postToLog <| err <| "#013")                                     
+                                    runIO (postToLog2 <| err <| "#013")                                     
                                     Error err
 
                                 | [ _; Error err ] 
                                     ->                                    
-                                    runIO (postToLog <| err <| "#014")   
+                                    runIO (postToLog2 <| err <| "#014")   
                                     Error err
 
                                 | _                   
                                     ->
-                                    runIO (postToLog <| JsonDataFilteringError <| "#015")                                    
+                                    runIO (postToLog2 <| JsonDataFilteringError <| "#015")                                    
                                     Error <| JsonParsingError2 JsonDataFilteringError
 
                         | Choice2Of2 ex
@@ -106,11 +106,11 @@ module KODIS_BL_Record4 =
                             | err 
                                 when err = StopJsonParsing
                                 ->
-                                //runIO (postToLog <| string ex.Message <| "#123456C")
+                                //runIO (postToLog2 <| string ex.Message <| "#123456C")
                                 return Error <| JsonParsingError2 StopJsonParsing                            
                             | err 
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#016")                      
+                                runIO (postToLog2 <| string ex.Message <| "#016")                      
                                 return Error <| JsonParsingError2 JsonDataFilteringError 
                               
                     }
@@ -143,7 +143,7 @@ module KODIS_BL_Record4 =
                                                             context.reportProgress (float n, float l)
                                                             return! loop (n + i)
                                                         with
-                                                        | ex -> runIO (postToLog <| ex.Message <| "#903-MP")
+                                                        | ex -> runIO (postToLog2 <| ex.Message <| "#903-MP")
                                                     }
                                             loop 0
                                                  
@@ -220,17 +220,17 @@ module KODIS_BL_Record4 =
                                                                  
                                                                 | HttpStatusCode.Forbidden 
                                                                     ->
-                                                                    runIO <| postToLog () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-K4") 
+                                                                    runIO <| postToLog2 () (sprintf "%s %s Error%s" <| uri <| "Forbidden 403" <| "#2211-K4") 
                                                                     return Error <| PdfDownloadError2 FileDownloadError
     
                                                                 | status
                                                                     ->
-                                                                    runIO (postToLog <| (string status) <| "#2212-K4")
+                                                                    runIO (postToLog2 <| (string status) <| "#2212-K4")
                                                                     return Error <| PdfDownloadError2 FileDownloadError                                                               
                                                            
                                                             | None 
                                                                 ->
-                                                                runIO (postToLog <| "pathToFileExistFirstCheck failed" <| "#2230-K4")
+                                                                runIO (postToLog2 <| "pathToFileExistFirstCheck failed" <| "#2230-K4")
                                                                 return Error <| PdfDownloadError2 FileDownloadError      
                                                     with
                                                     | ex                             
@@ -239,11 +239,11 @@ module KODIS_BL_Record4 =
                                                         | err 
                                                             when err = StopDownloading
                                                             ->
-                                                            //runIO (postToLog <| string ex.Message <| "#123456C")
+                                                            //runIO (postToLog2 <| string ex.Message <| "#123456C")
                                                             return Error <| PdfDownloadError2 StopDownloading
                                                         | err 
                                                             ->
-                                                            runIO (postToLog <| string ex.Message <| "#024-K4")
+                                                            runIO (postToLog2 <| string ex.Message <| "#024-K4")
                                                             return Error <| PdfDownloadError2 err   
                                                 }                                                
                                         )  
@@ -257,11 +257,11 @@ module KODIS_BL_Record4 =
                                     | err 
                                         when err = StopDownloading
                                         ->
-                                        //runIO (postToLog <| string ex.Message <| "#123456D")
+                                        //runIO (postToLog2 <| string ex.Message <| "#123456D")
                                         [ Error <| PdfDownloadError2 StopDownloading ]
                                     | err 
                                         ->
-                                        runIO (postToLog <| string ex.Message <| "#024-6-K4")
+                                        runIO (postToLog2 <| string ex.Message <| "#024-6-K4")
                                         [ Error <| PdfDownloadError2 err ]    
 
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))

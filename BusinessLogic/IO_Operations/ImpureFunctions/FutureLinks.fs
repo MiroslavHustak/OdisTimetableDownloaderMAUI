@@ -56,15 +56,12 @@ module FutureLinks =
                                 return runIO <| transformLinksApiResponse postToLogFile response
                        
                             | _ -> 
-                                runIO <| postToLogFile () (sprintf "0001-FLK4 %d" (int response.statusCode)) 
-                                |> Async.Ignore<ResponsePost>
-                                |> Async.Start 
-                       
+                                runIO <| postToLog2 () (sprintf "0001-FLK4 %d" (int response.statusCode)) 
                                 return Error ApiResponseError
                         with
                         | ex 
                             ->
-                            runIO (postToLog <| string ex.Message <| "#0002-FLK4")
+                            runIO (postToLog2 <| string ex.Message <| "#0002-FLK4")
                             return Error ApiResponseError
                     }
         )

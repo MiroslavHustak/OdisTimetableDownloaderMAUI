@@ -201,13 +201,13 @@ module DPO_BL =
                                                 | ex 
                                                     -> 
                                                     checkCancel token
-                                                    //runIO (postToLog <| string ex.Message <| "#0001-DPOBL") //in order not to log cancellation
+                                                    runIO (postToLog2 <| string ex.Message <| "#0001-DPOBL") //in order not to log cancellation
                                                     return
                                                         comprehensiveTryWithMHD 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             | _ ->
-                                                runIO (postToLog (string response.statusCode) "#0002-DPOBL")
+                                                runIO (postToLog2 (string response.statusCode) "#0002-DPOBL")
                                                 return Error FileDownloadErrorMHD
     
                                         | Choice2Of2 ex 
@@ -215,14 +215,14 @@ module DPO_BL =
                                             match isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | err when err = StopDownloadingMHD 
                                                 ->
-                                                //runIO (postToLog <| string ex.Message <| "#0003-DPOBL") //in order not to log cancellation
+                                                runIO (postToLog2 <| string ex.Message <| "#0003-DPOBL") //in order not to log cancellation
                                                 return Error StopDownloadingMHD
                                             | _ when retryCount < maxRetries 
                                                 ->
                                                 do! Async.Sleep backoffMs
                                                 return! attempt (retryCount + 1) (backoffMs * 2)
                                             | _ ->
-                                                runIO (postToLog <| string ex.Message <| "#0004-DPOBL") 
+                                                runIO (postToLog2 <| string ex.Message <| "#0004-DPOBL") 
                                                 return 
                                                     comprehensiveTryWithMHD 
                                                         LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
@@ -237,7 +237,8 @@ module DPO_BL =
                     |> List.distinct
     
                 match filteredTimetables with
-                | [] ->
+                | [] 
+                    ->
                     Ok ()
     
                 | _ ->
@@ -257,7 +258,7 @@ module DPO_BL =
                                                         reportProgress (float n, float l)
                                                         return! loop (n + i)
                                                     with
-                                                    | ex -> () //runIO (postToLog <| string ex.Message <| "#0007-MDPOBL") 
+                                                    | _ -> () 
                                                 }
                                         loop 0
                                     )
@@ -289,7 +290,7 @@ module DPO_BL =
                     | ex 
                         -> 
                         checkCancel token //toto reaguje pro vypnutem internetu pred aktivaci downloadAndSaveTimetables
-                        //runIO (postToLog <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
+                        runIO (postToLog2 <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
                         comprehensiveTryWithMHD 
                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex

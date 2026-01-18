@@ -17,7 +17,9 @@ module SettingsGeneral =
 
     let [<Literal>] internal logFileName = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\logEntries.json"
     let [<Literal>] internal logFileNameWindows = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\tp_canopy_difference.txt"
+    let [<Literal>] internal logFileNameWindows2 = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\stress_testing_logs.txt"
     let [<Literal>] internal logFileNameAndroid = @"/storage/emulated/0/Logs/tp_canopy_difference.txt"
+    let [<Literal>] internal logFileNameAndroid2 = @"/storage/emulated/0/Logs/stress_testing_logs.txt"
     let [<Literal>] internal logDirTP_Canopy = @"/storage/emulated/0/Logs"
    
     //CARDINALITY AND ISOMORPHISM

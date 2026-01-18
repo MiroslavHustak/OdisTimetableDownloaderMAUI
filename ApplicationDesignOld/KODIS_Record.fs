@@ -181,7 +181,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog <| string ex.Message <| "#22-2")
+                            runIO (postToLog2 <| string ex.Message <| "#22-2")
                             Error <| JsonParsingError2 JsonDataFilteringError 
                                                       
                     let taskDispatch param = async { return DispatchDone param } //for educational purposes
@@ -222,7 +222,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog <| string ex.Message <| "#22-2")
+                            runIO (postToLog2 <| string ex.Message <| "#22-2")
                             Error <| JsonParsingError2 JsonDataFilteringError                     
                     
                     match list2 with                    
@@ -263,7 +263,7 @@ module WebScraping_KODIS =
 
                     | Error err                    
                         ->
-                        runIO (postToLog <| err <| "#006")
+                        runIO (postToLog2 <| err <| "#006")
                         Error err 
                        
                 let dirList = createNewDirectoryPaths path listOfODISVariants
@@ -315,7 +315,7 @@ module WebScraping_KODIS =
                             with
                             | ex
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#22-1")
+                                runIO (postToLog2 <| string ex.Message <| "#22-1")
                                 Error <| JsonParsingError2 JsonParsingError
                                 //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
                         

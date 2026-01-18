@@ -40,7 +40,7 @@ module TP_Canopy_Difference =
                     with
                     | ex 
                         ->
-                        runIO (postToLog <| string ex.Message <| "#0001-CanopyDifference") 
+                        runIO (postToLog2 <| string ex.Message <| "#0001-CanopyDifference") 
                         Set.empty<string>
             )
 
@@ -56,7 +56,7 @@ module TP_Canopy_Difference =
                     with
                     | ex 
                         ->
-                        runIO (postToLog <| string ex.Message <| "#0002-CanopyDifference")
+                        runIO (postToLog2 <| string ex.Message <| "#0002-CanopyDifference")
                         // Set.empty<string>
                         Error "Applicative's educational test"
             )
@@ -70,7 +70,7 @@ module TP_Canopy_Difference =
                     with
                     | ex 
                         ->
-                        runIO (postToLog <| string ex.Message <| "#0003-CanopyDifference")
+                        runIO (postToLog2 <| string ex.Message <| "#0003-CanopyDifference")
                         Seq.empty<string>
             )
           
@@ -303,6 +303,6 @@ module TP_Canopy_Difference =
                 with
                 | ex 
                     ->
-                    runIO (postToLog <| string ex.Message <| "#0004-CanopyDifference")
+                    runIO (postToLog2 <| string ex.Message <| "#0004-CanopyDifference")
                     async { return Error (string ex.Message) }
         )

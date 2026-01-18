@@ -92,7 +92,7 @@ module AndroidUIHelpers =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#0001Android") 
+                            runIO (postToLog2 <| string ex.Message <| "#0001Android") 
                             return false  
                     }
         )
@@ -127,7 +127,7 @@ module AndroidUIHelpers =
                 with
                 | ex
                     -> 
-                    runIO (postToLog <| string ex.Message <| "#0002Android")
+                    runIO (postToLog2 <| string ex.Message <| "#0002Android")
                     None  
            )
     
@@ -152,7 +152,7 @@ module AndroidUIHelpers =
                 with
                 | ex 
                     ->
-                    runIO (postToLog <| string ex.Message <| "#0003Android")
+                    runIO (postToLog2 <| string ex.Message <| "#0003Android")
                     None    
            )
     
@@ -197,7 +197,7 @@ module AndroidUIHelpers =
                         }
                         |> Option.defaultValue () //TODO logfile + vymysli tady neco, co zrobit v teto situaci
                 with
-                | ex -> runIO (postToLog <| string ex.Message <| "#0004Android")
+                | ex -> runIO (postToLog2 <| string ex.Message <| "#0004Android")
                 
         )
 

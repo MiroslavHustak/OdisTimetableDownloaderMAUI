@@ -45,13 +45,13 @@ module FilterTimetableLinks =
                     with 
                     | ex
                         -> 
-                        runIO (postToLog <| string ex.Message <| "#0001-FilterTimetables")
+                        runIO (postToLog2 <| string ex.Message <| "#0001-FilterTimetables")
                         Error <| string ex.Message        
                   
                     |> Result.defaultWith
                         (fun err 
                             -> 
-                            runIO (postToLog <| string err <| "#0002-FilterTimetables")
+                            runIO (postToLog2 <| string err <| "#0002-FilterTimetables")
                             String.Empty
                         )
         
@@ -65,13 +65,13 @@ module FilterTimetableLinks =
                     with 
                     | ex
                         -> 
-                        runIO (postToLog <| string ex.Message <| "#0003-FilterTimetables")
+                        runIO (postToLog2 <| string ex.Message <| "#0003-FilterTimetables")
                         Error <| string ex.Message                    
 
                     |> Result.defaultWith
                         (fun err 
                             -> 
-                            runIO (postToLog <| string err <| "#0004-FilterTimetables")
+                            runIO (postToLog2 <| string err <| "#0004-FilterTimetables")
                             String.Empty
                         )
 
@@ -159,13 +159,13 @@ module FilterTimetableLinks =
                         with 
                         | ex 
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#0005-FilterTimetables")
+                            runIO (postToLog2 <| string ex.Message <| "#0005-FilterTimetables")
                             Error <| string ex.Message
                      
                         |> Result.defaultWith
                             (fun err 
                                 -> 
-                                runIO (postToLog <| err <| "#0006-FilterTimetables")
+                                runIO (postToLog2 <| err <| "#0006-FilterTimetables")
                                 String.Empty
                             )
 
@@ -180,13 +180,13 @@ module FilterTimetableLinks =
                         with 
                         | ex 
                             ->
-                            runIO (postToLog <| string ex.Message <| "#0007-FilterTimetables")
+                            runIO (postToLog2 <| string ex.Message <| "#0007-FilterTimetables")
                             Error <| string ex.Message     
                          
                         |> Result.defaultWith
                             (fun err 
                                 -> 
-                                runIO (postToLog <| err <| "#0008-FilterTimetables")
+                                runIO (postToLog2 <| err <| "#0008-FilterTimetables")
                                 String.Empty
                             )
         

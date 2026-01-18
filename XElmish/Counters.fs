@@ -97,14 +97,3 @@ module Counters =
                 //Async.StartImmediate (loop waitingForNetConn) //Async.StartImmediate -> common cause of ANRs (Application Not Responding) on Android.
                 Async.Start (loop waitingForNetConn) 
         )
-
-        (*
-        Thread pool
-        │
-        ├─ loop: counting down
-        │   ├─ Async.Sleep 1000 (non-blocking UI)
-        │   ├─ check connectivity
-        │   └─ dispatch updates -> Async.executeOnMainThread
-        │          │
-        │          └─ runs dispatch on UI thread → updates display        
-        *)

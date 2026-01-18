@@ -86,7 +86,7 @@ module Logging =
                     } 
         )        
 
-    let internal postToLog (msg: 'a) errCode =   
+    let internal postToLog (msg : 'a) errCode =   
 
         IO (fun () 
                 ->    
@@ -140,3 +140,45 @@ module Logging =
                     }
         )
     #endif
+
+    let internal postToLog2 (msg : 'a) (errCode : string) =  //for stress testing purposes only
+
+        IO (fun () 
+                ->
+                asyncResult 
+                    {
+                        try
+                            #if WINDOWS 
+                            let logFilePath = logFileNameWindows2
+                            #else
+                            let logFilePath = logFileNameAndroid2
+                            #endif
+                            let! path = SafeFullPath.safeFullPathResult logFilePath 
+                                                        
+                            let fs =
+                                new FileStream
+                                    (
+                                        path,
+                                        FileMode.OpenOrCreate,
+                                        FileAccess.Write,
+                                        FileShare.None
+                                    )
+                            try 
+                                let maxBytes = int64 maxFileSizeKb * 1024L
+
+                                match fs.Length > maxBytes with
+                                | true  -> fs.SetLength 0L  //truncating oversized file
+                                | false -> ()
+
+                                fs.Seek(0L, SeekOrigin.End) |> ignore<int64>
+
+                                use writer = new StreamWriter(fs)
+                                do! writer.WriteLineAsync (sprintf "%s Error%s" <| string msg <| errCode) |> Async.AwaitTask
+                            finally                        
+                                fs.Dispose()
+                        with
+                        | ex-> return! Error <| string ex.Message 
+                    }
+                |> Async.Ignore<Result<unit, string>>
+                |> Async.Start  
+        )

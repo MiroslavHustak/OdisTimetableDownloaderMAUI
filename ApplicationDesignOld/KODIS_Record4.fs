@@ -179,7 +179,7 @@ module WebScraping_KODIS4 =
         
             | Error err                    
                 ->
-                runIO (postToLog <| err <| "#006-1")
+                runIO (postToLog2 <| err <| "#006-1")
                 Error err                     
         
         pyramidOfInferno

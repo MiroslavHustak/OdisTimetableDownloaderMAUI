@@ -45,7 +45,7 @@ module ExceptionHelpers =
                                 -> 
                                 timeoutError        // HttpClient timeout
                         | false ->
-                                runIO (postToLog <| string ex.Message <| "#0001-ExceptionHandlers")  
+                                runIO (postToLog2 <| string ex.Message <| "#0001-ExceptionHandlers")  
                                 fileDownloadError   // Unknown cancellation
                     loop rest (result :: acc)
                 
@@ -61,17 +61,17 @@ module ExceptionHelpers =
                 // Network-related exceptions
                 | :? System.Net.Http.HttpRequestException
                     ->
-                    runIO (postToLog <| string ex.Message <| "#0002-ExceptionHandlers")
+                    runIO (postToLog2 <| string ex.Message <| "#0002-ExceptionHandlers")
                     loop rest (fileDownloadError :: acc)
                 
                 | :? System.Security.Authentication.AuthenticationException
                     ->
-                    runIO (postToLog <| string ex.Message <| "#0003-ExceptionHandlers")
+                    runIO (postToLog2 <| string ex.Message <| "#0003-ExceptionHandlers")
                     loop rest (fileDownloadError :: acc)
                 
                 | :? System.Net.Sockets.SocketException
                     ->
-                    runIO (postToLog <| string ex.Message <| "#0004-ExceptionHandlers")
+                    runIO (postToLog2 <| string ex.Message <| "#0004-ExceptionHandlers")
                     loop rest (fileDownloadError :: acc) 
                 
                 | :? AggregateException as agg 
@@ -84,7 +84,7 @@ module ExceptionHelpers =
                     loop rest (fileDownloadError :: acc)
                 
                 | _ ->
-                    runIO (postToLog <| string ex.Message <| "#0005-ExceptionHandlers")
+                    runIO (postToLog2 <| string ex.Message <| "#0005-ExceptionHandlers")
                     loop (current.InnerException :: rest) acc
        
         // Start with the initial exception
@@ -120,11 +120,11 @@ module ExceptionHelpers =
                 match ex.InnerException |> Option.ofNull with
                 | Some inner 
                     -> 
-                    runIO (postToLog <| string inner.Message <| "#0006-ExceptionHandlers")
+                    runIO (postToLog2 <| string inner.Message <| "#0006-ExceptionHandlers")
                     ex :: collectExceptions inner
                 | None
                     -> 
-                    runIO (postToLog <| string ex.Message <| "#0007-ExceptionHandlers")
+                    runIO (postToLog2 <| string ex.Message <| "#0007-ExceptionHandlers")
                     [ ex ]
     
         let classifyException (e : Exception) : ExceptionClassification option =
@@ -137,12 +137,12 @@ module ExceptionHelpers =
             | :? TaskCanceledException
                 ->
                 match token.IsCancellationRequested with
-                | true  -> None  // Our cancellation, not a timeout
+                | true  -> None  // My cancellation, not a timeout
                 | false -> Some TimeoutError2  // HTTP client timeout
         
             | :? SocketException as se 
                 ->
-                runIO (postToLog <| string se.Message <| "#0008-ExceptionHandlers")
+                runIO (postToLog2 <| string se.Message <| "#0008-ExceptionHandlers")
 
                 match se.SocketErrorCode with
                 | SocketError.TimedOut 
@@ -162,7 +162,7 @@ module ExceptionHelpers =
         
             | :? IOException as ex 
                 -> 
-                runIO (postToLog <| string ex.Message <| "#0009-ExceptionHandlers")
+                runIO (postToLog2 <| string ex.Message <| "#0009-ExceptionHandlers")
 
                 match ex with
                 | :? DirectoryNotFoundException
@@ -175,14 +175,14 @@ module ExceptionHelpers =
 
             | :? HttpRequestException 
                 -> 
-                runIO (postToLog <| string ex.Message <| "#0010-ExceptionHandlers")
+                runIO (postToLog2 <| string ex.Message <| "#0010-ExceptionHandlers")
                 Some NetworkError2
         
             // Android platform-specific message patterns (last resort)
             | e ->
                 let msg = string e.Message
 
-                runIO (postToLog <| msg <| "#0011-ExceptionHandlers")
+                runIO (postToLog2 <| msg <| "#0011-ExceptionHandlers")
 
                 match msg with
                 // TLS - specific terms only, not broad "SSL"/"TLS"
@@ -247,7 +247,7 @@ module ExceptionHelpers =
             match classification, unknownEx with
             | UnknownError2, Some originalEx
                 ->
-                //runIO (postToLog (sprintf "Unknown exception: %s - %s" (originalEx.GetType().Name) originalEx.Message) #UNKNOWN-ERROR")
+                runIO (postToLog2 (sprintf "Unknown exception: %s - %s" (originalEx.GetType().Name) originalEx.Message) "#0212-ExceptionHandlers")
                 ()
             | _ ->
                 ()
@@ -257,7 +257,7 @@ module ExceptionHelpers =
             |> Error
     
         | _ -> 
-            runIO (postToLog <| string ex.Message <| "#0012-ExceptionHandlers")
+            runIO (postToLog2 <| string ex.Message <| "#0012-ExceptionHandlers")
             Error letItBe
 
         //temporary code for stress testing  
@@ -290,11 +290,11 @@ module ExceptionHelpers =
                    match ex.InnerException |> Option.ofNull with
                    | Some inner 
                        -> 
-                       runIO (postToLog <| string inner.Message <| "#0013-ExceptionHandlers")
+                       runIO (postToLog2 <| string inner.Message <| "#0013-ExceptionHandlers")
                        ex :: collectExceptions inner
                    | None
                        ->
-                       runIO (postToLog <| string ex.Message <| "#0014-ExceptionHandlers")
+                       runIO (postToLog2 <| string ex.Message <| "#0014-ExceptionHandlers")
                        [ ex ]
                  
            let classifyException (e : Exception) : ExceptionClassification option =
@@ -312,7 +312,7 @@ module ExceptionHelpers =
            
                | :? SocketException as se 
                    ->
-                   runIO (postToLog <| string se.Message <| "#0015-ExceptionHandlers")
+                   runIO (postToLog2 <| string se.Message <| "#0015-ExceptionHandlers")
 
                    match se.SocketErrorCode with
                    | SocketError.TimedOut 
@@ -332,7 +332,7 @@ module ExceptionHelpers =
            
                | :? IOException as ex 
                    -> 
-                   runIO (postToLog <| string ex.Message <| "#0016-ExceptionHandlers")
+                   runIO (postToLog2 <| string ex.Message <| "#0016-ExceptionHandlers")
 
                    match ex with
                    | :? DirectoryNotFoundException
@@ -351,7 +351,7 @@ module ExceptionHelpers =
                | e ->
                    let msg = string e.Message
 
-                   runIO (postToLog <| msg <| "#0017-ExceptionHandlers")
+                   runIO (postToLog2 <| msg <| "#0017-ExceptionHandlers")
 
                    match msg with
                    // TLS - specific terms only, not broad "SSL"/"TLS"
@@ -416,7 +416,7 @@ module ExceptionHelpers =
                match classification, unknownEx with
                | UnknownError2, Some originalEx
                    ->
-                   //runIO (postToLog (sprintf "Unknown exception: %s - %s" (originalEx.GetType().Name) originalEx.Message) #UNKNOWN-ERROR")
+                   runIO (postToLog2 (sprintf "Unknown exception: %s - %s" (originalEx.GetType().Name) originalEx.Message) "#0218-ExceptionHandlers")
                    ()
                | _ ->
                    ()
@@ -426,7 +426,7 @@ module ExceptionHelpers =
                |> Error
        
            | _ -> 
-               runIO (postToLog <| string ex.Message <| "#0018-ExceptionHandlers")
+               runIO (postToLog2 <| string ex.Message <| "#0018-ExceptionHandlers")
                Error fileDownloadError
           
            //temporary code for stress testing  

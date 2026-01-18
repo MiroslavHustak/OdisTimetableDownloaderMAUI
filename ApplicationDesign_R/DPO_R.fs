@@ -76,8 +76,8 @@ module WebScraping_DPO =
                         with
                         | ex 
                             ->
-                            runIO (postToLog <| string ex.Message <| "#0001-DPO")
-                            Error LetItBeMHD //silently ignoring failed move operations
+                            runIO (postToLog2 <| string ex.Message <| "#0001-DPO")
+                            Ok () //silently ignoring failed move operations
 
                     | DeleteOneODISDirectory 
                         ->    
@@ -92,7 +92,7 @@ module WebScraping_DPO =
                         with
                         | ex 
                             -> 
-                            runIO (postToLog <| string ex.Message <| "#0002-DPO")
+                            runIO (postToLog2 <| string ex.Message <| "#0002-DPO")
                             Error FileDownloadErrorMHD
 
                     | FilterDownloadSave
@@ -115,11 +115,11 @@ module WebScraping_DPO =
                         with
                         | :? DirectoryNotFoundException as ex
                             ->
-                            runIO (postToLog <| string ex.Message <| "#0003-DPO")
+                            runIO (postToLog2 <| string ex.Message <| "#0003-DPO")
                             Error FileDeleteErrorMHD  
                         | ex 
                             ->
-                            //runIO (postToLog <| string ex.Message <| "#0004-DPO") // commented out so that cancellation is not logged
+                            runIO (postToLog2 <| string ex.Message <| "#0004-DPO") // commented out so that cancellation is not logged
                             comprehensiveTryWithMHD 
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex

@@ -54,7 +54,7 @@ module MDPO_BL = //FsHttp
                                     with
                                     | ex 
                                         -> 
-                                        //runIO (postToLog <| string ex.Message <| "#025")                       
+                                        //runIO (postToLog2 <| string ex.Message <| "#025")                       
                                         return None
                                 }  
                     )
@@ -216,18 +216,18 @@ module MDPO_BL = //FsHttp
                                             with 
                                             | ex 
                                                 -> 
-                                                runIO (postToLog <| string ex.Message <| "#2213MDPO")
+                                                runIO (postToLog2 <| string ex.Message <| "#2213MDPO")
                                                 return Error FileDownloadErrorMHD                                                                              
                                                                  
                                         | Error err 
                                             -> 
-                                            runIO (postToLog <| err <| "#026")                           
+                                            runIO (postToLog2 <| err <| "#026")                           
                                             return Error ConnectionError   
                                     }
                             with                                                         
                             | ex
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#027")                       
+                                runIO (postToLog2 <| string ex.Message <| "#027")                       
                                 async { return Error FileDownloadErrorMHD } 
                     )
     
@@ -255,7 +255,7 @@ module MDPO_BL = //FsHttp
                                                             reportProgress (float n, float l)
                                                             return! loop (n + i)
                                                         with
-                                                        | ex -> runIO (postToLog <| string ex.Message <| "#900MDPO-MP")
+                                                        | ex -> runIO (postToLog2 <| string ex.Message <| "#900MDPO-MP")
                                                     }
                                             loop 0     
         
@@ -286,7 +286,7 @@ module MDPO_BL = //FsHttp
                                         )
                                         (fun err 
                                             ->                                            
-                                            runIO (postToLog <| string err <| "#28")
+                                            runIO (postToLog2 <| string err <| "#28")
                                             Some (Error FileDownloadErrorMHD)  
                                         )
                                     )                                
@@ -299,10 +299,10 @@ module MDPO_BL = //FsHttp
                                 | err 
                                     when err = StopDownloadingMHD
                                     ->
-                                    //runIO (postToLog <| string ex.Message <| "#123456WYX")
+                                    //runIO (postToLog2 <| string ex.Message <| "#123456WYX")
                                     Error <| StopDownloadingMHD
                                 | _ ->
-                                    runIO (postToLog <| string ex.Message <| "#281")
+                                    runIO (postToLog2 <| string ex.Message <| "#281")
                                     Error <| FileDownloadErrorMHD   
                     )                
                     
@@ -351,7 +351,7 @@ module MDPO_BL = //FsHttp
                             with
                             | ex 
                                 -> 
-                                //runIO (postToLog <| string ex.Message <| "#029")                       
+                                //runIO (postToLog2 <| string ex.Message <| "#029")                       
                                 None   
                     )
                 
@@ -509,7 +509,7 @@ module MDPO_BL = //FsHttp
                             with                                                         
                             | ex
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#031")
+                                runIO (postToLog2 <| string ex.Message <| "#031")
                                 Error FileDownloadErrorMHD  
                     )        
     
@@ -537,7 +537,7 @@ module MDPO_BL = //FsHttp
                                                             reportProgress (float n, float l)
                                                             return! loop (n + i)
                                                         with
-                                                        | ex -> runIO (postToLog <| string ex.Message <| "#900DPOunsafe-MP")
+                                                        | ex -> runIO (postToLog2 <| string ex.Message <| "#900DPOunsafe-MP")
                                                     }
                                             loop 0     
         
@@ -569,7 +569,7 @@ module MDPO_BL = //FsHttp
                                         )
                                         (fun err 
                                             ->                                          
-                                            runIO (postToLog <| string err <| "#32")
+                                            runIO (postToLog2 <| string err <| "#32")
                                             Some (Error FileDownloadErrorMHD)  
                                         )
                                     )                                
@@ -582,10 +582,10 @@ module MDPO_BL = //FsHttp
                                 | err 
                                     when err = StopDownloadingMHD
                                     ->
-                                    //runIO (postToLog <| string ex.Message <| "#123456YYX")
+                                    //runIO (postToLog2 <| string ex.Message <| "#123456YYX")
                                     Error <| StopDownloadingMHD
                                 | _ ->
-                                    runIO (postToLog <| string ex.Message <| "#33")
+                                    runIO (postToLog2 <| string ex.Message <| "#33")
                                     Error <| FileDownloadErrorMHD                                 
                     )   
                     

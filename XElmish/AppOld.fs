@@ -96,7 +96,7 @@ module App =
         | Idle 
         | InProgress of float * float
 
-    type Model = // This is exactly how NOT to do it for real UI/UX/FE
+    type Model = // This is exactly how NOT to do it for real UI/UX/FE.
         {
             PermissionGranted : bool
             ProgressMsg : string
@@ -119,7 +119,7 @@ module App =
             AnimatedButton : string option // Tracks animated button
         }
 
-    type Msg = // This is exactly how NOT to do it for real UI/UX/FE
+    type Msg = // This is exactly how NOT to do it for real UI/UX/FE.
         | RequestPermission
         | Launch
         | DataClearing
@@ -354,7 +354,7 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#0002App") 
+                runIO (postToLog2 <| string ex.Message <| "#0002App") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
         
@@ -377,13 +377,13 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#0001") 
+                runIO (postToLog2 <| string ex.Message <| "#0001") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
         | Error err 
             ->  
-            // match connectivityListener >> runIO <| () with true -> () | false ->  runIO (postToLog <| err <| "#002")  
+            // match connectivityListener >> runIO <| () with true -> () | false ->  runIO (postToLog2 <| err <| "#002")  
             
             match initialModel.PermissionGranted with
             | true  -> { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none  
@@ -458,7 +458,7 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#0003App") 
+                runIO (postToLog2 <| string ex.Message <| "#0003App") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
         
@@ -481,13 +481,13 @@ module App =
             | ex 
                 ->
                 #if WINDOWS
-                runIO (postToLog <| string ex.Message <| "#0004App") 
+                runIO (postToLog2 <| string ex.Message <| "#0004App") 
                 #endif
                 { initialModel with NetConnMsg = ctsMsg }, Cmd.none
 
         | Error err 
             ->  
-            match connectivityListener >> runIO <| () with true -> runIO (postToLog <| err <| "#0005App") | false -> ()
+            match connectivityListener >> runIO <| () with true -> runIO (postToLog2 <| err <| "#0005App") | false -> ()
             { initialModel with ProgressMsg = ctsMsg2 }, Cmd.none        
         *)
 
@@ -835,7 +835,7 @@ module App =
                         with 
                         | ex
                             ->
-                            runIO (postToLog <| string ex.Message <| " #XElmish_ClearData")
+                            runIO (postToLog2 <| string ex.Message <| " #XElmish_ClearData")
                             DataClearingMessage >> dispatch <| deleteOldTimetablesMsg3
                     }
                      
@@ -919,7 +919,7 @@ module App =
                                         ->
                                         dispatch Home2   
                                     | _ -> 
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
                             }  
 
@@ -967,7 +967,7 @@ module App =
                                         ->
                                         dispatch Home2   
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodis
                             }     
 
@@ -1077,7 +1077,7 @@ module App =
                                         ->
                                         dispatch Home2   
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
 
@@ -1093,7 +1093,7 @@ module App =
                                 with 
                                 | ex
                                     ->
-                                    runIO (postToLog <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
+                                    runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                                     NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
                    
@@ -1201,7 +1201,7 @@ module App =
                                         ->
                                         dispatch Home2   
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorDpo
                             }  
                      
@@ -1316,7 +1316,7 @@ module App =
                                         ->
                                         dispatch Home2   
                                     | _ ->
-                                        runIO (postToLog <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
+                                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
                                         NetConnMessage >> dispatch <| criticalElmishErrorMdpo
                             }  
                   

@@ -132,7 +132,7 @@ module WebScraping_KODIS =
                     with
                     | ex 
                         ->
-                        //runIO (postToLog <| string ex.Message <| "#0001-K")  
+                        runIO (postToLog2 <| string ex.Message <| "#0001-K")  
                         comprehensiveTryWith 
                             JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
                             JsonDownloadError JsonTlsHandshakeError token ex 
@@ -185,7 +185,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog <| string ex.Message <| "#0002-K")
+                            runIO (postToLog2 <| string ex.Message <| "#0002-K")
                             Error <| JsonParsingError2 JsonDataFilteringError 
                                                       
                     let taskDispatch param = async { return DispatchDone param } //for educational purposes
@@ -226,7 +226,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog <| string ex.Message <| "#22-2")
+                            runIO (postToLog2 <| string ex.Message <| "#22-2")
                             Error <| JsonError JsonDataFilteringError                     
                      *)
 
@@ -267,7 +267,7 @@ module WebScraping_KODIS =
 
                     | Error err                    
                         ->
-                        runIO (postToLog <| string err <| "#0002-K")
+                        runIO (postToLog2 <| string err <| "#0002-K")
                         Error err 
                        
                 let dirList = createNewDirectoryPaths path listOfODISVariants
@@ -319,7 +319,7 @@ module WebScraping_KODIS =
                             with
                             | ex
                                 ->
-                                runIO (postToLog <| string ex.Message <| "#0003-K")
+                                runIO (postToLog2 <| string ex.Message <| "#0003-K")
                                 Error <| JsonParsingError2 JsonParsingError
                                 //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
                         
