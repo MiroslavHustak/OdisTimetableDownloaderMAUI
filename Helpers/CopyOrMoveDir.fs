@@ -3,15 +3,17 @@
 open System
 open System.IO
 
+#if ANDROID
+open Android.OS
+#endif
+
 open FsToolkit.ErrorHandling
+
+//**************************************
 
 open IO_Monad
 open Builders
 open Types.Haskell_IO_Monad_Simulation
-
-#if ANDROID
-open Android.OS
-#endif
 
 // In this solution, source and destination values are null-checked and validated in the free monad.
 // !!!!!!!!!!!!!!!! Ensure proper checking and validation when used elsewhere !!!!!!!!!!!!!!!!!!!

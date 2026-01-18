@@ -141,7 +141,7 @@ module Logging =
         )
     #endif
 
-    let internal postToLog2 (msg : 'a) (errCode : string) =  //for stress testing purposes only
+    let internal postToLog2 (msg : 'a) (err : string) =  //for stress testing purposes only
 
         IO (fun () 
                 ->
@@ -173,7 +173,8 @@ module Logging =
                                 fs.Seek(0L, SeekOrigin.End) |> ignore<int64>
 
                                 use writer = new StreamWriter(fs)
-                                do! writer.WriteLineAsync (sprintf "%s Error%s" <| string msg <| errCode) |> Async.AwaitTask
+                                let s = sprintf "%s %s Error%s" <| string DateTimeOffset.Now <| string msg <| err 
+                                do! writer.WriteLineAsync s |> Async.AwaitTask
                             finally                        
                                 fs.Dispose()
                         with

@@ -3,7 +3,6 @@
 open System
 open System.IO
 open System.Net
-open System.Net.Http
 open System.Threading
 
 //*******************
@@ -19,6 +18,8 @@ open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
+open Api.FutureLinks
+
 open Settings.SettingsGeneral
 
 open Helpers.Builders
@@ -226,7 +227,7 @@ module KODIS_BL_Record =
                         JsonDownloadError JsonTlsHandshakeError token ex
         )    
     
-    let internal downloadAndSave token context =  
+    let internal downloadAndSave variant token context =  
    
         IO (fun ()
                 ->
@@ -334,7 +335,7 @@ module KODIS_BL_Record =
                             return! attempt 0 initialBackoffMs
                     }
    
-                let downloadAndSaveTimetables (token : CancellationToken) context =                                         
+                let downloadAndSaveTimetables variant (token : CancellationToken) context =                                         
          
                     let l = context.list |> List.length
                             
@@ -349,6 +350,9 @@ module KODIS_BL_Record =
                                             {
                                                 try
                                                     let! Inc i = inbox.Receive()
+                                                    match variant = FutureValidity || n = 2 with 
+                                                    | true  -> do! putFutureLinksToRestApi >> runIO <| context.list //temporary solution until KODIS make things right
+                                                    | false -> ()
                                                     context.reportProgress (float n, float l)
                                                     return! loop (n + i)
                                                 with
@@ -452,7 +456,7 @@ module KODIS_BL_Record =
                         let! _ = context.list <> List.Empty, Ok String.Empty
                         
                         return
-                            downloadAndSaveTimetables token context
+                            downloadAndSaveTimetables variant token context
                             |> Result.map (fun _ -> String.Empty)       
                     }                  
         )

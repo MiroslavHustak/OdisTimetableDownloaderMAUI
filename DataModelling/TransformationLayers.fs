@@ -15,7 +15,7 @@ open DataModelling.Dtm
 
 module ApiTransformLayer =
     
-    let internal transformLinksApiResponse postToLogFile response = 
+    let internal transformLinksApiResponse postToLog2 response = 
 
         IO (fun () 
                 ->     
@@ -25,22 +25,16 @@ module ApiTransformLayer =
                             response, 
                                 fun err 
                                     -> 
-                                    runIO <| postToLogFile () "#1001"
-                                    |> Async.Ignore<'a>
-                                    |> Async.StartImmediate
-                        
+                                    runIO <| postToLog2 (string err) "#0001-Api"
                                     Error ApiResponseError  
 
                         let decoder : Decoder<string list> = Decode.field "list" (Decode.list Decode.string)
 
                         let! links = 
                             response.GetLinks |> Decode.fromString decoder, 
-                                fun _
+                                fun item
                                     -> 
-                                    runIO <| postToLogFile () "#100"
-                                    |> Async.Ignore<'a>
-                                    |> Async.StartImmediate
-                            
+                                    runIO <| postToLog2 (string item) "#0002-Api"                                                               
                                     Error ApiDecodingError  
 
                         return! Ok (links |> List.distinct)

@@ -1,13 +1,19 @@
 ﻿namespace Api
 
+open System
 open System.Net
 
 //************************************************************
 
 open FsHttp
 open Thoth.Json.Net
+open FsToolkit.ErrorHandling
 
 //************************************************************
+
+open Helpers.Builders
+open Helpers.DirFileHelper
+open Helpers.ExceptionHelpers
 
 open Types
 open Types.ErrorTypes
@@ -31,6 +37,18 @@ module FutureLinks =
                     Message = get.Required.Field "Message" Decode.string
                 }
             )
+    
+    let private decoderPut : Decoder<ResponsePut> =
+
+        Decode.object
+            (fun get ->
+                      {
+                          Message1 = get.Required.Field "Message1" Decode.string
+                          Message2 = get.Required.Field "Message2" Decode.string
+                      }
+            )
+
+    //******************************************************************
 
     let internal getFutureLinksFromRestApi url = 
 
@@ -53,9 +71,9 @@ module FutureLinks =
                                 let! jsonString = Response.toTextAsync response
                                 let response = Decode.fromString decoderGet jsonString
 
-                                return runIO <| transformLinksApiResponse postToLogFile response
+                                return runIO <| transformLinksApiResponse postToLog2 response
                        
-                            | _ -> 
+                            | _ ->  
                                 runIO <| postToLog2 () (sprintf "0001-FLK4 %d" (int response.statusCode)) 
                                 return Error ApiResponseError
                         with
@@ -66,62 +84,63 @@ module FutureLinks =
                     }
         )
 
-        // TODO implementovat
-        (*
-        | FutureValidity          
-        ->
-        let list = Records.SortRecordData.sortLinksOut dataToBeFiltered FutureValidity |> createPathsForDownloadedFiles 
+    //******************* For Kodis4 **************************
 
-        let (links, _) = list |> List.unzip
+    let internal putFutureLinksToRestApi list = 
+
+        IO (fun () 
+                ->          
+                let (links, _) = list |> List.unzip 
                                 
-        //let jsonPayload = "[" + (links |> List.map (sprintf "\"%s\"") |> String.concat ",") + "]" //tohle ne
-
-        //prima transformace na json string (bez pouziti records / serializace / Thoth encoders )   
-        let s1 = "{ \"list\": ["
-        let s2 = links |> List.map (sprintf "\"%s\"") |> String.concat ","
-        let s3 = "] }"
+                // Direct transformation into JSON string (no records/serialization/Thoth encoders are necessary)   
+                let s1 = "{ \"list\": ["
+                let s2 = links |> List.map (sprintf "\"%s\"") |> String.concat ","
+                let s3 = "] }"
         
-        let jsonPayload = sprintf "%s%s%s" s1 s2 s3                  
-
-        let result = 
-            async
-                {
-                    let url = "http://kodis.somee.com/api/jsonLinks" 
-                    let apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3"
-                                                                               
-                    let! response = 
-                        http
-                            {
-                                PUT url
-                                header "X-API-KEY" apiKeyTest 
-                                body 
-                                json jsonPayload
-                            }
-                        |> Request.sendAsync       
+                let jsonPayload = sprintf "%s%s%s" s1 s2 s3   
+           
+                async
+                    {
+                        try                                                                                                   
+                            let! response = 
+                                http
+                                    {
+                                        PUT urlJson
+                                        header "X-API-KEY" apiKeyTest 
+                                        body 
+                                        json jsonPayload
+                                    }
+                                |> Request.sendAsync       
                                             
-                    match response.statusCode with
-                    | HttpStatusCode.OK 
-                        -> 
-                        let! jsonMsg = Response.toTextAsync response
-    
-                        return                          
-                            Decode.fromString decoderPutTest jsonMsg   
-                            |> function
-                                | Ok value  -> value   
-                                | Error err -> { Message1 = String.Empty; Message2 = err }      
-                    | _ -> 
-                        return { Message1 = String.Empty; Message2 = sprintf "Request failed with status code %d" (int response.statusCode) }                                           
-                } 
-            |> Async.Catch 
-            |> Async.RunSynchronously   //nahradit pri realnem vyuziti async
-            |> Result.ofChoice    
-            |> function
-                | Ok value -> value 
-                | Error ex -> { Message1 = String.Empty; Message2 = string ex.Message }    
+                            match response.statusCode with
+                            | HttpStatusCode.OK 
+                                -> 
+                                let! jsonMsg = Response.toTextAsync response
+                        
+                                // I don't need to deal with potential errors, info about them is sufficient
+                                return 
+                                    Decode.fromString decoderPut jsonMsg
+                                    |> Result.mapError
+                                        (fun err 
+                                            ->
+                                            let errMsg = 
+                                                { 
+                                                    Message1 = string response.statusCode
+                                                    Message2 = err 
+                                                }
+                                                           
+                                            runIO <| postToLog2 () (sprintf "0003-FLK4 %A" errMsg)                                
+                                                             
+                                        ) |> ignore<Result<ResponsePut, unit>> //silently swallowing errors
+                            | _ -> 
+                                runIO <| postToLog2 () (sprintf "0004-FLK4 %d" (int response.statusCode)) 
+                                return () //silently swallowing errors
 
-        match result.Message1.Equals(String.Empty) with true -> () | _ -> printfn "%s" result.Message1  
-        match result.Message2.Equals(String.Empty) with true -> () | _ -> printfn "%s" result.Message2 
+                        with
+                        | ex 
+                            ->
+                            runIO (postToLog2 <| string ex.Message <| "#0005-FLK4")
+                            return () //silently swallowing errors
+                    } 
+        )
         
-        list
-        
-        *)

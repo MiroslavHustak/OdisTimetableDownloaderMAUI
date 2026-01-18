@@ -6,8 +6,8 @@ open System.Text
 open System.Runtime.InteropServices
 
 //***************************
+
 open Types
-open Types.ErrorTypes
 
 #if WINDOWS
 open NativeHelpers

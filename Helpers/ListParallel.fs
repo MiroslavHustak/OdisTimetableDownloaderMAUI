@@ -126,26 +126,23 @@ let private maxDegreeOfParallelismAdaptedAndroid =
 
 // Arrays cannot raise exceptions as the lists the arrays are converted from cannot be nullable
 
+// ******************** ITER ***********************
+
 let iter_CPU_PT (action : 'a -> unit) (list : 'a list) : unit =
 
     match list with
-    | []
-        -> 
-        ()
-    | _ ->
+    | [] -> ()
+    | _  ->
         list
         |> List.toArray
         |> Array.Parallel.iter action  
         ()
 
-/// Version using Async.Parallel for CPU-bound iteration (for performance testing)
 let iter_CPU_AW (action : 'a -> unit) (list : 'a list) : unit =
 
     match list with
-    | []
-        -> 
-        ()
-    | _ ->
+    | [] -> ()
+    | _  ->
         let maxDegree = Environment.ProcessorCount   // or numberOfThreads (List.length list)
 
         list
@@ -156,14 +153,75 @@ let iter_CPU_AW (action : 'a -> unit) (list : 'a list) : unit =
         |> Async.RunSynchronously
         ()
 
+let iter_CPU_AW_Token (action : 'a -> unit) (token : CancellationToken) (list : 'a list) =
+        
+    match list with
+    | [] -> ()
+    | _  ->
+        let maxDegree = Environment.ProcessorCount
+        
+        list
+        |> Array.ofList
+        |> Array.map
+            (fun x 
+                ->
+                async
+                    {
+                        token.ThrowIfCancellationRequested ()
+                        return action x
+                    }
+            )
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+        |> Async.Ignore<unit array> 
+        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+        ()
+
+let iter_CPU_AW_Async (action : 'a -> unit) (list : 'a list) : Async<unit> =
+
+    match list with
+    | [] -> 
+        async { return () }
+    | _  ->
+        let maxDegree = Environment.ProcessorCount   // or numberOfThreads (List.length list)
+
+        list
+        |> Array.ofList
+        |> Array.map (fun x -> async { return action x })  
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+        |> Async.Ignore<unit array> 
+
+let iter_CPU_AW_Token_Async (action : 'a -> unit) (token : CancellationToken) (list : 'a list) : Async<unit> =
+
+    match list with
+    | [] ->
+        async { return () }
+    | _  ->
+        let maxDegree = Environment.ProcessorCount
+
+        let tasks =
+            list
+            |> Array.ofList
+            |> Array.map
+                (fun x 
+                    ->
+                    async
+                        {
+                            token.ThrowIfCancellationRequested ()
+                            return action x
+                        }
+                )
+
+        async
+            {
+                let! _ = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+                return ()
+            }        
+
 let iter_IO_AW (action : 'a -> unit) (list : 'a list) =
  
     match list with
-    | [] 
-        -> 
-        ()
-    | _ 
-        ->
+    | [] -> ()
+    | _  ->
         let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list
             
         list
@@ -174,130 +232,74 @@ let iter_IO_AW (action : 'a -> unit) (list : 'a list) =
         |> Async.RunSynchronously 
         ()
 
-// Using Array.Parallel.map //Array.Parallel.map is designed for CPU-bound work.  //TODO otestovat rychlost ve srovnani s Async.Parallel
-let map_CPU_PT (action : 'a -> 'b) (list : 'a list) : 'b list =
+let iter_IO_AW_Token (action : 'a -> unit) (token : CancellationToken) (list : 'a list) : unit =
 
     match list with
-    | []
-        -> 
-        []
-    | _ ->
-        list
-        |> List.toArray
-        |> Array.Parallel.map action  
-        |> Array.toList
-
-let map_CPU_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a list) : 'b list =
-
-    match list with
-    | []
-        -> 
-        []
-    | _ ->
-        let maxDegree = Environment.ProcessorCount   // or reuse numberOfThreads (List.length list)
+    | [] -> ()
+    | _  ->
+        let maxDegreeOfParallelismAdapted =
+            List.length >> maxDegreeOfParallelismAdaptedAndroid <| list
 
         list
         |> Array.ofList
         |> Array.map
-            (fun x 
+            (fun item 
                 ->
-                async 
+                async
                     {
                         token.ThrowIfCancellationRequested ()
-                        return action x
+                        return action item
                     }
-            )  
-        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+            )
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+        |> Async.Ignore<unit array> 
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-        |> Array.toList
+        ()
 
-let map_CPU_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken) (list : 'a list) : Async<'b list> =
+let iter_IO_AW_Async (action : 'a -> unit) (list : 'a list) : Async<unit> =
+ 
+    match list with
+    | [] 
+        -> 
+        async { return () }
+    | _ 
+        ->
+        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list
+            
+        list
+        |> Array.ofList
+        |> Array.map (fun item -> async { return action item })  
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+        |> Async.Ignore<unit array> 
+
+let iter_IO_AW_Token_Async (action : 'a -> unit) (token : CancellationToken) (list : 'a list) : Async<unit> =
 
     match list with
-    | [] ->  
-        async { return [] }
-    | _ ->
-        let maxDegree = Environment.ProcessorCount   // or reuse numberOfThreads (List.length list)       
+    | [] ->
+        async { return () }
+    | _  ->
+        let maxDegreeOfParallelismAdapted =
+            List.length >> maxDegreeOfParallelismAdaptedAndroid <| list
 
-        let tasks = 
+        let tasks =
             list
-            |> Array.ofList   
+            |> Array.ofList
             |> Array.map
-                (fun item 
-                    ->
-                    async 
+                (fun item ->
+                    async
                         {
                             token.ThrowIfCancellationRequested ()
-                            return! action item
+                            return action item
                         }
-                )   
+                )
 
-        async 
+        async
             {
-                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
-                return result |> List.ofArray 
-            } 
+                let! _ = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+                return ()
+            }
 
-let map_IO_AW (action : 'a -> 'b) (list : 'a list) =
-
-    match list with
-    | [] -> 
-         []
-    | _  ->
-         let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
-         
-         list
-         |> Array.ofList
-         |> Array.map (fun item -> async { return action item })  
-         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
-         |> Async.RunSynchronously  
-         |> List.ofArray
-
-let map_IO_AW_Async (action : 'a -> Async<'b>) (list : 'a list) =
-         
-    match list with
-    | [] -> 
-        async { return [] }
-    | _  ->
-        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
-                  
-        let tasks = 
-            list
-            |> Array.ofList       
-            |> Array.map (fun item -> async { return! action item })  
-            
-        async 
-            {
-                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
-                return result |> List.ofArray 
-            }  
-            
-let map_IO_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken) (list : 'a list) =
-     
-    match list with
-    | [] -> 
-        async { return [] }
-    | _  ->
-        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
-              
-        let tasks = 
-            list
-            |> Array.ofList   
-            |> Array.map
-                (fun item 
-                    ->
-                    async 
-                        {
-                            token.ThrowIfCancellationRequested ()
-                            return! action item
-                        }
-                )        
-        
-        async 
-            {
-                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
-                return result |> List.ofArray 
-            }   
+// ******************** ITER2 ***********************
 
 // Using Array.Parallel.iter //TODO otestovat rychlost ve srovnani s Async.Parallel
 let iter2_CPU_PT<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : unit =
@@ -384,6 +386,25 @@ let iter2_IO_AW_Token<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : Cancellat
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         ()
 
+let iter2_IO_AW_Async<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b list) : Async<unit> =      
+    
+    let xs1Length = List.length xs1
+    let xs2Length = List.length xs2
+    
+    match (xs1Length = 0 || xs2.IsEmpty) || xs1Length <> xs2Length with
+    | true 
+        ->
+        async { return () }
+    | false
+        ->
+        let maxDegreeOfParallelismAdapted = maxDegreeOfParallelismAdaptedAndroid xs1Length
+        
+        List.zip xs1 xs2
+        |> Array.ofList
+        |> Array.map (fun (x, y) -> async { return mapping x y })
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+        |> Async.Ignore<unit array> 
+
 let iter2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : Async<unit> =
 
     let xs1Length = List.length xs1
@@ -414,6 +435,188 @@ let iter2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : Can
                 let! results = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
                 return results |> ignore<'c array> 
             }     
+
+// ******************** MAP ***********************
+
+// Using Array.Parallel.map //Array.Parallel.map is designed for CPU-bound work.  //TODO otestovat rychlost ve srovnani s Async.Parallel
+let map_CPU_PT (action : 'a -> 'b) (list : 'a list) : 'b list =
+
+    match list with
+    | []
+        -> 
+        []
+    | _ ->
+        list
+        |> List.toArray
+        |> Array.Parallel.map action  
+        |> Array.toList
+
+let map_CPU_AW (action : 'a -> 'b) (list : 'a list) : 'b list =
+
+    match list with
+    | [] ->
+        []
+    | _  ->
+        let maxDegree = Environment.ProcessorCount
+
+        list
+        |> Array.ofList
+        |> Array.map (fun x -> async { return action x })
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+        |> Async.RunSynchronously
+        |> Array.toList
+
+let map_CPU_AW_Async (action : 'a -> Async<'b>) (list : 'a list) : Async<'b list> =
+
+    match list with
+    | [] ->
+        async { return [] }
+    | _  ->
+        let maxDegree = Environment.ProcessorCount
+
+        let tasks =
+            list
+            |> Array.ofList
+            |> Array.map (fun x -> async { return! action x })
+
+        async
+            {
+                let! result = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+                return result |> Array.toList
+            }
+
+let map_CPU_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a list) : 'b list =
+
+    match list with
+    | [] -> []
+    | _  ->
+        let maxDegree = Environment.ProcessorCount   // or reuse numberOfThreads (List.length list)
+
+        list
+        |> Array.ofList
+        |> Array.map
+            (fun x 
+                ->
+                async 
+                    {
+                        token.ThrowIfCancellationRequested ()
+                        return action x
+                    }
+            )  
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+        |> Array.toList
+
+let map_CPU_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken) (list : 'a list) : Async<'b list> =
+
+    match list with
+    | [] ->  
+        async { return [] }
+    | _ ->
+        let maxDegree = Environment.ProcessorCount   // or reuse numberOfThreads (List.length list)       
+
+        let tasks = 
+            list
+            |> Array.ofList   
+            |> Array.map
+                (fun item 
+                    ->
+                    async 
+                        {
+                            token.ThrowIfCancellationRequested ()
+                            return! action item
+                        }
+                )   
+
+        async 
+            {
+                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+                return result |> List.ofArray 
+            } 
+
+let map_IO_AW (action : 'a -> 'b) (list : 'a list) =
+
+    match list with
+    | [] -> []
+    | _  ->
+         let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
+         
+         list
+         |> Array.ofList
+         |> Array.map (fun item -> async { return action item })  
+         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+         |> Async.RunSynchronously  
+         |> List.ofArray
+
+let map_IO_AW_Async (action : 'a -> Async<'b>) (list : 'a list) =
+         
+    match list with
+    | [] -> 
+        async { return [] }
+    | _  ->
+        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
+                  
+        let tasks = 
+            list
+            |> Array.ofList       
+            |> Array.map (fun item -> async { return! action item })  
+            
+        async 
+            {
+                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+                return result |> List.ofArray 
+            }
+            
+let map_IO_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a list) : 'b list =
+
+    match list with
+    | [] -> []
+    | _  ->
+        let maxDegreeOfParallelismAdapted =
+            List.length >> maxDegreeOfParallelismAdaptedAndroid <| list
+
+        list
+        |> Array.ofList
+        |> Array.map
+            (fun item ->
+                async
+                    {
+                        token.ThrowIfCancellationRequested ()
+                        return action item
+                    }
+            )
+        |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+        |> Array.toList
+            
+let map_IO_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken) (list : 'a list) =
+     
+    match list with
+    | [] -> 
+        async { return [] }
+    | _  ->
+        let maxDegreeOfParallelismAdapted = List.length >> maxDegreeOfParallelismAdaptedAndroid <| list  
+              
+        let tasks = 
+            list
+            |> Array.ofList   
+            |> Array.map
+                (fun item 
+                    ->
+                    async 
+                        {
+                            token.ThrowIfCancellationRequested ()
+                            return! action item
+                        }
+                )        
+        
+        async 
+            {
+                let! result =  Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
+                return result |> List.ofArray 
+            }   
+
+// ******************** MAP2 ***********************
 
 // Using Array.Parallel.map  //TODO otestovat rychlost ve srovnani s Async.Parallel
 let map2_CPU_PT<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : 'c list = //PT pool of threads
@@ -481,6 +684,29 @@ let map2_CPU2_AW_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : Cancellat
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> Array.toList
+
+let map2_CPU2_AW_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list) : Async<'c list> =
+
+    match xs1, xs2 with
+    | [], _ | _, [] 
+        ->
+        async { return [] }
+    | _ when List.length xs1 <> List.length xs2
+        ->
+        async { return [] }
+    | _ ->
+        let maxDegree = Environment.ProcessorCount   
+
+        let tasks = 
+            List.zip xs1 xs2
+            |> Array.ofList
+            |> Array.map (fun (x, y) -> async { return mapping x y })
+
+        async 
+            {
+                let! results = Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
+                return results |> Array.toList
+            }    
 
 let map2_CPU2_AW_Token_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> Async<'c>) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : Async<'c list> =
 

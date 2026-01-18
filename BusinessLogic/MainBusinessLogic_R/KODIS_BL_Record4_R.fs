@@ -23,7 +23,6 @@ open Applicatives.CummulativeResultApplicative
 open Api.Logging
 open Api.FutureLinks
 
-open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
 open Helpers.ExceptionHelpers
@@ -173,7 +172,7 @@ module KODIS_BL_Record4 =
     
         IO (fun () -> retryParallel maxRetries delay |> (fun a -> Async.RunSynchronously(a, cancellationToken = token)))    
 
-    let internal downloadAndSave token context =  
+    let internal downloadAndSave (token : CancellationToken) context =  
    
         IO (fun ()
                 ->
@@ -286,25 +285,7 @@ module KODIS_BL_Record4 =
                 let downloadAndSaveTimetables (token : CancellationToken) context =                                         
          
                     let l = context.list |> List.length
-                           
-                    let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>
-                            .StartImmediate
-                                <|
-                                fun inbox 
-                                    ->   
-                                    let rec loop n = 
-                                        async
-                                            {
-                                                try
-                                                    let! Inc i = inbox.Receive()
-                                                    context.reportProgress (float n, float l)
-                                                    return! loop (n + i)
-                                                with
-                                                | _ -> () 
-                                            }
-                                    loop 0
-                                                 
+
                     //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                     let removeDuplicatePathPairs uri pathToFile =
                         (uri, pathToFile)
@@ -317,7 +298,24 @@ module KODIS_BL_Record4 =
                         |> List.unzip
                         |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
                         |> List.unzip           
-                               
+                           
+                    let counterAndProgressBar =
+                        MailboxProcessor<MsgIncrement>
+                            .StartImmediate
+                                <|
+                                fun inbox 
+                                    ->   
+                                    let rec loop n = 
+                                        async
+                                            {
+                                                try
+                                                    let! Inc i = inbox.Receive()                                                  
+                                                    context.reportProgress (float n, float l)
+                                                    return! loop (n + i)
+                                                with
+                                                | _ -> () 
+                                            }
+                                    loop 0                               
                     try
                         checkCancel token
 

@@ -60,7 +60,7 @@ module WebScraping_KODIS =
             DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
             ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Result<string list, ParsingAndDownloadingErrors>> 
             FilterTimetableLinks : Validity -> string -> Result<string list, ParsingAndDownloadingErrors> -> IO<Result<(string * string) list, ParsingAndDownloadingErrors>> 
-            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>  //not resuming
+            DownloadAndSave :  Validity -> CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>  //not resuming
         }
 
     let private environment : Environment = 
@@ -70,7 +70,7 @@ module WebScraping_KODIS =
             ParseJsonStructure = parseJsonStructure // JsonData.ParseJsonDataFull.digThroughJsonStructure
             
             FilterTimetableLinks = filterTimetableLinks  
-            DownloadAndSave = fun token context -> runIO (downloadAndSave token context) //resuming
+            DownloadAndSave = fun validity token context -> runIO (downloadAndSave validity token context) //resuming
         }    
 
     let internal stateReducerCmd1 (token : CancellationToken) reportProgress =
@@ -253,7 +253,7 @@ module WebScraping_KODIS =
                                 | false -> context List.map2  
                                 //**********************************************************************
                                  
-                                |> environment.DownloadAndSave token   
+                                |> environment.DownloadAndSave context2.Variant token   
         
                     | Ok _
                         ->  

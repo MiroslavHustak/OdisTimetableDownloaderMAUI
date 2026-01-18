@@ -69,7 +69,7 @@ module SettingsGeneral =
     let [<Literal>] internal apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" 
     let [<Literal>] internal urlLogging = "http://kodis.somee.com/api/logging" 
     let [<Literal>] internal urlApi = "http://kodis.somee.com/api/"  // Trailing slash preserved
-    let [<Literal>] internal urlJson = "http://kodis.somee.com/api/jsonLinks"
+    let [<Literal>] internal urlJson = "http://kodis.somee.com/api/jsonLinks" 
     #if ANDROID
     let [<Literal>] internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
     let [<Literal>] internal kodisPathTemp = @"/storage/emulated/0/FabulousTimetables/"
