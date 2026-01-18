@@ -64,11 +64,12 @@ module WebScraping_KODIS4 =
     let private environment : Environment =
         { 
             DeleteAllODISDirectories = deleteAllODISDirectories   
-            OperationOnDataFromJson = operationOnDataFromJson4
+            //OperationOnDataFromJson = operationOnDataFromJson4
+            OperationOnDataFromJson = operationOnDataFromJson_resumable//operationOnDataFromJson4
             DownloadAndSave = fun token context -> runIO (downloadAndSave token context ) //downloadAndSave >> runIO
         }    
 
-    let private stateReducer (token : CancellationToken) path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
+    let private stateReducer (token : CancellationToken) path dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
               
         let errFn err =  
 
@@ -231,11 +232,11 @@ module WebScraping_KODIS4 =
                 return sprintf "%s%s" dispatchMsg3 combinedMessage
             }    
     
-    let internal stateReducerCmd4 token path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress = 
+    let internal stateReducerCmd4 token path dispatchIterationMessage reportProgress = 
 
         IO (fun () 
                 ->
-                stateReducer token path dispatchCancelVisible dispatchRestartVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress stateDefault environment 
+                stateReducer token path dispatchIterationMessage reportProgress stateDefault environment 
         )
 
     let internal stateReducerCmd5 () = // For educational purposes

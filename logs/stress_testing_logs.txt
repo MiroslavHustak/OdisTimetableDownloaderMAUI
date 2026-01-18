@@ -1,3 +1,11 @@
 One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#0002-ExceptionHandlers
 01/18/2026 18:20:58 +01:00  Error0004-FLK4 500
 01/18/2026 18:21:24 +01:00 One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#0002-ExceptionHandlers
+01/18/2026 21:54:11 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis.somee.com:80))) Error#0002-FLK4
+01/18/2026 21:54:11 +01:00 ApiResponseError Error#0002-K4BL
+01/18/2026 21:54:11 +01:00 ApiResponseError Error#0001-K4
+01/18/2026 21:55:34 +01:00 One or more errors occurred. (One or more errors occurred. (A socket operation was attempted to an unreachable host. (kodis.somee.com:80))) Error#0002-FLK4
+01/18/2026 21:55:36 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis.somee.com:80))) Error#0002-FLK4
+01/18/2026 21:55:36 +01:00 ApiResponseError Error#0002-K4BL
+01/18/2026 21:55:38 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis.somee.com:80))) Error#0002-FLK4
+01/18/2026 21:55:38 +01:00 ApiResponseError Error#0002-K4BL

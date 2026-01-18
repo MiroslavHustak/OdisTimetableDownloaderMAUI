@@ -90,8 +90,9 @@ module KODIS_BL_Record4 =
                     ->
                     return Ok [] //zadna dalsi varianta uz tady neni, Ok[] je dummy
             }
-    
-    let internal operationOnDataFromJson2 (token : CancellationToken) variant dir = // for educational purposes
+
+    // Not resumable varriant
+    let internal operationOnDataFromJson2 (token : CancellationToken) variant dir = 
 
         IO (fun () 
                 ->
@@ -120,6 +121,7 @@ module KODIS_BL_Record4 =
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         )    
 
+    //"Resumable block" variant for small payload
     let internal operationOnDataFromJson4 (token : CancellationToken) variant dir =
 
         let maxRetries = 4
@@ -145,7 +147,24 @@ module KODIS_BL_Record4 =
     
                         let result1 = Array.head results
                         let result2 = Array.last results
-    
+
+                        let combined =
+                            validation {
+                                let! links1 = result1
+                                and! links2 = result2
+                                return links1 @ links2 |> List.distinct
+                            }
+                        
+                        match combined with
+                        | Validation.Ok _
+                            ->
+                            return combined
+                                                                        
+                        | Validation.Error errs
+                            ->
+                            return Validation.Error errs
+                        (*
+                        tento kod samo o sobe nechyti vsechny triggers nutnych pro spusteni resume
                         return
                             validation
                                 {
@@ -153,6 +172,7 @@ module KODIS_BL_Record4 =
                                     and! links2 = result2
                                     return links1 @ links2 |> List.distinct
                                 }
+                        *)
     
                     with
                     | ex 
@@ -170,7 +190,74 @@ module KODIS_BL_Record4 =
                         return Validation.error <| PdfDownloadError2 FileDownloadError
                 }
     
-        IO (fun () -> retryParallel maxRetries delay |> (fun a -> Async.RunSynchronously(a, cancellationToken = token)))    
+        IO (fun () -> retryParallel maxRetries delay |> (fun a -> Async.RunSynchronously(a, cancellationToken = token)))  
+            
+    // Resumable variant
+    let internal operationOnDataFromJson_resumable (token : CancellationToken) variant dir =
+
+        let maxRetries = 4
+        let initialDelayMs = 1000
+
+        let inline checkCancel () =
+            token.ThrowIfCancellationRequested ()
+
+        let shouldRetry (errs : ParsingAndDownloadingErrors list) =
+            errs
+            |> List.exists
+                (
+                    function
+                        | PdfDownloadError2 TimeoutError           -> true
+                        | PdfDownloadError2 ApiResponseError       -> true
+                        | JsonParsingError2 JsonDataFilteringError -> true
+                        | _                                        -> false
+                )
+
+        let rec attempt retryCount (delayMs : int) =
+
+            async 
+                {
+                    checkCancel ()
+
+                    let! results =
+                        [|
+                            normaliseAsyncResult token (process1 token variant dir)
+                            normaliseAsyncResult token (process2 token variant dir)
+                        |]
+                        |> Async.Parallel
+
+                    let result1 = Array.head results
+                    let result2 = Array.last results
+
+                    let combined =
+                        validation
+                            {
+                                let! links1 = result1
+                                and! links2 = result2
+                                return links1 @ links2 |> List.distinct
+                            }
+                        
+                    match combined with
+                    | Validation.Ok _ 
+                        ->
+                        return combined
+
+                    | Validation.Error errs
+                        when retryCount < maxRetries && shouldRetry errs
+                        ->
+                        do! Async.Sleep delayMs
+                        return! attempt (retryCount + 1) (delayMs * 2)
+
+                    | Validation.Error errs 
+                        ->
+                        return Validation.Error errs
+                }
+
+        IO (fun () ->
+            attempt 0 initialDelayMs
+            |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+        )
+
+//******************************************************************************
 
     let internal downloadAndSave (token : CancellationToken) context =  
    

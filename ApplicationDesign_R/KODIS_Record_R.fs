@@ -143,7 +143,7 @@ module WebScraping_KODIS =
                 downloadAndSaveJson reportProgress token 
         )
 
-    let internal stateReducerCmd2 (token : CancellationToken) path dispatchCancelVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress =
+    let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
 
         IO (fun () 
                 ->    

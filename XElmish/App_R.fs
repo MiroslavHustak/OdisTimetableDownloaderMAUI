@@ -833,7 +833,6 @@ module App_R =
                                                     stateReducerCmd2 
                                                     <| token
                                                     <| kodisPathTemp
-                                                    <| fun isVisible -> CancelVisible >> dispatch <| isVisible   
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                     <| fun message -> IterationMessage >> dispatch <| message 
                                                     <| reportProgress            
@@ -945,10 +944,7 @@ module App_R =
                                                     stateReducerCmd4
                                                     <| token
                                                     <| kodisPathTemp4
-                                                    <| fun isVisible -> CancelVisible >> dispatch <| isVisible    
-                                                    <| fun isVisible -> RestartVisible >> dispatch <| isVisible
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
-                                                    <| fun message -> IterationMessage >> dispatch <| message 
                                                     <| reportProgress      
 
                                                 return runIO result  
