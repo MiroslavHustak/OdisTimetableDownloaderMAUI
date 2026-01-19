@@ -62,6 +62,16 @@ module FutureLinks =
                                         header "X-API-KEY" apiKeyTest 
                                         config_timeoutInSeconds 31
                                         config_cancellationToken token
+                                        #if ANDROID
+                                        config_transformHttpClient
+                                            (fun _
+                                                ->
+                                                let unsafeHandler = new HttpClientHandler() //nelze use //docasne reseni
+                                                unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)   
+                                                let unsafeClient = new HttpClient(unsafeHandler) 
+                                                unsafeClient
+                                            )
+                                        #endif
                                     }
                                 |> Request.sendAsync
                 
@@ -88,12 +98,10 @@ module FutureLinks =
 
     //******************* For Kodis4 only **************************
 
-    let internal putFutureLinksToRestApi (token : CancellationToken) list = 
+    let internal putFutureLinksToRestApi (token : CancellationToken) links = 
 
         IO (fun () 
                 ->          
-                let (links, _) = list |> List.unzip 
-                                
                 // Direct transformation into JSON string (no records/serialization/Thoth encoders are necessary)   
                 let s1 = "{ \"list\": ["
                 let s2 = links |> List.map (sprintf "\"%s\"") |> String.concat ","
@@ -111,18 +119,16 @@ module FutureLinks =
                                         header "X-API-KEY" apiKeyTest 
                                         config_timeoutInSeconds 31
                                         config_cancellationToken token
+                                        #if ANDROID
                                         config_transformHttpClient
                                             (fun _
                                                 ->
-                                                #if ANDROID
-                                                let unsafeHandler = new JavaInteroperabilityCode.UnsafeAndroidClientHandler()  
-                                                #else
                                                 let unsafeHandler = new HttpClientHandler() //nelze use //docasne reseni
                                                 unsafeHandler.ServerCertificateCustomValidationCallback <- (fun _ _ _ _ -> true)   
-                                                #endif
                                                 let unsafeClient = new HttpClient(unsafeHandler) 
                                                 unsafeClient
                                             )
+                                        #endif
                                         body 
                                         json jsonPayload
                                     }

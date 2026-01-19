@@ -78,9 +78,13 @@ module Types =
     type internal TaskResults =   
        | DispatchDone of unit
        | ListDone of Result<(string * string) list, ParsingAndDownloadingErrors> 
-                    
+        
     type [<Struct>] internal MsgIncrement =
-        | Inc of int  
+        | Inc of int 
+
+    type internal MsgIncrement2 = 
+        | Inc2 of int
+        | GetCount of AsyncReplyChannel<int>
            
     type internal ConnectivityMessage =
         | UpdateState of bool

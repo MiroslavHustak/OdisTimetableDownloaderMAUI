@@ -22,6 +22,8 @@ open Api.FutureLinks
 
 open Settings.SettingsGeneral
 
+open Helpers
+
 open Helpers.Builders
 open Helpers.DirFileHelper
 open Helpers.ExceptionHelpers
@@ -226,7 +228,7 @@ module KODIS_BL_Record =
                         JsonLetItBeKodis StopJsonDownloading JsonTimeoutError 
                         JsonDownloadError JsonTlsHandshakeError token ex
         )    
-    
+
     let internal downloadAndSave variant token context =  
    
         IO (fun ()
@@ -340,25 +342,29 @@ module KODIS_BL_Record =
                     let l = context.list |> List.length
                             
                     let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>
-                            .StartImmediate
-                                <|
-                                fun inbox 
-                                    ->   
-                                    let rec loop n = 
-                                        async
-                                            {
-                                                try
-                                                    let! Inc i = inbox.Receive()
-                                                    match variant = FutureValidity || n = 2 with 
-                                                    | true  -> do! runIO  <| putFutureLinksToRestApi token context.list //temporary solution until KODIS make things right
-                                                    | false -> ()
+                        MailboxProcessor<MsgIncrement2>.StartImmediate 
+                            <|
+                            fun inbox 
+                                ->
+                                let rec loop n =
+                                    async
+                                        {
+                                            try
+                                                let! msg = inbox.Receive()
+
+                                                match msg with
+                                                | Inc2 i 
+                                                    ->
                                                     context.reportProgress (float n, float l)
                                                     return! loop (n + i)
-                                                with
-                                                | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0013-KBL")  
-                                            }
-                                    loop 0
+                                                | GetCount replyChannel //not used anymore, kept for educational purposes
+                                                    ->
+                                                    replyChannel.Reply n
+                                                    return! loop n
+                                            with
+                                            | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0013-KBL")
+                                        }
+                                loop 0
                                                  
                     //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                     let removeDuplicatePathPairs uri pathToFile =
@@ -375,6 +381,18 @@ module KODIS_BL_Record =
                                
                     try
                         checkCancel token
+                        
+                        // *********  Temporary code *********
+
+                        asyncOption // :-)
+                            {
+                                do! Option.fromBool () (variant = FutureValidity)
+                                return! runIO <| putFutureLinksToRestApi token uri
+                            }
+                        |> Async.Ignore<unit option> 
+                        |> Async.Start  //slo by paralelne s nize, ale vzhledem k tomu, ze fire and forget je tady v poho, overhead vubec nestoji za to
+
+                        //************************************
 
                         (token, uri, pathToFile)
                         |||> List.Parallel.map2_IO_AW_Token_Async                                    
@@ -384,8 +402,8 @@ module KODIS_BL_Record =
                                     {
                                         try
                                             checkCancel token 
-                                            counterAndProgressBar.Post <| Inc 1
-   
+                                            counterAndProgressBar.Post <| Inc2 1
+                                              
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
    
