@@ -452,21 +452,21 @@ module IO_Operations =
                 let moveTask1 () = 
                     async
                         {
-                            let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBeKodis4 FolderMovingError4
+                            let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination LetItBe FolderMovingError4
                             return Ok [] 
                         }
             
                 let moveTask2 () = 
                     async 
                         {    
-                            let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBeKodis4 FolderMovingError4
+                            let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination LetItBe FolderMovingError4
                             return Ok []  
                         }
     
                 let moveTask3 () = 
                     async
                         {
-                            let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBeKodis4 FolderMovingError4
+                            let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination LetItBe FolderMovingError4
                             return Ok []  
                         }   
                     

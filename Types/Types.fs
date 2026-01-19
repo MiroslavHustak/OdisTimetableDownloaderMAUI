@@ -111,7 +111,6 @@ module Types =
 
     type internal Context<'a, 'b, 'c> = 
         {
-            listMappingFunction : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
             reportProgress : (float * float ) -> unit
             dir : string
             list : (string * string) list

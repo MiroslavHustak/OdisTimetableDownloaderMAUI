@@ -26,6 +26,7 @@ open Settings.Messages
 open Settings.SettingsGeneral
 
 open BusinessLogic_R.KODIS_BL_Record4
+open BusinessLogic_R.KODIS_BL_Record4_Json
 
 //**********************************
 
@@ -57,7 +58,7 @@ module WebScraping_KODIS4 =
     type private Environment = 
         {
             DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
-            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Result<(string * string) list, ParsingAndDownloadingErrors list>> 
+            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Async<Result<(string * string) list, ParsingAndDownloadingErrors list>>> 
             DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>
         }
 
@@ -88,7 +89,7 @@ module WebScraping_KODIS4 =
             | PdfDownloadError2 ApiDecodingError       -> canopyError
             | PdfDownloadError2 (NetConnPdfError err)  -> err
             | PdfDownloadError2 StopDownloading        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
-            | PdfDownloadError2 LetItBeKodis4          -> String.Empty
+            | PdfDownloadError2 LetItBe          -> String.Empty
             | PdfDownloadError2 NoPermissionError      -> String.Empty
             | PdfDownloadError2 TlsHandshakeError      -> tlsHandShakeErrorKodis4
             | JsonParsingError2 JsonParsingError       -> jsonParsingError 
@@ -141,7 +142,10 @@ module WebScraping_KODIS4 =
             //dispatchCancelVisible false    
                              
             let dir = context2.DirList |> List.item context2.VariantInt  
-            let list = runIO <| environment.OperationOnDataFromJson token context2.Variant dir 
+
+            let list =
+                runIO <| environment.OperationOnDataFromJson token context2.Variant dir 
+                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
 
             //dispatchRestartVisible false 
         
@@ -150,22 +154,15 @@ module WebScraping_KODIS4 =
                 when
                     list <> List.empty
                         -> 
-                        let context listMappingFunction = 
+                        let context = 
                             {
-                                listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
                                 reportProgress = reportProgress
                                 dir = dir
                                 list = list
                             }
                                 
-                        dispatchIterationMessage context2.Msg1
-        
-                        // nyni zcela nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)                      
-                        match list.Length >= 4 with 
-                        | true  -> context List.Parallel.map2_IO_AW
-                        | false -> context List.map2
-        
-                        |> environment.DownloadAndSave token     
+                        dispatchIterationMessage context2.Msg1                        
+                        environment.DownloadAndSave token context   
         
             | Ok _
                 ->   
@@ -198,7 +195,7 @@ module WebScraping_KODIS4 =
             | Error err                    
                 ->
                 runIO (postToLog2 <| sprintf "%A" err <| "#0004-K4")
-                Error <| PdfDownloadError2 LetItBeKodis4                     
+                Error <| PdfDownloadError2 LetItBe                     
         
         pyramidOfInferno
             {             
@@ -243,5 +240,5 @@ module WebScraping_KODIS4 =
     
         IO (fun () 
                 ->
-                BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| ()
+                BusinessLogic_R.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| ()
         )

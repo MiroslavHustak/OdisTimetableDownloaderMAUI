@@ -186,7 +186,7 @@ module ParseJsonData =
                         with
                         | ex
                             ->  
-                            match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
+                            match isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
                             | err 
                                 when err = StopDownloading
                                 ->

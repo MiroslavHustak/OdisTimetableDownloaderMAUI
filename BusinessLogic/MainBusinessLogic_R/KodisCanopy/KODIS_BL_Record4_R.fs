@@ -18,246 +18,15 @@ open Types.Types
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
-open Applicatives.CummulativeResultApplicative
-
 open Api.Logging
-open Api.FutureLinks
 
 open Helpers.Builders
 open Helpers.DirFileHelper
 open Helpers.ExceptionHelpers
 
 open Settings.SettingsGeneral
-open Filtering.FilterTimetableLinks
 
-module KODIS_BL_Record4 =    
-        
-    // 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
-    // 16-12-2024 Nic neni trvalejsiho, nez neco docasneho ...
-    // 31-12-2025 ... kdo by to byl rekl, ze se nic nezmeni   
-
-    let private normaliseAsyncResult (token : CancellationToken) (a : Async<Result<'a, ParsingAndDownloadingErrors>>) =
-
-        async 
-            {
-                try
-                    token.ThrowIfCancellationRequested()
-                    let! r = a
-                    return r |> Result.mapError List.singleton
-                with
-                | ex                                 
-                    ->
-                    token.ThrowIfCancellationRequested()
-                    runIO (postToLog2 <| string ex.Message <| "#0001-K4BL")
-                    return Error [ JsonParsingError2 JsonDataFilteringError ]
-            }
-    
-    let private process1 (token : CancellationToken) variant dir =
-
-        async
-            {
-                token.ThrowIfCancellationRequested()
-
-                match! runIO <| getFutureLinksFromRestApi token urlApi with
-                | Ok value  
-                    -> 
-                    return runIO <| filterTimetableLinks variant dir (Ok value)
-                | Error err 
-                    -> 
-                    token.ThrowIfCancellationRequested()
-                    runIO (postToLog2 <| string err <| "#0002-K4BL")
-                    return Error <| PdfDownloadError2 err
-            }
-    
-    let private process2 (token : CancellationToken) variant dir =
-
-        async
-            {
-                token.ThrowIfCancellationRequested()
-
-                match variant with
-                | FutureValidity 
-                    ->
-                    match! runIO <| getFutureLinksFromRestApi token urlJson with
-                    | Ok value  
-                        -> 
-                        return runIO <| filterTimetableLinks variant dir (Ok value)
-                    | Error err
-                        -> 
-                        runIO (postToLog2 <| string err <| "#0003-K4BL")
-                        return Error <| PdfDownloadError2 err
-                | _ 
-                    ->
-                    return Ok [] //zadna dalsi varianta uz tady neni, Ok[] je dummy
-            }
-
-    // Not resumable varriant
-    let internal operationOnDataFromJson2 (token : CancellationToken) variant dir = 
-
-        IO (fun () 
-                ->
-                async
-                    {
-                        token.ThrowIfCancellationRequested() 
-
-                        let! results =
-                            [|
-                                normaliseAsyncResult token (process1 token variant dir)
-                                normaliseAsyncResult token (process2 token variant dir)
-                            |]
-                            |> Async.Parallel
-    
-                        let result1 = Array.head results
-                        let result2 = Array.last results
-    
-                        return
-                            (fun l1 l2 -> l1 @ l2)
-                            <!!!> result1
-                            <***> result2
-
-                            |> Result.map List.distinct
-                    }
-
-                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-        )    
-
-    //"Resumable block" variant for small payload
-    let internal operationOnDataFromJson4 (token : CancellationToken) variant dir =
-
-        let maxRetries = 4
-        let delay = 1000
-
-        let inline checkCancel (token : CancellationToken) =
-            token.ThrowIfCancellationRequested()
-            ()
-
-        let rec retryParallel maxRetries (delay : int) =  //cely blok, neni tra to robit jak u downloads, bo payload je jen 100-200 KB
-            
-            async 
-                {
-                    checkCancel token
-    
-                    try
-                        let! results =
-                            [|
-                                normaliseAsyncResult token (process1 token variant dir)
-                                normaliseAsyncResult token (process2 token variant dir)
-                            |]
-                            |> Async.Parallel
-    
-                        let result1 = Array.head results
-                        let result2 = Array.last results
-
-                        let combined =
-                            validation {
-                                let! links1 = result1
-                                and! links2 = result2
-                                return links1 @ links2 |> List.distinct
-                            }
-                        
-                        match combined with
-                        | Validation.Ok _
-                            ->
-                            return combined
-                                                                        
-                        | Validation.Error errs
-                            ->
-                            return Validation.Error errs
-                        (*
-                        tento kod samo o sobe nechyti vsechny triggers nutnych pro spusteni resume
-                        return
-                            validation
-                                {
-                                    let! links1 = result1
-                                    and! links2 = result2
-                                    return links1 @ links2 |> List.distinct
-                                }
-                        *)
-    
-                    with
-                    | ex 
-                        when maxRetries > 0
-                            ->
-                            //runIO (postToLog2 <| string ex.Message <| "#0044-K4BL")
-                            do! Async.Sleep delay
-
-                            return! retryParallel (maxRetries - 1) (delay * 2)
-                    | ex
-                        ->
-                        checkCancel token
-                        runIO (postToLog2 <| string ex.Message <| "#0004-K4BL")
-                          
-                        return Validation.error <| PdfDownloadError2 FileDownloadError
-                }
-    
-        IO (fun () -> retryParallel maxRetries delay |> (fun a -> Async.RunSynchronously(a, cancellationToken = token)))  
-            
-    // Resumable variant
-    let internal operationOnDataFromJson_resumable (token : CancellationToken) variant dir =
-
-        let maxRetries = 4
-        let initialDelayMs = 1000
-
-        let inline checkCancel () =
-            token.ThrowIfCancellationRequested ()
-
-        let shouldRetry (errs : ParsingAndDownloadingErrors list) =
-            errs
-            |> List.exists
-                (
-                    function
-                        | PdfDownloadError2 TimeoutError           -> true
-                        | PdfDownloadError2 ApiResponseError       -> true
-                        | JsonParsingError2 JsonDataFilteringError -> true
-                        | _                                        -> false
-                )
-
-        let rec attempt retryCount (delayMs : int) =
-
-            async 
-                {
-                    checkCancel ()
-
-                    let! results =
-                        [|
-                            normaliseAsyncResult token (process1 token variant dir)
-                            normaliseAsyncResult token (process2 token variant dir)
-                        |]
-                        |> Async.Parallel
-
-                    let result1 = Array.head results
-                    let result2 = Array.last results
-
-                    let combined =
-                        validation
-                            {
-                                let! links1 = result1
-                                and! links2 = result2
-                                return links1 @ links2 |> List.distinct
-                            }
-                        
-                    match combined with
-                    | Validation.Ok _ 
-                        ->
-                        return combined
-
-                    | Validation.Error errs
-                        when retryCount < maxRetries && shouldRetry errs
-                        ->
-                        do! Async.Sleep delayMs
-                        return! attempt (retryCount + 1) (delayMs * 2)
-
-                    | Validation.Error errs 
-                        ->
-                        return Validation.Error errs
-                }
-
-        IO (fun () ->
-            attempt 0 initialDelayMs
-            |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-        )
-
-//******************************************************************************
+module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu    
 
     let internal downloadAndSave (token : CancellationToken) context =  
    
@@ -271,8 +40,8 @@ module KODIS_BL_Record4 =
                
                     async 
                         {
-                            let maxRetries = 500                            
-                            let initialBackoffMs = 1000
+                            let maxRetries = maxRetries500                            
+                            let initialBackoffMs = delayMs
 
                             checkCancel token
    
@@ -331,7 +100,7 @@ module KODIS_BL_Record4 =
                                                     // runIO (postToLog2 <| string ex.Message <| "#0004-K4BL")  //in order not to log cancellation
                                                     return 
                                                         comprehensiveTryWith 
-                                                            LetItBeKodis4 StopDownloading TimeoutError 
+                                                            LetItBe StopDownloading TimeoutError 
                                                             FileDownloadError TlsHandshakeError token ex
    
                                             | HttpStatusCode.Forbidden
@@ -346,7 +115,7 @@ module KODIS_BL_Record4 =
    
                                         | Choice2Of2 ex 
                                             ->
-                                            match isCancellationGeneric LetItBeKodis4 StopDownloading TimeoutError FileDownloadError token ex with
+                                            match isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
                                                 when err = StopDownloading
                                                 ->
@@ -362,7 +131,7 @@ module KODIS_BL_Record4 =
                                                         runIO <| postToLog2 (string ex.Message) (sprintf "#0008-K4BL (retry %d)" retryCount) 
                                                         return 
                                                             comprehensiveTryWith
-                                                                LetItBeKodis4 StopDownloading TimeoutError
+                                                                LetItBe StopDownloading TimeoutError
                                                                 FileDownloadError TlsHandshakeError token ex    
                                     }
    
@@ -451,7 +220,7 @@ module KODIS_BL_Record4 =
                                             //runIO (postToLog2 <| string ex.Message <| "#0011-K4BL")  //in order not to log cancellation
                                             return 
                                                 comprehensiveTryWith
-                                                    (PdfDownloadError2 LetItBeKodis4)
+                                                    (PdfDownloadError2 LetItBe)
                                                     (PdfDownloadError2 StopDownloading)
                                                     (PdfDownloadError2 TimeoutError) 
                                                     (PdfDownloadError2 FileDownloadError) 
@@ -460,33 +229,37 @@ module KODIS_BL_Record4 =
                                     }                                 
                             )
 
-                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
-
                     with
                     | ex 
                         -> 
-                        checkCancel token
-                        //runIO (postToLog2 <| string ex.Message <| "#0012-K4BL")  //in order not to log cancellation
-                        [
-                            comprehensiveTryWith 
-                                (PdfDownloadError2 LetItBeKodis4)
-                                (PdfDownloadError2 StopDownloading)
-                                (PdfDownloadError2 TimeoutError)
-                                (PdfDownloadError2 FileDownloadError)
-                                (PdfDownloadError2 TlsHandshakeError)
-                                token ex 
-                        ]
-                                                              
-                    |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                    |> Option.defaultValue (Ok ())  
                         
+                        //runIO (postToLog2 <| string ex.Message <| "#0012-K4BL")  //in order not to log cancellation
+                        async
+                            {
+                                checkCancel token
+
+                                return
+                                    [
+                                        comprehensiveTryWith 
+                                            (PdfDownloadError2 LetItBe)
+                                            (PdfDownloadError2 StopDownloading)
+                                            (PdfDownloadError2 TimeoutError)
+                                            (PdfDownloadError2 FileDownloadError)
+                                            (PdfDownloadError2 TlsHandshakeError)
+                                            token ex 
+                                    ]
+                            }
+                    
                 pyramidOfDamnation //TOCTOU race condition by tady nemel byt problem       
                     {
                         let! _ = context.dir |> Directory.Exists, Error (PdfDownloadError2 NoFolderError)
                         let! _ = context.list <> List.Empty, Ok String.Empty
-                    
+                        
                         return
                             downloadAndSaveTimetables token context
+                            |> fun a -> Async.RunSynchronously(a, cancellationToken = token)  
+                            |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                            |> Option.defaultValue (Ok ())  
                             |> Result.map (fun _ -> String.Empty)       
-                    }              
+                    }   
         )

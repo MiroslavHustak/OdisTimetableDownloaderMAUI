@@ -12,3 +12,18 @@ One or more errors occurred. (One or more errors occurred. (The SSL connection c
 01/19/2026 01:42:47 +01:00 One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#0002-ExceptionHandlers
 01/19/2026 02:43:00 +01:00 One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#0002-ExceptionHandlers
 01/19/2026 03:02:41 +01:00 One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#0002-ExceptionHandlers
+01/19/2026 19:28:09 +01:00 HtmlDocument Error Error#0002-MDPOBL
+01/19/2026 19:28:09 +01:00 No such host is known. (www.mdpo.cz:443) Error#0003-MDPO
+01/19/2026 19:28:09 +01:00 No such host is known. (www.mdpo.cz:443) Error#0002-ExceptionHandlers
+01/19/2026 19:28:09 +01:00 No such host is known. (www.mdpo.cz:443) Error#0013-ExceptionHandlers
+01/19/2026 19:28:09 +01:00 No such host is known. (www.mdpo.cz:443) Error#0017-ExceptionHandlers
+01/19/2026 19:28:09 +01:00 No such host is known. Error#0015-ExceptionHandlers
+01/19/2026 19:28:39 +01:00 No such host is known. (www.dpo.cz:443) Error#0002-ExceptionHandlers
+01/19/2026 19:29:17 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis.somee.com:80))) Error#0002-FLK4
+01/19/2026 19:29:17 +01:00 ApiResponseError Error#0002-K4BL
+01/19/2026 19:29:18 +01:00  Error#0022-FLK4
+01/19/2026 19:29:21 +01:00 System.AggregateException Error#0021-FLK4
+01/19/2026 19:30:24 +01:00 The operation was canceled. Error#0001-K
+01/19/2026 19:36:47 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0003-CanopyDifference
+01/19/2026 19:42:32 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0003-CanopyDifference
+01/19/2026 19:51:33 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO

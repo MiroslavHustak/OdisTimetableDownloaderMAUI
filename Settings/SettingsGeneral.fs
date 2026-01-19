@@ -64,6 +64,11 @@ module SettingsGeneral =
     let [<Literal>] internal myIdeaOfASmallList = 24
     let [<Literal>] internal myIdeaOfALargelList = 100
 
+    let [<Literal>] internal maxRetries3 = 3
+    let [<Literal>] internal maxRetries4 = 4
+    let [<Literal>] internal maxRetries500 = 20    
+    let [<Literal>] internal delayMs = 1000
+
     //let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"  //Android 7.1      
     
     let [<Literal>] internal apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" 

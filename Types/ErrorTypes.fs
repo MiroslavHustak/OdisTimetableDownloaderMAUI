@@ -25,7 +25,7 @@ module ErrorTypes =
         | NetConnJsonError of string //string is still heap-allocated, ale tady by to nemelo vadit
         | StopJsonDownloading //cancellation
         | FolderMovingError
-        | JsonLetItBeKodis
+        | JsonLetItBe
         | JsonTlsHandshakeError
 
     type [<Struct>] internal JsonParsingErrors = 
@@ -51,7 +51,7 @@ module ErrorTypes =
         | ApiDecodingError
         | NetConnPdfError of string
         | StopDownloading //cancellation
-        | LetItBeKodis4
+        | LetItBe
         | TlsHandshakeError
 
     type internal ParsingAndDownloadingErrors =

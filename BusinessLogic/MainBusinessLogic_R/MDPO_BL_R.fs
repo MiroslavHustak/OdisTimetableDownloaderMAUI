@@ -146,7 +146,7 @@ module MDPO_BL = //FsHttp
                         
                     async
                         {
-                            let maxRetries = 500
+                            let maxRetries = maxRetries500
                             let initialBackoffMs = 1000
 
                             let rec attempt retryCount (backoffMs : int) =

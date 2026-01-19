@@ -1,6 +1,7 @@
-﻿namespace ApplicationDesign
+﻿namespace ApplicationDesign_R
 
 open System
+open System.IO
 open System.Threading
 
 //**********************************
@@ -13,24 +14,26 @@ open Types.Haskell_IO_Monad_Simulation
 
 open FsToolkit.ErrorHandling
 
-open BusinessLogic.KODIS_BL_Record //not resuming
-open BusinessLogic.TP_Canopy_Difference
-
 open Helpers
 open Helpers.Builders
-
-open Api.Logging
+open Helpers.ExceptionHelpers
 
 open IO_Operations
 open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
 
+open Api.Logging
 open JsonData.ParseJsonData  
 open Filtering.FilterTimetableLinks  
 
 open Settings.Messages
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral
+
+open BusinessLogic_R.KODIS_BL_Record 
+open BusinessLogic_R.KODIS_BL_Record_Json 
+open BusinessLogic_R.TP_Canopy_Difference
+open BusinessLogic_R.MDPO_BL
 
 module WebScraping_KODIS = 
    
@@ -60,17 +63,17 @@ module WebScraping_KODIS =
             DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
             ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Result<string list, ParsingAndDownloadingErrors>> 
             FilterTimetableLinks : Validity -> string -> Result<string list, ParsingAndDownloadingErrors> -> IO<Result<(string * string) list, ParsingAndDownloadingErrors>> 
-            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>  //not resuming
+            DownloadAndSave :  Validity -> CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>  //not resuming
         }
 
     let private environment : Environment = 
         { 
             DownloadAndSaveJson = downloadAndSaveJson 
             DeleteAllODISDirectories = deleteAllODISDirectories   
-            ParseJsonStructure = parseJsonStructure // JsonData.ParseJsonDataFull.digThroughJsonStructure
+            ParseJsonStructure = parseJsonStructure 
             
             FilterTimetableLinks = filterTimetableLinks  
-            DownloadAndSave = downloadAndSave >> runIO //not resuming
+            DownloadAndSave = fun validity token context -> runIO (downloadAndSave validity token context) 
         }    
 
     let internal stateReducerCmd1 (token : CancellationToken) reportProgress =
@@ -95,8 +98,8 @@ module WebScraping_KODIS =
                         | JsonTimeoutError      -> timeoutErrorJson  
                         | StopJsonDownloading   -> jsonCancel
                         | FolderMovingError     -> folderMovingError
-                        | JsonLetItBeKodis      -> String.Empty
-                        | JsonTlsHandshakeError -> String.Empty //TODO
+                        | JsonLetItBe      -> String.Empty
+                        | JsonTlsHandshakeError -> tlsHandShakeErrorKodis
                     
                     try
                         try
@@ -112,9 +115,9 @@ module WebScraping_KODIS =
                                     {
                                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                                         // nicmene priprava na zpracovani err je provedena (jeste vytvorit list s Result, ten bude v Array.last)
-                                        let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination JsonLetItBeKodis FolderMovingError
-                                        let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination JsonLetItBeKodis FolderMovingError
-                                        let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination JsonLetItBeKodis FolderMovingError
+                                        let!_ = runIOAsync <| moveFolders configKodis.source1 configKodis.destination JsonLetItBe FolderMovingError
+                                        let!_ = runIOAsync <| moveFolders configKodis.source2 configKodis.destination JsonLetItBe FolderMovingError
+                                        let!_ = runIOAsync <| moveFolders configKodis.source3 configKodis.destination JsonLetItBe FolderMovingError
 
                                         return Ok ()  
                                     }
@@ -130,7 +133,12 @@ module WebScraping_KODIS =
                         finally
                             ()              
                     with
-                    | _ -> Error JsonLetItBeKodis //silently ignoring failed download operations
+                    | ex 
+                        ->
+                        runIO (postToLog2 <| string ex.Message <| "#0001-K")  
+                        comprehensiveTryWith 
+                            JsonLetItBe StopJsonDownloading JsonTimeoutError 
+                            JsonDownloadError JsonTlsHandshakeError token ex 
             
                     |> Result.map (fun _ -> dispatchMsg2) // spravne dispatchMsg1, ale drzi se to po celou dobu ocekavaneho dispatchMsg2
                     |> Result.mapError errFn
@@ -138,7 +146,7 @@ module WebScraping_KODIS =
                 downloadAndSaveJson reportProgress token 
         )
 
-    let internal stateReducerCmd2 (token : CancellationToken) path dispatchCancelVisible dispatchWorkIsComplete dispatchIterationMessage reportProgress =
+    let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
 
         IO (fun () 
                 ->    
@@ -159,7 +167,7 @@ module WebScraping_KODIS =
                     | PdfDownloadError2 ApiDecodingError       -> canopyError
                     | PdfDownloadError2 (NetConnPdfError err)  -> err
                     | PdfDownloadError2 StopDownloading        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
-                    | PdfDownloadError2 LetItBeKodis4          -> String.Empty
+                    | PdfDownloadError2 LetItBe          -> String.Empty
                     | PdfDownloadError2 NoPermissionError      -> String.Empty
                     | PdfDownloadError2 TlsHandshakeError      -> tlsHandShakeErrorKodis
                     | JsonParsingError2 JsonParsingError       -> jsonParsingError 
@@ -167,12 +175,11 @@ module WebScraping_KODIS =
                     | JsonParsingError2 JsonDataFilteringError -> dataFilteringError                    
                     | _                                        -> String.Empty
                                                                  
-                let result lazyList (context2 : Context2) =  
+                let result lazyList (context2 : Context2) =                     
                     
                     let dir = context2.DirList |> List.item context2.VariantInt 
                     
                     // Paralelni dispatch vubec nepomuze, aby se dispatchMsg2 objevil, ale kod ponechavam for educational purposes
-                    (*
                     let dispatch () = dispatchWorkIsComplete dispatchMsg1_1
                         
                     let list1 () = 
@@ -181,7 +188,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog2 <| string ex.Message <| "#22-2")
+                            runIO (postToLog2 <| string ex.Message <| "#0002-K")
                             Error <| JsonParsingError2 JsonDataFilteringError 
                                                       
                     let taskDispatch param = async { return DispatchDone param } //for educational purposes
@@ -212,9 +219,9 @@ module WebScraping_KODIS =
                         | Error _ 
                             ->  
                             Error <| JsonParsingError2 JsonDataFilteringError                                
-                   *)
                    
-                    dispatchWorkIsComplete dispatchMsg1_1  //dispatchMsg2
+                    (*
+                    dispatchWorkIsComplete dispatchMsg1_1 // dispatchMsg2
 
                     let list2 = 
                         try  
@@ -223,37 +230,28 @@ module WebScraping_KODIS =
                         | ex
                             ->
                             runIO (postToLog2 <| string ex.Message <| "#22-2")
-                            Error <| JsonParsingError2 JsonDataFilteringError                     
-                    
-                    match list2 with                    
-                    //match result2 with
+                            Error <| JsonError JsonDataFilteringError                     
+                     *)
+
+                    //match list2 with                    
+                    match result2 with
                     | Ok list
                         when
                             list <> List.empty
                                 -> 
-                                let context listMappingFunction : Context<'a, 'b, 'c> = 
+                                let context : Context<'a, 'b, 'c> = 
                                     {
-                                        listMappingFunction = listMappingFunction //nepotrebne, ale ponechano jako template record s generic types
                                         reportProgress = reportProgress
                                         dir = dir
                                         list = list
                                     } 
                                
-                                dispatchIterationMessage context2.Msg1
-                              
-                                //nepotrebne, ale ponechano jako template record s generic types (mrkni se na function signature)
-                                //**********************************************************************
-                                match list.Length >= 4 with //muj odhad, kdy uz je treba multithreading
-                                | true  -> context List.Parallel.map2_IO_AW
-                                | false -> context List.map2  
-                                //**********************************************************************
-                                 
-                                |> environment.DownloadAndSave token   
+                                dispatchIterationMessage context2.Msg1                                 
+                                environment.DownloadAndSave context2.Variant token context 
         
                     | Ok _
                         ->  
                         dispatchIterationMessage context2.Msg2    
-                        System.Threading.Thread.Sleep(6000)     
                         Ok context2.Msg3 
         
                     | Error err 
@@ -263,7 +261,7 @@ module WebScraping_KODIS =
 
                     | Error err                    
                         ->
-                        runIO (postToLog2 <| err <| "#006")
+                        runIO (postToLog2 <| string err <| "#0002-K")
                         Error err 
                        
                 let dirList = createNewDirectoryPaths path listOfODISVariants
@@ -315,7 +313,7 @@ module WebScraping_KODIS =
                             with
                             | ex
                                 ->
-                                runIO (postToLog2 <| string ex.Message <| "#22-1")
+                                runIO (postToLog2 <| string ex.Message <| "#0003-K")
                                 Error <| JsonParsingError2 JsonParsingError
                                 //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
                         
