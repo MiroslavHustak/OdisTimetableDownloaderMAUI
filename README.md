@@ -95,7 +95,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │   ├── PureHelpers/ 
 │   │   │   └── CreatePathsAndNames.fs
 │   │   └── ImpureFunctions/
-│   │       ├── FutureLinks.fs
+│   │       ├── FutureValidityRestApi.fs
 │   │       └── IO_Operations.fs
 │   └── MainBusinessLogic_R/
 │       ├── KodisJsonTP/
