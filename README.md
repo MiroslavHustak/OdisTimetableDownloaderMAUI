@@ -11,7 +11,7 @@ RustHelpers (DLL)
 │   ├── copy_move.rs
 │   └── lib.rs
 │
-CppHelpers (DLL and disabled project)
+CppHelpers (DLL)
 ├── CppHelpers.vcxproj
 ├── Header Files/
 │   ├── framework.h
@@ -89,7 +89,6 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │   ├── PureFunctions/
 │   │   │   └── SortRecordData.fs
 │   │   └── ImpureFunctions/
-│   │       ├── ParseJsonDataFull.fs
 │   │       ├── ParseJsonData.fs
 │   │       └── FilterTimetableLinks.fs
 │   ├── IO_Operations/
@@ -98,21 +97,23 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │   └── ImpureFunctions/
 │   │       ├── FutureLinks.fs
 │   │       └── IO_Operations.fs
-│   ├── MainBusinessLogicOld/   
-│   │   └── ..... //not relevant 
 │   └── MainBusinessLogic_R/
+│       ├── KodisJsonTP/
+│       │   ├── KODIS_BL_Record_R_Json.fs
+│       │   └── KODIS_BL_Record_R.fs
+│       ├── KodisCanopy/
+│       │   ├── KODIS_BL_Record4_R_Json.fs
+│       │   └── KODIS_BL_Record4_R.fs
 │       ├── DPO_BL_R.fs
 │       ├── MDPO_BL_R.fs
-│       ├── KODIS_BL_Record_R.fs
-│       ├── KODIS_BL_Record4_R.fs
 │       └── TP_Canopy_Difference_R.fs
-├── ApplicationDesignOld/ 
-│   └── ..... //not relevant
 ├── ApplicationDesign_R/
 │   ├── DPO_R.fs
 │   ├── MDPO_R.fs
-│   ├── KODIS_Record_R.fs
-│   └── KODIS_Record4_R.fs
+│   ├── KodisCanopy/
+│   │   └── KODIS_Record4_R.fs
+│   └── KodisJsonTP/
+│       └── KODIS_Record_R.fs
 ├── XElmish/
 │   ├── ComparisonResultFileLauncher.fs 
 │   ├── HardRestart.fs
@@ -120,10 +121,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── AndroidSpecificCode.fs
 │   ├── ProgressCircle.fs
 │   ├── Counters.fs
-│   ├── App_R.fs 
-│   └── ..... //not relevant 
-├── Resources/   
-│   └── ..... //not relevant       
+│   └── App_R.fs 
 ├── Platforms/
 │   ├── Android/
 │   │   ├── Resources/
@@ -131,12 +129,12 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │   │   │   └── network_security_config.xml
 │   │   │   └── values/
 │   │   │       └── colors.xml
-│   │   ├── Assets/
-│   │   │   └── ..... //not relevant 
 │   │   ├── AndroidManifest.xml
 │   │   ├── MainActivity.fs
 │   │   └── MainApplication.fs   
-│   └── Windows/│    
+│   └── Windows/
+│       ├── app.manifest
+│       ├── Package.appxmanifest
 │       ├── App.fs
 │       └── Main.fs
 └── MauiProgram.fs
