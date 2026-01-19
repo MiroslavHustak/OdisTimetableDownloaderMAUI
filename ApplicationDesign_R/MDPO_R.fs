@@ -4,8 +4,6 @@ open System
 open System.IO
 open System.Threading
 
-open Xamarin.Essentials
-
 open FsToolkit.ErrorHandling
 
 //**********************************
@@ -20,9 +18,7 @@ open Helpers.Builders
 open Helpers.ExceptionHelpers
 
 open Api.Logging
-
-open BusinessLogic_R.MDPO_BL  
-
+open BusinessLogic_R.MDPO_BL 
 open IO_Operations.IO_Operations
 
 open Settings.Messages

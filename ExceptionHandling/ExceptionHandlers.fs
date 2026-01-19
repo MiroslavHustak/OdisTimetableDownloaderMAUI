@@ -2,15 +2,14 @@
 
 open System
 open System.IO
-open System.Threading
-open System.Threading.Tasks
-
 open System.Net.Http
-
+open System.Threading
 open System.Net.Sockets
+open System.Threading.Tasks
 open System.Security.Authentication
 
 //***********************************
+
 open Api.Logging
 open Helpers.Builders  
 

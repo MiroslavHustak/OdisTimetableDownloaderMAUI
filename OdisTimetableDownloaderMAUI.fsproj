@@ -124,7 +124,6 @@
 
   <ItemGroup>
     <!-- App Icon -->
-    <None Include="TODO_list.txt" />
     <Resource Include="Platforms\Android\Resources\xml\network_security_config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -167,7 +166,7 @@
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\ParseJsonData.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\FilterTimetableLinks.fs" />
 	<Compile Include="BusinessLogic\IO_Operations\PureHelpers\CreatePathsAndNames.fs" />
-    <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\FutureLinks.fs" />
+    <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\FutureValidityRestApi.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\IO_Operations.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic_R\KodisJsonTP\KODIS_BL_Record_R_Json.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic_R\KodisJsonTP\KODIS_BL_Record_R.fs" />

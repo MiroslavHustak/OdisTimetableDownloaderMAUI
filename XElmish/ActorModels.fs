@@ -2,8 +2,6 @@
 
 open System.Threading
 
-//*************************************
-
 open Types.Types
 
 module ActorModels =  
@@ -64,7 +62,6 @@ module ActorModels =
             }
         |> Async.StartImmediate
         *)
-
 
 //********************** not resumable App **************************************
 

@@ -28,11 +28,6 @@ open Settings.SettingsGeneral
 open BusinessLogic_R.KODIS_BL_Record4
 open BusinessLogic_R.KODIS_BL_Record4_Json
 
-//**********************************
-
-// 30-10-2024 Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu  
-// 28-12-2024 Nic neni trvalejsiho, nez neco docasneho...
-
 module WebScraping_KODIS4 = 
 
     type private State =  
@@ -67,7 +62,7 @@ module WebScraping_KODIS4 =
             DeleteAllODISDirectories = deleteAllODISDirectories   
             //OperationOnDataFromJson = operationOnDataFromJson4
             OperationOnDataFromJson = operationOnDataFromJson_resumable//operationOnDataFromJson4
-            DownloadAndSave = fun token context -> runIO (downloadAndSave token context ) //downloadAndSave >> runIO
+            DownloadAndSave = fun token context -> runIO (downloadAndSave token context) 
         }    
 
     let private stateReducer (token : CancellationToken) path dispatchIterationMessage reportProgress (state : State) (environment : Environment) =

@@ -1,16 +1,10 @@
 ﻿namespace JsonData
 
-open System
 open System.Threading
-
 //************************************************************
-open FSharp.Data
 open FsToolkit.ErrorHandling
-
 //************************************************************
-
 open EmbeddedTP.EmbeddedTP
-
 //************************************************************
 
 open Types

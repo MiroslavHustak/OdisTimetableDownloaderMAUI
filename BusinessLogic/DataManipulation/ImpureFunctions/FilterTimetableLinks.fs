@@ -24,9 +24,7 @@ open Api.Logging
 open DataModelling.DataModel
 
 module FilterTimetableLinks =  
-
-    // Array vubec rychlost nezvysilo
-    
+   
     let internal filterTimetableLinks param (pathToDir : string) (parsedLinksResult : Result<string list, ParsingAndDownloadingErrors>) = 
 
         IO (fun () //mozna overkill - je to quli Regexu, u ktereho je impurity nejednoznacna, zbytek je dle mne pragmatically pure
@@ -145,7 +143,8 @@ module FilterTimetableLinks =
                     | true  -> [ pathKodisAmazonLink; input.Substring pathKodisAmazonLink.Length ]
                     | false -> [ pathKodisAmazonLink; input ]
 
-                //*************************************Splitting Kodis links into DataTable columns********************************************
+                //************************************* Splitting Kodis links into SQL-ish columns ********************************************
+
                 let splitKodisLink input =
 
                     let oldPrefix = 
@@ -314,6 +313,7 @@ module FilterTimetableLinks =
                         )          
                            
                 //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
+
                 let createPathsForDownloadedFiles filteredList : (string * string) list = 
           
                     filteredList

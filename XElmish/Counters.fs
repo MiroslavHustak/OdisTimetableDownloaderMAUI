@@ -6,11 +6,10 @@ open FSharp.Control
 
 //********************************
 
-open Helpers.Connectivity
-
 open Settings.Messages
 open Settings.SettingsGeneral
 
+open Helpers.Connectivity
 open Types.Haskell_IO_Monad_Simulation
 
 module Counters =   

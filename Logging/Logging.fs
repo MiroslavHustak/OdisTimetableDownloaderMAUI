@@ -8,8 +8,6 @@ open System.Net
 
 open FsHttp
 open Thoth.Json.Net
-
-open FsToolkit
 open FsToolkit.ErrorHandling
 
 //************************************************************
@@ -17,12 +15,9 @@ open FsToolkit.ErrorHandling
 open Types
 open Types.Haskell_IO_Monad_Simulation
 
+open Helpers
 open LogEntries
 open Settings.SettingsGeneral
-
-open Helpers
-open Helpers.Builders
-open Helpers.DirFileHelper
 
 module Logging = 
     

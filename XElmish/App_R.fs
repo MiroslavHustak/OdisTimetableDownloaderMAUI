@@ -29,8 +29,7 @@ open Fabulous
 open Fabulous.Maui
 
 open Microsoft.Maui
-open Microsoft.Maui.Devices
-open Microsoft.Maui.Storage
+
 open Microsoft.Maui.Controls
 open Microsoft.Maui.Graphics
 open Microsoft.Maui.Networking

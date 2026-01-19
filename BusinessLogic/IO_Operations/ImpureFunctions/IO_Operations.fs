@@ -16,12 +16,11 @@ open Types.Grid3Algebra
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
+open CreatingPathsAndNames
 
 open Helpers
 open Helpers.Builders
 open Helpers.FreeMonadInterpret
-
-open CreatingPathsAndNames
 
 open Settings.SettingsKODIS
 open Settings.SettingsGeneral

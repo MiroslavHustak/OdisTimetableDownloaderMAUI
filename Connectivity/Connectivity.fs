@@ -1,7 +1,12 @@
 ﻿namespace Helpers
 
 open System
+open System.Net.NetworkInformation
+
 open Microsoft.Maui.Networking
+open Microsoft.Maui.ApplicationModel
+
+open FSharp.Control
 
 //**********************************
                
@@ -217,21 +222,13 @@ module ConnectivityWithDebouncing =
         Debounce times should be < 5% of your shortest operational timeout.
         *)
 
-module CheckNetConnection =  
-    
-    open FSharp.Control
-
-    open Microsoft.Maui.Networking
-    open Microsoft.Maui.ApplicationModel
-
-    open System.Net.NetworkInformation
+module CheckNetConnection =      
 
     //******************** Zatim se nepouziva TODO IO Monad ********************************************     
            
-    let internal checkInternetConnectivityWM () = //Only for Windows Machine
-        
+    let internal checkInternetConnectivityWM () = //Only for Windows Machine        
         NetworkInterface.GetIsNetworkAvailable () |> Option.ofBool 
-    
+        
 
     //******************** Zatim se nepouziva TODO IO Monad ******************************************** 
     #if ANDROID

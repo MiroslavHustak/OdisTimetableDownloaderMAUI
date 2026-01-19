@@ -17,7 +17,7 @@ open Types.Haskell_IO_Monad_Simulation
 open Applicatives.CummulativeResultApplicative
 
 open Api.Logging
-open Api.FutureLinks
+open Api.FutureValidityRestApi 
 
 open Settings.SettingsGeneral
 open Filtering.FilterTimetableLinks

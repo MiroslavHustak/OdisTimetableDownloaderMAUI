@@ -19,12 +19,11 @@ open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
+open Settings.SettingsGeneral
 
 open Helpers.Builders
 open Helpers.DirFileHelper
 open Helpers.ExceptionHelpers
-
-open Settings.SettingsGeneral
 
 module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani naprosty chaos v json souborech a v retezcich jednotlivych odkazu    
 

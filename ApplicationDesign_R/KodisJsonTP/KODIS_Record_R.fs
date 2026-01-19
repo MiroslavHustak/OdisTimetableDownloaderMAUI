@@ -4,6 +4,8 @@ open System
 open System.IO
 open System.Threading
 
+open FsToolkit.ErrorHandling
+
 //**********************************
 
 open Types
@@ -11,8 +13,6 @@ open Types.Types
 open Types.ErrorTypes
 open Types.Grid3Algebra
 open Types.Haskell_IO_Monad_Simulation
-
-open FsToolkit.ErrorHandling
 
 open Helpers
 open Helpers.Builders
@@ -33,7 +33,6 @@ open Settings.SettingsGeneral
 open BusinessLogic_R.KODIS_BL_Record 
 open BusinessLogic_R.KODIS_BL_Record_Json 
 open BusinessLogic_R.TP_Canopy_Difference
-open BusinessLogic_R.MDPO_BL
 
 module WebScraping_KODIS = 
    
@@ -106,7 +105,6 @@ module WebScraping_KODIS =
                             let downloadTask () = 
                                 async
                                     {
-                                        //return! runIOAsync <| environment.DownloadAndSaveJson (jsonLinkList1 @ jsonLinkList3) (pathToJsonList1 @ pathToJsonList3) reportProgress
                                         return! runIOAsync <| environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress 
                                     }
                             

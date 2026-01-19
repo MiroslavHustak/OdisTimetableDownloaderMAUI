@@ -16,13 +16,12 @@ open Types
 open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
-open Settings.SettingsGeneral
-
 open Api.Logging
 open DataModelling.Dtm
+open Settings.SettingsGeneral
 open TransformationLayers.ApiTransformLayer
 
-module FutureLinks = 
+module FutureValidityRestApi = 
 
     let private decoderGet : Decoder<ResponseGetLinks> =
 

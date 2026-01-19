@@ -1,28 +1,19 @@
 ﻿namespace Helpers
 
 open System.IO
-
 //***************************
-
 open FsToolkit.ErrorHandling
-
+//***************************
 
 open Types
 open Types.Types
 
-open NativeHelpers
-
 open FreeMonad
 open Haskell_IO_Monad_Simulation
 
+open Helpers
 open Helpers.CopyDir
 open Helpers.MoveDir
-
-open Helpers.CopyDir2
-open Helpers.MoveDir2
-
-open Helpers
-open Helpers.Builders  
 open Helpers.CommandLineWorkflow
 
 module FreeMonadInterpret = 

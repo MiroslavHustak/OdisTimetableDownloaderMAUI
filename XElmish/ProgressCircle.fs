@@ -1,13 +1,11 @@
 ﻿namespace OdisTimetableDownloaderMAUI
 
-open Fabulous.Maui
+open System
+open Microsoft.Maui.Graphics
+
+open Types.Haskell_IO_Monad_Simulation
 
 module ProgressCircle =
-
-    open System
-    open Microsoft.Maui.Graphics
-
-    open Types.Haskell_IO_Monad_Simulation
 
     //Anonymous Object Creation  //object expressions ({ new ... with ... }) are the F# way to implement OOP interfaces anonymously.
     let internal progressCircle (progress : float) =

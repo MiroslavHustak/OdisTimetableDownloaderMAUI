@@ -10,7 +10,6 @@ open FsToolkit.ErrorHandling
 open Api.Logging
 open Helpers.Serialization
 open Settings.SettingsGeneral
-
 open Types.Haskell_IO_Monad_Simulation
 
 open Applicatives.ResultApplicative

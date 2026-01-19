@@ -512,7 +512,7 @@ let map_CPU_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken
     match list with
     | [] ->  
         async { return [] }
-    | _ ->
+    | _  ->
         let maxDegree = Environment.ProcessorCount   // or reuse numberOfThreads (List.length list)       
 
         let tasks = 

@@ -15,9 +15,7 @@ module StateMonad =
                 let (v, s1) = runState m s
                 runState (f v) s1
             )
-
-    // Computation expression builder for the State monad
-    
+   
     type internal StateBuilder = StateBuilder with
         member _.Return(x) = returnState x
         member _.Bind(m, f) = bindState m f
