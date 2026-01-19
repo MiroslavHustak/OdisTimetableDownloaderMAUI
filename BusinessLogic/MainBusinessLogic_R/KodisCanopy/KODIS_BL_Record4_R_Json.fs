@@ -161,8 +161,7 @@ module KODIS_BL_Record4_Json =
                                     and! links2 = result2
                                     return links1 @ links2 |> List.distinct
                                 }
-                        *)
-    
+                        *)    
                     with
                     | ex 
                         when maxRetries > 0

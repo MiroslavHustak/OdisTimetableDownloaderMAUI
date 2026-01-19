@@ -59,7 +59,7 @@ module KODIS_BL_Record_Json =
                     async
                         {
                             let maxRetries = maxRetries500
-                            let initialBackoffMs = 1000
+                            let initialBackoffMs = delayMs
 
                             let rec attempt retryCount (backoffMs : int) =
 
@@ -209,7 +209,6 @@ module KODIS_BL_Record_Json =
                                                 JsonDownloadError JsonTlsHandshakeError token ex 
                                 }
                         )
-
                 with                                               
                 | ex 
                     -> 
