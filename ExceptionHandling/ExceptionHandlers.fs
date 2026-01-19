@@ -220,7 +220,7 @@ module ExceptionHelpers =
             function
                 | TlsError2     -> tlsHandShakeError
                 | TimeoutError2 -> timeoutError
-                | NetworkError2 -> letItBe
+                | NetworkError2 -> fileDownloadError
                 | UnknownError2 -> fileDownloadError
     
         match isCancellationGeneric letItBe stopDownloading timeoutError fileDownloadError token ex with
@@ -389,7 +389,7 @@ module ExceptionHelpers =
                function
                    | TlsError2     -> tlsHandShakeError
                    | TimeoutError2 -> timeoutError
-                   | NetworkError2 -> letItBe
+                   | NetworkError2 -> fileDownloadError
                    | UnknownError2 -> fileDownloadError
        
            match isCancellationGeneric letItBe stopDownloading timeoutError fileDownloadError token ex with

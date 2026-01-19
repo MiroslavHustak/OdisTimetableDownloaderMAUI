@@ -27,3 +27,11 @@ One or more errors occurred. (One or more errors occurred. (The SSL connection c
 01/19/2026 19:36:47 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0003-CanopyDifference
 01/19/2026 19:42:32 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0003-CanopyDifference
 01/19/2026 19:51:33 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+01/19/2026 21:48:09 +01:00 No such host is known. Error#0013-ExceptionHandlers
+01/19/2026 21:48:27 +01:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO'. Error#0010-IO
+01/19/2026 21:48:27 +01:00 LetItBeMHD Error#0013-IO
+01/19/2026 21:48:54 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis.somee.com:80))) Error#0002-FLK4
+01/19/2026 21:48:55 +01:00 ApiResponseError Error#0002-K4BL
+01/19/2026 21:48:56 +01:00 System.AggregateException Error#0021-FLK4
+01/19/2026 21:48:56 +01:00 ApiResponseError Error#0002-K4BL
+01/19/2026 21:48:59 +01:00 System.AggregateException Error#0021-FLK4
