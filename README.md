@@ -112,8 +112,8 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │   └── KODIS_Record_R.fs
 │   ├── KodisCanopy/
 │   │   └── KODIS_Record4_R.fs 
-│   ├── DPO_R.fs/│      
-│   └── MDPO_R.fs/│       
+│   ├── DPO_R.fs      
+│   └── MDPO_R.fs       
 ├── XElmish/
 │   ├── ComparisonResultFileLauncher.fs 
 │   ├── HardRestart.fs
