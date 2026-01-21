@@ -98,7 +98,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                     checkCancel token
                                                     // runIO (postToLog2 <| string ex.Message <| "#0004-K4BL")  //in order not to log cancellation
                                                     return 
-                                                        comprehensiveTryWith 
+                                                        runIO <| comprehensiveTryWith 
                                                             LetItBe StopDownloading TimeoutError 
                                                             FileDownloadError TlsHandshakeError token ex
    
@@ -114,7 +114,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
    
                                         | Choice2Of2 ex 
                                             ->
-                                            match isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                                            match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
                                                 when err = StopDownloading
                                                 ->
@@ -129,7 +129,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                 | false ->
                                                         runIO <| postToLog2 (string ex.Message) (sprintf "#0008-K4BL (retry %d)" retryCount) 
                                                         return 
-                                                            comprehensiveTryWith
+                                                            runIO <| comprehensiveTryWith
                                                                 LetItBe StopDownloading TimeoutError
                                                                 FileDownloadError TlsHandshakeError token ex    
                                     }
@@ -218,7 +218,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                             checkCancel token
                                             //runIO (postToLog2 <| string ex.Message <| "#0011-K4BL")  //in order not to log cancellation
                                             return 
-                                                comprehensiveTryWith
+                                                runIO <| comprehensiveTryWith
                                                     (PdfDownloadError2 LetItBe)
                                                     (PdfDownloadError2 StopDownloading)
                                                     (PdfDownloadError2 TimeoutError) 
@@ -237,7 +237,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
 
                                 return
                                     [
-                                        comprehensiveTryWith 
+                                        runIO <| comprehensiveTryWith 
                                             (PdfDownloadError2 LetItBe)
                                             (PdfDownloadError2 StopDownloading)
                                             (PdfDownloadError2 TimeoutError)

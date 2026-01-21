@@ -54,7 +54,7 @@ module KODIS_BL_Record_Json =
                                 loop 0
                         )
     
-                let downloadWithResume (uri : string) (pathToFile : string) : Async<Result<unit, JsonDownloadErrors>> =
+                let downloadWithResume (uri : string) (pathToFile : string) =
 
                     async
                         {
@@ -145,7 +145,7 @@ module KODIS_BL_Record_Json =
                                                     -> 
                                                     checkCancel token
                                                     return
-                                                        comprehensiveTryWith 
+                                                        runIO <| comprehensiveTryWith 
                                                             JsonLetItBe StopJsonDownloading JsonTimeoutError 
                                                             JsonDownloadError JsonTlsHandshakeError token ex  
 
@@ -161,7 +161,7 @@ module KODIS_BL_Record_Json =
 
                                         | Choice2Of2 ex
                                             ->
-                                            match isCancellationGeneric JsonLetItBe StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with
+                                            match runIO <| isCancellationGeneric JsonLetItBe StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with
                                             | err
                                                 when err = StopJsonDownloading
                                                 ->
@@ -176,7 +176,7 @@ module KODIS_BL_Record_Json =
                                                 | false ->
                                                         runIO <| postToLog2 (string ex.Message) (sprintf "#0006-KBLJson (retry %d)" retryCount)
                                                         return 
-                                                            comprehensiveTryWith 
+                                                            runIO <| comprehensiveTryWith 
                                                                 JsonLetItBe StopJsonDownloading JsonTimeoutError 
                                                                 JsonDownloadError JsonTlsHandshakeError token ex
                                     }
@@ -196,7 +196,7 @@ module KODIS_BL_Record_Json =
                                     try
                                         checkCancel token
                                         counterAndProgressBar.Post <| Inc 1    
-
+                    
                                         return! downloadWithResume uri pathToFile
                                     with                                               
                                     | ex 
@@ -204,7 +204,7 @@ module KODIS_BL_Record_Json =
                                         checkCancel token
                                         //runIO (postToLog2 <| string ex.Message <| "#0007-KBLJson")  //in order not to log cancellation
                                         return
-                                            comprehensiveTryWith 
+                                            runIO <| comprehensiveTryWith 
                                                 JsonLetItBe StopJsonDownloading JsonTimeoutError 
                                                 JsonDownloadError JsonTlsHandshakeError token ex 
                                 }
@@ -218,7 +218,7 @@ module KODIS_BL_Record_Json =
                             //runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson")  //in order not to log cancellation
                             return
                                 [
-                                    comprehensiveTryWith 
+                                    runIO <| comprehensiveTryWith 
                                         JsonLetItBe StopJsonDownloading JsonTimeoutError 
                                         JsonDownloadError JsonTlsHandshakeError token ex
                                 ]

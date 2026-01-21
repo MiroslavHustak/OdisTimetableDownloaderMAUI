@@ -134,7 +134,7 @@ module WebScraping_KODIS =
                     | ex 
                         ->
                         runIO (postToLog2 <| string ex.Message <| "#0001-K")  
-                        comprehensiveTryWith 
+                        runIO <| comprehensiveTryWith 
                             JsonLetItBe StopJsonDownloading JsonTimeoutError 
                             JsonDownloadError JsonTlsHandshakeError token ex 
             

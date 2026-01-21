@@ -120,7 +120,7 @@ module WebScraping_MDPO =
                         | ex 
                             -> 
                             runIO (postToLog2 <| string ex.Message <| "#0003-MDPO") // commented out so that cancellation is not logged
-                            comprehensiveTryWithMHD 
+                            runIO <| comprehensiveTryWithMHD 
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                    
 

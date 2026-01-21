@@ -203,7 +203,7 @@ module DPO_BL =
                                                     checkCancel token
                                                     runIO (postToLog2 <| string ex.Message <| "#0001-DPOBL") //in order not to log cancellation
                                                     return
-                                                        comprehensiveTryWithMHD 
+                                                        runIO <| comprehensiveTryWithMHD 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             | _ ->
@@ -212,7 +212,7 @@ module DPO_BL =
     
                                         | Choice2Of2 ex 
                                             ->
-                                            match isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
+                                            match runIO <| isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | err when err = StopDownloadingMHD 
                                                 ->
                                                 runIO (postToLog2 <| string ex.Message <| "#0003-DPOBL") //in order not to log cancellation
@@ -224,7 +224,7 @@ module DPO_BL =
                                             | _ ->
                                                 runIO (postToLog2 <| string ex.Message <| "#0004-DPOBL") 
                                                 return 
-                                                    comprehensiveTryWithMHD 
+                                                    runIO <| comprehensiveTryWithMHD 
                                                         LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                         FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
@@ -291,7 +291,7 @@ module DPO_BL =
                         -> 
                         checkCancel token //toto reaguje pro vypnutem internetu pred aktivaci downloadAndSaveTimetables
                         runIO (postToLog2 <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
-                        comprehensiveTryWithMHD 
+                        runIO <| comprehensiveTryWithMHD 
                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
         )

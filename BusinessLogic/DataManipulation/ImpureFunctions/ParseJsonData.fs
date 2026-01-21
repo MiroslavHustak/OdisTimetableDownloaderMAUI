@@ -180,7 +180,7 @@ module ParseJsonData =
                         with
                         | ex
                             ->  
-                            match isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                            match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
                             | err 
                                 when err = StopDownloading
                                 ->

@@ -23,7 +23,7 @@ open Settings.SettingsGeneral
 open Api.Logging
 open DataModelling.DataModel
 
-module FilterTimetableLinks =  
+module FilterTimetableLinks =      
    
     let internal filterTimetableLinks param (pathToDir : string) (parsedLinksResult : Result<string list, ParsingAndDownloadingErrors>) = 
 
