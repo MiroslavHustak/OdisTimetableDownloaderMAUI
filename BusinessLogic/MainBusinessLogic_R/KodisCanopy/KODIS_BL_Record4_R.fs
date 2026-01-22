@@ -260,25 +260,3 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                             |> Result.map (fun _ -> String.Empty)       
                     }   
         )
-
-(*
-type Progress<'a> = Progress of count: int * value: 'a
-
-let downloadWithProgress uri path token = async {
-    let! result = downloadWithResume uri path token
-    return Progress(1, result)  // Each download contributes 1 to progress
-}
-
-let results =
-    (token, uri, pathToFile)
-    |||> List.Parallel.map2_IO_AW_Token_Async (fun uri path ->
-        downloadWithProgress uri path token
-    )
-    |> Async.Parallel
-    |> Async.RunSynchronously
-    // Now fold over results to extract progress
-    |> Array.fold (fun (Progress(total, acc)) (Progress(n, x)) ->
-        context.reportProgress (float (total + n), float l)
-        Progress(total + n, x :: acc)
-    ) (Progress(0, []))
-*)

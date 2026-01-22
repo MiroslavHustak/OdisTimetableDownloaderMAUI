@@ -20,7 +20,6 @@ open Api.Logging
 open DataModelling.Dtm
 open Settings.SettingsGeneral
 open TransformationLayers.ApiTransformLayer
-open System
 
 module FutureValidityRestApi = 
 

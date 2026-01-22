@@ -41,7 +41,7 @@ module SettingsGeneral =
                 }
         }
 
-    //Pokud bych chtel vsude String.Empty v default record, pak staci toto:
+    //Pokud bych chtel vsude napr. String.Empty v default record, pak staci toto:
     let internal ODIS_Variants2 = { board = defaultGridFunction String.Empty }
 
     let internal listOfODISVariants = 

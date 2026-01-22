@@ -2,7 +2,6 @@
 
 module Builders =
         
-    //[<Struct>] does not help here
     type internal MyBuilder = MyBuilder with //This CE is a monad-style control-flow helper, not a monad
         member _.Recover(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
             match m with
