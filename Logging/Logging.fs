@@ -81,7 +81,7 @@ module Logging =
                     } 
         )        
 
-    let internal postToLog (msg : 'a) errCode =   
+    let internal postToLog (msg : 'a) errCode =   //odesle na endpoint
 
         IO (fun () 
                 ->    
@@ -136,7 +136,7 @@ module Logging =
         )
     #endif
 
-    let internal postToLog2 (msg : 'a) (err : string) =  //for stress testing purposes only
+    let internal postToLog2 (msg : 'a) (err : string) =  //for stress testing purposes only //saving on a HD / internal emmory
 
         IO (fun () 
                 ->

@@ -184,7 +184,7 @@ module KODIS_BL_Record =
                         
                         // *********  Temporary code *********
 
-                        asyncOption // :-)
+                        asyncOption // a little bit overengineered :-)
                             {
                                 do! Option.fromBool () (variant = FutureValidity)
                                 return! runIO <| putFutureLinksToRestApi token uri

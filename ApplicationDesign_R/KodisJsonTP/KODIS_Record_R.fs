@@ -227,7 +227,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog2 <| string ex.Message <| "#22-2")
+                            runIO (postToLog <| string ex.Message <| "#22-2")
                             Error <| JsonError JsonDataFilteringError                     
                      *)
 

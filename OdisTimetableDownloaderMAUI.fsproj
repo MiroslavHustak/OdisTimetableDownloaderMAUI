@@ -230,7 +230,7 @@
     <PackageReference Include="FSharp.Core" Version="8.0.403" />
     <PackageReference Include="FSharp.Data" Version="6.4.0" />
     <PackageReference Include="FSharp.Quotations.Evaluator" Version="2.1.0" />
-    <PackageReference Include="FsHttp" Version="14.5.1" />
+    <PackageReference Include="FsHttp" Version="15.0.3" />
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
     <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.92" />

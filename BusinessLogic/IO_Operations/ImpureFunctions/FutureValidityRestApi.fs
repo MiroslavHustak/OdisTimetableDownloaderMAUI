@@ -20,8 +20,13 @@ open Api.Logging
 open DataModelling.Dtm
 open Settings.SettingsGeneral
 open TransformationLayers.ApiTransformLayer
+open System
 
 module FutureValidityRestApi = 
+
+    open System.Net.Http
+    open System.Text
+    open System.Threading
 
     let private decoderGet : Decoder<ResponseGetLinks> =
 
@@ -128,11 +133,11 @@ module FutureValidityRestApi =
                                                 unsafeClient
                                             )
                                         #endif
-                                        body 
-                                        json jsonPayload
+                                        body
+                                        json jsonPayload 
                                     }
-                                |> Request.sendAsync       
-                                            
+                                |> Request.sendAsync    
+                           
                             match response.statusCode with
                             | HttpStatusCode.OK 
                                 -> 
@@ -166,3 +171,15 @@ module FutureValidityRestApi =
                             return () //silently swallowing errors
                     } 
         )
+(*
+curl -k -i -X PUT https://rust-rest-api-endpoints.onrender.com/api/canopy/ \
+-H "X-API-KEY: test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" \
+-H "Content-Type: application/json" \
+-d '{ "list": [] }'
+
+curl -k -i -X GET https://rust-rest-api-endpoints.onrender.com/api/ -H "X-API-KEY: test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3"
+
+curl -k -i -X PUT https://rust-rest-api-endpoints.onrender.com/api/jsonLinks -H "X-API-KEY: test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" -H "Content-Type: application/json" -d '{ "list": [] }'
+
+curl -k -i -X GET https://rust-rest-api-endpoints.onrender.com/api/jsonLinks -H "X-API-KEY: test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3"
+*)
