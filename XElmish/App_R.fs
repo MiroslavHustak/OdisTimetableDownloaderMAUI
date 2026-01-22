@@ -189,39 +189,7 @@ module App_R =
                             loop true DateTime.MinValue
                     )
         
-            runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)
-        
-        // no longer used, kept for educational purposes
-        let monitorConnectivity (dispatch : Msg -> unit) =         
-           
-            AsyncSeq.initInfinite (fun _ -> true)
-            |> AsyncSeq.mapi (fun index _ -> index)    // index for educational purposes
-            |> AsyncSeq.takeWhile ((=) true << (>=) 0) // indefinite sequence // ((=) true << fun index -> index >= 0) 
-            |> AsyncSeq.iterAsync 
-                (fun index 
-                    ->        
-                    async 
-                        {                                
-                            connectivityListener2 >> runIO 
-                                <|
-                                fun isConnected 
-                                    ->
-                                    async
-                                        {   
-                                            match isConnected with
-                                            | true  ->
-                                                    return ()
-                                            | false -> 
-                                                    NetConnMessage >> dispatch <| noNetConn 
-                                                    do! Async.Sleep 2000
-                                                    return runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                        }
-                                    |> Async.StartImmediate //nelze Async.Start 
-                        
-                            do! Async.Sleep 100  //rapid-fire messages ← NEW handler every iteration, 600 handlers per minute
-                        }
-                )
-            |> Async.StartImmediate  
+            runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)       
 
         #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
