@@ -63,7 +63,7 @@ module ExceptionHelpers =
                         | :? System.Net.Http.HttpRequestException
                             ->
                             runIO (postToLog2 <| string ex.Message <| "#0002-ExceptionHandlers")
-                            loop rest (fileDownloadError :: acc)
+                            loop rest (letItBe :: acc)
                 
                         | :? System.Security.Authentication.AuthenticationException
                             ->
@@ -223,7 +223,7 @@ module ExceptionHelpers =
             function
                 | TlsError2     -> tlsHandShakeError
                 | TimeoutError2 -> timeoutError
-                | NetworkError2 -> fileDownloadError
+                | NetworkError2 -> letItBe
                 | UnknownError2 -> fileDownloadError
     
         IO (fun () 
@@ -262,13 +262,13 @@ module ExceptionHelpers =
     
                 | _ -> 
                     runIO (postToLog2 <| string ex.Message <| "#0012-ExceptionHandlers")
-                    Error letItBe
+                    Error fileDownloadError
 
                 //temporary code for stress testing  
                 |> function
                     | err 
                         when err = Error letItBe
-                        -> Error letItBe  
+                        -> Ok()
                     | err
                         -> err
         )
@@ -395,7 +395,7 @@ module ExceptionHelpers =
             function
                 | TlsError2     -> tlsHandShakeError
                 | TimeoutError2 -> timeoutError
-                | NetworkError2 -> fileDownloadError
+                | NetworkError2 -> letItBe
                 | UnknownError2 -> fileDownloadError
                
         IO (fun () 
@@ -412,7 +412,7 @@ module ExceptionHelpers =
                     Error timeoutError
            
                 | err
-                    when err = fileDownloadError 
+                    when err = letItBe 
                     ->
                     let classification, unknownEx = 
                         ex 
@@ -440,7 +440,7 @@ module ExceptionHelpers =
                 |> function
                     | err 
                         when err = Error letItBe
-                        -> Error letItBe 
+                        -> Ok()
                     | err
                         -> err
         )

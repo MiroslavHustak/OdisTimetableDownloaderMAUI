@@ -66,8 +66,8 @@ module KODIS_BL_Record_Json =
 
                     async
                         {
-                            let maxRetries = maxRetries500
-                            let initialBackoffMs = delayMs
+                            let maxRetries = maxRetries3
+                            let initialBackoffMs = delayMsJson
 
                             let rec attempt retryCount (backoffMs : int) =
 
@@ -104,36 +104,39 @@ module KODIS_BL_Record_Json =
                                         | Choice1Of2 response
                                             ->
                                             use response = response
-
                                             match existingFileLength, response.statusCode with                                        
                                             // Server ignored Range → full response → must restart download
                                             | length, HttpStatusCode.OK
                                                 when length > 0L
                                                 ->
-                                                try
-                                                    File.Delete pathToFile
-                                                    return! attempt retryCount backoffMs
-                                                with
-                                                | ex
+                                                match retryCount < maxRetries with
+                                                | true 
                                                     ->
-                                                    runIO (postToLog2 <| string ex.Message <| "#0002-KBLJson")
+                                                    try
+                                                        File.Delete pathToFile
+                                                        do! Async.Sleep backoffMs
+                                                        return! attempt (retryCount + 1) (backoffMs * 2)
+                                                    with
+                                                    | ex
+                                                        ->
+                                                        runIO (postToLog2 <| string ex.Message <| "#0002-KBLJson")
+                                                        return Error JsonDownloadError
+                                                | false 
+                                                    ->
+                                                    runIO (postToLog2 "Max retries on ignored Range header" "#0007-KBLJson")
                                                     return Error JsonDownloadError
-
                                             | _, HttpStatusCode.OK
                                             | _, HttpStatusCode.PartialContent
                                                 ->
                                                 try
                                                     use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask
-
                                                     let fileMode =
                                                         match existingFileLength > 0L with
                                                         | true  -> FileMode.Append
                                                         | false -> FileMode.Create
-
                                                     use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                     do! fileStream.FlushAsync(token) |> Async.AwaitTask
-
                                                     return Ok ()
                                                 with                                               
                                                 | ex 
@@ -143,17 +146,14 @@ module KODIS_BL_Record_Json =
                                                         runIO <| comprehensiveTryWith 
                                                             JsonLetItBe StopJsonDownloading JsonTimeoutError 
                                                             JsonDownloadError JsonTlsHandshakeError token ex  
-
                                             | _, HttpStatusCode.Forbidden
                                                 ->
                                                 runIO <| postToLog2 () (sprintf "%s Forbidden 403 #0003-KBLJson" uri)
                                                 return Error JsonDownloadError
-
-                                            | status
+                                            | _, status
                                                 ->
                                                 runIO (postToLog2 (string status) "#0004-KBLJson")
                                                 return Error JsonDownloadError
-
                                         | Choice2Of2 ex
                                             ->
                                             match runIO <| isCancellationGeneric JsonLetItBe StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with

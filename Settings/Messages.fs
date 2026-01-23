@@ -37,6 +37,7 @@ module Messages =
     let [<Literal>] internal fileDownloadError = "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
     #endif
 
+    let [<Literal>] internal letItBe = "Ověř stažené soubory, neb v průběhu stahování došlo k výpadku internetu."
     let [<Literal>] internal canopyError = "REST API error." 
     let [<Literal>] internal timeoutError = "JŘ ODIS se nepodařilo stáhnout, neb vypršel časový limit požadavku. Zkus znovu (možná bude potřeba mít stabilnější či rychlejší připojení)." 
     let [<Literal>] internal timeoutErrorJson = "JSON soubory se nepodařilo stáhnout, neb vypršel časový limit požadavku. Zkus znovu (možná bude potřeba mít stabilnější či rychlejší připojení)." 

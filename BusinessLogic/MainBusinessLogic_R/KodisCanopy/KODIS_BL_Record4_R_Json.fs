@@ -136,14 +136,6 @@ module KODIS_BL_Record4_Json =
                         let result1 = Array.head results
                         let result2 = Array.last results
 
-                        let test1 = sprintf "%A" result1
-
-                        let test2 = sprintf "%A" result1
-
-                        let test3 = sprintf "%s ********************/n %s" test1 test2
-
-                        runIO <| postToLog2 () test3
-
                         let combined =
                             validation
                                 {

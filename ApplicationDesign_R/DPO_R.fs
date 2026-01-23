@@ -140,7 +140,7 @@ module WebScraping_DPO =
                             | ConnectionError          -> noNetConn
                             | FileDeleteErrorMHD       -> fileDeleteError
                             | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) pathToDir) |> Result.either (fun _ -> dpoCancelMsg) (fun _ -> dpoCancelMsg1)
-                            | LetItBeMHD               -> String.Empty
+                            | LetItBeMHD               -> letItBe
                             | TlsHandshakeErrorMHD     -> tlsHandShakeErrorDpo
                             | TimeoutErrorMHD          -> timeoutError
                            

@@ -176,8 +176,8 @@ module MDPO_BL = //FsHttp
                         
                     async
                         {
-                            let maxRetries = maxRetries500
-                            let initialBackoffMs = 1000
+                            let maxRetries = maxRetries4
+                            let initialBackoffMs = delayMs
 
                             let rec attempt retryCount (backoffMs : int) =
 
@@ -214,13 +214,30 @@ module MDPO_BL = //FsHttp
                                         | Choice1Of2 response
                                             ->
                                             use response = response
-                        
-                                            match response.statusCode with
-                                            | HttpStatusCode.OK when existingFileLength > 0L 
+                                            
+                                            match existingFileLength, response.statusCode with
+                                            // Server ignored Range → full response → must restart download
+                                            | length, HttpStatusCode.OK
+                                                when length > 0L
                                                 ->
-                                                return Error FileDownloadErrorMHD // server ignored Range
-                                            | HttpStatusCode.OK
-                                            | HttpStatusCode.PartialContent
+                                                match retryCount < maxRetries with
+                                                | true
+                                                    ->
+                                                    try
+                                                        File.Delete pathToFile
+                                                        do! Async.Sleep backoffMs
+                                                        return! attempt (retryCount + 1) (backoffMs * 2)
+                                                    with
+                                                    | ex
+                                                        ->
+                                                        runIO (postToLog2 <| string ex.Message <| "#0007-MDPOBL")
+                                                        return Error FileDownloadErrorMHD
+                                                | false 
+                                                    ->
+                                                    runIO (postToLog2 "Max retries on ignored Range header" "#0008-MDPOBL")
+                                                    return Error FileDownloadErrorMHD
+                                            | _, HttpStatusCode.OK
+                                            | _, HttpStatusCode.PartialContent
                                                 ->
                                                 try
                                                     use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask   
@@ -229,7 +246,6 @@ module MDPO_BL = //FsHttp
                                                         match existingFileLength > 0L with
                                                         | true  -> FileMode.Append
                                                         | false -> FileMode.Create
-
                                                     use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)                        
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                     do! fileStream.FlushAsync(token) |> Async.AwaitTask  
@@ -244,22 +260,23 @@ module MDPO_BL = //FsHttp
                                                         runIO <| comprehensiveTryWithMHD 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
-                        
-                                            | HttpStatusCode.Forbidden
+                                                                
+                                            | _, HttpStatusCode.Forbidden
                                                 ->
                                                 runIO (postToLog2 () (sprintf "%s Forbidden 403 #0004-MDPOBL" uri))
                                                 return Error FileDownloadErrorMHD
-                        
-                                            | _ ->
+                                                                
+                                            | _, _ 
+                                                ->
                                                 runIO (postToLog2 (string response.statusCode) "#0005-MDPOBL")
                                                 return Error FileDownloadErrorMHD
-                        
+                                                                
                                         | Choice2Of2 ex 
                                             ->
                                             match runIO <| isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | err when err = StopDownloadingMHD 
                                                 ->
-                                                //runIO (postToLog2 <| string ex.Message <| "#0005-MDPOBL") //in order not to log cancellation
+                                                //runIO (postToLog2 <| string ex.Message <| "#0006-MDPOBL") //in order not to log cancellation
                                                 return Error StopDownloadingMHD
                                             | _ ->
                                                 match retryCount < maxRetries with
@@ -267,7 +284,7 @@ module MDPO_BL = //FsHttp
                                                         do! Async.Sleep backoffMs
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
-                                                        runIO (postToLog2 <| string ex.Message <| "#0006-MDPOBL") 
+                                                        runIO (postToLog2 <| string ex.Message <| "#0009-MDPOBL") 
                                                         return 
                                                             runIO <| comprehensiveTryWithMHD 
                                                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 

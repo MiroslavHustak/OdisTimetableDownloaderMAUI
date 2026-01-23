@@ -83,9 +83,8 @@ module ParseJsonData =
                                                 async
                                                     {
                                                         try
-                                                            counterAndProgressBar.Post <| Inc 1    
                                                             token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
-
+                                                            counterAndProgressBar.Post <| Inc 1   
                                                             let! result = readAllTextAsync >> runIO <| pathToJson 
 
                                                             return result |> JsonProvider2.Parse
@@ -105,10 +104,9 @@ module ParseJsonData =
                                                 async
                                                     {
                                                         try
-                                                            counterAndProgressBar.Post <| Inc 1
-
                                                             token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
-                                                
+                                                            counterAndProgressBar.Post <| Inc 1
+                                                            
                                                             //JsonProvider's results are of Array type => Array is used
                                                 
                                                             let timetables =

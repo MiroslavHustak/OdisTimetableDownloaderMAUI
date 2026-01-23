@@ -67,7 +67,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                
                     async 
                         {
-                            let maxRetries = maxRetries500                            
+                            let maxRetries = maxRetries4                           
                             let initialBackoffMs = delayMs
 
                             checkCancel token
@@ -110,68 +110,66 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                         | Choice1Of2 response
                                             ->
                                             use response = response
-                                        
                                             match existingFileLength, response.statusCode with
-                                            // ────────────────────────────────────────────────────────────────
-                                            // Server ignored Range header → sent full file instead of partial
-                                            // Most common problematic case on flaky CDNs / misconfigured servers
+                                            // Server ignored Range → full response → must restart download
                                             | length, HttpStatusCode.OK
-                                                when length > 0L 
+                                                when length > 0L
                                                 ->
-                                                runIO <| postToLog2 () (sprintf "%s ignored Range → restarting download #RANGE-RETRY #0005-KBL" uri)
-                                        
-                                                try
-                                                    File.Delete pathToFile                  // ← remove corrupted/inconsistent partial file
-                                                    return! attempt retryCount backoffMs    // ← retry whole download (from byte 0)
-                                                with
-                                                | ex ->
-                                                    runIO (postToLog2 (string ex.Message) "#RANGE-DELETE-FAIL #0055-K4BL")
+                                                match retryCount < maxRetries with
+                                                | true 
+                                                    ->
+                                                    try
+                                                        File.Delete pathToFile
+                                                        do! Async.Sleep backoffMs
+                                                        return! attempt (retryCount + 1) (backoffMs * 2)
+                                                    with
+                                                    | ex
+                                                        ->
+                                                        runIO (postToLog2 <| string ex.Message <| "#0005-K4BL")
+                                                        return Error FileDownloadError
+                                                | false 
+                                                    ->
+                                                    runIO (postToLog2 "Max retries on ignored Range header" "#0006-K4BL")
                                                     return Error FileDownloadError
-                                        
-                                            // Normal successful cases
-                                            | _, HttpStatusCode.OK          // full fresh download
+                                            | _, HttpStatusCode.OK         
                                             | _, HttpStatusCode.PartialContent 
-                                                ->   // resume worked
+                                                ->   
                                                 try
                                                     use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask
-                                        
                                                     // Decide file mode based on whether we're resuming or starting fresh
                                                     let fileMode =
                                                         match existingFileLength > 0L with
                                                         | true  -> FileMode.Append
                                                         | false -> FileMode.Create
-
                                                     use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)                                        
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                     do! fileStream.FlushAsync(token) |> Async.AwaitTask
-                                        
                                                     return Ok ()
                                                 with 
-                                                | ex ->
+                                                | ex
+                                                    ->
                                                     checkCancel token
                                                     return
                                                         runIO <| comprehensiveTryWith
                                                             LetItBe StopDownloading TimeoutError
                                                             FileDownloadError TlsHandshakeError token ex
-                                        
                                             | _, HttpStatusCode.Forbidden 
                                                 ->
-                                                runIO <| postToLog2 () (sprintf "%s Forbidden 403 #0006-K4BL" uri)
+                                                runIO <| postToLog2 () (sprintf "%s Forbidden 403 #0007-K4BL" uri)
                                                 return Error FileDownloadError
-                                        
-                                            | status, _ 
+                                            | _, status 
                                                 ->
-                                                runIO <| postToLog2 (string status) "#0007-K4BL"
+                                                runIO <| postToLog2 (string status) "#0008-K4BL"
                                                 return Error FileDownloadError
-   
-   
+                                           
+                                           
                                         | Choice2Of2 ex 
                                             ->
                                             match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
                                                 when err = StopDownloading
                                                 ->
-                                                //runIO (postToLog2 <| string ex.Message <| "#0007-K4BL")  //in order not to log cancellation
+                                                //runIO (postToLog2 <| string ex.Message <| "#0009-K4BL")  //in order not to log cancellation
                                                 return Error StopDownloading
                                             | _ 
                                                 ->
@@ -180,11 +178,11 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                         do! Async.Sleep backoffMs
                                                         return! attempt (retryCount + 1) (backoffMs * 2)
                                                 | false ->
-                                                        runIO <| postToLog2 (string ex.Message) (sprintf "#0008-K4BL (retry %d)" retryCount) 
+                                                        runIO <| postToLog2 (string ex.Message) (sprintf "#0010-K4BL (retry %d)" retryCount) 
                                                         return 
                                                             runIO <| comprehensiveTryWith
                                                                 LetItBe StopDownloading TimeoutError
-                                                                FileDownloadError TlsHandshakeError token ex    
+                                                                FileDownloadError TlsHandshakeError token ex
                                     }
    
                             return! attempt 0 initialBackoffMs
