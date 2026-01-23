@@ -286,6 +286,7 @@ module KODIS_BL_Record =
                             downloadAndSaveTimetables variant token 
                             |> fun a -> Async.RunSynchronously(a, cancellationToken = token)  
                         
+                        context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop2
                         
                         let! _ = result |> List.length = l, Error (PdfDownloadError2 FileDownloadError)

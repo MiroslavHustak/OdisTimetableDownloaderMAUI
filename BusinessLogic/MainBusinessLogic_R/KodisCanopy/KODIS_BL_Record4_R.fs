@@ -291,6 +291,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                             downloadAndSaveTimetables token context 
                             |> fun a -> Async.RunSynchronously(a, cancellationToken = token)  
                         
+                        context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop
 
                         let! _ = result |> List.length = l, Error (PdfDownloadError2 FileDownloadError)

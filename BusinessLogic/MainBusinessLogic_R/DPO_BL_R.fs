@@ -305,12 +305,14 @@ module DPO_BL =
                     
                         match result |> List.length = l with
                         | true  ->
+                                reportProgress (float l, float l)
                                 counterAndProgressBar.Post Stop
 
                                 result 
                                 |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                                 |> Option.defaultValue (Ok ())
                         | false ->
+                                reportProgress (float l, float l)
                                 counterAndProgressBar.Post Stop
                                 Error FileDownloadErrorMHD
                     with                                            

@@ -223,7 +223,8 @@ module KODIS_BL_Record_Json =
                             }
 
                     |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
-
+ 
+                reportProgress (float l, float l) 
                 counterAndProgressBar.Post Stop
                 
                 match result |> List.length = l with

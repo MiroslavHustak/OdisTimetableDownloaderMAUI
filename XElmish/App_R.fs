@@ -744,7 +744,7 @@ module App_R =
                                 try
                                     do! Async.SwitchToThreadPool()
 
-                                    let! hardWork =                                                              
+                                    let! result =                                                              
                                         async 
                                             {                                            
                                                 let reportProgress (progressValue, totalProgress) =     
@@ -755,11 +755,7 @@ module App_R =
 
                                                 return runIO (stateReducerCmd1 token reportProgress)                                                      
                                             }
-                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
-
-                                    let! result = hardWork 
-                                    //do! Async.Sleep 1000
-
+                                                                          
                                     match token.IsCancellationRequested with
                                     | false ->
                                             match result with
@@ -787,7 +783,7 @@ module App_R =
                                 try
                                     do! Async.SwitchToThreadPool()
 
-                                    let! hardWork =                             
+                                    let! result =                             
                                         async 
                                             {   
                                                 let reportProgress (progressValue, totalProgress) =     
@@ -806,10 +802,6 @@ module App_R =
                                        
                                                 return runIO result
                                             }
-                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
-                               
-                                    let! result = hardWork 
-                                    //do! Async.Sleep 1000
                           
                                     match token.IsCancellationRequested with
                                     | false ->
@@ -898,7 +890,7 @@ module App_R =
                                 try
                                     do! Async.SwitchToThreadPool()
 
-                                    let! hardWork =                             
+                                    let! result =                             
                                         async 
                                             {                                                      
                                                 let reportProgress (progressValue, totalProgress) =     
@@ -916,11 +908,7 @@ module App_R =
 
                                                 return runIO result  
                                             }
-                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
-
-                                    let! result = hardWork 
-                                    //do! Async.Sleep 1000 
-
+                                       
                                     match token.IsCancellationRequested with
                                     | false ->
                                             return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
@@ -1024,7 +1012,7 @@ module App_R =
 
                                     NetConnMessage >> dispatch <| String.Empty 
                                                           
-                                    let! hardWork =                            
+                                    let! result =                            
                                         async 
                                             {
                                                 let reportProgress (progressValue, totalProgress) =     
@@ -1043,11 +1031,7 @@ module App_R =
                                                     RestartVisible >> dispatch <| true
                                                     return err
                                             }
-                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
-                               
-                                    let! result = hardWork 
-                                    //do! Async.Sleep 1000
-                              
+                                        
                                     match token.IsCancellationRequested with
                                     | false ->
                                             return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
@@ -1141,7 +1125,7 @@ module App_R =
 
                                     NetConnMessage >> dispatch <| String.Empty 
                                                           
-                                    let! hardWork =                            
+                                    let! result =                            
                                         async 
                                             {
                                                 let reportProgress (progressValue, totalProgress) =     
@@ -1160,11 +1144,7 @@ module App_R =
                                                     RestartVisible >> dispatch <| true
                                                     return err
                                             }
-                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
-                               
-                                    let! result = hardWork 
-                                    //do! Async.Sleep 1000
-                           
+                                    
                                     match token.IsCancellationRequested with
                                     | false ->
                                             return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    

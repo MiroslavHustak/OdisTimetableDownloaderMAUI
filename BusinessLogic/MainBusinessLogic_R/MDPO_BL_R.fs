@@ -357,12 +357,14 @@ module MDPO_BL = //FsHttp
                 
                 match result |> List.length = l with
                 | true  ->
-                        //counterAndProgressBar.Post Stop
+                        reportProgress (float l, float l)
+                        counterAndProgressBar.Post Stop
 
                         result 
                         |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                         |> Option.defaultValue (Ok ())
                 | false ->
-                        //counterAndProgressBar.Post Stop
+                        reportProgress (float l, float l)
+                        counterAndProgressBar.Post Stop
                         Error FileDownloadErrorMHD
         )
