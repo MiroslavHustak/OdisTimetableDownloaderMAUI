@@ -55,7 +55,7 @@ module KODIS_BL_Record_Json =
                                                     return! loop (n + i)
                                                 | Stop
                                                     ->
-                                                    return! async { return () } // exit loop → agent terminates
+                                                    return ()// exit loop → agent terminates
                                             with
                                             | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0001-KBLJson")
                                         }
@@ -67,7 +67,7 @@ module KODIS_BL_Record_Json =
                     async
                         {
                             let maxRetries = maxRetries3
-                            let initialBackoffMs = delayMsJson
+                            let initialBackoffMs = delayMs //delayMsJson
 
                             let rec attempt retryCount (backoffMs : int) =
 
@@ -125,6 +125,7 @@ module KODIS_BL_Record_Json =
                                                     ->
                                                     runIO (postToLog2 "Max retries on ignored Range header" "#0007-KBLJson")
                                                     return Error JsonDownloadError
+
                                             | _, HttpStatusCode.OK
                                             | _, HttpStatusCode.PartialContent
                                                 ->
@@ -137,6 +138,7 @@ module KODIS_BL_Record_Json =
                                                     use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                     do! fileStream.FlushAsync(token) |> Async.AwaitTask
+
                                                     return Ok ()
                                                 with                                               
                                                 | ex 
@@ -146,14 +148,17 @@ module KODIS_BL_Record_Json =
                                                         runIO <| comprehensiveTryWith 
                                                             JsonLetItBe StopJsonDownloading JsonTimeoutError 
                                                             JsonDownloadError JsonTlsHandshakeError token ex  
+
                                             | _, HttpStatusCode.Forbidden
                                                 ->
                                                 runIO <| postToLog2 () (sprintf "%s Forbidden 403 #0003-KBLJson" uri)
                                                 return Error JsonDownloadError
+
                                             | _, status
                                                 ->
                                                 runIO (postToLog2 (string status) "#0004-KBLJson")
                                                 return Error JsonDownloadError
+
                                         | Choice2Of2 ex
                                             ->
                                             match runIO <| isCancellationGeneric JsonLetItBe StopJsonDownloading JsonTimeoutError JsonDownloadError token ex with

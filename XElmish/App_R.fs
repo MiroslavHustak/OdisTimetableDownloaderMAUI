@@ -170,7 +170,7 @@ module App_R =
                                         let! isConnected = inbox.Receive()
                                         let now = DateTime.Now
         
-                                        match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.2 with
+                                        match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.5 with
                                         | true, true 
                                             ->
                                             match isConnected with
@@ -189,8 +189,8 @@ module App_R =
                             loop true DateTime.MinValue
                     )
             
-            //200 = debounceMs, (now - lastChangeTime).TotalSeconds > 0.5 resp. 0.2 - s temito hodnotami si pohrat
-            runIO <| startConnectivityMonitoring 200 (fun isConnected -> debounceActor.Post isConnected)       
+            //250 = debounceMs, (now - lastChangeTime).TotalSeconds > 0.5 resp. 0.2 - s temito hodnotami si pohrat
+            runIO <| startConnectivityMonitoring 250 (fun isConnected -> debounceActor.Post isConnected)       
 
         #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
