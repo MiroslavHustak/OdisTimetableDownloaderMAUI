@@ -58,9 +58,16 @@ module ParseJsonData =
                                                         async
                                                             {
                                                                 try
-                                                                    let! Inc i = inbox.Receive()
-                                                                    reportProgress (float n, float l)
-                                                                    return! loop (n + i)
+                                                                    let! msg = inbox.Receive()  
+                                                                    
+                                                                    match msg with
+                                                                    | Inc i 
+                                                                        -> 
+                                                                        reportProgress (float n, float l)
+                                                                        return! loop (n + i)
+                                                                    | Stop
+                                                                        ->
+                                                                        return () // exit loop → agent terminates
                                                                 with
                                                                 | ex -> () 
                                                             }

@@ -35,6 +35,34 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                     token.ThrowIfCancellationRequested()
                     ()
 
+                let l = context.list |> List.length
+
+                let counterAndProgressBar =
+                        MailboxProcessor<MsgIncrement>
+                            .StartImmediate
+                                <|
+                                fun inbox 
+                                    ->   
+                                    let rec loop n = 
+                                        async
+                                            {
+                                                try
+                                                    checkCancel token      
+                                                    let! msg = inbox.Receive()
+                                                    
+                                                    match msg with
+                                                    | Inc i 
+                                                        -> 
+                                                        context.reportProgress (float n, float l)
+                                                        return! loop (n + i)
+                                                    | Stop
+                                                        ->
+                                                        return () // exit loop → agent terminates
+                                                with
+                                                | _ -> () 
+                                            }
+                                    loop 0                               
+                
                 let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                
                     async 
@@ -82,35 +110,60 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                         | Choice1Of2 response
                                             ->
                                             use response = response
-
-                                            match response.statusCode with
-                                            | HttpStatusCode.OK
-                                            | HttpStatusCode.PartialContent 
+                                        
+                                            match existingFileLength, response.statusCode with
+                                            // ────────────────────────────────────────────────────────────────
+                                            // Server ignored Range header → sent full file instead of partial
+                                            // Most common problematic case on flaky CDNs / misconfigured servers
+                                            | length, HttpStatusCode.OK
+                                                when length > 0L 
                                                 ->
+                                                runIO <| postToLog2 () (sprintf "%s ignored Range → restarting download #RANGE-RETRY #0005-KBL" uri)
+                                        
+                                                try
+                                                    File.Delete pathToFile                  // ← remove corrupted/inconsistent partial file
+                                                    return! attempt retryCount backoffMs    // ← retry whole download (from byte 0)
+                                                with
+                                                | ex ->
+                                                    runIO (postToLog2 (string ex.Message) "#RANGE-DELETE-FAIL #0055-K4BL")
+                                                    return Error FileDownloadError
+                                        
+                                            // Normal successful cases
+                                            | _, HttpStatusCode.OK          // full fresh download
+                                            | _, HttpStatusCode.PartialContent 
+                                                ->   // resume worked
                                                 try
                                                     use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask
-                                                    use fileStream = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
+                                        
+                                                    // Decide file mode based on whether we're resuming or starting fresh
+                                                    let fileMode =
+                                                        match existingFileLength > 0L with
+                                                        | true  -> FileMode.Append
+                                                        | false -> FileMode.Create
+
+                                                    use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)                                        
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
+                                                    do! fileStream.FlushAsync(token) |> Async.AwaitTask
+                                        
                                                     return Ok ()
-                                                with                                               
-                                                | ex 
-                                                    -> 
+                                                with 
+                                                | ex ->
                                                     checkCancel token
-                                                    // runIO (postToLog2 <| string ex.Message <| "#0004-K4BL")  //in order not to log cancellation
-                                                    return 
-                                                        runIO <| comprehensiveTryWith 
-                                                            LetItBe StopDownloading TimeoutError 
+                                                    return
+                                                        runIO <| comprehensiveTryWith
+                                                            LetItBe StopDownloading TimeoutError
                                                             FileDownloadError TlsHandshakeError token ex
-   
-                                            | HttpStatusCode.Forbidden
+                                        
+                                            | _, HttpStatusCode.Forbidden 
                                                 ->
-                                                runIO <| postToLog2 () (sprintf "%s Forbidden 403 #0005-K4BL" uri) 
+                                                runIO <| postToLog2 () (sprintf "%s Forbidden 403 #0006-K4BL" uri)
+                                                return Error FileDownloadError
+                                        
+                                            | status, _ 
+                                                ->
+                                                runIO <| postToLog2 (string status) "#0007-K4BL"
                                                 return Error FileDownloadError
    
-                                            | status
-                                                ->
-                                                runIO <| postToLog2 (string status) "#0006-K4BL" 
-                                                return Error FileDownloadError
    
                                         | Choice2Of2 ex 
                                             ->
@@ -138,9 +191,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                     }
    
                 let downloadAndSaveTimetables (token : CancellationToken) context =                                         
-         
-                    let l = context.list |> List.length
-
+                             
                     //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                     let removeDuplicatePathPairs uri pathToFile =
                         (uri, pathToFile)
@@ -152,25 +203,8 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                         |> List.distinct
                         |> List.unzip
                         |> fun (uri, pathToFile) -> removeDuplicatePathPairs uri pathToFile
-                        |> List.unzip           
-                           
-                    let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>
-                            .StartImmediate
-                                <|
-                                fun inbox 
-                                    ->   
-                                    let rec loop n = 
-                                        async
-                                            {
-                                                try
-                                                    let! Inc i = inbox.Receive()                                                  
-                                                    context.reportProgress (float n, float l)
-                                                    return! loop (n + i)
-                                                with
-                                                | _ -> () 
-                                            }
-                                    loop 0                               
+                        |> List.unzip        
+                    
                     try
                         checkCancel token
 
@@ -182,8 +216,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                     {
                                         try
                                             checkCancel token 
-                                            counterAndProgressBar.Post <| Inc 1
-   
+                                            
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
                                             
@@ -191,12 +224,14 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                             | Some _ 
                                                 ->
                                                 // File already exists → skip download entirely
+                                                counterAndProgressBar.Post <| Inc 1                                                
                                                 return Ok ()
    
                                             | None 
                                                 ->
                                                 // File does not exist (or was deleted) → download (with resume if partial)
                                                 let! result = downloadWithResume uri pathToFile token 
+                                                counterAndProgressBar.Post <| Inc 1
                                                 
                                                 return
                                                     result
@@ -226,7 +261,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                     (PdfDownloadError2 TlsHandshakeError)
                                                     token ex
                                     }                                 
-                            )
+                            )  
                     with
                     | ex 
                         -> 
@@ -252,11 +287,18 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                         let! _ = context.dir |> Directory.Exists, Error (PdfDownloadError2 NoFolderError)
                         let! _ = context.list <> List.Empty, Ok String.Empty
                         
-                        return
-                            downloadAndSaveTimetables token context
+                        let result = 
+                            downloadAndSaveTimetables token context 
                             |> fun a -> Async.RunSynchronously(a, cancellationToken = token)  
+                        
+                        counterAndProgressBar.Post Stop
+
+                        let! _ = result |> List.length = l, Error (PdfDownloadError2 FileDownloadError)
+
+                        return
+                            result
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                             |> Option.defaultValue (Ok ())  
-                            |> Result.map (fun _ -> String.Empty)       
+                            |> Result.map (fun _ -> String.Empty)  
                     }   
         )

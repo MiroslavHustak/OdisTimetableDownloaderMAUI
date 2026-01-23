@@ -45,9 +45,17 @@ module KODIS_BL_Record_Json =
                                     async 
                                         {
                                             try
-                                                let! Inc i = inbox.Receive()
-                                                reportProgress (float n, float l)
-                                                return! loop (n + i)
+                                                checkCancel token      
+                                                let! msg = inbox.Receive()  
+                                                
+                                                match msg with
+                                                | Inc i 
+                                                    -> 
+                                                    reportProgress (float n, float l)
+                                                    return! loop (n + i)
+                                                | Stop
+                                                    ->
+                                                    return! async { return () } // exit loop → agent terminates
                                             with
                                             | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0001-KBLJson")
                                         }
@@ -115,30 +123,17 @@ module KODIS_BL_Record_Json =
                                             | _, HttpStatusCode.PartialContent
                                                 ->
                                                 try
-                                                    use! stream =
-                                                        response.content.ReadAsStreamAsync()
-                                                        |> Async.AwaitTask
+                                                    use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask
 
-                                                    use fileStream =
+                                                    let fileMode =
                                                         match existingFileLength > 0L with
-                                                        | true  ->
-                                                                new FileStream
-                                                                    (
-                                                                        pathToFile,
-                                                                        FileMode.Append,
-                                                                        FileAccess.Write,
-                                                                        FileShare.None
-                                                                    )
-                                                        | false ->
-                                                                new FileStream
-                                                                    (
-                                                                        pathToFile,
-                                                                        FileMode.Create,
-                                                                        FileAccess.Write,
-                                                                        FileShare.None
-                                                                    )
+                                                        | true  -> FileMode.Append
+                                                        | false -> FileMode.Create
 
+                                                    use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
+                                                    do! fileStream.FlushAsync(token) |> Async.AwaitTask
+
                                                     return Ok ()
                                                 with                                               
                                                 | ex 
@@ -183,47 +178,60 @@ module KODIS_BL_Record_Json =
 
                             return! attempt 0 initialBackoffMs
                         }
-                    
-                try
-                    checkCancel token
+                  
+                let result =  
+                
+                    try
+                        checkCancel token
 
-                    (token, jsonLinkList, pathToJsonList)
-                    |||> List.Parallel.map2_IO_AW_Token_Async 
-                        (fun uri pathToFile 
-                            ->
-                            async 
-                                {
-                                    try
-                                        checkCancel token
-                                        counterAndProgressBar.Post <| Inc 1    
-                    
-                                        return! downloadWithResume uri pathToFile
-                                    with                                               
-                                    | ex 
-                                        -> 
-                                        checkCancel token
-                                        //runIO (postToLog2 <| string ex.Message <| "#0007-KBLJson")  //in order not to log cancellation
-                                        return
-                                            runIO <| comprehensiveTryWith 
-                                                JsonLetItBe StopJsonDownloading JsonTimeoutError 
-                                                JsonDownloadError JsonTlsHandshakeError token ex 
-                                }
-                        )
-                with                                               
-                | ex 
-                    -> 
-                    async
-                        {
-                            checkCancel token
-                            //runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson")  //in order not to log cancellation
-                            return
-                                [
-                                    runIO <| comprehensiveTryWith 
-                                        JsonLetItBe StopJsonDownloading JsonTimeoutError 
-                                        JsonDownloadError JsonTlsHandshakeError token ex
-                                ]
-                        }
-                |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
-                |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                |> Option.defaultValue (Ok ())
+                        (token, jsonLinkList, pathToJsonList)
+                        |||> List.Parallel.map2_IO_AW_Token_Async 
+                            (fun uri pathToFile 
+                                ->
+                                async 
+                                    {
+                                        try
+                                            checkCancel token                                         
+                                            let! result = downloadWithResume uri pathToFile
+                                            counterAndProgressBar.Post <| Inc 1  
+
+                                            return result  
+                                        with                                               
+                                        | ex 
+                                            -> 
+                                            checkCancel token
+                                            //runIO (postToLog2 <| string ex.Message <| "#0007-KBLJson")  //in order not to log cancellation
+                                            return
+                                                runIO <| comprehensiveTryWith 
+                                                    JsonLetItBe StopJsonDownloading JsonTimeoutError 
+                                                    JsonDownloadError JsonTlsHandshakeError token ex 
+                                    }
+                            )
+                    with                                               
+                    | ex 
+                        -> 
+                        async
+                            {
+                                checkCancel token
+                                //runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson")  //in order not to log cancellation
+                                return
+                                    [
+                                        runIO <| comprehensiveTryWith 
+                                            JsonLetItBe StopJsonDownloading JsonTimeoutError 
+                                            JsonDownloadError JsonTlsHandshakeError token ex
+                                    ]
+                            }
+
+                    |> fun a -> Async.RunSynchronously(a, cancellationToken = token) 
+
+                counterAndProgressBar.Post Stop
+                
+                match result |> List.length = l with
+                | true  ->
+                        result 
+                        |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                        |> Option.defaultValue (Ok ())
+                | false ->
+                        Error JsonDownloadError
         )    
+

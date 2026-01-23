@@ -37,6 +37,36 @@ module KODIS_BL_Record =
                     token.ThrowIfCancellationRequested()
                     ()
 
+                let l = context.list |> List.length
+
+                let counterAndProgressBar =
+                        MailboxProcessor<MsgIncrement2>.StartImmediate 
+                            <|
+                            fun inbox 
+                                ->
+                                let rec loop n =
+                                    async
+                                        {
+                                            try
+                                                let! msg = inbox.Receive()
+
+                                                match msg with
+                                                | Inc2 i 
+                                                    ->
+                                                    context.reportProgress (float n, float l)
+                                                    return! loop (n + i)
+                                                | GetCount2 replyChannel //not used anymore, kept for educational purposes
+                                                    ->
+                                                    replyChannel.Reply n
+                                                    return! loop n
+                                                | Stop2  
+                                                    ->
+                                                    return ()
+                                            with
+                                            | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0013-KBL")
+                                        }
+                                loop 0
+
                 let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                
                     async 
@@ -84,6 +114,12 @@ module KODIS_BL_Record =
                                             use response = response
 
                                             match response.statusCode with
+                                            | HttpStatusCode.OK 
+                                                when existingFileLength > 0L 
+                                                ->
+                                                // Server ignored Range header → unsafe to append
+                                                runIO <| postToLog2 () (sprintf "%s ignored Range header #RANGE" uri)
+                                                return Error FileDownloadError
                                             | HttpStatusCode.OK
                                             | HttpStatusCode.PartialContent 
                                                 ->
@@ -91,6 +127,8 @@ module KODIS_BL_Record =
                                                     use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask
                                                     use fileStream = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
+                                                    do! fileStream.FlushAsync(token) |> Async.AwaitTask
+                                                   
                                                     return Ok ()
                                                 with                                               
                                                 | ex
@@ -137,34 +175,7 @@ module KODIS_BL_Record =
                             return! attempt 0 initialBackoffMs
                     }
    
-                let downloadAndSaveTimetables variant (token : CancellationToken) context =                                         
-         
-                    let l = context.list |> List.length
-                            
-                    let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement2>.StartImmediate 
-                            <|
-                            fun inbox 
-                                ->
-                                let rec loop n =
-                                    async
-                                        {
-                                            try
-                                                let! msg = inbox.Receive()
-
-                                                match msg with
-                                                | Inc2 i 
-                                                    ->
-                                                    context.reportProgress (float n, float l)
-                                                    return! loop (n + i)
-                                                | GetCount replyChannel //not used anymore, kept for educational purposes
-                                                    ->
-                                                    replyChannel.Reply n
-                                                    return! loop n
-                                            with
-                                            | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0013-KBL")
-                                        }
-                                loop 0
+                let downloadAndSaveTimetables variant (token : CancellationToken) =                       
                                                  
                     //mel jsem 2x stejnou linku s jinym jsGeneratedString, takze uri bylo unikatni, ale cesta k souboru 2x stejna
                     let removeDuplicatePathPairs uri pathToFile =
@@ -193,7 +204,6 @@ module KODIS_BL_Record =
                         |> Async.Start  //slo by paralelne s nize, ale vzhledem k tomu, ze fire and forget je tady v poho, overhead vubec nestoji za to
 
                         //************************************
-
                         (token, uri, pathToFile)
                         |||> List.Parallel.map2_IO_AW_Token_Async                                    
                             (fun uri (pathToFile : string) 
@@ -202,7 +212,6 @@ module KODIS_BL_Record =
                                     {
                                         try
                                             checkCancel token 
-                                            counterAndProgressBar.Post <| Inc2 1
                                               
                                             let pathToFileExistFirstCheck =
                                                 runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
@@ -211,13 +220,15 @@ module KODIS_BL_Record =
                                             | Some _ 
                                                 ->
                                                 // File already exists → skip download entirely
+                                                counterAndProgressBar.Post <| Inc2 1
                                                 return Ok ()
    
                                             | None 
                                                 ->
                                                 // File does not exist (or was deleted) → download (with resume if partial)
                                                 let! result = downloadWithResume uri pathToFile token 
-                                                
+                                                counterAndProgressBar.Post <| Inc2 1
+
                                                 return
                                                     result
                                                     |> Result.mapError(
@@ -245,8 +256,8 @@ module KODIS_BL_Record =
                                                     (PdfDownloadError2 FileDownloadError) 
                                                     (PdfDownloadError2 TlsHandshakeError)
                                                     token ex
-                                    }                                 
-                            )
+                                    }     
+                            )                        
                     with
                     | ex 
                         -> 
@@ -270,12 +281,19 @@ module KODIS_BL_Record =
                     {
                         let! _ = context.dir |> Directory.Exists, Error (PdfDownloadError2 NoFolderError)
                         let! _ = context.list <> List.Empty, Ok String.Empty
-                        
-                        return
-                            downloadAndSaveTimetables variant token context
+
+                        let result = 
+                            downloadAndSaveTimetables variant token 
                             |> fun a -> Async.RunSynchronously(a, cancellationToken = token)  
+                        
+                        counterAndProgressBar.Post Stop2
+                        
+                        let! _ = result |> List.length = l, Error (PdfDownloadError2 FileDownloadError)
+
+                        return
+                            result
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                             |> Option.defaultValue (Ok ())  
-                            |> Result.map (fun _ -> String.Empty)       
+                            |> Result.map (fun _ -> String.Empty)  
                     }   
         )

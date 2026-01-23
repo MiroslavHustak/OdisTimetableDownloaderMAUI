@@ -67,12 +67,12 @@ module Types =
         | GetToken of AsyncReplyChannel<CancellationToken option>
         | CancelToken
         | Reset of CancellationTokenSource
-        | Stop of AsyncReplyChannel<unit> 
+        | StopLocal of AsyncReplyChannel<unit> 
 
     type internal CancellationMessageGlobal =
-        | UpdateState2 of bool * CancellationTokenSource
-        | CheckState2 of AsyncReplyChannel<CancellationToken option> 
-        | Stop2 of AsyncReplyChannel<unit>  
+        | UpdateStateGlobal of bool * CancellationTokenSource
+        | CheckStateGlobal of AsyncReplyChannel<CancellationToken option> 
+        | StopGlobal of AsyncReplyChannel<unit>  
         | CancelCurrent  
 
     type internal TaskResults =   
@@ -81,10 +81,12 @@ module Types =
         
     type [<Struct>] internal MsgIncrement =
         | Inc of int 
+        | Stop 
 
     type internal MsgIncrement2 = 
         | Inc2 of int
-        | GetCount of AsyncReplyChannel<int>
+        | GetCount2 of AsyncReplyChannel<int>
+        | Stop2 
            
     type internal ConnectivityMessage =
         | UpdateState of bool

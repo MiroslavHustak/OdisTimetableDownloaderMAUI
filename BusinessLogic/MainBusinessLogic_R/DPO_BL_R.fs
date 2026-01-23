@@ -189,13 +189,24 @@ module DPO_BL =
                                             use response = response
 
                                             match response.statusCode with
+                                            | HttpStatusCode.OK when existingFileLength > 0L 
+                                                ->
+                                                return Error FileDownloadErrorMHD // server ignored Range
                                             | HttpStatusCode.OK
                                             | HttpStatusCode.PartialContent 
                                                 ->
                                                 try
                                                     use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask
-                                                    use fs = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
+
+                                                    let fileMode =
+                                                        match existingFileLength > 0L with
+                                                        | true  -> FileMode.Append
+                                                        | false -> FileMode.Create
+
+                                                    use fs = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fs, token) |> Async.AwaitTask
+                                                    do! stream.FlushAsync(token) |> Async.AwaitTask
+
                                                     return Ok ()
                                                 with                                                                                  
                                                 | ex 
@@ -254,9 +265,17 @@ module DPO_BL =
                                             async
                                                 {
                                                     try
-                                                        let! Inc i = inbox.Receive()
-                                                        reportProgress (float n, float l)
-                                                        return! loop (n + i)
+                                                        checkCancel token      
+                                                        let! msg = inbox.Receive()  
+                                                        
+                                                        match msg with
+                                                        | Inc i 
+                                                            -> 
+                                                            reportProgress (float n, float l)
+                                                            return! loop (n + i)
+                                                        | Stop
+                                                            ->
+                                                            return () // exit loop → agent terminates
                                                     with
                                                     | _ -> () 
                                                 }
@@ -269,23 +288,31 @@ module DPO_BL =
                         
                         checkCancel token
 
-                        (token, uri, pathToFile)
-                        |||> List.Parallel.map2_IO_AW_Token_Async                        
-                            (fun uri path
-                                ->
-                                async
-                                    {
-                                        checkCancel token
-                                        counterAndProgressBar.Post <| Inc 1
+                        let result = 
+                            (token, uri, pathToFile)
+                            |||> List.Parallel.map2_IO_AW_Token_Async                        
+                                (fun uri path
+                                    ->
+                                    async
+                                        {
+                                            checkCancel token
+                                            counterAndProgressBar.Post <| Inc 1
+                                            return! downloadWithResumeDPO uri path token
+                                        }
+                                )
 
-                                        return! downloadWithResumeDPO uri path token
-                                    }
-                            )
+                            |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                    
+                        match result |> List.length = l with
+                        | true  ->
+                                counterAndProgressBar.Post Stop
 
-                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                        |> List.tryFind (function Error _ -> true | Ok _ -> false)
-                        |> Option.defaultValue (Ok ())
-                   
+                                result 
+                                |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                                |> Option.defaultValue (Ok ())
+                        | false ->
+                                counterAndProgressBar.Post Stop
+                                Error FileDownloadErrorMHD
                     with                                            
                     | ex 
                         -> 

@@ -143,6 +143,35 @@ module MDPO_BL = //FsHttp
                     token.ThrowIfCancellationRequested()
                     ()
 
+                let filterTimetables = runIO filterTimetables                
+                let l = filterTimetables |> Map.count
+
+                let counterAndProgressBar =
+                    MailboxProcessor<MsgIncrement>
+                        .StartImmediate
+                            (fun inbox 
+                                ->
+                                let rec loop n =
+                                    async
+                                        {
+                                            try                                                           
+                                                checkCancel token      
+                                                let! msg = inbox.Receive()  
+                                                
+                                                match msg with
+                                                | Inc i 
+                                                    -> 
+                                                    reportProgress (float n, float l)
+                                                    return! loop (n + i)
+                                                | Stop
+                                                    ->
+                                                    return () // exit loop → agent terminates
+                                            with
+                                            | _ -> () 
+                                        }
+                                loop 0
+                            )
+
                 let downloadWithResumeMDPO (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, MHDErrors>> =
                         
                     async
@@ -156,13 +185,13 @@ module MDPO_BL = //FsHttp
                                     {
                                         checkCancel token
                         
-                                        let existingLength =
+                                        let existingFileLength =
                                             runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
                                             |> Option.map (fun _ -> (FileInfo pathToFile).Length)
                                             |> Option.defaultValue 0L
                         
                                         let request =
-                                            match existingLength > 0L with
+                                            match existingFileLength > 0L with
                                             | true  ->
                                                     http
                                                         {
@@ -170,7 +199,7 @@ module MDPO_BL = //FsHttp
                                                             config_timeoutInSeconds timeOutInSeconds2
                                                             config_cancellationToken token
                                                             header "User-Agent" "FsHttp/Android"
-                                                            header "Range" (sprintf "bytes=%d-" existingLength)
+                                                            header "Range" (sprintf "bytes=%d-" existingFileLength)
                                                         }
                                             | false ->
                                                     http
@@ -187,25 +216,24 @@ module MDPO_BL = //FsHttp
                                             use response = response
                         
                                             match response.statusCode with
+                                            | HttpStatusCode.OK when existingFileLength > 0L 
+                                                ->
+                                                return Error FileDownloadErrorMHD // server ignored Range
                                             | HttpStatusCode.OK
                                             | HttpStatusCode.PartialContent
                                                 ->
                                                 try
-                                                    use! stream =
-                                                        response.content.ReadAsStreamAsync()
-                                                        |> Async.AwaitTask
-                        
-                                                    use fileStream =
-                                                        new FileStream(
-                                                            pathToFile,
-                                                            FileMode.Append,
-                                                            FileAccess.Write,
-                                                            FileShare.None
-                                                        )
-                        
-                                                    do! stream.CopyToAsync(fileStream, token)
-                                                        |> Async.AwaitTask
-                        
+                                                    use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask   
+                                                    
+                                                    let fileMode =
+                                                        match existingFileLength > 0L with
+                                                        | true  -> FileMode.Append
+                                                        | false -> FileMode.Create
+
+                                                    use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)                        
+                                                    do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
+                                                    do! fileStream.FlushAsync(token) |> Async.AwaitTask  
+                                                    
                                                     return Ok ()
                                                 with                                                 
                                                 | ex 
@@ -249,32 +277,10 @@ module MDPO_BL = //FsHttp
                             return! attempt 0 initialBackoffMs
                         }
         
-                let downloadAndSave reportProgress (token : CancellationToken) filterTimetables =
+                let downloadAndSave (token : CancellationToken) =
                         
                     IO (fun () 
-                            ->    
-                            let filterTimetables = runIO filterTimetables
-                                
-                            let l = filterTimetables |> Map.count
-                        
-                            let counterAndProgressBar =
-                                MailboxProcessor<MsgIncrement>
-                                    .StartImmediate
-                                        (fun inbox 
-                                            ->
-                                            let rec loop n =
-                                                async
-                                                    {
-                                                        try
-                                                            let! Inc i = inbox.Receive()
-                                                            reportProgress (float n, float l)
-                                                            return! loop (n + i)
-                                                        with
-                                                        | _ -> () 
-                                                    }
-                                            loop 0
-                                        )
-                        
+                            ->                           
                             try
                                 let uri, pathToFile =
                                     filterTimetables 
@@ -291,8 +297,7 @@ module MDPO_BL = //FsHttp
                                             {
                                                 try
                                                     checkCancel token 
-                                                    counterAndProgressBar.Post <| Inc 1
-                        
+
                                                     let pathExists =
                                                         runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
                         
@@ -307,6 +312,7 @@ module MDPO_BL = //FsHttp
                                                         | Ok _ 
                                                             ->
                                                             checkCancel token 
+                                                            counterAndProgressBar.Post <| Inc 1
                                                             return Ok ()
                     
                                                         | Error err
@@ -316,13 +322,12 @@ module MDPO_BL = //FsHttp
                                                             match err with
                                                             | err when err = StopDownloadingMHD 
                                                                 ->
-                                                                //runIO (postToLog2 <| string err <| "#0007-MDPOBL") //in order not to log cancellation
+                                                                //runIO (postToLog2 <| string err <| "#0007-MDPOBL") //in order not to log cancellation                                                                
                                                                 return Error StopDownloadingMHD
                                                             | err
                                                                 ->
-                                                                runIO (postToLog2 <| string err <| "#0008-MDPOBL") 
+                                                                runIO (postToLog2 <| string err <| "#0008-MDPOBL")                                                               
                                                                 return Error err
-                        
                                                 with           
                                                 | ex 
                                                     ->
@@ -333,10 +338,9 @@ module MDPO_BL = //FsHttp
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             }                  
-                                    )
-                    
+                                    )                    
                                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                            
+
                             with 
                             | ex
                                 ->
@@ -349,7 +353,16 @@ module MDPO_BL = //FsHttp
                                 ]                         
                     )
                     
-                runIO <| downloadAndSave reportProgress token filterTimetables
-                |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                |> Option.defaultValue (Ok ())
+                let result = runIO <| downloadAndSave token                
+                
+                match result |> List.length = l with
+                | true  ->
+                        //counterAndProgressBar.Post Stop
+
+                        result 
+                        |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
+                        |> Option.defaultValue (Ok ())
+                | false ->
+                        //counterAndProgressBar.Post Stop
+                        Error FileDownloadErrorMHD
         )

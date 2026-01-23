@@ -37,7 +37,7 @@ module ActorModels =
                                     cts.Dispose()
                                     return! loop newCts
     
-                                | Stop reply 
+                                | StopLocal reply 
                                     ->
                                     cts.Cancel()
                                     cts.Dispose()
@@ -80,7 +80,7 @@ module ActorModels =
                         async 
                             {
                                 match! inbox.Receive() with
-                                | UpdateState2 (newState, newCts)
+                                | UpdateStateGlobal (newState, newCts)
                                     ->
                                     match newState with
                                     | true  ->
@@ -91,7 +91,7 @@ module ActorModels =
 
                                     return! loop newState newCts
            
-                                | CheckState2 reply
+                                | CheckStateGlobal reply
                                     ->
                                     let tokenOpt = 
                                         match cts.IsCancellationRequested with
@@ -109,7 +109,7 @@ module ActorModels =
                                     // When user starts new work, init2 will replace it normally
                                     return! loop true cts  
            
-                                | Stop2 reply 
+                                | StopGlobal reply 
                                     ->
                                     match cancelRequested with
                                     | true  -> cts.Cancel()  

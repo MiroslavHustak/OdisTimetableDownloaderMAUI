@@ -510,10 +510,10 @@ module App_R =
                     }
                 |> Cmd.ofAsyncMsg                    
           
-            kodisActor.PostAndReply(fun reply -> Stop reply)
-            kodis4Actor.PostAndReply(fun reply -> Stop reply)
-            mdpoActor.PostAndReply(fun reply -> Stop reply)
-            dpoActor.PostAndReply(fun reply -> Stop reply)
+            kodisActor.PostAndReply(fun reply -> StopLocal reply)
+            kodis4Actor.PostAndReply(fun reply -> StopLocal reply)
+            mdpoActor.PostAndReply(fun reply -> StopLocal reply)
+            dpoActor.PostAndReply(fun reply -> StopLocal reply)
             
             let message = HardRestart.exitApp >> runIO <| () 
             { m with ProgressMsg = message }, cmd ()
@@ -522,10 +522,10 @@ module App_R =
             #if ANDROID
             runIO <| KeepScreenOnManager.keepScreenOn false  
             
-            kodisActor.PostAndReply(fun reply -> Stop reply)
-            kodis4Actor.PostAndReply(fun reply -> Stop reply)
-            mdpoActor.PostAndReply(fun reply -> Stop reply)
-            dpoActor.PostAndReply(fun reply -> Stop reply)
+            kodisActor.PostAndReply(fun reply -> StopLocal reply)
+            kodis4Actor.PostAndReply(fun reply -> StopLocal reply)
+            mdpoActor.PostAndReply(fun reply -> StopLocal reply)
+            dpoActor.PostAndReply(fun reply -> StopLocal reply)
 
             let message = HardRestart.exitApp >> runIO <| () 
 
@@ -755,7 +755,7 @@ module App_R =
 
                                                 return runIO (stateReducerCmd1 token reportProgress)                                                      
                                             }
-                                        |> Async.StartChild
+                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
 
                                     let! result = hardWork 
                                     //do! Async.Sleep 1000
@@ -806,7 +806,7 @@ module App_R =
                                        
                                                 return runIO result
                                             }
-                                        |> Async.StartChild 
+                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
                                
                                     let! result = hardWork 
                                     //do! Async.Sleep 1000
@@ -916,7 +916,7 @@ module App_R =
 
                                                 return runIO result  
                                             }
-                                        |> Async.StartChild 
+                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
 
                                     let! result = hardWork 
                                     //do! Async.Sleep 1000 
@@ -1043,7 +1043,7 @@ module App_R =
                                                     RestartVisible >> dispatch <| true
                                                     return err
                                             }
-                                        |> Async.StartChild 
+                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
                                
                                     let! result = hardWork 
                                     //do! Async.Sleep 1000
@@ -1160,7 +1160,7 @@ module App_R =
                                                     RestartVisible >> dispatch <| true
                                                     return err
                                             }
-                                        |> Async.StartChild 
+                                        |> fun a -> Async.StartChild(a, millisecondsTimeout = timeoutMs)
                                
                                     let! result = hardWork 
                                     //do! Async.Sleep 1000
