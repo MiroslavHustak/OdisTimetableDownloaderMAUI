@@ -737,7 +737,7 @@ module App_R =
             |> function
                 | Some token 
                     ->                     
-                    let delayedCmd1 (token : CancellationToken) (dispatch : Msg -> unit) =                                
+                    let delayedCmd1 (token2 : CancellationToken) (dispatch : Msg -> unit) =                                
 
                         async
                             {
@@ -749,14 +749,14 @@ module App_R =
                                             {                                            
                                                 let reportProgress (progressValue, totalProgress) =     
 
-                                                    match token.IsCancellationRequested with
+                                                    match token2.IsCancellationRequested with
                                                     | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
-                                                return runIO (stateReducerCmd1 token reportProgress)                                                      
+                                                return runIO (stateReducerCmd1 token2 reportProgress)                                                      
                                             }
                                                                           
-                                    match token.IsCancellationRequested with
+                                    match token2.IsCancellationRequested with
                                     | false ->
                                             match result with
                                             | Ok result -> return WorkIsComplete >> dispatch <| (result, false)  
@@ -767,7 +767,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token2 ex with
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
@@ -776,7 +776,7 @@ module App_R =
                                         NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
                             }  
 
-                    let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
+                    let delayedCmd2 (token2 : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
 
                         async 
                             {   
@@ -788,13 +788,13 @@ module App_R =
                                             {   
                                                 let reportProgress (progressValue, totalProgress) =     
 
-                                                    match token.IsCancellationRequested with
+                                                    match token2.IsCancellationRequested with
                                                     | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
                                                 let result = 
                                                     stateReducerCmd2 
-                                                    <| token
+                                                    <| token2
                                                     <| kodisPathTemp
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                     <| fun message -> IterationMessage >> dispatch <| message 
@@ -803,7 +803,7 @@ module App_R =
                                                 return runIO result
                                             }
                           
-                                    match token.IsCancellationRequested with
+                                    match token2.IsCancellationRequested with
                                     | false ->
                                             return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
                                     | true  ->
@@ -812,7 +812,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token2 ex with
                                     | err 
                                         when err = StopDownloading 
                                         ->
@@ -825,11 +825,14 @@ module App_R =
                     let executeSequentially dispatch =
                         async 
                             {   
-                                do! delayedCmd1 token dispatch 
+                                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                                cts.CancelAfter timeoutMs
+
+                                do! delayedCmd1 cts.Token dispatch 
                                 
-                                match token.IsCancellationRequested with 
+                                match cts.Token.IsCancellationRequested with 
                                 | true  -> return ()
-                                | false -> return! delayedCmd2 token dispatch
+                                | false -> return! delayedCmd2 cts.Token dispatch
                             }
                         |> Async.Start                 
 
@@ -883,7 +886,7 @@ module App_R =
             |> function
                 | Some token 
                     ->
-                    let delayedCmd2 (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =    
+                    let delayedCmd2 (token2 : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =    
 
                         async 
                             {    
@@ -895,13 +898,13 @@ module App_R =
                                             {                                                      
                                                 let reportProgress (progressValue, totalProgress) =     
 
-                                                    match token.IsCancellationRequested with
+                                                    match token2.IsCancellationRequested with
                                                     | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
                                                 let result = 
                                                     stateReducerCmd4
-                                                    <| token
+                                                    <| token2
                                                     <| kodisPathTemp4
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                     <| reportProgress      
@@ -909,7 +912,7 @@ module App_R =
                                                 return runIO result  
                                             }
                                        
-                                    match token.IsCancellationRequested with
+                                    match token2.IsCancellationRequested with
                                     | false ->
                                             return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
                                     | true  ->
@@ -918,7 +921,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token2 ex with
                                     | err 
                                         when err = StopDownloading 
                                         ->
@@ -947,7 +950,10 @@ module App_R =
                     let executeSequentially dispatch = 
                         async 
                             {          
-                                do! delayedCmd2 token dispatch
+                                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                                cts.CancelAfter timeoutMs
+                                do! delayedCmd2 cts.Token dispatch
+
                                 return! delayedCmd5 dispatch                           
                             }
                         |> Async.Start                     
@@ -1002,7 +1008,7 @@ module App_R =
             |> function
                 | Some token 
                     ->           
-                    let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
+                    let delayedCmd (token2 : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
                         async
                             {
@@ -1017,11 +1023,11 @@ module App_R =
                                             {
                                                 let reportProgress (progressValue, totalProgress) =     
 
-                                                    match token.IsCancellationRequested with
+                                                    match token2.IsCancellationRequested with
                                                     | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)    
 
-                                                match runIO <| webscraping_DPO reportProgress token dpoPathTemp with  
+                                                match runIO <| webscraping_DPO reportProgress token2 dpoPathTemp with  
                                                 | Ok _     
                                                     -> 
                                                     return mauiDpoMsg
@@ -1032,7 +1038,7 @@ module App_R =
                                                     return err
                                             }
                                         
-                                    match token.IsCancellationRequested with
+                                    match token2.IsCancellationRequested with
                                     | false ->
                                             return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
                                     | true  ->
@@ -1041,7 +1047,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token2 ex with
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2   
@@ -1054,15 +1060,18 @@ module App_R =
 
                         async 
                             {   
+                                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                                cts.CancelAfter timeoutMs
+
                                 RestartVisible >> dispatch <| false
 
-                                match token.IsCancellationRequested with
+                                match cts.Token.IsCancellationRequested with
                                 | true  ->
                                         return UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                 | false ->                                                               
-                                        match token.IsCancellationRequested with
+                                        match cts.Token.IsCancellationRequested with
                                         | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false -> return! delayedCmd token dispatch                               
+                                        | false -> return! delayedCmd cts.Token dispatch                               
                             } 
                         |> Async.Start
 
@@ -1116,7 +1125,7 @@ module App_R =
             |> function
                 | Some token 
                     ->             
-                    let delayedCmd (token : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
+                    let delayedCmd (token2 : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =
 
                         async
                             {
@@ -1130,11 +1139,11 @@ module App_R =
                                             {
                                                 let reportProgress (progressValue, totalProgress) =     
 
-                                                    match token.IsCancellationRequested with
+                                                    match token2.IsCancellationRequested with
                                                     | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false) 
 
-                                                match runIO <| webscraping_MDPO reportProgress token mdpoPathTemp with
+                                                match runIO <| webscraping_MDPO reportProgress token2 mdpoPathTemp with
                                                 | Ok _     
                                                     ->                                                
                                                     return mauiMdpoMsg //Helpers.StringCombine.runTest() //mauiMdpoMsg
@@ -1145,7 +1154,7 @@ module App_R =
                                                     return err
                                             }
                                     
-                                    match token.IsCancellationRequested with
+                                    match token2.IsCancellationRequested with
                                     | false ->
                                             return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
                                     | true  ->
@@ -1154,7 +1163,7 @@ module App_R =
                                 with 
                                 | ex
                                     ->
-                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token2 ex with
                                     | err when err = StopDownloading 
                                         ->
                                         dispatch Home2                                                       
@@ -1167,15 +1176,18 @@ module App_R =
 
                         async 
                             {                                
+                                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                                cts.CancelAfter timeoutMs
+                                
                                 RestartVisible >> dispatch <| false
 
-                                match token.IsCancellationRequested with
+                                match cts.Token.IsCancellationRequested with
                                 | true  ->
                                         return UpdateStatus >> dispatch <| (0.0, 1.0, false)
                                 | false ->                                                               
-                                        match token.IsCancellationRequested with
+                                        match cts.Token.IsCancellationRequested with
                                         | true  -> return UpdateStatus >> dispatch <| (0.0, 1.0, false)
-                                        | false -> return! delayedCmd token dispatch 
+                                        | false -> return! delayedCmd cts.Token dispatch 
                             }
                         |> Async.Start
 
