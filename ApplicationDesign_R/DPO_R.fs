@@ -120,13 +120,15 @@ module WebScraping_DPO =
                         | ex 
                             ->
                             runIO (postToLog2 <| string ex.Message <| "#0004-DPO") // commented out so that cancellation is not logged
-                            runIO <| comprehensiveTryWithMHD 
+                            runIO <| comprehensiveTryWith 
                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                        
                 pyramidOfInferno
                     {  
                         let errFn err =  
+
+                            runIO (postToLog2 <| string err <| "#0005-DPO")
 
                             match err with
                             | BadRequest               -> "400 Bad Request"

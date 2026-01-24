@@ -103,13 +103,9 @@ type MauiProgram =
         
                                                         match granted with
                                                         | true 
-                                                            ->
-                                                            //(dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
-                                                            let isConnected = Connectivity.NetworkAccess = NetworkAccess.Internet
-                                                            (dispatch : Dispatch<App_R.Msg>) <| App_R.HomeFirstInit isConnected
+                                                            -> (dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
                                                         | false
-                                                            -> 
-                                                            ()
+                                                            -> ()
                                                     with
                                                     | ex -> runIO (postToLog2 (string ex.Message) "#3002")
 

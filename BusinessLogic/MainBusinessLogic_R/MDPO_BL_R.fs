@@ -256,7 +256,7 @@ module MDPO_BL = //FsHttp
                                                     checkCancel token
                                                     //runIO (postToLog2 <| string ex.Message <| "#0003-MDPOBL")  //in order not to log cancellation
                                                     return 
-                                                        runIO <| comprehensiveTryWithMHD 
+                                                        runIO <| comprehensiveTryWith 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                                                 
@@ -285,7 +285,7 @@ module MDPO_BL = //FsHttp
                                                 | false ->
                                                         runIO (postToLog2 <| string ex.Message <| "#0009-MDPOBL") 
                                                         return 
-                                                            runIO <| comprehensiveTryWithMHD 
+                                                            runIO <| comprehensiveTryWith 
                                                                 LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
@@ -350,7 +350,7 @@ module MDPO_BL = //FsHttp
                                                     checkCancel token
                                                     //runIO (postToLog2 <| string ex.Message <| "#0009-MDPOBL") //in order not to log cancellation
                                                     return
-                                                        runIO <| comprehensiveTryWithMHD 
+                                                        runIO <| comprehensiveTryWith 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             }                  
@@ -363,7 +363,7 @@ module MDPO_BL = //FsHttp
                                 checkCancel token 
                                 //runIO (postToLog2 <| string ex.Message <| "#0010-MDPOBL") //in order not to log cancellation
                                 [ 
-                                    runIO <| comprehensiveTryWithMHD 
+                                    runIO <| comprehensiveTryWith 
                                         LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                         FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                 ]                         
@@ -375,6 +375,8 @@ module MDPO_BL = //FsHttp
                 | true  ->
                         reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop
+
+                        runIO (postToLog3 <| result <| "#0011-MDPOBL")
 
                         result 
                         |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))

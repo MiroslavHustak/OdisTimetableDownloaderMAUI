@@ -145,8 +145,9 @@ module ConnectivityWithDebouncing =
             
                 // Fire initial state
                 let initialState = (=) Connectivity.NetworkAccess NetworkAccess.Internet
-                monitorActor.Post (StateChanged initialState)
-            
+                monitorActor.Post (StateChanged initialState)     
+                
+                (* //IDisposable does not work with subscription / zkusit jindy, az to Fabulous umozni
                 // Return disposable to stop monitoring //.NET interop //Creates an anonymous object implementing an interface
                 { 
                     new IDisposable with
@@ -154,6 +155,7 @@ module ConnectivityWithDebouncing =
                             monitorActor.Post StopConnectivityMonitoring
                             (monitorActor :> IDisposable).Dispose()
                 }
+                *)
         )   
 
         (*

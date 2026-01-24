@@ -308,7 +308,7 @@ module KODIS_BL_Record =
                         
                         let! _ = result |> List.length = l, Error (PdfDownloadError2 LetItBe)
                         
-                        runIO (postToLog2 <| string result <| "#3333-KBL")
+                        runIO (postToLog3 <| result <| "#3333-KBL")
                         
                         return
                             result

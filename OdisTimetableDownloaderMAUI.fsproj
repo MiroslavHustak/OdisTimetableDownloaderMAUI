@@ -121,7 +121,6 @@
 		</None>
 	</ItemGroup> 	
 	-->
-
   <ItemGroup>
     <!-- App Icon -->
     <None Include="Educational code.txt" />

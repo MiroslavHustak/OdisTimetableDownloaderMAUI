@@ -60,7 +60,6 @@ open Api.Logging
 open IO_Operations.IO_Operations
 
 open Helpers
-open Helpers.Connectivity
 open Helpers.ConnectivityWithDebouncing
 open Helpers.ExceptionHelpers
 
@@ -131,7 +130,6 @@ module App_R =
         | Cancel
         | Home
         | Home2
-        | HomeFirstInit of bool
         | RestartVisible of bool
         | CancelVisible of bool
         | Quit
@@ -150,28 +148,23 @@ module App_R =
         | CanopyDifferenceResult of Result<unit, string>  //For educational purposes only
         | Dummy
 
-    let private kodisActor = localCancellationActor()
-    let private kodis4Actor = localCancellationActor()        
-    let private dpoActor = localCancellationActor()
-    let private mdpoActor = localCancellationActor()
+    let connectivityDebouncerSubscription (_model : Model) =
+
+        let sub (dispatch : Msg -> unit) =
     
-    let init () =          
-
-        let connectivityDebouncer (dispatch : Msg -> unit) =
-
             let debounceActor =
                 MailboxProcessor
                     .StartImmediate
                         (fun inbox
                             ->
                             let rec loop lastState (lastChangeTime : DateTime) isFirstMessage =
-
+    
                                 async
                                     {
                                         let! isConnected = inbox.Receive()
                                         let now = DateTime.Now
                                         let timeDiff = (now - lastChangeTime).TotalSeconds
-                                        
+                                            
                                         match isFirstMessage, isConnected, lastState, timeDiff > 0.5 with
                                         | true, false, _, _
                                             ->
@@ -206,9 +199,18 @@ module App_R =
                                     }
                             loop true DateTime.MinValue true
                         )
-            
+                
             //250 = debounceMs, (now - lastChangeTime).TotalSeconds > 0.5 resp. 0.2 - s temito hodnotami si pohrat
-            runIO <| startConnectivityMonitoring 250 (fun isConnected -> debounceActor.Post isConnected)       
+            runIO <| startConnectivityMonitoring 250 (fun isConnected -> debounceActor.Post isConnected)     
+            
+        Cmd.ofSub sub
+
+    let private kodisActor = localCancellationActor()
+    let private kodis4Actor = localCancellationActor()        
+    let private dpoActor = localCancellationActor()
+    let private mdpoActor = localCancellationActor()
+    
+    let init () =                 
 
         #if ANDROID
         let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
@@ -265,7 +267,7 @@ module App_R =
                     | true  -> initialModel
                     | false -> initialModelNoConn
 
-                m, Cmd.ofSub (fun dispatch -> connectivityDebouncer dispatch |> ignore)
+                m, Cmd.none
 
             with
             | ex 
@@ -592,11 +594,7 @@ module App_R =
                     Label2Visible = true  
                     InternetIsConnected = isConnected          
             }, emergencyQuitCmd
-            #endif
-
-        | HomeFirstInit isConnected 
-            -> 
-            init2 isConnected    
+            #endif      
 
         | Home2  
             -> 
@@ -1419,17 +1417,14 @@ module App_R =
     type internal DispatchHolder = 
         static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
 
-    let internal captureDispatchSub (_ : Model) : Cmd<Msg> =
+    let captureDispatchSub (_ : Model) : Cmd<Msg> =
+        Cmd.ofSub (fun dispatch ->
+            DispatchHolder.DispatchRef <- Some (WeakReference<Dispatch<Msg>>(dispatch))
+        )
 
-        Cmd.ofSub 
-            (fun (dispatch : Dispatch<Msg>)
-                ->
-                DispatchHolder.DispatchRef <- Some <| System.WeakReference<Dispatch<Msg>>(dispatch)
-            )
-            
     let program : Program<unit, Model, Msg, IFabApplication> = 
-    
         Program.statefulWithCmd init update view 
+        |> Program.withSubscription (connectivityDebouncerSubscription)
         |> Program.withSubscription captureDispatchSub
                 
     (* 

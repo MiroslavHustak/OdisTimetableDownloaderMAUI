@@ -227,7 +227,7 @@ module DPO_BL =
                                                     checkCancel token
                                                     runIO (postToLog2 <| string ex.Message <| "#0001-DPOBL") //in order not to log cancellation
                                                     return
-                                                        runIO <| comprehensiveTryWithMHD 
+                                                        runIO <| comprehensiveTryWith 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             | _, _ 
@@ -249,7 +249,7 @@ module DPO_BL =
                                             | _ ->
                                                 runIO (postToLog2 <| string ex.Message <| "#0004-DPOBL") 
                                                 return 
-                                                    runIO <| comprehensiveTryWithMHD 
+                                                    runIO <| comprehensiveTryWith 
                                                         LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                                                         FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
@@ -322,6 +322,8 @@ module DPO_BL =
                                 reportProgress (float l, float l)
                                 counterAndProgressBar.Post Stop
 
+                                runIO (postToLog3 <| result <| "#0006-DPOBL")
+
                                 result 
                                 |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                                 |> Option.defaultValue (Ok ())
@@ -333,8 +335,8 @@ module DPO_BL =
                     | ex 
                         -> 
                         checkCancel token //toto reaguje pro vypnutem internetu pred aktivaci downloadAndSaveTimetables
-                        runIO (postToLog2 <| string ex.Message <| "#0006-DPOBL") //in order not to log cancellation
-                        runIO <| comprehensiveTryWithMHD 
+                        runIO (postToLog2 <| string ex.Message <| "#0007-DPOBL") //in order not to log cancellation
+                        runIO <| comprehensiveTryWith 
                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
         )

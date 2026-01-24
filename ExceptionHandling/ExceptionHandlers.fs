@@ -132,23 +132,23 @@ module ExceptionHelpers =
                     runIO (postToLog2 <| string ex.Message <| "#0007-ExceptionHandlers")
                     [ ex ]
     
-        let classifyException (e : Exception) : ExceptionClassification option =
+        let rec classifyException (e : Exception) : ExceptionClassification option =
             match e with
             // TLS/SSL errors
             | :? AuthenticationException
                 -> 
                 Some TlsError2
-        
+           
             | :? TaskCanceledException
                 ->
                 match token.IsCancellationRequested with
-                | true  -> None  // My cancellation, not a timeout
+                | true  -> None  // Our cancellation, not a timeout
                 | false -> Some TimeoutError2  // HTTP client timeout
-        
+           
             | :? SocketException as se 
                 ->
                 runIO (postToLog2 <| string se.Message <| "#0008-ExceptionHandlers")
-
+                
                 match se.SocketErrorCode with
                 | SocketError.TimedOut 
                     -> 
@@ -162,33 +162,56 @@ module ExceptionHelpers =
                 | SocketError.ConnectionReset
                     -> 
                     Some NetworkError2
-                | _ -> 
+                | _ 
+                    -> 
                     Some NetworkError2
-        
+           
             | :? IOException as ex 
                 -> 
                 runIO (postToLog2 <| string ex.Message <| "#0009-ExceptionHandlers")
-
+                
                 match ex with
                 | :? DirectoryNotFoundException
                 | :? FileNotFoundException
                 | :? DriveNotFoundException 
                     ->
                     None   
-                | _ ->
+                | _ 
+                    ->
                     Some NetworkError2
-
-            | :? HttpRequestException 
+            
+            | :? HttpRequestException as hex
                 -> 
-                runIO (postToLog2 <| string ex.Message <| "#0010-ExceptionHandlers")
-                Some NetworkError2
-        
+                runIO (postToLog2 <| string hex.Message <| "#0010-ExceptionHandlers")
+                
+                // Check inner exception for more specific classification
+                match hex.InnerException with
+                | :? SocketException as se 
+                    ->
+                    // Recursively classify the socket exception
+                    classifyException se
+                | null
+                    ->
+                    // No inner exception → generic network error
+                    Some NetworkError2
+                | inner
+                    ->
+                    // Try to classify inner exception, default to NetworkError2
+                    match classifyException inner with
+                    | Some classification 
+                        -> 
+                        Some classification
+                    | None 
+                        -> 
+                        Some NetworkError2
+           
             // Android platform-specific message patterns (last resort)
-            | e ->
+            | e 
+                ->
                 let msg = string e.Message
-
+                
                 runIO (postToLog2 <| msg <| "#0011-ExceptionHandlers")
-
+                
                 match msg with
                 // TLS - specific terms only, not broad "SSL"/"TLS"
                 | msg when msg.Contains("handshake", StringComparison.Ordinal) 
@@ -196,20 +219,21 @@ module ExceptionHelpers =
                         || msg.Contains("trust anchor", StringComparison.Ordinal) 
                     ->
                     Some TlsError2
-            
+               
                 // Timeout - specific patterns
                 | msg when msg.Contains("timed out", StringComparison.Ordinal)
                     ->
                     Some TimeoutError2
-            
+               
                 // Network - specific patterns
                 | msg when msg.Contains("network unreachable", StringComparison.Ordinal)
                         || msg.Contains("connection refused", StringComparison.Ordinal)
                         || msg.Contains("no route to host", StringComparison.Ordinal)
                     ->
                     Some NetworkError2
-            
-                | _ -> 
+               
+                | _ 
+                    -> 
                     None
 
         let classifyChain (chain : Exception list) : ExceptionClassification * Exception option =
@@ -278,182 +302,5 @@ module ExceptionHelpers =
                     | err
                         -> 
                         runIO (postToLog2 <| string err <| "#7777-ExceptionHandlers")
-                        err
-        )
-
-    let internal comprehensiveTryWithMHD (letItBe : 'c) (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (tlsHandShakeError : 'c) (token : CancellationToken) (ex : exn) =  
-       
-        let priority =
-            function
-                | TlsError2     -> 3
-                | TimeoutError2 -> 2
-                | NetworkError2 -> 1
-                | UnknownError2 -> 0
-       
-        let rec collectExceptions (ex : Exception) =
-            match ex with
-            | :? AggregateException as aex
-                ->
-                // Flatten AggregateException from Task.WhenAll, Async.Parallel, etc.
-                aex.InnerExceptions 
-                |> Seq.collect collectExceptions 
-                |> List.ofSeq
-            | ex
-                ->
-                match ex.InnerException |> Option.ofNull with
-                | Some inner 
-                    -> 
-                    runIO (postToLog2 <| string inner.Message <| "#0013-ExceptionHandlers")
-                    ex :: collectExceptions inner
-                | None
-                    ->
-                    runIO (postToLog2 <| string ex.Message <| "#0014-ExceptionHandlers")
-                    [ ex ]
-                 
-        let classifyException (e : Exception) : ExceptionClassification option =
-            match e with
-            // TLS/SSL errors
-            | :? AuthenticationException
-                -> 
-                Some TlsError2
-           
-            | :? TaskCanceledException
-                ->
-                match token.IsCancellationRequested with
-                | true  -> None  // Our cancellation, not a timeout
-                | false -> Some TimeoutError2  // HTTP client timeout
-           
-            | :? SocketException as se 
-                ->
-                runIO (postToLog2 <| string se.Message <| "#0015-ExceptionHandlers")
-
-                match se.SocketErrorCode with
-                | SocketError.TimedOut 
-                    -> 
-                    Some TimeoutError2
-                | SocketError.NetworkUnreachable
-                | SocketError.HostUnreachable
-                | SocketError.ConnectionRefused
-                | SocketError.ConnectionAborted
-                | SocketError.NetworkDown
-                | SocketError.HostNotFound
-                | SocketError.ConnectionReset
-                    -> 
-                    Some NetworkError2
-                | _ -> 
-                    Some NetworkError2
-           
-            | :? IOException as ex 
-                -> 
-                runIO (postToLog2 <| string ex.Message <| "#0016-ExceptionHandlers")
-
-                match ex with
-                | :? DirectoryNotFoundException
-                | :? FileNotFoundException
-                | :? DriveNotFoundException 
-                    ->
-                    None   
-                | _ ->
-                    Some NetworkError2
-
-            | :? HttpRequestException 
-                -> 
-                Some NetworkError2
-           
-            // Android platform-specific message patterns (last resort)
-            | e ->
-                let msg = string e.Message
-
-                runIO (postToLog2 <| msg <| "#0017-ExceptionHandlers")
-
-                match msg with
-                // TLS - specific terms only, not broad "SSL"/"TLS"
-                | msg when msg.Contains("handshake", StringComparison.Ordinal) 
-                        || msg.Contains("certificate", StringComparison.Ordinal)
-                        || msg.Contains("trust anchor", StringComparison.Ordinal) 
-                    ->
-                    Some TlsError2
-               
-                // Timeout - specific patterns
-                | msg when msg.Contains("timed out", StringComparison.Ordinal)
-                    ->
-                    Some TimeoutError2
-               
-                // Network - specific patterns
-                | msg when msg.Contains("network unreachable", StringComparison.Ordinal)
-                        || msg.Contains("connection refused", StringComparison.Ordinal)
-                        || msg.Contains("no route to host", StringComparison.Ordinal)
-                    ->
-                    Some NetworkError2
-               
-                | _ -> 
-                    None
-
-        let classifyChain (chain : Exception list) : ExceptionClassification * Exception option =
-            match chain |> List.choose classifyException with
-            | [] 
-                -> 
-                (UnknownError2, chain |> List.tryHead)
-            | classifications 
-                -> 
-                let highest = classifications |> List.maxBy priority
-                (highest, None)  // Known classification, no need to log original
-       
-        let mapClassificationToError = 
-            function
-                | TlsError2     -> tlsHandShakeError
-                | TimeoutError2 -> timeoutError
-                | NetworkError2 -> letItBe
-                | UnknownError2 -> fileDownloadError
-               
-        IO (fun () 
-                ->  
-                match runIO <| isCancellationGeneric letItBe stopDownloading timeoutError fileDownloadError token ex with
-                | err 
-                    when err = stopDownloading
-                    -> 
-                    Error stopDownloading
-           
-                | err
-                    when err = timeoutError 
-                    -> 
-                    Error timeoutError
-           
-                | err
-                    when err = letItBe 
-                    ->
-                    let classification, unknownEx = 
-                        ex 
-                        |> collectExceptions 
-                        |> classifyChain
-           
-                    // Logging side-effect at the boundary only (point 3)
-                    match classification, unknownEx with
-                    | UnknownError2, Some originalEx
-                        ->
-                        runIO (postToLog2 (sprintf "Unknown exception: %s - %s" (originalEx.GetType().Name) originalEx.Message) "#0218-ExceptionHandlers")
-                        ()
-                    | _ ->
-                        runIO (postToLog2 "Unknown error" "#0219-ExceptionHandlers")
-                        ()
-           
-                    classification
-                    |> mapClassificationToError
-                    |> Error
-       
-                | _ -> 
-                    runIO (postToLog2 <| string ex.Message <| "#0018-ExceptionHandlers")
-                    Error fileDownloadError
-          
-                //temporary code for stress testing  
-                |> function
-                    | err 
-                        when err = Error letItBe
-                        -> 
-                        runIO (postToLog2 <| string err <| "#9991-ExceptionHandlers")
-                        Ok()
-                    | err
-                        -> 
-                        runIO (postToLog2 <| string err <| "#7771-ExceptionHandlers")
                         err
         )
