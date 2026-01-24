@@ -144,6 +144,7 @@ module KODIS_BL_Record_Json =
                                                 | ex 
                                                     -> 
                                                     checkCancel token
+                                                    runIO (postToLog2 <| string ex.Message <| "#0033-KBLJson")  //in order not to log cancellation
                                                     return
                                                         runIO <| comprehensiveTryWith 
                                                             JsonLetItBe StopJsonDownloading JsonTimeoutError 
@@ -165,7 +166,7 @@ module KODIS_BL_Record_Json =
                                             | err
                                                 when err = StopJsonDownloading
                                                 ->
-                                                //runIO (postToLog2 <| string ex.Message <| "#0005-KBLJson")  //in order not to log cancellation
+                                                runIO (postToLog2 <| string ex.Message <| "#0005-KBLJson")  //in order not to log cancellation
                                                 return Error StopJsonDownloading
                                             | err
                                                 ->
@@ -205,7 +206,7 @@ module KODIS_BL_Record_Json =
                                         | ex 
                                             -> 
                                             checkCancel token
-                                            //runIO (postToLog2 <| string ex.Message <| "#0007-KBLJson")  //in order not to log cancellation
+                                            runIO (postToLog2 <| string ex.Message <| "#0007-KBLJson")  //in order not to log cancellation
                                             return
                                                 runIO <| comprehensiveTryWith 
                                                     JsonLetItBe StopJsonDownloading JsonTimeoutError 
@@ -218,7 +219,7 @@ module KODIS_BL_Record_Json =
                         async
                             {
                                 checkCancel token
-                                //runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson")  //in order not to log cancellation
+                                runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson")  //in order not to log cancellation
                                 return
                                     [
                                         runIO <| comprehensiveTryWith 
@@ -238,6 +239,6 @@ module KODIS_BL_Record_Json =
                         |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                         |> Option.defaultValue (Ok ())
                 | false ->
-                        Error JsonDownloadError
+                        Error JsonLetItBe
         )    
 

@@ -91,12 +91,15 @@ module ExceptionHelpers =
                 // Start with the initial exception
                 let results = loop [ex] []
 
+                runIO (postToLog2 <| string results <| "#8888-ExceptionHandlers")
+
                 pyramidOfHell
                     {   
                         let!_ = not (results |> List.exists ((=) stopDownloading)), fun _ -> stopDownloading
                         let!_ = not (results |> List.exists ((=) timeoutError)), fun _ -> timeoutError
+                        let!_ = not (results |> List.exists ((=) fileDownloadError)), fun _ -> fileDownloadError
                        
-                        return fileDownloadError        
+                        return letItBe        
                     } 
         )
 
@@ -268,9 +271,13 @@ module ExceptionHelpers =
                 |> function
                     | err 
                         when err = Error letItBe
-                        -> Ok()
+                        -> 
+                        runIO (postToLog2 <| string err <| "#9999-ExceptionHandlers")
+                        Ok()
                     | err
-                        -> err
+                        -> 
+                        runIO (postToLog2 <| string err <| "#7777-ExceptionHandlers")
+                        err
         )
 
     let internal comprehensiveTryWithMHD (letItBe : 'c) (stopDownloading : 'c) (timeoutError : 'c) (fileDownloadError : 'c) (tlsHandShakeError : 'c) (token : CancellationToken) (ex : exn) =  
@@ -440,7 +447,11 @@ module ExceptionHelpers =
                 |> function
                     | err 
                         when err = Error letItBe
-                        -> Ok()
+                        -> 
+                        runIO (postToLog2 <| string err <| "#9991-ExceptionHandlers")
+                        Ok()
                     | err
-                        -> err
+                        -> 
+                        runIO (postToLog2 <| string err <| "#7771-ExceptionHandlers")
+                        err
         )

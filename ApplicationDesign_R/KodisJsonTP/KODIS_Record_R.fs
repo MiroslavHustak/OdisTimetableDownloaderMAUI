@@ -94,7 +94,7 @@ module WebScraping_KODIS =
                         | JsonDownloadError     -> jsonDownloadError
                         | JsonConnectionError   -> cancelMsg2
                         | NetConnJsonError err  -> err
-                        | JsonTimeoutError      -> timeoutErrorJson  
+                        | JsonTimeoutError      -> String.Empty  
                         | StopJsonDownloading   -> jsonCancel
                         | FolderMovingError     -> folderMovingError
                         | JsonLetItBe           -> letItBe

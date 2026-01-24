@@ -328,7 +328,7 @@ module DPO_BL =
                         | false ->
                                 reportProgress (float l, float l)
                                 counterAndProgressBar.Post Stop
-                                Error FileDownloadErrorMHD
+                                Error LetItBeMHD
                     with                                            
                     | ex 
                         -> 

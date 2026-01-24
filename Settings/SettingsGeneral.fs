@@ -52,23 +52,23 @@ module SettingsGeneral =
             ODIS_Variants.board.board I2 I1 
         ]       
 
-    let [<Literal>] internal maxRetries3 = 3
-    let [<Literal>] internal maxRetries4 = 4
-    let [<Literal>] internal maxRetries500 = 50    
+    let [<Literal>] internal maxRetries3 = 5
+    let [<Literal>] internal maxRetries4 = 6
+    let [<Literal>] internal maxRetries500 = 10    
 
     let internal delayMsJson : int<ms> = 1_000<ms>
     let internal delayMs : int<ms> = 2_000<ms>    
         
-    let internal timeOutInSeconds : int<s> = 31<s>
-    let internal timeOutInSeconds2 : int<s> = 31<s>
+    let internal timeOutInSeconds : int<s> = 60<s>
+    let internal timeOutInSeconds2 : int<s> = 60<s>
     let internal timeoutMs : int<ms> = 900_000<ms>
     let internal waitingForNetConn : int<s> = 30<s>
 
     let internal maxFileSizeKb : int64<KiB> = 10L<KiB> 
 
-    let [<Literal>] internal maxDegreeOfParallelism = 18
-    let [<Literal>] internal maxDegreeOfParallelismThrottled = 10
-    let [<Literal>] internal maxDegreeOfParallelismMedium = 14
+    let [<Literal>] internal maxDegreeOfParallelism = 14
+    let [<Literal>] internal maxDegreeOfParallelismThrottled = 6
+    let [<Literal>] internal maxDegreeOfParallelismMedium = 10
 
     let [<Literal>] internal myIdeaOfASmallList = 24
     let [<Literal>] internal myIdeaOfALargelList = 100

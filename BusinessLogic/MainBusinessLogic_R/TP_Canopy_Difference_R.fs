@@ -39,7 +39,7 @@ module TP_Canopy_Difference =
                     with
                     | ex 
                         ->
-                        runIO (postToLog2 <| string ex.Message <| "#0001-CanopyDifference") 
+                        //runIO (postToLog2 <| string ex.Message <| "#0001-CanopyDifference") 
                         Set.empty<string>
             )
 
@@ -69,11 +69,10 @@ module TP_Canopy_Difference =
                     with
                     | ex 
                         ->
-                        runIO (postToLog2 <| string ex.Message <| "#0003-CanopyDifference")
+                        //runIO (postToLog2 <| string ex.Message <| "#0003-CanopyDifference")
                         Seq.empty<string>
             )
           
-        // Viz applicative   
         let getUniqueFileNames folderPathTP folderPathCanopy =
         
             IO (fun () 
@@ -145,111 +144,6 @@ module TP_Canopy_Difference =
                     )
                     // |> Result.defaultValue ([], [], [])  // optional for testing
             )
-
-        // Applicative with error accumulation
-        // All three independent Result-producing operations are run in parallel.
-        // All errors are accumulated.
-        let getUniqueFileNamesApplicative3Parallel x y =  //long running Result operations
-
-            async
-                {          
-                    //simulate long-running operations
-                    let op1 x y = 
-                        match x with
-                        | 0 ->
-                            Error "op1 failed"
-                        | _ ->
-                            Ok (fun x y -> x + y)
-                    
-                    let op2 x y =
-                        match x, y with
-                        | _, _ ->
-                            Ok (fun x y -> x * y)
-                    
-                    let op3 x y =
-                        match y with
-                        | 0 ->
-                            Error "division by zero"
-                        | _ ->
-                            Ok (fun x y -> x / y)        
-
-                    let! results = 
-                        [| 
-                            async { return op1 x y |> liftErrorToList }
-                            async { return op2 x y |> liftErrorToList }
-                            async { return op3 x y |> liftErrorToList } 
-                        |]
-                        |> Async.Parallel
-
-                    let result1 = results |> Array.item 0 
-                    let result2 = results |> Array.item 1 
-                    let result3 = results |> Array.item 2 
-        
-                    return
-                        (fun r1 r2 r3 -> r1, r2, r3)
-                        <!!!> result1
-                        <***> result2
-                        <***> result3
-
-                        |> Result.map
-                            (fun (r1, r2, r3) 
-                                ->
-                                let onlyInOp1 = r1 x y + r2 x y + r3 x y  //doing something with the results
-                                let onlyInOp2 = r1 x y * r2 x y * r3 x y  //doing something with the results
-                                let onlyInOp3 = r1 x y / r2 x y / r3 x y  //doing something with the results
-                                onlyInOp1, onlyInOp2, onlyInOp3
-                            )
-                }  
-
-        // Applicative with error accumulation
-        // All three independent exception-throwing operations are run in parallel.
-        // Exceptions are caught and converted to Result values, and all errors are accumulated. 
-        let getUniqueFileNamesApplicative3Parallel_Catch path = //long running .NET processess with exceptions
-            
-            IO (fun ()
-                    ->  
-                    async 
-                        {
-                            //simulate long running exceptions-throwing operations from .NET  
-                            let op1 path = Path.GetFullPath path              
-                            let op2 path = Path.GetFullPath path                
-                            let op3 path = Path.GetFullPath path
-                        
-                            let asyncToAccumulatingResult (a : Async<'a>) : Async<Result<'a, string list>> =
-                                a
-                                |> Async.Catch
-                                |> Async.map
-                                    (Result.ofChoice >> Result.mapError (fun ex -> [ ex.Message ]))
-        
-                            let! results =
-                                [|
-                                    async { return op1 path }
-                                    async { return op2 path }
-                                    async { return op3 path }
-                                |]
-                                |> Array.map asyncToAccumulatingResult
-                                |> Async.Parallel
-        
-                            let result1 = results |> Array.item 0 
-                            let result2 = results |> Array.item 1 
-                            let result3 = results |> Array.item 2 
-        
-                            return
-                                (fun r1 r2 r3 -> r1, r2, r3)
-                                <!!!> result1
-                                <***> result2
-                                <***> result3
-
-                                |> Result.map
-                                    (fun (r1, r2, r3) 
-                                        ->
-                                        let onlyInOp1 = sprintf "%s%s%s" r1 r2 r3              //doing something with the results
-                                        let onlyInOp2 = String.length r2                       //doing something with the results
-                                        let onlyInOp3 = r3 |> String.map System.Char.ToUpper   //doing something with the results
-                                        onlyInOp1, onlyInOp2, onlyInOp3
-                                    )
-                        }
-            )
                 
         let result folderPathTP folderPathCanopy =
 
@@ -262,7 +156,7 @@ module TP_Canopy_Difference =
                     ||> Seq.map2
                         (fun pathTP pathCanopy
                             ->
-                            let uniqueFileNamesTP, uniqueFileNamesCanopy = runIO <| getUniqueFileNamesApplicative pathTP pathCanopy 
+                            let uniqueFileNamesTP, uniqueFileNamesCanopy = runIO <| getUniqueFileNames pathTP pathCanopy 
                             showResults uniqueFileNamesTP uniqueFileNamesCanopy
                         )
                     |> Seq.collect id   

@@ -189,10 +189,10 @@ module ParseJsonData =
                             | err 
                                 when err = StopDownloading
                                 ->
-                                //runIO (postToLog2 <| string ex.Message <| "#0002-ParseJson")  //in order not to log cancellation
+                                runIO (postToLog2 <| string ex.Message <| "#0002-ParseJson")  //in order not to log cancellation
                                 Error <| JsonParsingError2 StopJsonParsing  
                             | _ ->
-                                runIO (postToLog2 <| string ex.Message <| "#0002-ParseJson")  
+                                runIO (postToLog2 <| string ex.Message <| "#0003-ParseJson")  
                                 Error <| JsonParsingError2 JsonParsingError    
                  // )
         )

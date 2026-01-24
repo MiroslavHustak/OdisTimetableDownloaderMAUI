@@ -276,7 +276,7 @@ module MDPO_BL = //FsHttp
                                             match runIO <| isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | err when err = StopDownloadingMHD 
                                                 ->
-                                                //runIO (postToLog2 <| string ex.Message <| "#0006-MDPOBL") //in order not to log cancellation
+                                                runIO (postToLog2 <| string ex.Message <| "#0006-MDPOBL") //in order not to log cancellation
                                                 return Error StopDownloadingMHD
                                             | _ ->
                                                 match retryCount < maxRetries with
@@ -383,5 +383,5 @@ module MDPO_BL = //FsHttp
                 | false ->
                         reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop
-                        Error FileDownloadErrorMHD
+                        Error LetItBeMHD
         )
