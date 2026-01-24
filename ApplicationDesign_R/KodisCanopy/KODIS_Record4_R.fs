@@ -69,8 +69,6 @@ module WebScraping_KODIS4 =
               
         let errFn err =  
 
-            runIO (postToLog2 <| string err <| "#0008-K4")
-
             match err with
             | PdfDownloadError2 RcError                -> rcError
             | PdfDownloadError2 NoFolderError          -> noFolderError            
@@ -208,11 +206,8 @@ module WebScraping_KODIS4 =
                 let!_ = runIO <| createFolders dirList, errFn                           
                
                 let! msg1 = result contextCurrentValidity, errFn
-                runIO (postToLog2 <| msg1 <| "#0005-K4")
                 let! msg2 = result contextFutureValidity, errFn
-                runIO (postToLog2 <| msg2 <| "#0006-K4")
                 let! msg3 = result contextLongTermValidity, errFn 
-                runIO (postToLog2 <| msg3 <| "#0007-K4")
 
                 let msg4 = String.Empty //viz App.fs a viz stateReducerCmd5 dole
                     //match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with

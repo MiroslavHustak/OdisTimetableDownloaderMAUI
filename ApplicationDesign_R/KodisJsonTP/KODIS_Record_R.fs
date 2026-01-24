@@ -150,8 +150,6 @@ module WebScraping_KODIS =
                 ->    
                 let errFn err =  
 
-                    runIO (postToLog2 <| string err <| "#0011-K")
-
                     match err with
                     | PdfDownloadError2 RcError                -> rcError
                     | PdfDownloadError2 NoFolderError          -> noFolderError
@@ -229,7 +227,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog <| string ex.Message <| "#22-2")
+                            runIO (postToLog <| string ex.Message <| "#0029")
                             Error <| JsonError JsonDataFilteringError                     
                      *)
 
@@ -251,7 +249,6 @@ module WebScraping_KODIS =
         
                     | Ok _
                         ->  
-                        runIO (postToLog2 "Ok" "#DEBUG-K")  // ← Add this    
                         dispatchIterationMessage context2.Msg2    
                         Ok context2.Msg3 
         
@@ -322,11 +319,8 @@ module WebScraping_KODIS =
                         //dispatchCancelVisible true
                         
                         let! msg1 = result lazyList contextCurrentValidity, errFn
-                        runIO (postToLog2 <| msg1 <| "#0004-K")
                         let! msg2 = result lazyList contextFutureValidity, errFn
-                        runIO (postToLog2 <| msg2 <| "#0005-K")
                         let! msg3 = result lazyList contextLongTermValidity, errFn   
-                        runIO (postToLog2 <| msg3 <| "#0006-K")
 
                         let msg4 = //viz App.fs
                            match calculate_TP_Canopy_Difference >> runIO <| () |> Async.RunSynchronously with
