@@ -235,6 +235,7 @@ module KODIS_BL_Record_Json =
                 
                 match result |> List.length = l with
                 | true  ->
+                        runIO (postToLog2 <| string result <| "#6666-KBLJson")
                         result 
                         |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                         |> Option.defaultValue (Ok ())

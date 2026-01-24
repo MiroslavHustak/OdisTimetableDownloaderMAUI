@@ -307,7 +307,9 @@ module KODIS_BL_Record =
                         counterAndProgressBar.Post Stop2
                         
                         let! _ = result |> List.length = l, Error (PdfDownloadError2 LetItBe)
-
+                        
+                        runIO (postToLog2 <| string result <| "#3333-KBL")
+                        
                         return
                             result
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))

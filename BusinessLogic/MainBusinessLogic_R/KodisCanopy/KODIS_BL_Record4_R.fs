@@ -296,6 +296,8 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
 
                         let! _ = result |> List.length = l, Error (PdfDownloadError2 LetItBe)
 
+                        runIO (postToLog2 <| string result <| "#4444-K4BL")
+
                         return
                             result
                             |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))

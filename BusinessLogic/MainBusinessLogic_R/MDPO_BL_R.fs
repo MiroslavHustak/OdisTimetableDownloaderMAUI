@@ -240,8 +240,7 @@ module MDPO_BL = //FsHttp
                                             | _, HttpStatusCode.PartialContent
                                                 ->
                                                 try
-                                                    use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask   
-                                                    
+                                                    use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask                                                       
                                                     let fileMode =
                                                         match existingFileLength > 0L with
                                                         | true  -> FileMode.Append

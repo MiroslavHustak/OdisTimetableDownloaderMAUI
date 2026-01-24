@@ -102,7 +102,7 @@ type MauiProgram =
                                                         match granted with
                                                         | true 
                                                             ->
-                                                            (dispatch : Dispatch<App_R.Msg>) <| App_R.Home
+                                                            (dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
                                                         | false
                                                             -> 
                                                             ()
