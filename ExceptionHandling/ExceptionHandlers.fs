@@ -257,6 +257,7 @@ module ExceptionHelpers =
                         runIO (postToLog2 (sprintf "Unknown exception: %s - %s" (originalEx.GetType().Name) originalEx.Message) "#0212-ExceptionHandlers")
                         ()
                     | _ ->
+                        runIO (postToLog2 "Unknown error" "#0213-ExceptionHandlers")
                         ()
         
                     classification
@@ -433,6 +434,7 @@ module ExceptionHelpers =
                         runIO (postToLog2 (sprintf "Unknown exception: %s - %s" (originalEx.GetType().Name) originalEx.Message) "#0218-ExceptionHandlers")
                         ()
                     | _ ->
+                        runIO (postToLog2 "Unknown error" "#0219-ExceptionHandlers")
                         ()
            
                     classification

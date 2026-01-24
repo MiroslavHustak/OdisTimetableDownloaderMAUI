@@ -16,6 +16,7 @@ open System.Net
 open System.Threading
 
 open Microsoft.Maui.Hosting
+open Microsoft.Maui.Networking
 open Microsoft.Maui.LifecycleEvents
 open Microsoft.Maui.ApplicationModel
 
@@ -26,6 +27,7 @@ open Fabulous.Maui
 
 open Api.Logging
 open Types.Haskell_IO_Monad_Simulation
+
 
 type MauiProgram = 
 
@@ -102,7 +104,9 @@ type MauiProgram =
                                                         match granted with
                                                         | true 
                                                             ->
-                                                            (dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
+                                                            //(dispatch : Dispatch<App_R.Msg>) <| App_R.Home2
+                                                            let isConnected = Connectivity.NetworkAccess = NetworkAccess.Internet
+                                                            (dispatch : Dispatch<App_R.Msg>) <| App_R.HomeFirstInit isConnected
                                                         | false
                                                             -> 
                                                             ()

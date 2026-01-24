@@ -131,6 +131,7 @@ module App_R =
         | Cancel
         | Home
         | Home2
+        | HomeFirstInit of bool
         | RestartVisible of bool
         | CancelVisible of bool
         | Quit
@@ -159,35 +160,52 @@ module App_R =
         let connectivityDebouncer (dispatch : Msg -> unit) =
 
             let debounceActor =
-
-                MailboxProcessor<bool>
-                    .StartImmediate //tady OK  
+                MailboxProcessor
+                    .StartImmediate
                         (fun inbox
                             ->
-                            let rec loop lastState (lastChangeTime : DateTime) =
-                                async 
+                            let rec loop lastState (lastChangeTime : DateTime) isFirstMessage =
+
+                                async
                                     {
                                         let! isConnected = inbox.Receive()
                                         let now = DateTime.Now
-        
-                                        match isConnected <> lastState, (now - lastChangeTime).TotalSeconds > 0.5 with
-                                        | true, true 
+                                        let timeDiff = (now - lastChangeTime).TotalSeconds
+                                        
+                                        match isFirstMessage, isConnected, lastState, timeDiff > 0.5 with
+                                        | true, false, _, _
                                             ->
-                                            match isConnected with
-                                            | false ->
-                                                    NetConnMessage >> dispatch <| noNetConn
-                                                    runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
-                                            | true  ->
-                                                    dispatch (NetConnMessage yesNetConn)
-        
-                                            return! loop isConnected now
-        
-                                        | _ ->
-                                            return! loop lastState lastChangeTime
+                                            // First message: lost connection → dispatch immediately
+                                            NetConnMessage >> dispatch <| noNetConn
+                                            runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                            return! loop isConnected now false
+                                        | true, true, _, _
+                                            ->
+                                            // First message: have connection → dispatch immediately
+                                            dispatch (NetConnMessage yesNetConn)
+                                            return! loop isConnected now false
+                                        | false, false, true, _
+                                            ->
+                                            // Lost connection: react immediately (no debouncing)
+                                            NetConnMessage >> dispatch <| noNetConn
+                                            runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                            return! loop isConnected now false
+                                        | false, true, false, true
+                                            ->
+                                            // Gained connection: debounced (state stable for 0.5s)
+                                            dispatch (NetConnMessage yesNetConn)
+                                            return! loop isConnected now false
+                                        | false, _, _, _ when isConnected <> lastState
+                                            ->
+                                            // State changed but not ready to dispatch yet
+                                            return! loop isConnected now false
+                                        | _
+                                            ->
+                                            // No state change or still waiting
+                                            return! loop lastState lastChangeTime false
                                     }
-        
-                            loop true DateTime.MinValue
-                    )
+                            loop true DateTime.MinValue true
+                        )
             
             //250 = debounceMs, (now - lastChangeTime).TotalSeconds > 0.5 resp. 0.2 - s temito hodnotami si pohrat
             runIO <| startConnectivityMonitoring 250 (fun isConnected -> debounceActor.Post isConnected)       
@@ -574,11 +592,15 @@ module App_R =
                     Label2Visible = true  
                     InternetIsConnected = isConnected          
             }, emergencyQuitCmd
-            #endif           
+            #endif
+
+        | HomeFirstInit isConnected 
+            -> 
+            init2 isConnected    
 
         | Home2  
             -> 
-            init2 m.InternetIsConnected
+            init2 m.InternetIsConnected //na modelu zavisle
 
         | Home  
             -> 
