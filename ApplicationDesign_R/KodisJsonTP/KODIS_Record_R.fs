@@ -251,6 +251,7 @@ module WebScraping_KODIS =
         
                     | Ok _
                         ->  
+                        runIO (postToLog2 "Ok" "#DEBUG-K")  // ← Add this    
                         dispatchIterationMessage context2.Msg2    
                         Ok context2.Msg3 
         

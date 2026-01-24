@@ -185,62 +185,62 @@ module Logging =
 
     let internal postToLog3 (listResult : Result<'a, 'b> list) (err2 : string) =  //for stress testing purposes only //saving on a HD / internal emmory
 
-           IO (fun () 
-                   ->
-                   asyncResult 
-                       {
-                           try
-                               #if WINDOWS 
-                               let logFilePath = logFileNameWindows2
-                               #else
-                               let logFilePath = logFileNameAndroid2
-                               #endif
-                               let! path = SafeFullPath.safeFullPathResult logFilePath 
+        IO (fun () 
+                ->
+                asyncResult 
+                    {
+                        try
+                            #if WINDOWS 
+                            let logFilePath = logFileNameWindows2
+                            #else
+                            let logFilePath = logFileNameAndroid2
+                            #endif
+                            let! path = SafeFullPath.safeFullPathResult logFilePath 
                                                            
-                               let fs =
-                                   new FileStream
-                                       (
-                                           path,
-                                           FileMode.OpenOrCreate,
-                                           FileAccess.Write,
-                                           FileShare.None
-                                       )
-                               try 
-                                   let maxBytes : int64<B> = kiBToBytes maxFileSizeKb
-                                   let fileLength : int64<B> = fs.Length * 1L<B>
+                            let fs =
+                                new FileStream
+                                    (
+                                        path,
+                                        FileMode.OpenOrCreate,
+                                        FileAccess.Write,
+                                        FileShare.None
+                                    )
+                            try 
+                                let maxBytes : int64<B> = kiBToBytes maxFileSizeKb
+                                let fileLength : int64<B> = fs.Length * 1L<B>
 
-                                   match fileLength > maxBytes with
-                                   | true  -> fs.SetLength 0L  //truncating oversized file
-                                   | false -> ()
+                                match fileLength > maxBytes with
+                                | true  -> fs.SetLength 0L  //truncating oversized file
+                                | false -> ()
 
-                                   fs.Seek(0L, SeekOrigin.End) |> ignore<int64>
+                                fs.Seek(0L, SeekOrigin.End) |> ignore<int64>
 
-                                   use writer = new StreamWriter(fs)
+                                use writer = new StreamWriter(fs)
 
-                                   let! _ =
-                                       listResult 
-                                       |> AsyncSeq.ofSeq
-                                       |> AsyncSeq.choose
-                                           (fun item 
-                                               -> 
-                                               match item with
-                                               | Ok _ -> None
-                                               | Error err -> Some err
-                                           )
-                                       |> AsyncSeq.iterAsync 
-                                           (fun item 
-                                               -> 
-                                               let s = sprintf "%s %A Error%s" <| string DateTimeOffset.Now <| item <| err2 
-                                               writer.WriteLineAsync(s) |> Async.AwaitTask
-                                           )
+                                let! _ =
+                                    listResult 
+                                    |> AsyncSeq.ofSeq
+                                    |> AsyncSeq.choose
+                                        (fun item 
+                                            -> 
+                                            match item with
+                                            | Ok _ -> None
+                                            | Error err -> Some err
+                                        )
+                                    |> AsyncSeq.iterAsync 
+                                        (fun item 
+                                            -> 
+                                            let s = sprintf "%s %A Error%s" <| string DateTimeOffset.Now <| item <| err2 
+                                            writer.WriteLineAsync(s) |> Async.AwaitTask
+                                        )
                                    
-                                   return ()
+                                return ()
                        
-                               finally                        
-                                   fs.Dispose()
-                           with
-                           | ex-> return! Error <| string ex.Message 
-                       }
-                   |> Async.Ignore<Result<unit, string>>
-                   |> Async.Start  
-           )
+                            finally                        
+                                fs.Dispose()
+                        with
+                        | ex-> return! Error <| string ex.Message 
+                    }
+                |> Async.Ignore<Result<unit, string>>
+                |> Async.Start  
+        )

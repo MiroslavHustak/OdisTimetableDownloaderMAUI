@@ -289,15 +289,18 @@ module ExceptionHelpers =
                     |> Error
     
                 | _ -> 
+                    // TODO: spravne to udajne mela chytit  | :? AggregateException as aex, podumej, co s tim
                     runIO (postToLog2 <| string ex.Message <| "#0012-ExceptionHandlers")
-                    Error fileDownloadError
+                    match (string ex.Message).Contains"net_io_readfailure" with
+                    | false -> Error fileDownloadError
+                    | true  -> Error letItBe                    
 
                 //temporary code for stress testing  
                 |> function
                     | err 
                         when err = Error letItBe
                         -> 
-                        runIO (postToLog2 <| string err <| "#9999-ExceptionHandlers")
+                        //runIO (postToLog2 <| string err <| "#9999-ExceptionHandlers")
                         Ok()
                     | err
                         -> 

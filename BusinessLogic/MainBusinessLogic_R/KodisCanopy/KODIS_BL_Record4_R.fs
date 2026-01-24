@@ -231,6 +231,9 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                 ->
                                                 // File does not exist (or was deleted) → download (with resume if partial)
                                                 let! result = downloadWithResume uri pathToFile token 
+
+                                                //runIO (postToLog2 (sprintf "downloadWithResume returned: %A for %s" result uri) "#DEBUG-K4BL")
+
                                                 counterAndProgressBar.Post <| Inc 1
                                                 
                                                 return

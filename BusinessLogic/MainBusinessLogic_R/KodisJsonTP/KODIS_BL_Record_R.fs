@@ -244,6 +244,9 @@ module KODIS_BL_Record =
                                                 ->
                                                 // File does not exist (or was deleted) → download (with resume if partial)
                                                 let! result = downloadWithResume uri pathToFile token 
+
+                                                //runIO (postToLog2 (sprintf "downloadWithResume returned: %A for %s" result uri) "#DEBUG-KBL")
+
                                                 counterAndProgressBar.Post <| Inc2 1
 
                                                 return
@@ -264,7 +267,9 @@ module KODIS_BL_Record =
                                         | ex
                                             -> 
                                             checkCancel token
-                                            //runIO (postToLog2 <| string ex.Message <| "#0016-KBL")  //in order not to log cancellation
+                                            
+                                            runIO (postToLog2 <| string ex.Message <| "#0016-KBL")  //in order not to log cancellation
+                                            
                                             return 
                                                 runIO <| comprehensiveTryWith
                                                     (PdfDownloadError2 LetItBe)
@@ -279,7 +284,9 @@ module KODIS_BL_Record =
                     | ex 
                         -> 
                         checkCancel token
+
                         runIO (postToLog2 <| string ex.Message <| "#0017-KBL")  //in order not to log cancellation
+                        
                         async
                             {
                                 return
