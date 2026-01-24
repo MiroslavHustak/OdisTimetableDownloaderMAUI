@@ -138,7 +138,11 @@ module KODIS_BL_Record =
                                                 ->
                                                 try
                                                     use! stream = response.content.ReadAsStreamAsync() |> Async.AwaitTask
-                                                    use fileStream = new FileStream(pathToFile, FileMode.Append, FileAccess.Write, FileShare.None)
+                                                    let fileMode =
+                                                        match existingFileLength > 0L with
+                                                        | true  -> FileMode.Append
+                                                        | false -> FileMode.Create  // ← Correctly uses Create for new files!
+                                                    use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
                                                     do! fileStream.FlushAsync(token) |> Async.AwaitTask
                                                    
