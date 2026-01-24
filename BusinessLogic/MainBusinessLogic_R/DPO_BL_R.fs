@@ -169,7 +169,7 @@ module DPO_BL =
                                                     http 
                                                         {
                                                             GET uri
-                                                            config_timeoutInSeconds timeOutInSeconds2
+                                                            config_timeoutInSeconds (umSecondsToFloat timeOutInSeconds2)
                                                             config_cancellationToken token
                                                             header "User-Agent" "FsHttp/Android7.1"
                                                             header "Range" (sprintf "bytes=%d-" existingFileLength)
@@ -178,7 +178,7 @@ module DPO_BL =
                                                     http 
                                                         {
                                                             GET uri
-                                                            config_timeoutInSeconds timeOutInSeconds2
+                                                            config_timeoutInSeconds (umSecondsToFloat timeOutInSeconds2)
                                                             config_cancellationToken token
                                                             header "User-Agent" "FsHttp/Android7.1"
                                                         }
@@ -254,7 +254,7 @@ module DPO_BL =
                                                         FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
     
-                            return! attempt 0 initialBackoffMs
+                            return! attempt 0 (umMiliSecondsToInt32 initialBackoffMs)
                         }
     
                 let filteredTimetables =

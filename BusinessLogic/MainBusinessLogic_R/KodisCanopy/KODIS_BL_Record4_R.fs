@@ -92,7 +92,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                     http
                                                         {
                                                             GET uri
-                                                            config_timeoutInSeconds timeOutInSeconds2 
+                                                            config_timeoutInSeconds (umSecondsToFloat timeOutInSeconds2) 
                                                             config_cancellationToken token 
                                                             header "User-Agent" "FsHttp/Android7.1"
                                                             header headerContent1 headerContent2
@@ -101,7 +101,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                     http
                                                         {
                                                             GET uri
-                                                            config_timeoutInSeconds timeOutInSeconds2 
+                                                            config_timeoutInSeconds (umSecondsToFloat timeOutInSeconds2) 
                                                             config_cancellationToken token 
                                                             header "User-Agent" "FsHttp/Android7.1"
                                                         }     
@@ -185,7 +185,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                                 FileDownloadError TlsHandshakeError token ex
                                     }
    
-                            return! attempt 0 initialBackoffMs
+                            return! attempt 0 (umMiliSecondsToInt32 initialBackoffMs)
                     }
    
                 let downloadAndSaveTimetables (token : CancellationToken) context =                                         

@@ -43,3 +43,4 @@
 01/23/2026 23:20:22 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-backend-staging-85d01eccf627.herokuapp.com:443))) Error#0002-ExceptionHandlers
 01/23/2026 23:20:22 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-backend-staging-85d01eccf627.herokuapp.com:443))) Error#0002-ExceptionHandlers
 01/23/2026 23:20:24 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-backend-staging-85d01eccf627.herokuapp.com:443))) Error#0002-ExceptionHandlers
+01/24/2026 01:05:25 +01:00 One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#0002-ExceptionHandlers

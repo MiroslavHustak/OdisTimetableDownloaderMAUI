@@ -827,7 +827,7 @@ module App_R =
                         async 
                             {   
                                 use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                                cts.CancelAfter timeoutMs
+                                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
 
                                 do! delayedCmd1 cts.Token dispatch 
                                 
@@ -952,7 +952,7 @@ module App_R =
                         async 
                             {          
                                 use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                                cts.CancelAfter timeoutMs
+                                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
                                 do! delayedCmd2 cts.Token dispatch
 
                                 return! delayedCmd5 dispatch                           
@@ -1062,7 +1062,7 @@ module App_R =
                         async 
                             {   
                                 use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                                cts.CancelAfter timeoutMs
+                                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
 
                                 RestartVisible >> dispatch <| false
 
@@ -1178,7 +1178,7 @@ module App_R =
                         async 
                             {                                
                                 use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                                cts.CancelAfter timeoutMs
+                                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
                                 
                                 RestartVisible >> dispatch <| false
 

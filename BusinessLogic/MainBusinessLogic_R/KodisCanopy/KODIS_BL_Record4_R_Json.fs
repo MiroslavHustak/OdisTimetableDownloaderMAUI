@@ -178,7 +178,11 @@ module KODIS_BL_Record4_Json =
                         return Validation.error <| PdfDownloadError2 FileDownloadError
                 }
     
-        IO (fun () -> retryParallel maxRetries delay |> (fun a -> Async.RunSynchronously(a, cancellationToken = token)))  
+        IO (fun () 
+                ->
+                retryParallel maxRetries (umMiliSecondsToInt32 delay)
+                |> (fun a -> Async.RunSynchronously(a, cancellationToken = token))
+        )  
             
     // Resumable variant
     let internal operationOnDataFromJson_resumable (token : CancellationToken) variant dir =
@@ -242,5 +246,5 @@ module KODIS_BL_Record4_Json =
                                 return Validation.Error errs
                         }
                         
-                attempt 0 initialDelayMs
+                attempt 0 (umMiliSecondsToInt32 initialDelayMs)
         )

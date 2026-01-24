@@ -10,6 +10,8 @@ open Settings.Messages
 open Settings.SettingsGeneral
 
 open Helpers.Connectivity
+
+open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
 module Counters =   
@@ -25,7 +27,7 @@ module Counters =
 
                 //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
       
-                [ waitingForNetConn .. -1 .. 0 ]  // -1 for backward counting
+                [ umSecondsToInt32 waitingForNetConn .. -1 .. 0 ]  // -1 for backward counting
                 |> List.toSeq                                             
                 |> AsyncSeq.ofSeq
                 |> AsyncSeq.iterAsync
@@ -94,5 +96,5 @@ module Counters =
                         }
     
                 //Async.StartImmediate (loop waitingForNetConn) //Async.StartImmediate -> common cause of ANRs (Application Not Responding) on Android.
-                Async.Start (loop waitingForNetConn) 
+                Async.Start (umSecondsToInt32 >> loop <| waitingForNetConn) 
         )

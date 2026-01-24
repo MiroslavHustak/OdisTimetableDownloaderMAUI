@@ -59,6 +59,22 @@ module FreeMonad =
 
 module Types =    
 
+    [<Measure>] type ms
+    [<Measure>] type s
+    [<Measure>] type B
+
+    [<Measure>] type KiB //Binary (IEC) — 1 KiB = 1024 B
+    [<Measure>] type MiB 
+    
+    let internal kiBToBytes (x : int64<KiB>) = x * 1024L<B/KiB>
+
+    let internal umSecondsToFloat (x : int<s>) : float = float (x / 1<s>)
+    let internal umSecondsToInt64 (x : int<s>) : int64 = int64 (x / 1<s>)
+    let internal umSecondsToInt32 (x : int<s>) : int = int (x / 1<s>)
+    let internal umMiliSecondsToFloat (x : int<ms>) : float = float (x / 1<ms>)
+    let internal umMiliSecondsToInt64 (x : int<ms>) : int64 = int64 (x / 1<ms>)    
+    let internal umMiliSecondsToInt32 (x : int<ms>) : int = int (x / 1<ms>)
+
     type internal ConnectivityMonitorMsg =
         | StateChanged of bool
         | StopConnectivityMonitoring

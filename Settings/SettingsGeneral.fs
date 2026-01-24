@@ -4,6 +4,7 @@ open System
 
 //*******************
 
+open Types.Types
 open Types.Grid3Algebra
 
 module SettingsGeneral =  
@@ -49,14 +50,21 @@ module SettingsGeneral =
             ODIS_Variants.board.board I1 I1
             ODIS_Variants.board.board I1 I2
             ODIS_Variants.board.board I2 I1 
-        ]    
-        
-    let [<Literal>] internal timeOutInSeconds = 31 
-    let [<Literal>] internal timeOutInSeconds2 = 31
-    let [<Literal>] internal timeoutMs = 900000
-    let [<Literal>] internal waitingForNetConn = 30 //vterin
+        ]       
 
-    let [<Literal>] internal maxFileSizeKb = 10L 
+    let [<Literal>] internal maxRetries3 = 3
+    let [<Literal>] internal maxRetries4 = 4
+    let [<Literal>] internal maxRetries500 = 50    
+
+    let internal delayMsJson : int<ms> = 1_000<ms>
+    let internal delayMs : int<ms> = 2_000<ms>    
+        
+    let internal timeOutInSeconds : int<s> = 31<s>
+    let internal timeOutInSeconds2 : int<s> = 31<s>
+    let internal timeoutMs : int<ms> = 900_000<ms>
+    let internal waitingForNetConn : int<s> = 30<s>
+
+    let internal maxFileSizeKb : int64<KiB> = 10L<KiB> 
 
     let [<Literal>] internal maxDegreeOfParallelism = 18
     let [<Literal>] internal maxDegreeOfParallelismThrottled = 10
@@ -64,12 +72,6 @@ module SettingsGeneral =
 
     let [<Literal>] internal myIdeaOfASmallList = 24
     let [<Literal>] internal myIdeaOfALargelList = 100
-
-    let [<Literal>] internal maxRetries3 = 3
-    let [<Literal>] internal maxRetries4 = 4
-    let [<Literal>] internal maxRetries500 = 50    
-    let [<Literal>] internal delayMsJson = 1000
-    let [<Literal>] internal delayMs = 2000
 
     //let internal partialPathJsonTemp = @"/storage/emulated/0/Android/data/com.companyname.OdisTimetableDownloaderMAUI/"  //Android 7.1      
     

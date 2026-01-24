@@ -86,7 +86,7 @@ module KODIS_BL_Record_Json =
                                                     http
                                                         {
                                                             GET uri
-                                                            config_timeoutInSeconds timeOutInSeconds2
+                                                            config_timeoutInSeconds (umSecondsToFloat timeOutInSeconds2)
                                                             config_cancellationToken token
                                                             header "User-Agent" "FsHttp/Android7.1"
                                                             header "Range" (sprintf "bytes=%d-" existingFileLength)
@@ -95,7 +95,7 @@ module KODIS_BL_Record_Json =
                                                     http
                                                         {
                                                             GET uri
-                                                            config_timeoutInSeconds timeOutInSeconds2
+                                                            config_timeoutInSeconds (umSecondsToFloat timeOutInSeconds2)
                                                             config_cancellationToken token
                                                             header "User-Agent" "FsHttp/Android7.1"
                                                         }
@@ -181,7 +181,7 @@ module KODIS_BL_Record_Json =
                                                                 JsonDownloadError JsonTlsHandshakeError token ex
                                     }
 
-                            return! attempt 0 initialBackoffMs
+                            return! attempt 0 (umMiliSecondsToInt32 initialBackoffMs)
                         }
                   
                 let result =  

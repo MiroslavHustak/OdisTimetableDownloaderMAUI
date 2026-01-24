@@ -13,6 +13,7 @@ open FsToolkit.ErrorHandling
 //************************************************************
 
 open Types
+open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
@@ -118,9 +119,10 @@ module Logging =
                                         FileShare.None
                                     )
                             try 
-                                let maxBytes = int64 maxFileSizeKb * 1024L
+                                let maxBytes : int64<B> = kiBToBytes maxFileSizeKb
+                                let fileLength : int64<B> = fs.Length * 1L<B>
 
-                                match fs.Length > maxBytes with
+                                match fileLength > maxBytes with
                                 | true  -> fs.SetLength 0L  //truncating oversized file
                                 | false -> ()
 
@@ -159,9 +161,10 @@ module Logging =
                                         FileShare.None
                                     )
                             try 
-                                let maxBytes = int64 maxFileSizeKb * 1024L
+                                let maxBytes : int64<B> = kiBToBytes maxFileSizeKb
+                                let fileLength : int64<B> = fs.Length * 1L<B>
 
-                                match fs.Length > maxBytes with
+                                match fileLength > maxBytes with
                                 | true  -> fs.SetLength 0L  //truncating oversized file
                                 | false -> ()
 

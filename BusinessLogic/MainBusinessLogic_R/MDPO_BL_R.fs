@@ -196,7 +196,7 @@ module MDPO_BL = //FsHttp
                                                     http
                                                         {
                                                             GET uri
-                                                            config_timeoutInSeconds timeOutInSeconds2
+                                                            config_timeoutInSeconds (umSecondsToFloat timeOutInSeconds2)
                                                             config_cancellationToken token
                                                             header "User-Agent" "FsHttp/Android"
                                                             header "Range" (sprintf "bytes=%d-" existingFileLength)
@@ -205,7 +205,7 @@ module MDPO_BL = //FsHttp
                                                     http
                                                         {
                                                             GET uri
-                                                            config_timeoutInSeconds timeOutInSeconds2
+                                                            config_timeoutInSeconds (umSecondsToFloat timeOutInSeconds2)
                                                             config_cancellationToken token
                                                             header "User-Agent" "FsHttp/Android"
                                                         }
@@ -291,7 +291,7 @@ module MDPO_BL = //FsHttp
                                                                 FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                     }
                         
-                            return! attempt 0 initialBackoffMs
+                            return! attempt 0 (umMiliSecondsToInt32 initialBackoffMs)
                         }
         
                 let downloadAndSave (token : CancellationToken) =
