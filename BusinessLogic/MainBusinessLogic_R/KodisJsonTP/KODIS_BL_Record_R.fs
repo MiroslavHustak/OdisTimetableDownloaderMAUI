@@ -151,7 +151,7 @@ module KODIS_BL_Record =
                                                 | ex
                                                     ->
                                                     checkCancel token
-                                                    runIO (postToLog2 <| string ex.Message <| "#0088-KBL")  //in order not to log cancellation
+                                                    runIO (postToLog2 <| string ex.Message <| "#0088-KBL")  
                                                     return 
                                                         runIO <| comprehensiveTryWith 
                                                             LetItBe StopDownloading TimeoutError 
@@ -173,7 +173,7 @@ module KODIS_BL_Record =
                                             | err 
                                                 when err = StopDownloading
                                                 ->
-                                                runIO (postToLog2 <| string ex.Message <| "#0011-KBL")  //in order not to log cancellation
+                                                runIO (postToLog2 <| string ex.Message <| "#0011-KBL")  
                                                 return Error StopDownloading
                                             | err 
                                                 ->
@@ -256,7 +256,7 @@ module KODIS_BL_Record =
                                                             | err 
                                                                 when err = StopDownloading
                                                                 ->
-                                                                runIO (postToLog2 <| string err <| "#0014-KBL")  //in order not to log cancellation
+                                                                runIO (postToLog2 <| string err <| "#0014-KBL")  
                                                                 PdfDownloadError2 StopDownloading
                                                             | err 
                                                                 ->
@@ -268,7 +268,7 @@ module KODIS_BL_Record =
                                             -> 
                                             checkCancel token
                                             
-                                            runIO (postToLog2 <| string ex.Message <| "#0016-KBL")  //in order not to log cancellation
+                                            runIO (postToLog2 <| string ex.Message <| "#0016-KBL")  
                                             
                                             return 
                                                 runIO <| comprehensiveTryWith
@@ -285,7 +285,7 @@ module KODIS_BL_Record =
                         -> 
                         checkCancel token
 
-                        runIO (postToLog2 <| string ex.Message <| "#0017-KBL")  //in order not to log cancellation
+                        runIO (postToLog2 <| string ex.Message <| "#0017-KBL")  
                         
                         async
                             {
@@ -313,7 +313,7 @@ module KODIS_BL_Record =
                         context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop2
                         
-                        let! _ = result |> List.length = l, Error (PdfDownloadError2 LetItBe)
+                        let! _ = result |> List.length = l, Error (PdfDownloadError2 NotAllFilesDownloaded)
                         
                         runIO (postToLog3 <| result <| "#3333-KBL")
                         

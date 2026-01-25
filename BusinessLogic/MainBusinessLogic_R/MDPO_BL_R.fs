@@ -147,30 +147,29 @@ module MDPO_BL = //FsHttp
                 let l = filterTimetables |> Map.count
 
                 let counterAndProgressBar =
-                    MailboxProcessor<MsgIncrement>
-                        .StartImmediate
-                            (fun inbox 
-                                ->
-                                let rec loop n =
-                                    async
-                                        {
-                                            try                                                           
-                                                checkCancel token      
-                                                let! msg = inbox.Receive()  
+                    MailboxProcessor<MsgIncrement>.StartImmediate
+                        (fun inbox 
+                            ->
+                            let rec loop n =
+                                async
+                                    {
+                                        try                                                           
+                                            checkCancel token      
+                                            let! msg = inbox.Receive()  
                                                 
-                                                match msg with
-                                                | Inc i 
-                                                    -> 
-                                                    reportProgress (float n, float l)
-                                                    return! loop (n + i)
-                                                | Stop
-                                                    ->
-                                                    return () // exit loop → agent terminates
-                                            with
-                                            | _ -> () 
-                                        }
-                                loop 0
-                            )
+                                            match msg with
+                                            | Inc i 
+                                                -> 
+                                                reportProgress (float n, float l)
+                                                return! loop (n + i)
+                                            | Stop
+                                                ->
+                                                return () // exit loop → agent terminates
+                                        with
+                                        | _ -> () 
+                                    }
+                            loop 0
+                        )
 
                 let downloadWithResumeMDPO (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, MHDErrors>> =
                         
@@ -254,7 +253,7 @@ module MDPO_BL = //FsHttp
                                                 | ex 
                                                     -> 
                                                     checkCancel token
-                                                    //runIO (postToLog2 <| string ex.Message <| "#0003-MDPOBL")  //in order not to log cancellation
+                                                    //runIO (postToLog2 <| string ex.Message <| "#0003-MDPOBL")  
                                                     return 
                                                         runIO <| comprehensiveTryWith 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
@@ -275,7 +274,7 @@ module MDPO_BL = //FsHttp
                                             match runIO <| isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | err when err = StopDownloadingMHD 
                                                 ->
-                                                runIO (postToLog2 <| string ex.Message <| "#0006-MDPOBL") //in order not to log cancellation
+                                                runIO (postToLog2 <| string ex.Message <| "#0006-MDPOBL") 
                                                 return Error StopDownloadingMHD
                                             | _ ->
                                                 match retryCount < maxRetries with
@@ -338,7 +337,7 @@ module MDPO_BL = //FsHttp
                                                             match err with
                                                             | err when err = StopDownloadingMHD 
                                                                 ->
-                                                                //runIO (postToLog2 <| string err <| "#0007-MDPOBL") //in order not to log cancellation                                                                
+                                                                //runIO (postToLog2 <| string err <| "#0007-MDPOBL")                                                                 
                                                                 return Error StopDownloadingMHD
                                                             | err
                                                                 ->
@@ -348,7 +347,7 @@ module MDPO_BL = //FsHttp
                                                 | ex 
                                                     ->
                                                     checkCancel token
-                                                    //runIO (postToLog2 <| string ex.Message <| "#0009-MDPOBL") //in order not to log cancellation
+                                                    //runIO (postToLog2 <| string ex.Message <| "#0009-MDPOBL") 
                                                     return
                                                         runIO <| comprehensiveTryWith 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
@@ -361,7 +360,7 @@ module MDPO_BL = //FsHttp
                             | ex
                                 ->
                                 checkCancel token 
-                                //runIO (postToLog2 <| string ex.Message <| "#0010-MDPOBL") //in order not to log cancellation
+                                //runIO (postToLog2 <| string ex.Message <| "#0010-MDPOBL") 
                                 [ 
                                     runIO <| comprehensiveTryWith 
                                         LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 

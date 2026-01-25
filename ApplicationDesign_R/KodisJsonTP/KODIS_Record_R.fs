@@ -151,7 +151,7 @@ module WebScraping_KODIS =
                 let errFn err =  
 
                     match err with
-                    | PdfDownloadError2 RcError                -> rcError
+                    | PdfDownloadError2 NotAllFilesDownloaded                -> notAllFilesDownloaded
                     | PdfDownloadError2 NoFolderError          -> noFolderError
                     | PdfDownloadError2 FileDeleteError        -> fileDeleteError 
                     | PdfDownloadError2 CreateFolderError4     -> createFolderError   
@@ -227,7 +227,7 @@ module WebScraping_KODIS =
                         with
                         | ex
                             ->
-                            runIO (postToLog <| string ex.Message <| "#0029")
+                            runIO (postToLog <| string ex.Message <| "#0029-K")
                             Error <| JsonError JsonDataFilteringError                     
                      *)
 
@@ -302,8 +302,8 @@ module WebScraping_KODIS =
                         #if ANDROID
                         let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                         #endif
-                        let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
-                        let!_ = runIO <| createFolders dirList, errFn 
+                        let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn
+                        let!_ = runIO <| createFolders dirList, errFn
 
                         let lazyList = 
                             //laziness jen jako priprava pro pripadne threadsafe multitasking, zatim zadny rozdil oproti eager + parameterless (krome trochu vetsiho overhead u lazy)

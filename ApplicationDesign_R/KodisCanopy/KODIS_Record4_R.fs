@@ -70,7 +70,7 @@ module WebScraping_KODIS4 =
         let errFn err =  
 
             match err with
-            | PdfDownloadError2 RcError                -> rcError
+            | PdfDownloadError2 NotAllFilesDownloaded  -> notAllFilesDownloaded
             | PdfDownloadError2 NoFolderError          -> noFolderError            
             | PdfDownloadError2 FileDeleteError        -> fileDeleteError 
             | PdfDownloadError2 CreateFolderError4     -> createFolderError
@@ -194,16 +194,16 @@ module WebScraping_KODIS4 =
                 Error <| PdfDownloadError2 LetItBe                     
         
         pyramidOfInferno
-            {             
+            {       
                 #if ANDROID
                 let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
                 
                 //dispatchCancelVisible false
                
-                let!_ = runIO <| moveAll configKodis token, errFn                  
-                let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn  
-                let!_ = runIO <| createFolders dirList, errFn                           
+                let!_ = runIO <| moveAll configKodis token, errFn
+                let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn                     
+                let!_ = runIO <| createFolders dirList, errFn 
                
                 let! msg1 = result contextCurrentValidity, errFn
                 let! msg2 = result contextFutureValidity, errFn

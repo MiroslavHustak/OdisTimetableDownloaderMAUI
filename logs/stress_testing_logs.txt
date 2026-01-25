@@ -44,3 +44,19 @@
 01/23/2026 23:20:22 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-backend-staging-85d01eccf627.herokuapp.com:443))) Error#0002-ExceptionHandlers
 01/23/2026 23:20:24 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (kodis-backend-staging-85d01eccf627.herokuapp.com:443))) Error#0002-ExceptionHandlers
 01/24/2026 01:05:25 +01:00 One or more errors occurred. (One or more errors occurred. (The SSL connection could not be established, see inner exception.)) Error#0002-ExceptionHandlers
+01/25/2026 03:22:31 +01:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+01/25/2026 03:25:27 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (www.mdpo.cz:443))) Error#0001-MDPOBL
+01/25/2026 03:25:27 +01:00 No such host is known. (www.mdpo.cz:443) Error#0003-MDPO
+01/25/2026 03:25:27 +01:00 No such host is known. (www.mdpo.cz:443) Error#0005-ExceptionHandlers
+01/25/2026 03:25:27 +01:00 No such host is known. (www.mdpo.cz:443) Error#0006-ExceptionHandlers
+01/25/2026 03:25:27 +01:00 No such host is known. (www.mdpo.cz:443) Error#0011-ExceptionHandlers
+01/25/2026 03:25:27 +01:00 No such host is known. Error#0008-ExceptionHandlers
+01/25/2026 03:32:24 +01:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+01/25/2026 03:35:16 +01:00 No such host is known. (www.dpo.cz:443) Error#0005-ExceptionHandlers
+01/25/2026 03:37:53 +01:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+01/25/2026 03:38:10 +01:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO'. Error#0010-IO
+01/25/2026 03:38:42 +01:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (www.mdpo.cz:443))) Error#0001-MDPOBL
+01/25/2026 03:38:42 +01:00 HtmlDocument Error Error#0002-MDPOBL
+01/25/2026 03:38:43 +01:00 No such host is known. (www.mdpo.cz:443) Error#0003-MDPO
+01/25/2026 03:38:43 +01:00 FileDownloadErrorMHD Error#0004-MDPO
+01/25/2026 03:38:53 +01:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_MDPO'. Error#0010-IO

@@ -220,12 +220,13 @@ module DPO_BL =
                                                     use fs = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fs, token) |> Async.AwaitTask
                                                     do! stream.FlushAsync(token) |> Async.AwaitTask
+
                                                     return Ok ()
                                                 with                                                                                  
                                                 | ex 
                                                     -> 
                                                     checkCancel token
-                                                    runIO (postToLog2 <| string ex.Message <| "#0001-DPOBL") //in order not to log cancellation
+                                                    runIO (postToLog2 <| string ex.Message <| "#0001-DPOBL") 
                                                     return
                                                         runIO <| comprehensiveTryWith 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
@@ -240,7 +241,7 @@ module DPO_BL =
                                             match runIO <| isCancellationGeneric LetItBeMHD StopDownloadingMHD TimeoutErrorMHD FileDownloadErrorMHD token ex with
                                             | err when err = StopDownloadingMHD 
                                                 ->
-                                                runIO (postToLog2 <| string ex.Message <| "#0003-DPOBL") //in order not to log cancellation
+                                                runIO (postToLog2 <| string ex.Message <| "#0003-DPOBL") 
                                                 return Error StopDownloadingMHD
                                             | _ when retryCount < maxRetries 
                                                 ->
@@ -271,30 +272,29 @@ module DPO_BL =
                         let l = filteredTimetables.Length
     
                         let counterAndProgressBar =
-                            MailboxProcessor<MsgIncrement>
-                                .StartImmediate
-                                    (fun inbox 
-                                        ->
-                                        let rec loop n =
-                                            async
-                                                {
-                                                    try
-                                                        checkCancel token      
-                                                        let! msg = inbox.Receive()  
+                            MailboxProcessor<MsgIncrement>.StartImmediate
+                                (fun inbox 
+                                    ->
+                                    let rec loop n =
+                                        async
+                                            {
+                                                try
+                                                    checkCancel token      
+                                                    let! msg = inbox.Receive()  
                                                         
-                                                        match msg with
-                                                        | Inc i 
-                                                            -> 
-                                                            reportProgress (float n, float l)
-                                                            return! loop (n + i)
-                                                        | Stop
-                                                            ->
-                                                            return () // exit loop → agent terminates
-                                                    with
-                                                    | _ -> () 
-                                                }
-                                        loop 0
-                                    )
+                                                    match msg with
+                                                    | Inc i 
+                                                        -> 
+                                                        reportProgress (float n, float l)
+                                                        return! loop (n + i)
+                                                    | Stop
+                                                        ->
+                                                        return () // exit loop → agent terminates
+                                                with
+                                                | _ -> () 
+                                            }
+                                    loop 0
+                                )
                 
                         let uri, pathToFile =
                             filteredTimetables 
@@ -335,7 +335,7 @@ module DPO_BL =
                     | ex 
                         -> 
                         checkCancel token //toto reaguje pro vypnutem internetu pred aktivaci downloadAndSaveTimetables
-                        runIO (postToLog2 <| string ex.Message <| "#0007-DPOBL") //in order not to log cancellation
+                        runIO (postToLog2 <| string ex.Message <| "#0007-DPOBL") 
                         runIO <| comprehensiveTryWith 
                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex

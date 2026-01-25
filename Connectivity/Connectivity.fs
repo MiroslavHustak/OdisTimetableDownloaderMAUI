@@ -6,12 +6,16 @@ open System.Net.NetworkInformation
 open Microsoft.Maui.Networking
 open Microsoft.Maui.ApplicationModel
 
+//**********************************
+
 open FSharp.Control
 
 //**********************************
                
 open Types.Types 
 open Types.Haskell_IO_Monad_Simulation
+
+open DotNetInteroperabilityCode.ConnectivityMonitorManager
 
 module Connectivity =  
 
@@ -20,26 +24,25 @@ module Connectivity =
         //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
         //the mailbox will not raise an exception on its own. 
 
-        MailboxProcessor<ConnectivityMessage> //technically impure, but pragmatically pure
-            .StartImmediate
-                <|
-                fun inbox
-                    ->
-                    let rec loop (isConnected : bool) = 
-                        async
-                            {
-                                match! inbox.Receive() with
-                                | UpdateState newState
-                                    ->
-                                    return! loop newState
+        MailboxProcessor<ConnectivityMessage>.StartImmediate
+            <|
+            fun inbox
+                ->
+                let rec loop (isConnected : bool) = 
+                    async
+                        {
+                            match! inbox.Receive() with
+                            | UpdateState newState
+                                ->
+                                return! loop newState
 
-                                | CheckState replyChannel
-                                    ->                            
-                                    replyChannel.Reply(isConnected) 
-                                    return! loop isConnected
-                            }
+                            | CheckState replyChannel
+                                ->                            
+                                replyChannel.Reply(isConnected) 
+                                return! loop isConnected
+                        }
             
-                    loop false // Start the loop with whatever initial value 
+                loop false // Start the loop with whatever initial value 
 
     // nepouzivano                   
     let internal connectivityListener () = //impure
@@ -80,12 +83,12 @@ module Connectivity =
         )
 
 module ConnectivityWithDebouncing =
-       
+    
     let internal startConnectivityMonitoring (debounceMs : int) (onConnectivityChange : bool -> unit) =
         
         IO (fun ()
                 ->
-                // Debouncing actor -> debouncing rule used here: “Only react if the state stays stable for N milliseconds.”
+                // Debouncing actor
                 let monitorActor =
                     MailboxProcessor<ConnectivityMonitorMsg>
                         .StartImmediate
@@ -101,62 +104,53 @@ module ConnectivityWithDebouncing =
                                             | StopConnectivityMonitoring
                                                 ->
                                                 return ()
-
                                             | StateChanged newState 
                                                 when newState <> lastState 
                                                 ->
-                                                // Wait for the debounce interval while still listening to the mailbox
+                                                // Wait for the debounce interval
                                                 let! maybeNextMsg = inbox.TryReceive debounceMs
-
                                                 match maybeNextMsg with
                                                 | Some (StateChanged newerState)
                                                     ->
-                                                    // Another state change occurred during debounce → restart waiting
+                                                    // Another state change occurred → restart waiting
                                                     return! loop newerState
-
                                                 | Some StopConnectivityMonitoring 
                                                     ->
                                                     return ()
-
-                                                | _ ->
-                                                    // No change during debounce → state is stable → notify
+                                                | _ 
+                                                    ->
+                                                    // State is stable → notify
                                                     onConnectivityChange newState
                                                     return! loop newState
-
                                             | StateChanged _
                                                 ->
-                                                // Same state as before → ignore
+                                                // Same state → ignore
                                                 return! loop lastState
                                         }
-
                                 // Initial state
                                 loop (Connectivity.NetworkAccess = NetworkAccess.Internet)
                             )
             
                 // Event handler
-                let handler (args : ConnectivityChangedEventArgs) =
-                    try  
-                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
-                        monitorActor.Post (StateChanged isConnected)
-                    with
-                    | _ -> ()
+                let handler = 
+                    System.EventHandler<ConnectivityChangedEventArgs>
+                        (fun _ args
+                            ->
+                            try  
+                                let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
+                                monitorActor.Post (StateChanged isConnected)
+                            with
+                            | _ -> ()
+                        )
             
-                Connectivity.ConnectivityChanged.Add handler
-            
-                // Fire initial state
-                let initialState = (=) Connectivity.NetworkAccess NetworkAccess.Internet
-                monitorActor.Post (StateChanged initialState)     
+                addHandler handler
                 
-                (* //IDisposable does not work with subscription / zkusit jindy, az to Fabulous umozni
-                // Return disposable to stop monitoring //.NET interop //Creates an anonymous object implementing an interface
-                { 
-                    new IDisposable with
-                        member _.Dispose() =
-                            monitorActor.Post StopConnectivityMonitoring
-                            (monitorActor :> IDisposable).Dispose()
-                }
-                *)
-        )   
+                let initialState = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                monitorActor.Post (StateChanged initialState)
+        )
+    
+    //Pro in production nevyuzito, mozno vyuzit v prubehu stress testing
+    let internal stopAllConnectivityMonitoring () = IO (fun () -> removeAllHandlers())
 
         (*
         OS event

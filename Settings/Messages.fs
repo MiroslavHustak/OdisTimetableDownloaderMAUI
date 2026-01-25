@@ -18,7 +18,7 @@ module Messages =
 
     let [<Literal>] internal jsonDownloadError = "Došlo k chybě, JSON soubory nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení." 
     let [<Literal>] internal jsonCancel = "Stahování JSON souborů předčasně ukončeno." 
-    let [<Literal>] internal rcError = "Chyba při zpracování dat, JŘ ODIS nebyly úspěšně staženy." 
+    let [<Literal>] internal notAllFilesDownloaded = "Buď došlo k výpadku internetu anebo některé odkazy na stahované soubory byly chybné - ověř stažené soubory, zdali jsou všechny, příp. stahuj znovu." 
     let [<Literal>] internal jsonParsingError = "Chyba při zpracování JSON, JŘ ODIS nebyly úspěšně staženy." 
     let [<Literal>] internal dataFilteringError = "Chyba při filtrování dat, JŘ ODIS nebyly úspěšně staženy." 
     let [<Literal>] internal fileDeleteError = "Chyba při mazání starých souborů, JŘ ODIS nebyly úspěšně staženy." 
@@ -36,8 +36,8 @@ module Messages =
     #else
     let [<Literal>] internal fileDownloadError = "Chyba při stahování pdf souborů, JŘ ODIS nebyly úspěšně staženy." 
     #endif
-
-    let [<Literal>] internal letItBe = "Ověř stažené soubory, neb v průběhu stahování došlo k výpadku internetu."
+    
+    let internal letItBe = String.Empty
     let [<Literal>] internal canopyError = "REST API error." 
     let [<Literal>] internal timeoutError = "JŘ ODIS se nepodařilo stáhnout, neb vypršel časový limit požadavku. Zkus znovu (možná bude potřeba mít stabilnější či rychlejší připojení)." 
     let [<Literal>] internal timeoutErrorJson = "JSON soubory se nepodařilo stáhnout, neb vypršel časový limit požadavku. Zkus znovu (možná bude potřeba mít stabilnější či rychlejší připojení)." 

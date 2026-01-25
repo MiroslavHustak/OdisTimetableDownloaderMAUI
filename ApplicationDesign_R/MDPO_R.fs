@@ -120,15 +120,11 @@ module WebScraping_MDPO =
                         | ex 
                             -> 
                             runIO (postToLog2 <| string ex.Message <| "#0003-MDPO") // commented out so that cancellation is not logged
-                            runIO <| comprehensiveTryWith 
-                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
-                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex                                    
+                            Error FileDownloadErrorMHD
 
                 pyramidOfInferno
                     {  
                         let errFn err =  
-                            
-                            runIO (postToLog2 <| string err <| "#0004-MDPO")
 
                             match err with
                             | BadRequest               -> "400 Bad Request"
@@ -151,7 +147,7 @@ module WebScraping_MDPO =
                         stateReducer token stateDefault CopyOldTimetables environment |> ignore<Result<unit, MHDErrors>> //silently ignoring failed move operations
 
                         let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
-                        let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
+                        let! _ =  stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault FilterDownloadSave environment, fun err -> Error <| errFn err
             
                         return Ok ()

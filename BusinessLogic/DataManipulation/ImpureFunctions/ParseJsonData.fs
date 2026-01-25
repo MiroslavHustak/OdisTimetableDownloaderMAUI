@@ -41,37 +41,36 @@ module ParseJsonData =
                                     let l = pathToJsonList3 |> List.length
                                        
                                     let counterAndProgressBar =
-                                        MailboxProcessor<MsgIncrement>
-                                            .StartImmediate
-                                                <|
-                                                fun inbox 
-                                                    ->
-                                                    (*
-                                                    use _ =
-                                                        token.Register
-                                                            (fun () 
-                                                                ->
-                                                                inbox.Post (Unchecked.defaultof<MsgIncrement>)
-                                                            )
-                                                    *)
-                                                    let rec loop n = 
-                                                        async
-                                                            {
-                                                                try
-                                                                    let! msg = inbox.Receive()  
+                                        MailboxProcessor<MsgIncrement>.StartImmediate
+                                            <|
+                                            fun inbox 
+                                                ->
+                                                (*
+                                                use _ =
+                                                    token.Register
+                                                        (fun () 
+                                                            ->
+                                                            inbox.Post (Unchecked.defaultof<MsgIncrement>)
+                                                        )
+                                                *)
+                                                let rec loop n = 
+                                                    async
+                                                        {
+                                                            try
+                                                                let! msg = inbox.Receive()  
                                                                     
-                                                                    match msg with
-                                                                    | Inc i 
-                                                                        -> 
-                                                                        reportProgress (float n, float l)
-                                                                        return! loop (n + i)
-                                                                    | Stop
-                                                                        ->
-                                                                        return () // exit loop → agent terminates
-                                                                with
-                                                                | ex -> () 
-                                                            }
-                                                    loop 0
+                                                                match msg with
+                                                                | Inc i 
+                                                                    -> 
+                                                                    reportProgress (float n, float l)
+                                                                    return! loop (n + i)
+                                                                | Stop
+                                                                    ->
+                                                                    return () // exit loop → agent terminates
+                                                            with
+                                                            | ex -> () 
+                                                        }
+                                                loop 0
 
                                     let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 
@@ -189,7 +188,7 @@ module ParseJsonData =
                             | err 
                                 when err = StopDownloading
                                 ->
-                                runIO (postToLog2 <| string ex.Message <| "#0002-ParseJson")  //in order not to log cancellation
+                                runIO (postToLog2 <| string ex.Message <| "#0002-ParseJson")  
                                 Error <| JsonParsingError2 StopJsonParsing  
                             | _ ->
                                 runIO (postToLog2 <| string ex.Message <| "#0003-ParseJson")  

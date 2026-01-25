@@ -192,8 +192,7 @@ module KODIS_BL_Record4_Json =
                 let maxRetries = maxRetries4
                 let initialDelayMs = delayMs
 
-                let inline checkCancel () =
-                    token.ThrowIfCancellationRequested ()
+                let inline checkCancel () = token.ThrowIfCancellationRequested ()
 
                 let shouldRetry (errs : ParsingAndDownloadingErrors list) =
                     errs

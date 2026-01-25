@@ -1,0 +1,9 @@
+PowerShell or GitBash
+
+cd e:\FabulousMAUI\OdisTimetableDownloaderMAUI\
+
+dotnet publish OdisTimetableDownloaderMAUI.fsproj -f net8.0-android -c Release `
+  -p:AndroidPackageFormat=apk `
+  -p:PublishTrimmed=true `
+  -p:EmbedAssembliesIntoApk=true
+

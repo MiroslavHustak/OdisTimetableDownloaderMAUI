@@ -139,7 +139,7 @@ module Logging =
         )
     #endif
 
-    let internal postToLog2 (msg : 'a) (err : string) =  //for stress testing purposes only //saving on a HD / internal emmory
+    let internal postToLog2 (msg : 'a) (err : string) =  //for stress testing purposes only //saving on a HD / internal memory
 
         IO (fun () 
                 ->
@@ -183,7 +183,7 @@ module Logging =
                 |> Async.Start  
         )
 
-    let internal postToLog3 (listResult : Result<'a, 'b> list) (err2 : string) =  //for stress testing purposes only //saving on a HD / internal emmory
+    let internal postToLog3 (listResult : Result<'a, 'b> list) (err2 : string) =  //for stress testing purposes only //saving on a HD / internal memory
 
         IO (fun () 
                 ->
@@ -224,7 +224,7 @@ module Logging =
                                         (fun item 
                                             -> 
                                             match item with
-                                            | Ok _ -> None
+                                            | Ok _      -> None
                                             | Error err -> Some err
                                         )
                                     |> AsyncSeq.iterAsync 

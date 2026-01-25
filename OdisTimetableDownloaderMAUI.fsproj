@@ -131,6 +131,7 @@
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</Resource>
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
+    <Compile Include="DotNetInteroperabilityCode\DotNetInteroperabilityCode.fs" />
     <Compile Include="JavaInteroperabilityCode\JavaInteroperabilityCode.fs" />
     <Compile Include="NativeCode\NativeCode.fs" />
     <Compile Include="Types\TDD.fs" />
@@ -143,7 +144,7 @@
     <Compile Include="Settings\SettingsKODIS.fs" />
     <Compile Include="Settings\SettingsMDPO.fs" />
     <Compile Include="ApplicativeFunctors\Applicatives.fs" />
-    <Compile Include="ComputationExpressions\CEBuilders.fs" />
+    <Compile Include="CEBuilders\CEBuilders.fs" />
     <Compile Include="OptionResultExtensions\ResultExtensions.fs" />
     <Compile Include="OptionResultExtensions\OptionExtensions.fs" />
     <Compile Include="Helpers\IO_Monad_Experiments\IO_Monad.fs" />

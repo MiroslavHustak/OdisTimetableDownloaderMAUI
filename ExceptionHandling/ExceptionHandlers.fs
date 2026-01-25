@@ -44,7 +44,7 @@ module ExceptionHelpers =
                                 | false 
                                     when tcex.CancellationToken.IsCancellationRequested
                                         -> 
-                                        timeoutError        // HttpClient timeout
+                                        timeoutError        
                                 | false ->
                                         runIO (postToLog2 <| string ex.Message <| "#0001-ExceptionHandlers")  
                                         fileDownloadError   // Unknown cancellation
@@ -62,7 +62,7 @@ module ExceptionHelpers =
                         // Network-related exceptions
                         | :? System.Net.Http.HttpRequestException
                             ->
-                            runIO (postToLog2 <| string ex.Message <| "#0002-ExceptionHandlers")
+                            //runIO (postToLog2 <| string ex.Message <| "#0002-ExceptionHandlers")
                             loop rest (letItBe :: acc)
                 
                         | :? System.Security.Authentication.AuthenticationException
@@ -82,6 +82,7 @@ module ExceptionHelpers =
                 
                         | _ when isNull current.InnerException 
                             ->
+                            runIO (postToLog2 <| string ex.Message <| "#0041-ExceptionHandlers")
                             loop rest (fileDownloadError :: acc)
                 
                         | _ ->
@@ -91,7 +92,7 @@ module ExceptionHelpers =
                 // Start with the initial exception
                 let results = loop [ex] []
 
-                runIO (postToLog2 <| string results <| "#8888-ExceptionHandlers")
+                //runIO (postToLog2 <| string results <| "#8888-ExceptionHandlers")
 
                 pyramidOfHell
                     {   
@@ -142,7 +143,7 @@ module ExceptionHelpers =
             | :? TaskCanceledException
                 ->
                 match token.IsCancellationRequested with
-                | true  -> None  // Our cancellation, not a timeout
+                | true  -> None  // My cancellation, not a timeout // vyuzijeme toho, ze None -> NetworkError2 -> LetItBe
                 | false -> Some TimeoutError2  // HTTP client timeout
            
             | :? SocketException as se 
@@ -164,7 +165,7 @@ module ExceptionHelpers =
                     Some NetworkError2
                 | _ 
                     -> 
-                    Some NetworkError2
+                    Some UnknownError2
            
             | :? IOException as ex 
                 -> 
@@ -183,27 +184,37 @@ module ExceptionHelpers =
             | :? HttpRequestException as hex
                 -> 
                 runIO (postToLog2 <| string hex.Message <| "#0010-ExceptionHandlers")
-                
-                // Check inner exception for more specific classification
-                match hex.InnerException with
-                | :? SocketException as se 
+            
+                // Check if this or any inner exception contains net_io_readfailure
+                match hex 
+                      |> collectExceptions 
+                      |> List.exists (fun e -> (string e.Message).Contains("net_io_readfailure", StringComparison.Ordinal)) with
+                | true
                     ->
-                    // Recursively classify the socket exception
-                    classifyException se
-                | null
+                    //runIO (postToLog2 <| string hex.Message <| "#1111-ExceptionHandlers")
+                    Some NetworkError2  // Maps to letItBe
+                | false
                     ->
-                    // No inner exception → generic network error
-                    Some NetworkError2
-                | inner
-                    ->
-                    // Try to classify inner exception, default to NetworkError2
-                    match classifyException inner with
-                    | Some classification 
-                        -> 
-                        Some classification
-                    | None 
-                        -> 
+                    // Check inner exception for more specific classification
+                    match hex.InnerException with
+                    | :? SocketException as se 
+                        ->
+                        // Recursively classify the socket exception
+                        classifyException se
+                    | null
+                        ->
+                        // No inner exception → generic network error
                         Some NetworkError2
+                    | inner
+                        ->
+                        // Try to classify inner exception, default to NetworkError2
+                        match classifyException inner with
+                        | Some classification 
+                            -> 
+                            Some classification
+                        | None 
+                            -> 
+                            Some NetworkError2
            
             // Android platform-specific message patterns (last resort)
             | e 
@@ -224,6 +235,11 @@ module ExceptionHelpers =
                 | msg when msg.Contains("timed out", StringComparison.Ordinal)
                     ->
                     Some TimeoutError2
+
+                | msg when msg.Contains("Network is unreachable (www.dpo.cz:443)", StringComparison.Ordinal)
+                    ->
+                    runIO (postToLog2 <| msg <| "#0111-ExceptionHandlers")
+                    Some UnknownError2 
                
                 // Network - specific patterns
                 | msg when msg.Contains("network unreachable", StringComparison.Ordinal)
@@ -289,12 +305,11 @@ module ExceptionHelpers =
                     |> Error
     
                 | _ -> 
-                    // TODO: spravne to udajne mela chytit  | :? AggregateException as aex, podumej, co s tim
-                    runIO (postToLog2 <| string ex.Message <| "#0012-ExceptionHandlers")
+                    //runIO (postToLog2 <| string ex.Message <| "#0012-ExceptionHandlers")
+                    //Just in case.... but should be caught by #1111
                     match (string ex.Message).Contains"net_io_readfailure" with
                     | false -> Error fileDownloadError
-                    | true  -> Error letItBe                    
-
+                    | true  -> Error letItBe
                 //temporary code for stress testing  
                 |> function
                     | err 

@@ -37,30 +37,29 @@ module KODIS_BL_Record_Json =
                 let l = jsonLinkList |> List.length
     
                 let counterAndProgressBar =
-                    MailboxProcessor<MsgIncrement>
-                        .StartImmediate
-                            (fun inbox 
-                                ->
-                                let rec loop n =
-                                    async 
-                                        {
-                                            try
-                                                checkCancel token      
-                                                let! msg = inbox.Receive()  
+                    MailboxProcessor<MsgIncrement>.StartImmediate
+                        (fun inbox 
+                            ->
+                            let rec loop n =
+                                async 
+                                    {
+                                        try
+                                            checkCancel token      
+                                            let! msg = inbox.Receive()  
                                                 
-                                                match msg with
-                                                | Inc i 
-                                                    -> 
-                                                    reportProgress (float n, float l)
-                                                    return! loop (n + i)
-                                                | Stop
-                                                    ->
-                                                    return ()// exit loop → agent terminates
-                                            with
-                                            | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0001-KBLJson")
-                                        }
-                                loop 0
-                        )
+                                            match msg with
+                                            | Inc i 
+                                                -> 
+                                                reportProgress (float n, float l)
+                                                return! loop (n + i)
+                                            | Stop
+                                                ->
+                                                return () // exit loop → agent terminates
+                                        with
+                                        | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0001-KBLJson")
+                                    }
+                            loop 0
+                    )
     
                 let downloadWithResume (uri : string) (pathToFile : string) =
 
@@ -144,7 +143,7 @@ module KODIS_BL_Record_Json =
                                                 | ex 
                                                     -> 
                                                     checkCancel token
-                                                    runIO (postToLog2 <| string ex.Message <| "#0033-KBLJson")  //in order not to log cancellation
+                                                    runIO (postToLog2 <| string ex.Message <| "#0033-KBLJson")  
                                                     return
                                                         runIO <| comprehensiveTryWith 
                                                             JsonLetItBe StopJsonDownloading JsonTimeoutError 
@@ -166,7 +165,7 @@ module KODIS_BL_Record_Json =
                                             | err
                                                 when err = StopJsonDownloading
                                                 ->
-                                                runIO (postToLog2 <| string ex.Message <| "#0005-KBLJson")  //in order not to log cancellation
+                                                runIO (postToLog2 <| string ex.Message <| "#0005-KBLJson")  
                                                 return Error StopJsonDownloading
                                             | err
                                                 ->
@@ -206,7 +205,7 @@ module KODIS_BL_Record_Json =
                                         | ex 
                                             -> 
                                             checkCancel token
-                                            runIO (postToLog2 <| string ex.Message <| "#0007-KBLJson")  //in order not to log cancellation
+                                            runIO (postToLog2 <| string ex.Message <| "#0007-KBLJson")  
                                             return
                                                 runIO <| comprehensiveTryWith 
                                                     JsonLetItBe StopJsonDownloading JsonTimeoutError 
@@ -219,7 +218,7 @@ module KODIS_BL_Record_Json =
                         async
                             {
                                 checkCancel token
-                                runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson")  //in order not to log cancellation
+                                runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson")  
                                 return
                                     [
                                         runIO <| comprehensiveTryWith 
@@ -240,5 +239,6 @@ module KODIS_BL_Record_Json =
                         |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
                         |> Option.defaultValue (Ok ())
                 | false ->
-                        Error JsonLetItBe
+                        runIO (postToLog2 <| "" <| "#0009-KBLJson")  
+                        Error JsonLetItBe  //json souboru je dost ... :-) 
         )    

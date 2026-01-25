@@ -36,7 +36,7 @@ module ErrorTypes =
         | LetItBeParsing
 
     type [<Struct>] internal PdfDownloadErrors =
-        | RcError         
+        | NotAllFilesDownloaded         
         | FileDeleteError
         | FolderMovingError4
         | CreateFolderError4

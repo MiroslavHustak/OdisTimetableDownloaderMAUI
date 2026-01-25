@@ -120,15 +120,11 @@ module WebScraping_DPO =
                         | ex 
                             ->
                             runIO (postToLog2 <| string ex.Message <| "#0004-DPO") // commented out so that cancellation is not logged
-                            runIO <| comprehensiveTryWith 
-                                LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 
-                                FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
+                            Error FileDownloadErrorMHD
                        
                 pyramidOfInferno
                     {  
                         let errFn err =  
-
-                            runIO (postToLog2 <| string err <| "#0005-DPO")
 
                             match err with
                             | BadRequest               -> "400 Bad Request"
@@ -153,7 +149,7 @@ module WebScraping_DPO =
                         let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault FilterDownloadSave environment, fun err -> Error <| errFn err
-            
+                              
                         return Ok ()
                     }
         )

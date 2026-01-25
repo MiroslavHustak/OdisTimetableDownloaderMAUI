@@ -150,7 +150,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                 | ex
                                                     ->
                                                     checkCancel token
-                                                    runIO (postToLog2 <| string ex.Message <| "#0066-K4BL")  //in order not to log cancellation
+                                                    runIO (postToLog2 <| string ex.Message <| "#0066-K4BL")  
                                                     return
                                                         runIO <| comprehensiveTryWith
                                                             LetItBe StopDownloading TimeoutError
@@ -171,7 +171,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                             | err 
                                                 when err = StopDownloading
                                                 ->
-                                                runIO (postToLog2 <| string ex.Message <| "#0009-K4BL")  //in order not to log cancellation
+                                                runIO (postToLog2 <| string ex.Message <| "#0009-K4BL")  
                                                 return Error StopDownloading
                                             | _ 
                                                 ->
@@ -243,7 +243,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                             | err 
                                                                 when err = StopDownloading
                                                                 ->
-                                                                runIO (postToLog2 <| string err <| "#0009-K4BL") //in order not to log cancellation
+                                                                runIO (postToLog2 <| string err <| "#0009-K4BL") 
                                                                 PdfDownloadError2 StopDownloading
                                                             | err 
                                                                 ->
@@ -254,7 +254,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                         | ex
                                             -> 
                                             checkCancel token
-                                            runIO (postToLog2 <| string ex.Message <| "#0011-K4BL")  //in order not to log cancellation
+                                            runIO (postToLog2 <| string ex.Message <| "#0011-K4BL")  
                                             return 
                                                 runIO <| comprehensiveTryWith
                                                     (PdfDownloadError2 LetItBe)
@@ -268,7 +268,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                     with
                     | ex 
                         -> 
-                        runIO (postToLog2 <| string ex.Message <| "#0012-K4BL")  //in order not to log cancellation
+                        runIO (postToLog2 <| string ex.Message <| "#0012-K4BL")  
                         async
                             {
                                 checkCancel token
@@ -297,7 +297,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                         context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop
 
-                        let! _ = result |> List.length = l, Error (PdfDownloadError2 LetItBe)
+                        let! _ = result |> List.length = l, Error (PdfDownloadError2 NotAllFilesDownloaded)
 
                         runIO (postToLog3 <| result <| "#4444-K4BL")
 
