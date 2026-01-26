@@ -64,7 +64,7 @@ module SettingsGeneral =
     let internal timeoutMs : int<ms> = 900_000<ms>
     let internal waitingForNetConn : int<s> = 30<s>
 
-    let internal maxFileSizeKb : int64<KiB> = 300L<KiB> 
+    let internal maxFileSizeKb : int64<KiB> = 150L<KiB> 
 
     let [<Literal>] internal maxDegreeOfParallelism = 18
     let [<Literal>] internal maxDegreeOfParallelismThrottled = 6
