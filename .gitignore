@@ -4,3 +4,4 @@ KODISJson2/*.json
 *.user
 *.suo
 .vs/
+/publish-odis_download_maui-android.bat
