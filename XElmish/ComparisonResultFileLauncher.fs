@@ -20,7 +20,7 @@ module ComparisonResultFileLauncher =
                option 
                    {
                        try
-                           let! filePath = SafeFullPath.safeFullPathOption path 
+                           let! filePath = SafeFullPath.safeFullPathOption >> runIO <| path 
                            let file = System.IO.FileInfo filePath 
                            
                            let safeAsync = 

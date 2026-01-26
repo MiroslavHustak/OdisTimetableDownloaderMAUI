@@ -38,30 +38,29 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                 let l = context.list |> List.length
 
                 let counterAndProgressBar =
-                        MailboxProcessor<MsgIncrement>
-                            .StartImmediate
-                                <|
-                                fun inbox 
-                                    ->   
-                                    let rec loop n = 
-                                        async
-                                            {
-                                                try
-                                                    checkCancel token      
-                                                    let! msg = inbox.Receive()
+                    MailboxProcessor<MsgIncrement>.StartImmediate
+                        <|
+                        fun inbox 
+                            ->   
+                            let rec loop n = 
+                                async
+                                    {
+                                        try
+                                            checkCancel token      
+                                            let! msg = inbox.Receive()
                                                     
-                                                    match msg with
-                                                    | Inc i 
-                                                        -> 
-                                                        context.reportProgress (float n, float l)
-                                                        return! loop (n + i)
-                                                    | Stop
-                                                        ->
-                                                        return () // exit loop → agent terminates
-                                                with
-                                                | _ -> () 
-                                            }
-                                    loop 0                               
+                                            match msg with
+                                            | Inc i 
+                                                -> 
+                                                context.reportProgress (float n, float l)
+                                                return! loop (n + i)
+                                            | Stop
+                                                ->
+                                                return () // exit loop → agent terminates
+                                        with
+                                        | _ -> () 
+                                    }
+                            loop 0                               
                 
                 let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                

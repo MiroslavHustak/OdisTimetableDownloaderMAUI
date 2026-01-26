@@ -104,7 +104,7 @@ module Logging =
                 asyncResult 
                     {
                         try
-                            let! path = SafeFullPath.safeFullPathResult logFileName 
+                            let! path = SafeFullPath.safeFullPathResult >> runIO <| logFileName 
 
                             let! logEntries =
                                 getLogEntriesFromRestApi >> runIO <| urlLogging
@@ -139,7 +139,7 @@ module Logging =
         )
     #endif
 
-    let internal postToLog2 (msg : 'a) (err : string) =  //for stress testing purposes only //saving on a HD / internal memory
+    let internal postToLog2Async (msg : 'a) (err : string) =  //for stress testing purposes only //saving on a HD / internal memory
 
         IO (fun () 
                 ->
@@ -151,7 +151,7 @@ module Logging =
                             #else
                             let logFilePath = logFileNameAndroid2
                             #endif
-                            let! path = SafeFullPath.safeFullPathResult logFilePath 
+                            let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath 
                                                         
                             let fs =
                                 new FileStream
@@ -180,8 +180,11 @@ module Logging =
                         | ex-> return! Error <| string ex.Message 
                     }
                 |> Async.Ignore<Result<unit, string>>
-                |> Async.Start  
         )
+
+    let internal postToLog2 (msg : 'a) (err : string) =  //for stress testing purposes only //saving on a HD / internal memory
+    
+        IO (fun () -> Async.Start (runIO <| postToLog2Async msg err))
 
     let internal postToLog3 (listResult : Result<'a, 'b> list) (err2 : string) =  //for stress testing purposes only //saving on a HD / internal memory
 
@@ -195,7 +198,7 @@ module Logging =
                             #else
                             let logFilePath = logFileNameAndroid2
                             #endif
-                            let! path = SafeFullPath.safeFullPathResult logFilePath 
+                            let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath 
                                                            
                             let fs =
                                 new FileStream

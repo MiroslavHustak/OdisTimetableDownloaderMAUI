@@ -83,7 +83,7 @@ module FreeMonadInterpret =
                            //Added existence check for destination directory despite of TOCTOU risk (Android 7.1)
                             let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302-2" source) dInfodat.Exists    
 
-                            return! SafeFullPath.safeFullPathResult source
+                            return! SafeFullPath.safeFullPathResult >> runIO <| source
                         }   
                 with
                 | ex -> Error <| string ex.Message
@@ -101,7 +101,7 @@ module FreeMonadInterpret =
                             //Added existence check for destination directory despite of TOCTOU risk (Android 7.1)
                             let! _ = Result.fromBool () (sprintf "Zdrojový adresář %s neexistuje #302" destination) dInfodat.Exists    
                         
-                            return! SafeFullPath.safeFullPathResult destination                          
+                            return! SafeFullPath.safeFullPathResult >> runIO <| destination                          
                         }  
                 with
                 | ex -> Error <| string ex.Message

@@ -9,6 +9,7 @@ open FSharp.Control
 open Settings.Messages
 open Settings.SettingsGeneral
 
+open Api.Logging
 open Helpers.Connectivity
 
 open Types.Types
@@ -90,7 +91,8 @@ module Counters =
                                     return! loop (remaining - 1) // Recurring with the next remaining value
                             | _ 
                                     ->
-                                    do! 
+                                    do! runIO (postToLog2Async <| "End of counter loop" <| "#0001-Counters")                                    
+                                    return!                                        
                                         async { return NetConnMessage >> dispatch <| continueDownload } 
                                         |> Async.executeOnMainThread 
                         }

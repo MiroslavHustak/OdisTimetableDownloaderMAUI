@@ -19,7 +19,7 @@ module Serialization =
                 try   
                     asyncResult 
                         {
-                            let! path = SafeFullPath.safeFullPathResult path                                
+                            let! path = SafeFullPath.safeFullPathResult >> runIO <| path                                
                             use writer = new StreamWriter(path, append = false)
                             return! writer.WriteAsync json |> Async.AwaitTask
                         }
@@ -35,7 +35,7 @@ module Serialization =
                 try      
                     result 
                         {
-                            let! path = SafeFullPath.safeFullPathResult path                               
+                            let! path = SafeFullPath.safeFullPathResult >> runIO <| path                               
                             use writer = new StreamWriter(path, append = false)
                             return writer.Write json   
                         }
