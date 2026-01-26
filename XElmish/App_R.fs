@@ -774,7 +774,7 @@ module App_R =
                                                     | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
-                                                return runIO (stateReducerCmd1 token2 reportProgress)                                                      
+                                                return runIO (stateReducerCmd1 token2 stateDefault reportProgress)                                                      
                                             }
                                                                           
                                     match token2.IsCancellationRequested with
@@ -816,6 +816,7 @@ module App_R =
                                                 let result = 
                                                     stateReducerCmd2 
                                                     <| token2
+                                                    <| stateDefault
                                                     <| kodisPathTemp
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                     <| fun message -> IterationMessage >> dispatch <| message 

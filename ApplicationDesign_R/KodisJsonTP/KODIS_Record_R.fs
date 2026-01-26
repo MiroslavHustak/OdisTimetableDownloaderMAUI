@@ -36,12 +36,12 @@ open BusinessLogic_R.TP_Canopy_Difference
 
 module WebScraping_KODIS = 
    
-    type private State =  
+    type internal State =  
         { 
             TimetablesDownloadedAndSaved : int
         }
 
-    let private stateDefault = 
+    let internal stateDefault = 
         {          
             TimetablesDownloadedAndSaved = 0
         }
@@ -75,7 +75,7 @@ module WebScraping_KODIS =
             DownloadAndSave = fun validity token context -> runIO (downloadAndSave validity token context) 
         }    
 
-    let internal stateReducerCmd1 (token : CancellationToken) reportProgress =
+    let internal stateReducerCmd1 (token : CancellationToken) (state : State) reportProgress =
 
         let configKodis =
             {
@@ -144,7 +144,7 @@ module WebScraping_KODIS =
                 downloadAndSaveJson reportProgress token 
         )
 
-    let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
+    let internal stateReducerCmd2 (token : CancellationToken) (state : State) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
 
         IO (fun () 
                 ->    
