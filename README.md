@@ -54,7 +54,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── SettingsMDPO.fs
 ├── ApplicativeFunctors/
 │   └── Applicatives.fs
-├── ComputationExpressions/
+├── CEBuilders/
 │   └── CEBuilders.fs
 ├── OptionResultExtensions/ 
 │   ├── ResultExtensions.fs
