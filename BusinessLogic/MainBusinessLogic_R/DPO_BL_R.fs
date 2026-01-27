@@ -88,8 +88,7 @@ module DPO_BL =
                                     //chybne odkazy jsou pozdeji tise eliminovany
 
                                     let linkToPdf = 
-                                        isValidHttps linkToPdf
-                                        |> Option.fromBool linkToPdf
+                                        isValidHttpsOption linkToPdf
                                         |> Option.defaultValue String.Empty
 
                                     let adaptedLineName =

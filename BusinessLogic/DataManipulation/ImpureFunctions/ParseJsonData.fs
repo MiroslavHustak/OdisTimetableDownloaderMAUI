@@ -174,8 +174,7 @@ module ParseJsonData =
                                 |> Seq.choose 
                                     (fun item
                                         -> 
-                                        isValidHttps item
-                                        |> Option.fromBool item
+                                        isValidHttpsOption item
                                         |> Option.bind Option.ofNullEmptySpace //ofNullEmptySpace je vyse, ale pro jistotu jeste jednou quli addOn
                                     ) 
                                 |> Seq.distinct                                

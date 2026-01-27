@@ -116,8 +116,7 @@ module MDPO_BL = //FsHttp
                                 let linkToPdf = sprintf "%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
                                 //chybne odkazy jsou pozdeji tise eliminovany
                                 let linkToPdf = 
-                                    isValidHttps linkToPdf
-                                    |> Option.fromBool linkToPdf
+                                    isValidHttpsOption linkToPdf
                                     |> Option.defaultValue String.Empty
 
                                 let lineName (item2 : string) = item2.Replace(@"/qr/", String.Empty)  

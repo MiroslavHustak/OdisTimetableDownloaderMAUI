@@ -196,12 +196,26 @@ module Xor =
 
 module Validation = 
 
-    let internal isValidHttps (s : string) =   //This code rejects IP-based URLs         
+    let internal isValidHttpsOption (s : string) =   //This code rejects IP-based URLs         
+    
+           try 
+               match Uri.TryCreate(s, UriKind.Absolute) with
+               | true, uri
+                   -> 
+                   match uri.Scheme = Uri.UriSchemeHttps && uri.Host.Contains(".") && not (uri.Host.Contains("://")) with
+                   | true  -> Some s
+                   | false -> None   
+               | _ ->
+                   None    
+            with
+            | _ -> None
 
-       try 
-           match Uri.TryCreate(s, UriKind.Absolute) with
-           | true, uri
-               -> uri.Scheme = Uri.UriSchemeHttps && uri.Host.Contains(".") && not (uri.Host.Contains("://"))
-           | _ -> false    
+    let internal isValidHttps (s : string) =   //This code rejects IP-based URLs         
+    
+        try 
+            match Uri.TryCreate(s, UriKind.Absolute) with
+            | true, uri
+                -> uri.Scheme = Uri.UriSchemeHttps && uri.Host.Contains(".") && not (uri.Host.Contains("://"))
+            | _ -> false    
         with
         | _ -> false
