@@ -125,16 +125,16 @@ module FilterTimetableLinks =
 
                      let result = 
                          match input.Equals String.Empty with
-                         | true  -> String.Empty
-                         | _     -> input.[0..min 9 (input.Length - 1)] 
+                         | true -> String.Empty
+                         | _    -> input.[0..min 9 (input.Length - 1)] 
                      result.Replace("_", "-")
          
                 let extractEndDate (input : string) =
 
                     let result = 
                         match input.Equals String.Empty with
-                        | true  -> String.Empty
-                        | _     -> input.[max 0 (input.Length - 10)..]
+                        | true -> String.Empty
+                        | _    -> input.[max 0 (input.Length - 10)..]
                     result.Replace("_", "-")
 
                 let splitString (input : string) =   
@@ -233,8 +233,11 @@ module FilterTimetableLinks =
                                 let newPrefix =                                 
                                     match oldPrefix |> extractSubstring2 with
                                     | (Some value, length)
-                                        when length <= lineNumberLength -> sprintf "NAD%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
-                                    | _                                 -> oldPrefix                                 
+                                        when length <= lineNumberLength 
+                                        -> sprintf "NAD%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
+                                    | _                                 
+                                        -> oldPrefix        
+                                        
                                 oldPrefix.Replace(oldPrefix, newPrefix) 
                         
                             | 6  
@@ -242,8 +245,11 @@ module FilterTimetableLinks =
                                 let newPrefix = //ponechat podobny kod jako vyse, nerobit refactoring, KODIS moze vse nekdy zmenit                                
                                     match oldPrefix |> extractSubstring3 with
                                     | (Some value, length)
-                                        when length <= lineNumberLength -> sprintf "X%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
-                                    | _                                 -> oldPrefix                                 
+                                        when length <= lineNumberLength 
+                                        -> sprintf "X%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
+                                    | _                               
+                                        -> oldPrefix
+                                        
                                 oldPrefix.Replace(oldPrefix, newPrefix)
 
                             | 2 | 4 | _
