@@ -37,6 +37,8 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── OdisTimetableDownloaderMAUI.fsproj
 ├── AssemblyInfo/
 │   └── AssemblyInfo.fs
+├── DotNetInteroperabilityCode/
+│   └── DotNetInteroperabilityCode.fs
 ├── JavaInteroperabilityCode/
 │   └── JavaInteroperabilityCode.fs
 ├── NativeCode/
