@@ -36,12 +36,10 @@ module WakeLockHelper = //pouze pro Android API 33 a Android API 34
         IO (fun () 
                 ->
                 match lock with
-                | lock when lock.IsHeld 
-                    ->
-                    // WakeLock is already held, no need to acquire it again
-                    ()
-                | _ ->
-                    lock.Acquire() // Acquire the WakeLock if not already held
+                | lock 
+                    when lock.IsHeld // WakeLock is already held, no need to acquire it again
+                    -> ()
+                | _ -> lock.Acquire() // Acquire the WakeLock if not already held
            )     
        
     let internal releaseWakeLock (lock : PowerManager.WakeLock) =  
@@ -51,10 +49,8 @@ module WakeLockHelper = //pouze pro Android API 33 a Android API 34
                 match lock with
                 | lock
                     when lock.IsHeld 
-                        ->
-                        lock.Release()
-                | _     -> 
-                        ()
+                    -> lock.Release()
+                | _ -> ()
            )
 
 module KeepScreenOnManager = //DeviceDisplay.KeepScreenOn z .NET MAUI hodil exn, proto primo API z Androidu
@@ -318,8 +314,6 @@ public class AndroidDownloadManager
         }
     }
 }
-
-
 
 When you throw exceptions in C#, even if they're not triggered, you still introduce overhead because the runtime must account for the possibility that exceptions 
 might occur, which can affect overall performance.
