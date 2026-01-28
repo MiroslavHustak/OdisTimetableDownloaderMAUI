@@ -11,7 +11,7 @@ RustHelpers (DLL)
 │   ├── copy_move.rs
 │   └── lib.rs
 │
-CppHelpers (DLL)
+CppHelpers (Project)
 ├── CppHelpers.vcxproj
 ├── Header Files/
 │   ├── framework.h
@@ -37,6 +37,8 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── OdisTimetableDownloaderMAUI.fsproj
 ├── AssemblyInfo/
 │   └── AssemblyInfo.fs
+├── DotNetInteroperabilityCode/
+│   └── DotNetInteroperabilityCode.fs
 ├── JavaInteroperabilityCode/
 │   └── JavaInteroperabilityCode.fs
 ├── NativeCode/
@@ -54,7 +56,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── SettingsMDPO.fs
 ├── ApplicativeFunctors/
 │   └── Applicatives.fs
-├── ComputationExpressions/
+├── CEBuilders/
 │   └── CEBuilders.fs
 ├── OptionResultExtensions/ 
 │   ├── ResultExtensions.fs
