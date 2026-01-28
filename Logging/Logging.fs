@@ -1,4 +1,11 @@
-﻿namespace Api
+﻿(*
+    Code in this file uses Thoth.Json.Net by Maxime Mangel.
+    Copyright (c) [2019] [Mangel Maxime]
+    Licensed under the MIT License
+    https://thoth-org.github.io/Thoth.Json/
+*)
+
+namespace Api
 
 open System
 open System.IO

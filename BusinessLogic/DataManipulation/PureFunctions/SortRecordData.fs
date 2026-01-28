@@ -128,3 +128,174 @@ module SortRecordData =
                     )
                 |> Seq.distinct 
                 |> List.ofSeq
+
+(*
+//*************************************************
+
+USE [TimetableDownloader]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER FUNCTION [dbo].[ITVF_GetLinksCurrentValidity] ()   
+RETURNS TABLE
+AS
+RETURN 
+(
+    WITH CTE AS
+    (
+        SELECT 
+            NewPrefix, 
+            StartDate, 
+            EndDate, 
+            CompleteLink, 
+            FileToBeSaved, 
+            PartialLink,
+            ROW_NUMBER() OVER (PARTITION BY PartialLink ORDER BY FileToBeSaved) AS rn
+        FROM TimetableLinks
+    )
+    SELECT 
+        NewPrefix, 
+        StartDate, 
+        CompleteLink, 
+        FileToBeSaved, 
+        MaxRow
+    FROM
+    (
+        SELECT 
+            NewPrefix, 
+            StartDate, 
+            EndDate, 
+            CompleteLink, 
+            FileToBeSaved, 
+            rn,
+            ROW_NUMBER() OVER (PARTITION BY NewPrefix ORDER BY StartDate DESC) AS MaxRow
+        FROM CTE
+        WHERE 
+            (
+                ((StartDate <= FORMAT(GETDATE(), 'yyyy-MM-dd') AND EndDate >= FORMAT(GETDATE(), 'yyyy-MM-dd'))
+                OR
+                (StartDate = FORMAT(GETDATE(), 'yyyy-MM-dd') AND EndDate = FORMAT(GETDATE(), 'yyyy-MM-dd')))
+            )
+            AND rn = 1
+            AND 
+            (               
+                FileToBeSaved NOT LIKE '%046_2024_01_02_2024_12_14%'
+            )
+            AND 
+            (               
+                FileToBeSaved NOT LIKE '%020_2024_01_02_2024_12_14%'
+            )
+    ) AS myDerivedTable
+    WHERE MaxRow = 1     
+);
+
+USE [TimetableDownloader]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER FUNCTION [dbo].[ITVF_GetLinksFutureValidity] ()   
+RETURNS TABLE
+AS
+RETURN 
+(
+    WITH CTE AS
+    (
+        SELECT 
+            NewPrefix, 
+            StartDate, 
+            EndDate, 
+            CompleteLink, 
+            FileToBeSaved, 
+            PartialLink,
+            ROW_NUMBER() OVER (PARTITION BY PartialLink ORDER BY FileToBeSaved) AS rn
+        FROM TimetableLinks
+    )
+    SELECT 
+        NewPrefix, 
+        StartDate, 
+        CompleteLink, 
+        FileToBeSaved 
+    FROM
+    (
+        SELECT 
+            NewPrefix, 
+            StartDate, 
+            EndDate, 
+            CompleteLink, 
+            FileToBeSaved, 
+            rn
+        FROM CTE
+        WHERE StartDate > FORMAT(GETDATE(), 'yyyy-MM-dd') AND rn = 1
+    ) AS myDerivedTable     
+);
+
+USE [TimetableDownloader]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER FUNCTION [dbo].[ITVF_GetLinksWithoutReplacementService] ()   
+RETURNS TABLE
+AS
+RETURN 
+(
+    WITH CTE AS
+    (
+        SELECT 
+            NewPrefix, 
+            StartDate, 
+            EndDate, 
+            CompleteLink, 
+            FileToBeSaved, 
+            PartialLink,
+            ROW_NUMBER() OVER (PARTITION BY PartialLink ORDER BY FileToBeSaved) AS rn
+        FROM TimetableLinks
+    )
+    SELECT 
+        NewPrefix, 
+        StartDate, 
+        CompleteLink, 
+        FileToBeSaved, 
+        MaxRow
+    FROM
+    (
+        SELECT 
+            NewPrefix, 
+            StartDate, 
+            EndDate, 
+            CompleteLink, 
+            FileToBeSaved, 
+            rn,
+            ROW_NUMBER() OVER (PARTITION BY NewPrefix ORDER BY StartDate DESC) AS MaxRow
+        FROM CTE
+        WHERE 
+        (
+            (
+                (StartDate <= FORMAT(GETDATE(), 'yyyy-MM-dd') AND EndDate >= FORMAT(GETDATE(), 'yyyy-MM-dd'))
+                OR
+                (StartDate = FORMAT(GETDATE(), 'yyyy-MM-dd') AND EndDate = FORMAT(GETDATE(), 'yyyy-MM-dd'))
+            )
+            AND
+            (
+                CHARINDEX('_v', FileToBeSaved) = 0 -- not
+                AND CHARINDEX('X', FileToBeSaved) = 0 -- not
+                AND CHARINDEX('NAD', FileToBeSaved) = 0 -- not
+            )
+            AND rn = 1
+            AND EndDate <> '2024-08-31'
+            AND EndDate <> '2024-09-01'
+            AND 
+            (               
+                FileToBeSaved NOT LIKE '%020_2024_01_02_2024_12_14%'
+            )
+        )
+    ) AS myDerivedTable
+    WHERE MaxRow = 1     
+);
+
+*)

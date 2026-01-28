@@ -77,14 +77,14 @@ module SettingsGeneral =
     
     let [<Literal>] internal apiKeyTest = "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3" 
     
-    let [<Literal>] internal urlLogging = "http://kodis.somee.com/api/logging" 
-    let [<Literal>] internal urlApi = "http://kodis.somee.com/api/"  // Trailing slash preserved   
-    let [<Literal>] internal urlJson = "http://kodis.somee.com/api/jsonLinks" 
+    //let [<Literal>] internal urlLogging = "http://kodis.somee.com/api/logging" 
+    //let [<Literal>] internal urlApi = "http://kodis.somee.com/api/"  // Trailing slash preserved   
+    //let [<Literal>] internal urlJson = "http://kodis.somee.com/api/jsonLinks" 
 
     // Rust / Render
-    //let [<Literal>] internal urlLogging = "https://rust-rest-api-endpoints.onrender.com/api/logging"
-    //let [<Literal>] internal urlApi = "https://rust-rest-api-endpoints.onrender.com/api/canopy"  //Rust chce toto, TOD podumej cemu
-    //let [<Literal>] internal urlJson = "https://rust-rest-api-endpoints.onrender.com/api/jsonLinks"    
+    let [<Literal>] internal urlLogging = "https://rust-rest-api-endpoints.onrender.com/api/logging"
+    let [<Literal>] internal urlApi = "https://rust-rest-api-endpoints.onrender.com/api/canopy"  //Rust chce toto, TOD podumej cemu
+    let [<Literal>] internal urlJson = "https://rust-rest-api-endpoints.onrender.com/api/jsonLinks"    
     
     #if ANDROID
     let [<Literal>] internal partialPathJsonTemp = @"/storage/emulated/0/FabulousTimetables/JsonData/com.companyname.OdisTimetableDownloaderMAUI/" 
