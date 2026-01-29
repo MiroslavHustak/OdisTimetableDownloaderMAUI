@@ -18,19 +18,19 @@ module Option =
         | Some _ -> true
         | None   -> false
 
-    let internal fromBool value =                               
+    let inline internal fromBool value =                               
         function   
         | true  -> Some value  
         | false -> None
 
     //Technically impure because of System.Object.ReferenceEquals
     //Pragmatically pure as there are no side effects        
-    let internal ofNull (value : 'nullableValue) =
+    let inline internal ofNull (value : 'nullableValue) =
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and ReferenceEquals will still work.
         | true  -> None
         | false -> Some value     
 
-    let internal ofPtrOrNull (value : 'nullableValue) =  
+    let inline internal ofPtrOrNull (value : 'nullableValue) =  
         match System.Object.ReferenceEquals(value, null) with 
         | true  ->
                 None
@@ -44,7 +44,7 @@ module Option =
                 | _   
                     -> Some value          
     
-    let internal ofNullEmpty (value : 'nullableValue) : string option = //NullOrEmpty
+    let inline internal ofNullEmpty (value : 'nullableValue) : string option = //NullOrEmpty
         pyramidOfDoom 
             {
                 let!_ = (not <| System.Object.ReferenceEquals(value, null)) |> fromBool value, None 
@@ -54,7 +54,7 @@ module Option =
                 return Some value
             }
 
-    let internal ofNullEmpty2 (value : 'nullableValue) : string option =
+    let inline internal ofNullEmpty2 (value : 'nullableValue) : string option =
         option2 
             {
                 let!_ = (not <| System.Object.ReferenceEquals(value, null)) |> fromBool value                            
@@ -64,7 +64,7 @@ module Option =
                 return Some value
             }
 
-    let internal ofNullEmptySpace (value : 'nullableValue) = //NullOrEmpty, NullOrWhiteSpace
+    let inline internal ofNullEmptySpace (value : 'nullableValue) = //NullOrEmpty, NullOrWhiteSpace
         pyramidOfDoom //nelze option {}
             {
                 let!_ = (not <| System.Object.ReferenceEquals(value, null)) |> fromBool Some, None 
@@ -74,7 +74,7 @@ module Option =
                 return Some value
             }
 
-    let internal toResult err = 
+    let inline internal toResult err = 
         function   
         | Some value -> Ok value 
         | None       -> Error err 
@@ -111,6 +111,11 @@ module Option =
         match option with
         | Some x -> Some x
         | None   -> f()
+           
+    let iter action option =
+        match option with
+        | Some x -> action x
+        | None   -> () 
     *) 
 
     (*
