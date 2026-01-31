@@ -45,7 +45,7 @@ module SettingsKODIS =
         ]
     
     let [<Literal>] private interval = 12 //menit dle json struktury
-    let [<Literal>] private lastCode = 168 //menit dle json struktury //delitelne 12
+    let [<Literal>] private lastCode = 192 //menit dle json struktury //delitelne 12
 
     let private codes = [ 0 .. interval .. lastCode ] |> List.map string //(fun x -> string x) 
         
