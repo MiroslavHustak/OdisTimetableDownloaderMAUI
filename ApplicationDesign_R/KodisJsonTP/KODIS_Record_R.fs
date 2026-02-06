@@ -151,7 +151,7 @@ module WebScraping_KODIS =
                 let errFn err =  
 
                     match err with
-                    | PdfDownloadError2 NotAllFilesDownloaded                -> notAllFilesDownloaded
+                    | PdfDownloadError2 NotAllFilesDownloaded  -> notAllFilesDownloaded
                     | PdfDownloadError2 NoFolderError          -> noFolderError
                     | PdfDownloadError2 FileDeleteError        -> fileDeleteError 
                     | PdfDownloadError2 CreateFolderError4     -> createFolderError   
