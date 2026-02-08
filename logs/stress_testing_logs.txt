@@ -85,3 +85,13 @@ Expecting an object but instead got:
 ] Error#0002-Api
 01/26/2026 20:01:49 +01:00 ApiDecodingError Error#0002-K4BL
 01/26/2026 20:01:49 +01:00 ApiDecodingError Error#0002-K4
+02/06/2026 14:32:33 +01:00  Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/S15_2026_02_16_2026_02_20_v_a7dfa6ab4b.pdf Forbidden 403 #0007-K4BL
+02/06/2026 14:32:33 +01:00 FileDownloadError Error#0010-K4BL
+02/06/2026 14:32:33 +01:00 PdfDownloadError2 FileDownloadError Error#4444-K4BL
+02/06/2026 14:33:12 +01:00 LetItBe Error#0013-IO
+02/06/2026 14:33:12 +01:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+02/06/2026 14:33:12 +01:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_pouze_budouci_platnost'. Error#0010-IO
+02/06/2026 14:33:34 +01:00  Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/S15_2026_02_16_2026_02_20_v_a7dfa6ab4b.pdf Forbidden 403 #0007-K4BL
+02/06/2026 14:33:34 +01:00 FileDownloadError Error#0010-K4BL
+02/06/2026 14:33:34 +01:00 PdfDownloadError2 FileDownloadError Error#4444-K4BL
+02/06/2026 20:35:52 +01:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
