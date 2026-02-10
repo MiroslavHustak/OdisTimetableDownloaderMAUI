@@ -762,7 +762,7 @@ module App_R =
                         async
                             {
                                 try
-                                    do! Async.SwitchToThreadPool()
+                                    do! Async.SwitchToThreadPool() //In general, Async.SwitchToThreadPool() is useful when you have CPU-bound synchronous work that you need to move off the UI thread. 
 
                                     let! result =                                                              
                                         async 
@@ -801,7 +801,7 @@ module App_R =
                         async 
                             {   
                                 try
-                                    do! Async.SwitchToThreadPool()
+                                    do! Async.SwitchToThreadPool() //In general, Async.SwitchToThreadPool() is useful when you have CPU-bound synchronous work that you need to move off the UI thread. 
 
                                     let! result =                             
                                         async 
@@ -912,7 +912,7 @@ module App_R =
                         async 
                             {    
                                 try
-                                    do! Async.SwitchToThreadPool()
+                                    do! Async.SwitchToThreadPool()  //In general, Async.SwitchToThreadPool() is useful when you have CPU-bound synchronous work that you need to move off the UI thread. 
 
                                     let! result =                             
                                         async 

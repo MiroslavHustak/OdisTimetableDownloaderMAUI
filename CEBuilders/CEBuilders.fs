@@ -2,7 +2,7 @@
 
 module Builders =
         
-    type internal MyBuilder = MyBuilder with //This CE is a monad-style control-flow helper, not a monad
+    type internal MyBuilder = MyBuilder with //This CE builder is a monad-style control-flow helper, not a monad
         member _.Recover(m : bool * (unit -> 'a), nextFunc : unit -> 'a) : 'a =
             match m with
             | (false, handleFalse)
@@ -20,7 +20,7 @@ module Builders =
 
     //**************************************************************************************
    
-    type Builder2 = Builder2 with    // This CE is a monad-style control-flow helper, not a lawful monad
+    type Builder2 = Builder2 with    // This CE builder is a monad-style control-flow helper, not a lawful monad
         member _.Recover((m, recovery), nextFunc) =
             match m with
             | Some v -> nextFunc v
@@ -36,7 +36,7 @@ module Builders =
     
     //**************************************************************************************
        
-    type internal MyBuilder3 = MyBuilder3 with  // This CE is a monad-style control-flow helper, not a lawful monad
+    type internal MyBuilder3 = MyBuilder3 with  // This CE builder is a monad-style control-flow helper, not a lawful monad
         member _.Recover(m, nextFunc) = 
             match m with
             | (Ok v, _)           
@@ -52,7 +52,7 @@ module Builders =
 
     //**************************************************************************************
 
-    type internal MyBuilder5 = MyBuilder5 with   // This CE is a monad-style control-flow helper, not a lawful monad
+    type internal MyBuilder5 = MyBuilder5 with   // This CE builder is a monad-style control-flow helper, not a lawful monad
          member _.Recover(m : bool * 'a, nextFunc : unit -> 'a) : 'a =
              match m with
              | (false, value)
