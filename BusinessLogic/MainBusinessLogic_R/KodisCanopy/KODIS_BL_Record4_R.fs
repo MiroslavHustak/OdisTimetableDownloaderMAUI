@@ -142,7 +142,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                                         | false -> FileMode.Create
                                                     use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)                                        
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
-                                                    do! fileStream.FlushAsync(token) |> Async.AwaitTask
+                                                    do! fileStream.FlushAsync token |> Async.AwaitTask
 
                                                     return Ok ()
                                                 with 

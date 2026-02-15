@@ -218,7 +218,7 @@ module DPO_BL =
                                                         | false -> FileMode.Create
                                                     use fs = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fs, token) |> Async.AwaitTask
-                                                    do! stream.FlushAsync(token) |> Async.AwaitTask
+                                                    do! stream.FlushAsync token |> Async.AwaitTask
 
                                                     return Ok ()
                                                 with                                                                                  

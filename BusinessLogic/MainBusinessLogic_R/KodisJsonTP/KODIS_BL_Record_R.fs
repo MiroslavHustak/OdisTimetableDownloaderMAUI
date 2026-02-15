@@ -144,7 +144,7 @@ module KODIS_BL_Record =
                                                         | false -> FileMode.Create  // ← Correctly uses Create for new files!
                                                     use fileStream = new FileStream(pathToFile, fileMode, FileAccess.Write, FileShare.None)
                                                     do! stream.CopyToAsync(fileStream, token) |> Async.AwaitTask
-                                                    do! fileStream.FlushAsync(token) |> Async.AwaitTask
+                                                    do! fileStream.FlushAsync token |> Async.AwaitTask
                                                    
                                                     return Ok ()
                                                 with                                               
