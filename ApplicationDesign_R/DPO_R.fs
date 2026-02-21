@@ -1,6 +1,5 @@
 ﻿namespace ApplicationDesign_R
 
-open System
 open System.IO
 open System.Threading
 
@@ -15,7 +14,6 @@ open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
-open Helpers.ExceptionHelpers
 
 open Api.Logging
 open BusinessLogic_R.DPO_BL
@@ -119,7 +117,7 @@ module WebScraping_DPO =
                             Error FileDeleteErrorMHD  
                         | ex 
                             ->
-                            runIO (postToLog2 <| string ex.Message <| "#0004-DPO") // commented out so that cancellation is not logged
+                            runIO (postToLog2 <| string ex.Message <| "#0004-DPO") 
                             Error FileDownloadErrorMHD
                        
                 pyramidOfInferno

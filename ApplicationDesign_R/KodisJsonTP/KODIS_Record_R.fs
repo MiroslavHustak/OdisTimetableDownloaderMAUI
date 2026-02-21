@@ -94,7 +94,7 @@ module WebScraping_KODIS =
                         | JsonDownloadError     -> jsonDownloadError
                         | JsonConnectionError   -> cancelMsg2
                         | NetConnJsonError err  -> err
-                        | JsonTimeoutError      -> String.Empty  
+                        | JsonTimeoutError      -> timeoutErrorJson
                         | StopJsonDownloading   -> jsonCancel
                         | FolderMovingError     -> folderMovingError
                         | JsonLetItBe           -> letItBe
@@ -171,7 +171,7 @@ module WebScraping_KODIS =
                     | JsonParsingError2 JsonParsingError       -> jsonParsingError 
                     | JsonParsingError2 StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5)
                     | JsonParsingError2 JsonDataFilteringError -> dataFilteringError                    
-                    | _                                        -> String.Empty
+                    | _                                        -> "Unknown error"
                                                                  
                 let result lazyList (context2 : Context2) =                     
                     

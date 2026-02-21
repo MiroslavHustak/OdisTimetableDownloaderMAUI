@@ -23,10 +23,6 @@ open TransformationLayers.ApiTransformLayer
 
 module FutureValidityRestApi = 
 
-    open System.Net.Http
-    open System.Text
-    open System.Threading
-
     let private decoderGet : Decoder<ResponseGetLinks> =
 
         Decode.object

@@ -90,7 +90,7 @@ module WebScraping_KODIS4 =
             | JsonParsingError2 JsonParsingError       -> jsonParsingError 
             | JsonParsingError2 StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
             | JsonParsingError2 JsonDataFilteringError -> dataFilteringError 
-            | _                                        -> String.Empty
+            | _                                        -> "Unknown error"
                                      
         let dirList = createNewDirectoryPaths path listOfODISVariants
             in
