@@ -307,8 +307,26 @@ module KODIS_BL_Record =
                         let! _ = context.list <> List.Empty, Ok String.Empty
 
                         let result = 
-                            downloadAndSaveTimetables variant token 
-                            |> fun a -> Async.RunSynchronously(a, cancellationToken = token)  
+                            try
+                                downloadAndSaveTimetables variant token 
+                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                            with
+                            | :? OperationCanceledException 
+                                ->
+                                runIO (postToLog2 "Cancelled at RunSynchronously" "#0018-KBL")
+                                [ Error (PdfDownloadError2 StopDownloading) ]
+                            | ex 
+                                ->
+                                runIO (postToLog2 <| string ex.Message <| "#0019-KBL")  
+                                [ 
+                                    runIO <| comprehensiveTryWith 
+                                        (PdfDownloadError2 LetItBe)
+                                        (PdfDownloadError2 StopDownloading)
+                                        (PdfDownloadError2 TimeoutError)
+                                        (PdfDownloadError2 FileDownloadError)
+                                        (PdfDownloadError2 TlsHandshakeError)
+                                        token ex 
+                                ] 
                         
                         context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop2
