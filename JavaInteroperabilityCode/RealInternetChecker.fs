@@ -47,7 +47,7 @@ module RealInternetChecker =
                 let connectivityChanged = Event<unit>()
                 let callback = new ConnectivityCallback(connectivityChanged.Trigger)
 
-                let request =
+                use request =
                     (new NetworkRequest.Builder())
                         .AddCapability(NetCapability.Internet)
                         .Build()
@@ -90,8 +90,8 @@ module RealInternetChecker =
                                 | _ -> ()
                     }
 
-                disposable.Dispose() 
+                disposable.Dispose() //move to an appropriate place when using the full code currently stored in the Connectivity module
 
-                return status //record fields zatim nepotrebne, ale co kdyby ... 
+                return status //record fields not needed for the time being
             }
 #endif
