@@ -64,13 +64,15 @@ open Helpers.ConnectivityWithDebouncing
 open Helpers.ExceptionHelpers
 
 #if ANDROID
-open AndroidUIHelpers    
+open AndroidUIHelpers 
+open JavaInteroperabilityCode
 #endif
 
 open ApplicationDesign_R.WebScraping_DPO
 open ApplicationDesign_R.WebScraping_MDPO
 open ApplicationDesign_R.WebScraping_KODIS
 open ApplicationDesign4_R.WebScraping_KODIS4
+
 
 (*     
     AndroidManifest.xml : Remember to review and update it if necessary. 
@@ -209,13 +211,20 @@ module App_R =
     let private dpoActor = localCancellationActor()
     let private mdpoActor = localCancellationActor()
     
+    #if ANDROID
+    let private networkError() =
+        match StartupDiagnostics.networkCheckerResult with
+        | Ok _      -> String.Empty
+        | Error msg -> msg
+    #endif 
+    
     let init () =                 
 
         #if ANDROID
-        let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only
+        let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()  //available API employed by permissionCheck is async-only       
         #else
         let permissionGranted = true
-        #endif
+        #endif      
         
         let ensureMainDirectoriesExist = ensureMainDirectoriesExist permissionGranted
              
@@ -223,7 +232,12 @@ module App_R =
             {         
                 PermissionGranted = permissionGranted
                 ProgressMsg = permissionGranted |> function true -> String.Empty | false -> appInfoInvoker
-                NetConnMsg = String.Empty
+                NetConnMsg = 
+                     #if ANDROID                    
+                         networkError() 
+                     #else
+                         String.Empty
+                     #endif 
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0   
@@ -296,7 +310,12 @@ module App_R =
             {       
                 PermissionGranted = permissionGranted
                 ProgressMsg = String.Empty
-                NetConnMsg = isConnected |> function true -> String.Empty | false -> noNetConn3
+                NetConnMsg = 
+                    #if ANDROID                    
+                        isConnected |> function true -> networkError() | false -> noNetConn3
+                    #else
+                        isConnected |> function true -> String.Empty | false -> noNetConn3
+                    #endif 
                 CloudProgressMsg = String.Empty
                 ProgressIndicator = Idle
                 Progress = 0.0 
@@ -863,7 +882,17 @@ module App_R =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgKodis 
-                                NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
+                                NetConnMsg = 
+                                    m.InternetIsConnected
+                                    |> function
+                                        | true 
+                                            -> 
+                                            #if ANDROID                    
+                                                networkError() 
+                                            #else
+                                                String.Empty
+                                            #endif  
+                                        | false -> noNetConn3
                                 ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (0.0, 0.0) | false -> Idle  
                                 ClearingVisible = false
                                 CloudVisible = false
@@ -985,7 +1014,17 @@ module App_R =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgKodis1 
-                                NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
+                                NetConnMsg = 
+                                    m.InternetIsConnected
+                                    |> function
+                                        | true 
+                                            -> 
+                                            #if ANDROID                    
+                                                networkError() 
+                                            #else
+                                                String.Empty
+                                            #endif  
+                                        | false -> noNetConn3
                                 ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (0.0, 0.0) | false -> Idle  
                                 ClearingVisible = false
                                 CloudVisible = false
@@ -1102,7 +1141,17 @@ module App_R =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgDpo //progressMsgMdpo
-                                NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
+                                NetConnMsg = 
+                                    m.InternetIsConnected
+                                    |> function
+                                        | true 
+                                            -> 
+                                            #if ANDROID                    
+                                                networkError() 
+                                            #else
+                                                String.Empty
+                                            #endif  
+                                        | false -> noNetConn3
                                 ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (0.0, 0.0) | false -> Idle  
                                 ClearingVisible = false
                                 CloudVisible = false
@@ -1218,7 +1267,17 @@ module App_R =
                         { 
                             m with                               
                                 ProgressMsg = progressMsgMdpo
-                                NetConnMsg = m.InternetIsConnected |> function true -> String.Empty | false -> noNetConn3
+                                NetConnMsg = 
+                                    m.InternetIsConnected
+                                    |> function
+                                        | true 
+                                            -> 
+                                            #if ANDROID                    
+                                                networkError() 
+                                            #else
+                                                String.Empty
+                                            #endif  
+                                        | false -> noNetConn3
                                 ProgressIndicator = m.InternetIsConnected |> function true -> InProgress (0.0, 0.0) | false -> Idle  
                                 ClearingVisible = false
                                 CloudVisible = false

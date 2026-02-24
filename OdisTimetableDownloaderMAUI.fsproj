@@ -132,7 +132,8 @@
 	</Resource>
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
     <Compile Include="DotNetInteroperabilityCode\DotNetInteroperabilityCode.fs" />
-    <Compile Include="JavaInteroperabilityCode\JavaInteroperabilityCode.fs" />
+    <Compile Include="JavaInteroperabilityCode\RealInternetChecker.fs" />
+    <Compile Include="JavaInteroperabilityCode\SSL_TLS_handling.fs" />
     <Compile Include="NativeCode\NativeCode.fs" />
     <Compile Include="Types\TDD.fs" />
     <Compile Include="Types\ErrorTypes.fs" />

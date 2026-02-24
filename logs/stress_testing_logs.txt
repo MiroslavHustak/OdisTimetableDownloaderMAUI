@@ -1,0 +1,9 @@
+02/23/2026 23:38:29 +01:00 The operation was canceled. Error#0001-K
+02/24/2026 00:18:54 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+02/24/2026 00:18:54 +01:00 JsonLetItBe Error#0013-IO
+02/24/2026 00:18:54 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_pouze_budouci_platnost'. Error#0010-IO
+02/24/2026 00:18:54 +01:00 JsonLetItBe Error#0013-IO
+02/24/2026 00:18:54 +01:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+02/24/2026 00:18:54 +01:00 JsonLetItBe Error#0013-IO
+02/24/2026 00:19:06 +01:00 The operation was canceled. Error#0001-K
+02/24/2026 00:19:06 +01:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers

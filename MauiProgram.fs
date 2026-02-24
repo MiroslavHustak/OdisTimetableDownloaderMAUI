@@ -19,6 +19,7 @@ open Microsoft.Maui.Hosting
 open Microsoft.Maui.Networking
 open Microsoft.Maui.LifecycleEvents
 open Microsoft.Maui.ApplicationModel
+open Microsoft.Extensions.DependencyInjection
 
 open Fabulous
 open Fabulous.Maui
@@ -26,17 +27,20 @@ open Fabulous.Maui
 //******************************************
 
 open Api.Logging
-open Types.Haskell_IO_Monad_Simulation
-
+open JavaInteroperabilityCode 
+open Types.Haskell_IO_Monad_Simulation                   
 
 type MauiProgram = 
 
     // MAUI World
-
-    //(*
+      
     static member CreateMauiApp(): MauiApp =
 
         try
+            #if ANDROID
+            StartupDiagnostics.networkCheckerResult |> ignore<Result<IRealInternetChecker*System.IDisposable, string>>
+            #endif
+
             ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 
 
             let builder : MauiAppBuilder =
@@ -52,6 +56,13 @@ type MauiProgram =
                                 .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
                             |> ignore<IFontCollection>
                     )
+
+            // Register the real internet checker service (only on Android)
+            #if ANDROID
+            builder.Services.AddSingleton<IRealInternetChecker>
+                (fun _provider -> RealInternetChecker.checkerForDI ())
+                |> ignore<IServiceCollection>
+            #endif
 
             #if ANDROID
             builder.ConfigureLifecycleEvents(
@@ -134,8 +145,7 @@ type MauiProgram =
         | ex
             ->
             runIO (postToLog2 (string ex.Message) "#3008")
-            MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception
-    //*)
+            MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception 
 
     (*
     static member CreateMauiApp(): MauiApp =
