@@ -63,25 +63,25 @@ module StartupDiagnostics =
                 { 
                     new IRealInternetChecker with
 
-                    member _.HasRealInternet() =
-                        try
-                            checkCapabilities
-                                (fun caps 
-                                    ->
-                                    caps.HasCapability NetCapability.Internet
-                                    && caps.HasCapability NetCapability.Validated
-                                )
-                        with
-                        | _ -> false
+                        member _.HasRealInternet() =
+                            try
+                                checkCapabilities
+                                    (fun caps 
+                                        ->
+                                        caps.HasCapability NetCapability.Internet
+                                        && caps.HasCapability NetCapability.Validated
+                                    )
+                            with
+                            | _ -> false
 
-                    member _.IsCaptivePortalSuspected() =
-                        try
-                            checkCapabilities 
-                                (fun caps -> caps.HasCapability NetCapability.CaptivePortal)
-                        with
-                        | _ -> false
+                        member _.IsCaptivePortalSuspected() =
+                            try
+                                checkCapabilities 
+                                    (fun caps -> caps.HasCapability NetCapability.CaptivePortal)
+                            with
+                            | _ -> false
 
-                    member _.ConnectivityChanged = connectivityChanged.Publish
+                        member _.ConnectivityChanged = connectivityChanged.Publish
                 }
 
             let disposable =
