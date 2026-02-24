@@ -51,8 +51,8 @@ module StartupDiagnostics =
             let checkCapabilities (predicate : NetworkCapabilities -> bool) =
                 option 
                     {
-                        let! (network: Network) = cm.ActiveNetwork |> Option.ofNull
-                        let! (caps: NetworkCapabilities) = cm.GetNetworkCapabilities network |> Option.ofNull
+                        let! (network : Network) = cm.ActiveNetwork |> Option.ofNull
+                        let! (caps : NetworkCapabilities) = cm.GetNetworkCapabilities network |> Option.ofNull
                         return predicate caps
                     }
                 |> Option.defaultValue false
