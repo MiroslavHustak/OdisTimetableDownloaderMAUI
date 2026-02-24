@@ -40,7 +40,8 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── DotNetInteroperabilityCode/
 │   └── DotNetInteroperabilityCode.fs
 ├── JavaInteroperabilityCode/
-│   └── JavaInteroperabilityCode.fs
+│   ├── RealInternetChecker.fs
+│   └── SSL_TLS_handling.fs
 ├── NativeCode/
 │   └── NativeCode.fs
 ├── Types/
