@@ -4,17 +4,18 @@ open System
 
 open FsToolkit.ErrorHandling
 
-type IRealInternetChecker =
-    abstract member HasRealInternet : unit -> bool
-    abstract member IsCaptivePortalSuspected : unit -> bool
-    abstract member ConnectivityChanged : IObservable<unit>   // Android: real events; other platforms: can be empty/never-firing
-
 #if ANDROID   
 open Android.Net
 open Android.App
 open Android.Content
 
 //****************************** JAVA INTEROPERABILITY CODE ***********************************
+
+type IRealInternetChecker =
+
+    abstract member HasRealInternet : unit -> bool
+    abstract member IsCaptivePortalSuspected : unit -> bool
+    abstract member ConnectivityChanged : IObservable<unit>   // Android: real events; other platforms: can be empty/never-firing
 
 module private JavaInterOperabilityHelpers =
 
@@ -25,6 +26,7 @@ module private JavaInterOperabilityHelpers =
         | _ -> failwith "Varování: Nepodařilo se inicializovat kontrolu sítě. Pokud se soubory nestahují, restartujte aplikaci."
 
 type private ConnectivityCallback(trigger : unit -> unit) =
+
     inherit ConnectivityManager.NetworkCallback()
     override _.OnCapabilitiesChanged(_network, _caps) = trigger()
     override _.OnAvailable _network = trigger()
@@ -103,7 +105,7 @@ module RealInternetChecker =
     let private neverObservable<'a> () : IObservable<'a> =
         {
             new IObservable<'a> with
-                member _.Subscribe(_observer) =
+                member _.Subscribe _observer =
                     {
                         new IDisposable with
                             member _.Dispose() = ()
