@@ -18,7 +18,7 @@ open Android.Provider
 open Xamarin
 open Xamarin.Essentials
 
-//****************************** JAVA INTEROPERABILITY CODE ***********************************
+//****************************** JAVA / ANDROID INTEROPERABILITY CODE ***********************************
 
 open Java.Interop
 open Javax.Net.Ssl

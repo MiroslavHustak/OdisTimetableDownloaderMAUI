@@ -14,10 +14,20 @@ module RealInternetChecker =
     let private InitializationFailedMsg =
         "Varování: Nepodařilo se inicializovat kontrolu sítě. Pokud se soubory nestahují, restartuj aplikaci."
 
+    //****************************** JAVA / ANDROID INTEROPERABILITY CODE ***********************************
+    
+    type internal Status = 
+        { 
+            HasRealInternet : bool
+            IsCaptivePortalSuspected : bool
+            ConnectivityChanged : IEvent<unit>
+        }
+
     let private getConnectivityManager (ctx : Context) =
 
         match ctx.GetSystemService Context.ConnectivityService with
-        | :? ConnectivityManager as cm -> Ok cm
+        | :? ConnectivityManager as cm 
+            -> Ok cm
         | _ -> Error InitializationFailedMsg
 
     type private ConnectivityCallback(trigger : unit -> unit) =
@@ -63,6 +73,13 @@ module RealInternetChecker =
                 let isCaptivePortalSuspected =
                     check (fun c -> c.HasCapability NetCapability.CaptivePortal)
 
+                let status = 
+                    { 
+                        HasRealInternet = hasRealInternet
+                        IsCaptivePortalSuspected = isCaptivePortalSuspected
+                        ConnectivityChanged = connectivityChanged.Publish
+                    } 
+
                 let disposable =
                     { 
                         new IDisposable with
@@ -75,7 +92,6 @@ module RealInternetChecker =
 
                 disposable.Dispose() 
 
-                return hasRealInternet, isCaptivePortalSuspected, connectivityChanged.Publish //parametry zatim nepotrebne, ale co kdyby ... 
+                return status //record fields zatim nepotrebne, ale co kdyby ... 
             }
-
 #endif
