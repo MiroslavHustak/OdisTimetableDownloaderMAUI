@@ -36,11 +36,7 @@ type MauiProgram =
       
     static member CreateMauiApp(): MauiApp =
 
-        try
-            #if ANDROID
-            StartupDiagnostics.networkCheckerResult |> ignore<Result<IRealInternetChecker*System.IDisposable, string>>
-            #endif
-
+        try           
             ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 
 
             let builder : MauiAppBuilder =
@@ -56,13 +52,6 @@ type MauiProgram =
                                 .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
                             |> ignore<IFontCollection>
                     )
-
-            // Register the real internet checker service (only on Android)
-            #if ANDROID
-            builder.Services.AddSingleton<IRealInternetChecker>
-                (fun _provider -> RealInternetChecker.checkerForDI ())
-                |> ignore<IServiceCollection>
-            #endif
 
             #if ANDROID
             builder.ConfigureLifecycleEvents(
