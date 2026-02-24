@@ -275,3 +275,139 @@ module CheckNetConnection =
                 | _ -> return None                
             }  
     #endif
+
+    //Next time do something around the following code:
+    (*
+    namespace JavaInteroperabilityCodeEducation
+    
+    open System
+    open FsToolkit.ErrorHandling
+    
+    type internal RealInternetStatus =
+        { 
+            HasRealInternet : unit -> bool
+            IsCaptivePortalSuspected : unit -> bool
+            ConnectivityChanged : IObservable<unit>
+        }
+    
+    type internal RealInternetService =
+        {
+            Status : RealInternetStatus
+            Dispose : unit -> unit
+        }
+    
+    module private ObservableHelpers =
+    
+        let internal neverObservable<'a> () : IObservable<'a> =
+            {
+                new IObservable<'a> with
+                    member _.Subscribe _observer =
+                        { 
+                            new IDisposable with
+                                member _.Dispose() = () 
+                        } 
+            }
+    
+    #if ANDROID
+    open Android.Net
+    open Android.App
+    open Android.Content
+    
+    module private Internals =
+    
+        let getConnectivityManager (ctx : Context) =
+            match ctx.GetSystemService Context.ConnectivityService with
+            | :? ConnectivityManager as cm
+                -> Ok cm
+            | _ -> Error "Varování: Nepodařilo se inicializovat kontrolu sítě. Pokud se soubory nestahují, restartuj aplikaci."
+    
+        type private ConnectivityCallback(trigger : unit -> unit) =
+    
+            inherit ConnectivityManager.NetworkCallback()
+            override _.OnCapabilitiesChanged(_, _) = trigger ()
+            override _.OnAvailable _ = trigger ()
+            override _.OnLost _ = trigger ()
+            override _.OnUnavailable() = trigger ()
+    
+        let internal tryCreateChecker () : Result<RealInternetStatus * IDisposable, string> =
+            
+            result
+                {
+                    let! cm = getConnectivityManager Application.Context
+    
+                    let connectivityChanged = Event<unit>()
+                    let callback = new ConnectivityCallback(connectivityChanged.Trigger)
+    
+                    let request =
+                        (new NetworkRequest.Builder())
+                            .AddCapability(NetCapability.Internet)
+                            .Build()
+    
+                    cm.RegisterNetworkCallback(request, callback)
+    
+                    let check predicate =
+                        option 
+                            {
+                                let! (network : Network) = cm.ActiveNetwork |> Option.ofNull
+                                let! (caps : NetworkCapabilities) = cm.GetNetworkCapabilities network |> Option.ofNull
+                                return predicate caps
+                            }
+                        |> Option.defaultValue false
+    
+                    let status = 
+                        {
+                            HasRealInternet = 
+                                fun () ->
+                                    check 
+                                        (fun c ->
+                                            c.HasCapability NetCapability.Internet &&
+                                            c.HasCapability NetCapability.Validated
+                                        )
+    
+                            IsCaptivePortalSuspected =
+                                fun () -> check (fun c -> c.HasCapability NetCapability.CaptivePortal)
+    
+                            ConnectivityChanged = connectivityChanged.Publish
+                        }
+    
+                    let disposable =
+                        { 
+                            new IDisposable with
+                                member _.Dispose() =
+                                    try cm.UnregisterNetworkCallback callback
+                                    with _ -> ()
+                        }
+    
+                    return status, disposable
+                }
+    
+    module RealInternetChecker =
+    
+        let private never () : RealInternetStatus =
+            {
+                HasRealInternet          = fun () -> false
+                IsCaptivePortalSuspected = fun () -> false
+                ConnectivityChanged      = ObservableHelpers.neverObservable ()
+            }
+    
+        let internal tryCheckerForDI () : Result<RealInternetService, string> =
+            match Internals.tryCreateChecker () with
+            | Ok (checker, disp)
+                ->
+                Ok { Status = checker; Dispose = disp.Dispose }
+            | Error err
+                ->
+                Error err
+    
+        let internal checkerForDI () : RealInternetService =
+            match tryCheckerForDI () with
+            | Ok svc 
+                -> svc
+            | Error _ 
+                ->
+                {
+                    Status  = never ()
+                    Dispose = fun () -> ()
+                }
+    #endif
+    *)

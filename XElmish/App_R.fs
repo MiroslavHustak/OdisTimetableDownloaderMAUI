@@ -65,14 +65,13 @@ open Helpers.ExceptionHelpers
 
 #if ANDROID
 open AndroidUIHelpers 
-open JavaInteroperabilityCode
+open JavaInteroperabilityCode.RealInternetChecker
 #endif
 
 open ApplicationDesign_R.WebScraping_DPO
 open ApplicationDesign_R.WebScraping_MDPO
 open ApplicationDesign_R.WebScraping_KODIS
 open ApplicationDesign4_R.WebScraping_KODIS4
-
 
 (*     
     AndroidManifest.xml : Remember to review and update it if necessary. 
@@ -213,7 +212,7 @@ module App_R =
     
     #if ANDROID
     let private networkError() =
-        match StartupDiagnostics.networkCheckerResult with
+        match tryChecker() with
         | Ok _      -> String.Empty
         | Error msg -> msg
     #endif 
