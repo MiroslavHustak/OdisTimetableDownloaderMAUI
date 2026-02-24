@@ -30,3 +30,186 @@
                         }
                 )
             |> Async.StartImmediate  
+
+//******************* MDPO ************************
+
+ (*
+    type private Environment = 
+        {
+            FilterTimetables : string -> CancellationToken -> IO<Map<string, string>>
+            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> string -> IO<Map<string, string>> -> IO<Result<unit, MHDErrors>>
+        }
+    
+    let private environment : Environment =
+        { 
+            FilterTimetables = filterTimetables 
+            DownloadAndSaveTimetables = downloadAndSaveTimetables    
+        }    
+ *)
+
+ //******************* DPO ************************
+
+ (*
+    type private Environment = 
+        {
+            FilterTimetables : string -> IO<(string * string) list>
+            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> IO<(string * string) list> -> IO<Result<unit, MHDErrors>>
+        }
+
+    let private environment: Environment =
+        { 
+            FilterTimetables = filterTimetables  
+            DownloadAndSaveTimetables = downloadAndSaveTimetables     
+        }   
+ *)
+
+//******************* KODIS4 (CANOPY) ************************ 
+
+(*
+    type private Environment = 
+        {
+            DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
+            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Async<Result<(string * string) list, ParsingAndDownloadingErrors list>>> 
+            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>
+        }
+
+    let private environment : Environment =
+        { 
+            DeleteAllODISDirectories = deleteAllODISDirectories   
+            //OperationOnDataFromJson = operationOnDataFromJson4
+            OperationOnDataFromJson = operationOnDataFromJson_resumable//operationOnDataFromJson4
+            DownloadAndSave = fun token context -> runIO (downloadAndSave token context) 
+        }    
+*)
+
+//******************* KODIS (TP) ************************ 
+
+(* 
+    type private Environment = 
+        {
+            DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> IO<Result<unit, JsonDownloadErrors>>
+            DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
+            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Result<string list, ParsingAndDownloadingErrors>> 
+            FilterTimetableLinks : Validity -> string -> Result<string list, ParsingAndDownloadingErrors> -> IO<Result<(string * string) list, ParsingAndDownloadingErrors>> 
+            DownloadAndSave :  Validity -> CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>  //not resuming
+        }
+
+    let private environment : Environment = 
+        { 
+            DownloadAndSaveJson = downloadAndSaveJson 
+            DeleteAllODISDirectories = deleteAllODISDirectories   
+            ParseJsonStructure = parseJsonStructure 
+            
+            FilterTimetableLinks = filterTimetableLinks  
+            DownloadAndSave = fun validity token context -> runIO (downloadAndSave validity token context) 
+        }    
+*)
+
+
+// MAUI
+
+(*
+static member CreateMauiApp(): MauiApp =
+
+        try
+            ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12 ||| SecurityProtocolType.Tls13 
+
+            let builder : MauiAppBuilder =
+
+                MauiApp
+                    .CreateBuilder()
+                    .UseFabulousApp(App.program) //not resumable
+                    .ConfigureFonts(
+                        fun (fonts : IFontCollection)
+                            ->
+                            fonts
+                                .AddFont("OpenSans-Regular.ttf", "OpenSansRegular")
+                                .AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold")
+                            |> ignore<IFontCollection>
+                    )
+
+            #if ANDROID
+            builder.ConfigureLifecycleEvents(
+                fun (events : ILifecycleBuilder) 
+                    ->
+                    events.AddAndroid(
+                        fun (android : IAndroidLifecycleBuilder) 
+                            ->
+                            (*
+                            // When app goes to background 
+                            android.OnPause(
+                                fun _
+                                    ->
+                                    //App.cancellationActor.Post Types.Types.CancelCurrent   //not my intent  
+                                    ()
+                                )
+                                |> ignore<ILifecycleBuilder>    
+
+                            android.OnStop
+                                //(fun _ -> App.stopCancellationActorAsync()) |> ignore<ILifecycleBuilder> //not my intent
+                            *) 
+
+                            android.OnResume(
+                                fun (_activity : Android.App.Activity) 
+                                    ->
+                                    match App.DispatchHolder.DispatchRef with
+                                    | Some (weakRef : System.WeakReference<Dispatch<App.Msg>>) 
+                                        ->
+                                        match weakRef.TryGetTarget() with
+                                        | true, (dispatch : Dispatch<App.Msg>)
+                                            ->                                        
+                                            async 
+                                                {
+                                                    try
+                                                        let! (granted : bool) =
+                                                            async
+                                                                {
+                                                                    match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
+                                                                    | true 
+                                                                        ->
+                                                                        return Android.OS.Environment.IsExternalStorageManager
+                                                                    | false
+                                                                        ->
+                                                                        let! (status : PermissionStatus) =
+                                                                            Permissions.CheckStatusAsync<Permissions.StorageRead>()
+                                                                            |> Async.AwaitTask
+                                                                        return status = PermissionStatus.Granted
+                                                                    }
+           
+                                                        match granted with
+                                                        | true 
+                                                            ->
+                                                            (dispatch : Dispatch<App.Msg>) <| App.Home2
+                                                        | false
+                                                            -> 
+                                                            ()
+                                                    with
+                                                    | ex -> runIO (postToLog2 (string ex.Message) "#3002")
+
+                                                    return ()
+                                                }
+
+                                            |> Async.StartImmediate 
+
+                                        | false, _ 
+                                            ->
+                                            () //runIO (postToLog2 "For testing purposes" "#3001")
+
+                                    | None 
+                                        ->
+                                        () //runIO (postToLog2 "For testing purposes" "#3000")
+
+                                ) |> ignore<IAndroidLifecycleBuilder>
+                        ) |> ignore<ILifecycleBuilder>
+                ) |> ignore<MauiAppBuilder>
+
+            #endif        
+          
+            builder.Build()
+
+        with
+        | ex
+            ->
+            runIO (postToLog2 (string ex.Message) "#3008")
+            MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception
+    *) 

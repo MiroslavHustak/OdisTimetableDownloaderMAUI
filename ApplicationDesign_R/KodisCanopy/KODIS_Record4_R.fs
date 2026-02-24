@@ -49,22 +49,7 @@ module WebScraping_KODIS4 =
             Msg3 : string
             VariantInt : int
         }
-
-    type private Environment = 
-        {
-            DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
-            OperationOnDataFromJson : CancellationToken -> Validity -> string -> IO<Async<Result<(string * string) list, ParsingAndDownloadingErrors list>>> 
-            DownloadAndSave : CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>
-        }
-
-    let private environment : Environment =
-        { 
-            DeleteAllODISDirectories = deleteAllODISDirectories   
-            //OperationOnDataFromJson = operationOnDataFromJson4
-            OperationOnDataFromJson = operationOnDataFromJson_resumable//operationOnDataFromJson4
-            DownloadAndSave = fun token context -> runIO (downloadAndSave token context) 
-        }    
-
+    
     let private stateReducer (token : CancellationToken) path dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
               
         let errFn err =  
@@ -75,7 +60,7 @@ module WebScraping_KODIS4 =
             | PdfDownloadError2 FileDeleteError        -> fileDeleteError 
             | PdfDownloadError2 CreateFolderError4     -> createFolderError
             | PdfDownloadError2 CreateFolderError2     -> createFolderError2
-            | PdfDownloadError2 FileDownloadError      -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
+            | PdfDownloadError2 FileDownloadError      -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
             | PdfDownloadError2 FolderMovingError4     -> folderMovingError 
             | PdfDownloadError2 CanopyError            -> canopyError
             | PdfDownloadError2 TimeoutError           -> timeoutError
@@ -83,12 +68,12 @@ module WebScraping_KODIS4 =
             | PdfDownloadError2 ApiResponseError       -> apiResponseError 
             | PdfDownloadError2 ApiDecodingError       -> canopyError
             | PdfDownloadError2 (NetConnPdfError err)  -> err
-            | PdfDownloadError2 StopDownloading        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
+            | PdfDownloadError2 StopDownloading        -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
             | PdfDownloadError2 LetItBe                -> letItBe 
             | PdfDownloadError2 NoPermissionError      -> String.Empty
             | PdfDownloadError2 TlsHandshakeError      -> tlsHandShakeErrorKodis4
             | JsonParsingError2 JsonParsingError       -> jsonParsingError 
-            | JsonParsingError2 StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
+            | JsonParsingError2 StopJsonParsing        -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
             | JsonParsingError2 JsonDataFilteringError -> dataFilteringError 
             | _                                        -> "Unknown error"
                                      
@@ -139,7 +124,7 @@ module WebScraping_KODIS4 =
             let dir = context2.DirList |> List.item context2.VariantInt  
 
             let list =
-                runIO <| environment.OperationOnDataFromJson token context2.Variant dir 
+                runIO <| operationOnDataFromJson_resumable token context2.Variant dir 
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
 
             //dispatchRestartVisible false 
@@ -156,8 +141,8 @@ module WebScraping_KODIS4 =
                                 list = list
                             }
                                 
-                        dispatchIterationMessage context2.Msg1                        
-                        environment.DownloadAndSave token context   
+                        dispatchIterationMessage context2.Msg1  
+                        runIO (downloadAndSave token context)   
         
             | Ok _
                 ->   
@@ -202,7 +187,7 @@ module WebScraping_KODIS4 =
                 //dispatchCancelVisible false
                
                 let!_ = runIO <| moveAll configKodis token, errFn
-                let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn                     
+                let!_ = runIO <| deleteAllODISDirectories path, errFn                     
                 let!_ = runIO <| createFolders dirList, errFn 
                
                 let! msg1 = result contextCurrentValidity, errFn
@@ -229,7 +214,7 @@ module WebScraping_KODIS4 =
 
         IO (fun () 
                 ->
-                stateReducer token path dispatchIterationMessage reportProgress stateDefault environment 
+                stateReducer token path dispatchIterationMessage reportProgress stateDefault 
         )
 
     let internal stateReducerCmd5 () = // For educational purposes

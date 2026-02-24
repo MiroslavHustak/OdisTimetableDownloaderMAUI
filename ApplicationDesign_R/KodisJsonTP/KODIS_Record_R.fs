@@ -56,25 +56,6 @@ module WebScraping_KODIS =
             VariantInt : int
         }
 
-    type private Environment = 
-        {
-            DownloadAndSaveJson : string list -> string list -> CancellationToken -> (float * float -> unit) -> IO<Result<unit, JsonDownloadErrors>>
-            DeleteAllODISDirectories : string -> IO<Result<unit, ParsingAndDownloadingErrors>>
-            ParseJsonStructure : (float * float -> unit) -> CancellationToken -> IO<Result<string list, ParsingAndDownloadingErrors>> 
-            FilterTimetableLinks : Validity -> string -> Result<string list, ParsingAndDownloadingErrors> -> IO<Result<(string * string) list, ParsingAndDownloadingErrors>> 
-            DownloadAndSave :  Validity -> CancellationToken -> Context<string, string, Result<unit, exn>> -> Result<string, ParsingAndDownloadingErrors>  //not resuming
-        }
-
-    let private environment : Environment = 
-        { 
-            DownloadAndSaveJson = downloadAndSaveJson 
-            DeleteAllODISDirectories = deleteAllODISDirectories   
-            ParseJsonStructure = parseJsonStructure 
-            
-            FilterTimetableLinks = filterTimetableLinks  
-            DownloadAndSave = fun validity token context -> runIO (downloadAndSave validity token context) 
-        }    
-
     let internal stateReducerCmd1 (token : CancellationToken) (state : State) reportProgress =
 
         let configKodis =
@@ -105,7 +86,7 @@ module WebScraping_KODIS =
                             let downloadTask () = 
                                 async
                                     {
-                                        return! runIOAsync <| environment.DownloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress 
+                                        return! runIOAsync <| downloadAndSaveJson jsonLinkList3 pathToJsonList3 token reportProgress 
                                     }
                             
                             let moveAllTask () = //staci jako celek, pri stahovani json souboru je casu dost
@@ -156,7 +137,7 @@ module WebScraping_KODIS =
                     | PdfDownloadError2 FileDeleteError        -> fileDeleteError 
                     | PdfDownloadError2 CreateFolderError4     -> createFolderError   
                     | PdfDownloadError2 CreateFolderError2     -> createFolderError2
-                    | PdfDownloadError2 FileDownloadError      -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
+                    | PdfDownloadError2 FileDownloadError      -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
                     | PdfDownloadError2 FolderMovingError4     -> folderMovingError 
                     | PdfDownloadError2 CanopyError            -> canopyError
                     | PdfDownloadError2 TimeoutError           -> timeoutError
@@ -164,12 +145,12 @@ module WebScraping_KODIS =
                     | PdfDownloadError2 ApiResponseError       -> apiResponseError
                     | PdfDownloadError2 ApiDecodingError       -> canopyError
                     | PdfDownloadError2 (NetConnPdfError err)  -> err
-                    | PdfDownloadError2 StopDownloading        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
+                    | PdfDownloadError2 StopDownloading        -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
                     | PdfDownloadError2 LetItBe                -> letItBe
                     | PdfDownloadError2 NoPermissionError      -> String.Empty
                     | PdfDownloadError2 TlsHandshakeError      -> tlsHandShakeErrorKodis
                     | JsonParsingError2 JsonParsingError       -> jsonParsingError 
-                    | JsonParsingError2 StopJsonParsing        -> (environment.DeleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5)
+                    | JsonParsingError2 StopJsonParsing        -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5)
                     | JsonParsingError2 JsonDataFilteringError -> dataFilteringError                    
                     | _                                        -> "Unknown error"
                                                                  
@@ -245,7 +226,7 @@ module WebScraping_KODIS =
                                     } 
                                
                                 dispatchIterationMessage context2.Msg1                                 
-                                environment.DownloadAndSave context2.Variant token context 
+                                runIO <| downloadAndSave context2.Variant token context 
         
                     | Ok _
                         ->  
@@ -302,13 +283,13 @@ module WebScraping_KODIS =
                         #if ANDROID
                         let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                         #endif
-                        let!_ = runIO <| environment.DeleteAllODISDirectories path, errFn
+                        let!_ = runIO <| deleteAllODISDirectories path, errFn
                         let!_ = runIO <| createFolders dirList, errFn
 
                         let lazyList = 
                             //laziness jen jako priprava pro pripadne threadsafe multitasking, zatim zadny rozdil oproti eager + parameterless (krome trochu vetsiho overhead u lazy)
                             try               
-                                runIO <| environment.ParseJsonStructure reportProgress token  //TODO pri tvorbe profi UI/UX toto dej jako stateReducerCmd2, ostatni jako stateReducerCmd3
+                                runIO <| parseJsonStructure reportProgress token  //TODO pri tvorbe profi UI/UX toto dej jako stateReducerCmd2, ostatni jako stateReducerCmd3
                             with
                             | ex
                                 ->

@@ -39,24 +39,12 @@ module WebScraping_DPO =
         | DeleteOneODISDirectory
         | CreateFolders
         | FilterDownloadSave  
-
-    type private Environment = 
-        {
-            FilterTimetables : string -> IO<(string * string) list>
-            DownloadAndSaveTimetables : (float * float -> unit) -> CancellationToken -> IO<(string * string) list> -> IO<Result<unit, MHDErrors>>
-        }
-
-    let private environment: Environment =
-        { 
-            FilterTimetables = filterTimetables  
-            DownloadAndSaveTimetables = downloadAndSaveTimetables     
-        }    
-
+    
     let internal webscraping_DPO reportProgress token pathToDir =  
 
         IO (fun () 
-                ->           
-                let stateReducer token (state : State) (action : Actions) (environment : Environment) =
+                ->
+                let stateReducer token (state : State) (action : Actions) =
             
                     let dirList pathToDir = [ sprintf"%s/%s"pathToDir (ODIS_Variants.board.board I2 I2) ] //Android jen forward slash %s/%s  //list used due to uniformity
                     
@@ -103,9 +91,9 @@ module WebScraping_DPO =
                                         |> List.tryHead
                                         |> Option.toResult FileDownloadErrorMHD
                         
-                                    let filter = environment.FilterTimetables firstSubDir                                 
+                                    let filter = filterTimetables firstSubDir                                 
                         
-                                    return! runIO <| environment.DownloadAndSaveTimetables reportProgress token filter
+                                    return! runIO <| downloadAndSaveTimetables reportProgress token filter
                                 }
 
                         try       
@@ -142,11 +130,11 @@ module WebScraping_DPO =
                            
                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                         // nicmene priprava na zpracovani err je provedena
-                        stateReducer token stateDefault CopyOldTimetables environment |> ignore<Result<unit, MHDErrors>> //silently ignoring failed move operations
+                        stateReducer token stateDefault CopyOldTimetables |> ignore<Result<unit, MHDErrors>> //silently ignoring failed move operations
                         
-                        let! _ = stateReducer token stateDefault DeleteOneODISDirectory environment, fun err -> Error <| errFn err
-                        let! _ = stateReducer token stateDefault CreateFolders environment, fun err -> Error <| errFn err
-                        let! _ = stateReducer token stateDefault FilterDownloadSave environment, fun err -> Error <| errFn err
+                        let! _ = stateReducer token stateDefault DeleteOneODISDirectory, fun err -> Error <| errFn err
+                        let! _ = stateReducer token stateDefault CreateFolders, fun err -> Error <| errFn err
+                        let! _ = stateReducer token stateDefault FilterDownloadSave, fun err -> Error <| errFn err
                               
                         return Ok ()
                     }
