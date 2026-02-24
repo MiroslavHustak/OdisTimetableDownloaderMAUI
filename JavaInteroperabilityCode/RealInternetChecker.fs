@@ -14,7 +14,7 @@ open Android.Net
 open Android.App
 open Android.Content
 
-//****************************** JAVA ***********************************
+//****************************** JAVA INTEROPERABILITY CODE ***********************************
 
 module private JavaInterOperabilityHelpers =
 
