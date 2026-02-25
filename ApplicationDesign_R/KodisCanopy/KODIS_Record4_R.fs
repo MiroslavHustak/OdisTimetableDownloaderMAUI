@@ -50,7 +50,7 @@ module WebScraping_KODIS4 =
             VariantInt : int
         }
     
-    let private stateReducer (token : CancellationToken) path dispatchIterationMessage reportProgress (state : State) (environment : Environment) =
+    let private stateReducer (token : CancellationToken) path dispatchIterationMessage reportProgress (state : State) =
               
         let errFn err =  
 
