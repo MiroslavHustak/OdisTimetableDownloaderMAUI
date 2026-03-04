@@ -1,7 +1,8 @@
 ﻿namespace Helpers
 
 open System
-            
+
+[<RequireQualifiedAccess>]            
 module Result =    
           
     //Applicative functor      

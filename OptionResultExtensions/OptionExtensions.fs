@@ -5,7 +5,8 @@ open System
 //***********************************
 
 open Helpers.Builders      
-            
+
+[<RequireQualifiedAccess>]            
 module Option =
 
     let internal ofBool =                           
