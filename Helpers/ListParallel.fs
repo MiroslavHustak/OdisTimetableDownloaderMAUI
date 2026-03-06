@@ -285,7 +285,8 @@ let iter_IO_AW_Token_Async (action : 'a -> unit) (token : CancellationToken) (li
             list
             |> Array.ofList
             |> Array.map
-                (fun item ->
+                (fun item
+                    ->
                     async
                         {
                             token.ThrowIfCancellationRequested ()
