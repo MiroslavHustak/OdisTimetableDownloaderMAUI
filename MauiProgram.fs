@@ -12,6 +12,9 @@ Licensed under the Apache License, Version 2.0 (the "License")
 //^(?!\s*//)(?!\s*open[\s(])(?!\s*[(){}\s]*$).+$
 //or replace open with some string not appearing in fs code
 
+//dotnet fsi OdisDownloaderMAUI_build_release.fsx
+//dotnet fsi OdisDownloaderMAUI_build_release_publish_apk.fsx
+
 namespace OdisTimetableDownloaderMAUI
 
 open System.IO

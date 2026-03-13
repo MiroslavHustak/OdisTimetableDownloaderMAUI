@@ -8,6 +8,7 @@ open System.Runtime.InteropServices
 //***************************
 
 open Types
+open Types.Types
 
 #if WINDOWS
 open NativeHelpers
@@ -17,6 +18,7 @@ open NativeHelpers.Native
 open Helpers.Builders  
 open FsToolkit.ErrorHandling
 open Haskell_IO_Monad_Simulation
+
 
 //***************************
 
@@ -219,3 +221,61 @@ module Validation =
             | _ -> false    
         with
         | _ -> false
+
+module ProgressValues = 
+
+    let internal counterAndProgressBar l token checkCancel reportProgress =
+
+        MailboxProcessor<MsgIncrement>.StartImmediate
+            (fun inbox 
+                ->
+                let rec loop n =
+                    async 
+                        {
+                            try
+                                checkCancel token      
+                                let! msg = inbox.Receive()  
+                                    
+                                match msg with
+                                | Inc i 
+                                    -> 
+                                    reportProgress (float n, float l)
+                                    return! loop (n + i)
+                                | Stop
+                                    ->
+                                    return () // exit loop → agent terminates
+                            with
+                            | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0001-KBLJson")
+                        }
+                loop 0
+            )
+
+    let internal counterAndProgressBar2 l token checkCancel reportProgress =
+
+        MailboxProcessor<MsgIncrement2>.StartImmediate 
+            <|
+            fun inbox 
+                ->
+                let rec loop n =
+                    async
+                        {
+                            try
+                                checkCancel token
+                                let! msg = inbox.Receive()
+
+                                match msg with
+                                | Inc2 i 
+                                    ->
+                                    reportProgress (float n, float l)
+                                    return! loop (n + i)
+                                | GetCount2 replyChannel //not used anymore, kept for educational purposes
+                                    ->
+                                    replyChannel.Reply n
+                                    return! loop n
+                                | Stop2  
+                                    ->
+                                    return ()
+                            with
+                            | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0013-KBL")
+                        }
+                loop 0    

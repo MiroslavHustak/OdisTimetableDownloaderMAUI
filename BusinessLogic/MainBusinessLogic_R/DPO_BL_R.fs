@@ -16,6 +16,7 @@ open FsToolkit.ErrorHandling
 open Helpers
 open Helpers.Validation
 open Helpers.DirFileHelper
+open Helpers.ProgressValues
 open Helpers.ExceptionHelpers
 
 open Api.Logging
@@ -270,30 +271,7 @@ module DPO_BL =
                     try
                         let l = filteredTimetables.Length
     
-                        let counterAndProgressBar =
-                            MailboxProcessor<MsgIncrement>.StartImmediate
-                                (fun inbox 
-                                    ->
-                                    let rec loop n =
-                                        async
-                                            {
-                                                try
-                                                    checkCancel token      
-                                                    let! msg = inbox.Receive()  
-                                                        
-                                                    match msg with
-                                                    | Inc i 
-                                                        -> 
-                                                        reportProgress (float n, float l)
-                                                        return! loop (n + i)
-                                                    | Stop
-                                                        ->
-                                                        return () // exit loop → agent terminates
-                                                with
-                                                | _ -> () 
-                                            }
-                                    loop 0
-                                )
+                        let counterAndProgressBar = counterAndProgressBar l token checkCancel reportProgress                         
                 
                         let uri, pathToFile =
                             filteredTimetables 

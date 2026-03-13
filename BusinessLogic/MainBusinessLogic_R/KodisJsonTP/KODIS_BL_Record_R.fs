@@ -25,6 +25,7 @@ open Settings.SettingsGeneral
 open Helpers
 open Helpers.Builders
 open Helpers.DirFileHelper
+open Helpers.ProgressValues
 open Helpers.ExceptionHelpers
 
 module KODIS_BL_Record =       
@@ -38,35 +39,9 @@ module KODIS_BL_Record =
                     ()
 
                 let l = context.list |> List.length
-
-                let counterAndProgressBar =
-                    MailboxProcessor<MsgIncrement2>.StartImmediate 
-                        <|
-                        fun inbox 
-                            ->
-                            let rec loop n =
-                                async
-                                    {
-                                        try
-                                            let! msg = inbox.Receive()
-
-                                            match msg with
-                                            | Inc2 i 
-                                                ->
-                                                context.reportProgress (float n, float l)
-                                                return! loop (n + i)
-                                            | GetCount2 replyChannel //not used anymore, kept for educational purposes
-                                                ->
-                                                replyChannel.Reply n
-                                                return! loop n
-                                            | Stop2  
-                                                ->
-                                                return ()
-                                        with
-                                        | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0013-KBL")
-                                    }
-                            loop 0
-
+                
+                let counterAndProgressBar = counterAndProgressBar2 l token checkCancel context.reportProgress 
+                
                 let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                
                     async 

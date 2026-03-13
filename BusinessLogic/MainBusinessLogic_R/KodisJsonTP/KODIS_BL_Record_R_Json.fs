@@ -20,6 +20,7 @@ open Api.Logging
 open Settings.SettingsGeneral
 
 open Helpers.DirFileHelper
+open Helpers.ProgressValues
 open Helpers.ExceptionHelpers
 
 module KODIS_BL_Record_Json =       
@@ -34,32 +35,9 @@ module KODIS_BL_Record_Json =
                     token.ThrowIfCancellationRequested()
                     ()
     
-                let l = jsonLinkList |> List.length
-    
-                let counterAndProgressBar =
-                    MailboxProcessor<MsgIncrement>.StartImmediate
-                        (fun inbox 
-                            ->
-                            let rec loop n =
-                                async 
-                                    {
-                                        try
-                                            checkCancel token      
-                                            let! msg = inbox.Receive()  
-                                                
-                                            match msg with
-                                            | Inc i 
-                                                -> 
-                                                reportProgress (float n, float l)
-                                                return! loop (n + i)
-                                            | Stop
-                                                ->
-                                                return () // exit loop → agent terminates
-                                        with
-                                        | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0001-KBLJson")
-                                    }
-                            loop 0
-                    )
+                let l = jsonLinkList |> List.length    
+  
+                let counterAndProgressBar = counterAndProgressBar l token checkCancel reportProgress 
     
                 let downloadWithResume (uri : string) (pathToFile : string) =
 
