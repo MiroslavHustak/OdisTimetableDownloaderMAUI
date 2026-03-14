@@ -141,7 +141,7 @@ module Logging =
                             finally                        
                                 fs.Dispose()
                         with
-                        | ex-> return! Error <| string ex.Message 
+                        | ex -> return! Error <| string ex.Message 
                     }
         )
     #endif
@@ -184,7 +184,7 @@ module Logging =
                             finally                        
                                 fs.Dispose()
                         with
-                        | ex-> return! Error <| string ex.Message 
+                        | ex -> return! Error <| string ex.Message 
                     }
                 |> Async.Ignore<Result<unit, string>>
         )

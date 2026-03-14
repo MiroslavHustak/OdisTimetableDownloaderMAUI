@@ -30,7 +30,7 @@ module RealInternetChecker =
             -> Ok cm
         | _ -> Error InitializationFailedMsg
 
-    type private ConnectivityCallback(trigger : unit -> unit) =
+    type private ConnectivityCallback (trigger : unit -> unit) =
 
         inherit ConnectivityManager.NetworkCallback()
         override _.OnCapabilitiesChanged(_, _) = trigger()
