@@ -579,7 +579,8 @@ let map_IO_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a l
         list
         |> Array.ofList
         |> Array.map
-            (fun item ->
+            (fun item 
+                ->
                 async
                     {
                         token.ThrowIfCancellationRequested ()
