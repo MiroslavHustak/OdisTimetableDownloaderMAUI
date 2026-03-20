@@ -301,8 +301,8 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                         //let!_ = xor { (=) len l;  (<>) len 1 } |> Result.toBool, Error (PdfDownloadError2 NotAllFilesDownloaded)
                                                                   
                         return 
-                            match result |> List.head with
-                            | Ok _      -> Ok () |> Result.map (fun _ -> String.Empty)
-                            | Error err -> Error err              
+                            match result |> List.tryPick (function Error e -> Some e | _ -> None) with
+                            | Some err -> Error err
+                            | None     -> Ok () |> Result.map (fun _ -> String.Empty)      
                     }   
         )
