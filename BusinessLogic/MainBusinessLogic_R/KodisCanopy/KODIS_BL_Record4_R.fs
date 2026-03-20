@@ -295,9 +295,9 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                         context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop
                         
-                        let len = (result |> List.length)
+                        let len = result |> List.length
                                          
-                        let!_ = (=) len l || (=) len 1 , Error (PdfDownloadError2 NotAllFilesDownloaded)
+                        let!_ = (=) len l || (=) len 1, Error (PdfDownloadError2 NotAllFilesDownloaded)
                         //let!_ = xor { (=) len l;  (<>) len 1 } |> Result.toBool, Error (PdfDownloadError2 NotAllFilesDownloaded)
                                                                   
                         return 

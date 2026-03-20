@@ -63,7 +63,7 @@ module KODIS_BL_Record =
                                         let headerContent1 = "Range" 
                                         let headerContent2 = sprintf "bytes=%d-" existingFileLength 
                                       
-                                        let request =
+                                        let request =                                         
                                             match existingFileLength > 0L with
                                             | true  -> 
                                                     http
@@ -82,7 +82,7 @@ module KODIS_BL_Record =
                                                             config_cancellationToken token 
                                                             header "User-Agent" "FsHttp/Android7.1"
                                                         }     
-
+                                        
                                         match! Request.sendAsync >> Async.Catch <| request with
                                         | Choice1Of2 response
                                             ->
@@ -142,7 +142,7 @@ module KODIS_BL_Record =
                                                 runIO <| postToLog2 (string status) "#0010-KBL" 
                                                 return Error FileDownloadError
                                            
-                                        | Choice2Of2 ex 
+                                        | Choice2Of2 (ex : exn) 
                                             ->
                                             match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
                                             | err 
@@ -307,9 +307,9 @@ module KODIS_BL_Record =
                         context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop2
                         
-                        let len = (result |> List.length)
+                        let len = result |> List.length
                         
-                        let!_ = (=) len l || (=) len 1 , Error (PdfDownloadError2 NotAllFilesDownloaded)
+                        let!_ = (=) len l || (=) len 1, Error (PdfDownloadError2 NotAllFilesDownloaded)
                         //let!_ = xor { (=) len l;  (<>) len 1 } |> Result.toBool, Error (PdfDownloadError2 NotAllFilesDownloaded)
                                                  
                         return 
