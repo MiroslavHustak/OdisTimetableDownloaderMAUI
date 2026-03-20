@@ -21,6 +21,8 @@ open Types.Haskell_IO_Monad_Simulation
 open Api.Logging
 open Settings.SettingsGeneral
 
+open Helpers
+open Helpers.Xor
 open Helpers.Builders
 open Helpers.DirFileHelper
 open Helpers.ProgressValues
@@ -268,7 +270,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                         let! _ = context.list <> List.Empty, Ok String.Empty
                         
                         let result = 
-                            try
+                            try                                
                                 downloadAndSaveTimetables token context 
                                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                             with
@@ -279,6 +281,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                             | ex 
                                 ->
                                 runIO (postToLog2 <| string ex.Message <| "#0019-K4BL")  
+
                                 [ 
                                     runIO <| comprehensiveTryWith 
                                         (PdfDownloadError2 LetItBe)
@@ -291,15 +294,15 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                         
                         context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop
-
-                        let! _ = result |> List.length = l, Error (PdfDownloadError2 NotAllFilesDownloaded)
-
-                        runIO (postToLog3 <| result <| "#4444-K4BL")
-
-                        return
-                            result
-                            |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                            |> Option.defaultValue (Ok ())  
-                            |> Result.map (fun _ -> String.Empty)  
+                        
+                        let len = (result |> List.length)
+                                         
+                        let!_ = (=) len l || (=) len 1 , Error (PdfDownloadError2 NotAllFilesDownloaded)
+                        //let!_ = xor { (=) len l;  (<>) len 1 } |> Result.toBool, Error (PdfDownloadError2 NotAllFilesDownloaded)
+                                                                  
+                        return 
+                            match result |> List.head with
+                            | Ok _      -> Ok () |> Result.map (fun _ -> String.Empty)
+                            | Error err -> Error err              
                     }   
         )

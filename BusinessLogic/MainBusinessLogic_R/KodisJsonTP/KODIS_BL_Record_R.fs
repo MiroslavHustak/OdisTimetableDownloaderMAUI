@@ -282,7 +282,7 @@ module KODIS_BL_Record =
                         let! _ = context.list <> List.Empty, Ok String.Empty
 
                         let result = 
-                            try
+                            try                                
                                 downloadAndSaveTimetables variant token 
                                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                             with
@@ -293,6 +293,7 @@ module KODIS_BL_Record =
                             | ex 
                                 ->
                                 runIO (postToLog2 <| string ex.Message <| "#0019-KBL")  
+
                                 [ 
                                     runIO <| comprehensiveTryWith 
                                         (PdfDownloadError2 LetItBe)
@@ -306,14 +307,14 @@ module KODIS_BL_Record =
                         context.reportProgress (float l, float l)
                         counterAndProgressBar.Post Stop2
                         
-                        let! _ = result |> List.length = l, Error (PdfDownloadError2 NotAllFilesDownloaded)
+                        let len = (result |> List.length)
                         
-                        runIO (postToLog3 <| result <| "#3333-KBL")
-                        
-                        return
-                            result
-                            |> List.tryPick (Result.either (fun _ -> None) (Error >> Some))
-                            |> Option.defaultValue (Ok ())  
-                            |> Result.map (fun _ -> String.Empty)  
+                        let!_ = (=) len l || (=) len 1 , Error (PdfDownloadError2 NotAllFilesDownloaded)
+                        //let!_ = xor { (=) len l;  (<>) len 1 } |> Result.toBool, Error (PdfDownloadError2 NotAllFilesDownloaded)
+                                                 
+                        return 
+                            match result |> List.head with
+                            | Ok _      -> Ok () |> Result.map (fun _ -> String.Empty)
+                            | Error err -> Error err              
                     }   
         )
