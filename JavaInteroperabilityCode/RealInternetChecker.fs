@@ -42,7 +42,7 @@ module RealInternetChecker =
 
         result 
             {
-                let! cm = getConnectivityManager Application.Context
+                let! (cm : ConnectivityManager) = getConnectivityManager Application.Context
 
                 let connectivityChanged = Event<unit>()
                 let callback = new ConnectivityCallback(connectivityChanged.Trigger)
@@ -61,8 +61,8 @@ module RealInternetChecker =
                 let check predicate =
                     option 
                         {
-                            let! (network : Network) = cm.ActiveNetwork |> Option.ofNull
-                            let! (caps : NetworkCapabilities) = cm.GetNetworkCapabilities network |> Option.ofNull
+                            let! (network : Network) = cm.ActiveNetwork |> Option.ofNull //vyjimecne ne Null', bo sme prilis nahore
+                            let! (caps : NetworkCapabilities) = cm.GetNetworkCapabilities network |> Option.ofNull //vyjimecne ne Null', bo sme prilis nahore
                             return predicate caps
                         }
                     |> Option.defaultValue false 

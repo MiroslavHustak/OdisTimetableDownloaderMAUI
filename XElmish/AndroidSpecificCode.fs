@@ -61,7 +61,7 @@ module KeepScreenOnManager = //DeviceDisplay.KeepScreenOn z .NET MAUI hodil exn,
                 ->
                 pyramidOfDoom
                     {
-                        let! activity = Platform.CurrentActivity |> Option.ofNull, ()
+                        let! activity = Platform.CurrentActivity |> Option.ofNull', ()
                         let!_ = enable |> Option.ofBool, activity.Window.ClearFlags(WindowManagerFlags.KeepScreenOn) 
 
                         return activity.Window.AddFlags(WindowManagerFlags.KeepScreenOn)        
@@ -101,9 +101,9 @@ module AndroidUIHelpers =
                 try
                     pyramidOfDoom 
                         {
-                            use! context = Application.Context |> Option.ofNull, None
-                            use! packageManager = context.PackageManager |> Option.ofNull, None            
-                            use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull, None
+                            use! context = Application.Context |> Option.ofNull', None
+                            use! packageManager = context.PackageManager |> Option.ofNull', None            
+                            use! intent = packageManager.GetLaunchIntentForPackage(context.PackageName) |> Option.ofNull', None
             
                             do! 
                                 intent.AddFlags
@@ -114,7 +114,7 @@ module AndroidUIHelpers =
                                         ActivityFlags.BroughtToFront |||
                                         ActivityFlags.SingleTop
                                     )
-                                |> Option.ofNull
+                                |> Option.ofNull'
                                 |> Option.map (fun _ -> ()), None
             
                             do context.StartActivity intent 
@@ -135,12 +135,12 @@ module AndroidUIHelpers =
                 try
                     pyramidOfDoom
                         {
-                            use! context = Application.Context |> Option.ofNull, None                
+                            use! context = Application.Context |> Option.ofNull', None                
                             use homeIntent : Intent = new Intent(Intent.ActionMain)
                             do! 
                                 homeIntent.AddCategory(Intent.CategoryHome)
                                           .SetFlags(ActivityFlags.NewTask)
-                                          |> Option.ofNull 
+                                          |> Option.ofNull' 
                                           |> Option.map (fun _ -> ()), None
 
                             return! Some <| context.StartActivity homeIntent 
@@ -169,8 +169,8 @@ module AndroidUIHelpers =
                                 
                                 |> Option.ofNullEmpty, None
 
-                            //use! intent = new Intent(Settings.ActionApplicationDetailsSettings) |> Option.ofNull, None
-                            use! intent = new Intent(intentAction : string) |> Option.ofNull, None
+                            //use! intent = new Intent(Settings.ActionApplicationDetailsSettings) |> Option.ofNull', None
+                            use! intent = new Intent(intentAction : string) |> Option.ofNull', None
                             do!
                                 intent.AddFlags
                                     (
@@ -180,13 +180,13 @@ module AndroidUIHelpers =
                                         ActivityFlags.BroughtToFront |||
                                         ActivityFlags.SingleTop
                                     )
-                                |> Option.ofNull
+                                |> Option.ofNull'
                                 |> Option.map (fun _ -> ()), None
     
-                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull, None
+                            use! uri = Uri.FromParts("package", Application.Context.PackageName, null) |> Option.ofNull', None
                             do!
                                 intent.SetData uri
-                                |> Option.ofNull
+                                |> Option.ofNull'
                                 |> Option.map (fun _ -> ()), None
     
                             return Some <| Application.Context.StartActivity intent

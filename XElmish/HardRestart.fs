@@ -15,7 +15,7 @@ module HardRestart =
        IO (fun () 
                -> 
                Application.Current
-               |> Option.ofNull
+               |> Option.ofNull'
                |> Option.map 
                    (fun app
                        ->

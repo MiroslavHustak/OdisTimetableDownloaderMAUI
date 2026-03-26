@@ -123,7 +123,7 @@ module ExceptionHelpers =
                 |> List.ofSeq
             | ex
                 ->
-                match ex.InnerException |> Option.ofNull with
+                match ex.InnerException |> Option.ofNull' with
                 | Some inner 
                     -> 
                     runIO (postToLog2 <| string inner.Message <| "#0006-ExceptionHandlers")

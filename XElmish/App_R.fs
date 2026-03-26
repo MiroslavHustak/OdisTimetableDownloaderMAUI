@@ -808,6 +808,8 @@ module App_R =
                                     match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token2 ex with
                                     | err when err = StopDownloading 
                                         ->
+                                        runIO (postToLog2 <| string ex.Message <| " StopDownloading #9998 Kodis TP")
+                                        NetConnMessage >> dispatch <| androidError
                                         dispatch Home2   
                                     | _ ->
                                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
@@ -974,6 +976,8 @@ module App_R =
                                     | err 
                                         when err = StopDownloading 
                                         ->
+                                        runIO (postToLog2 <| string ex.Message <| " StopDownloading #9998 Kodis Canopy")
+                                        NetConnMessage >> dispatch <| androidError
                                         dispatch Home2   
                                     | _ ->
                                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")

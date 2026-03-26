@@ -250,7 +250,7 @@ module CheckNetConnection =
         async
             {
                 try                          
-                    match Connectivity.Current.ConnectionProfiles |> Option.ofNull with            
+                    match Connectivity.Current.ConnectionProfiles |> Option.ofNull' with            
                     | Some profiles
                         ->
                         match profiles |> List.ofSeq with
@@ -348,8 +348,8 @@ module CheckNetConnection =
                     let check predicate =
                         option 
                             {
-                                let! (network : Network) = cm.ActiveNetwork |> Option.ofNull
-                                let! (caps : NetworkCapabilities) = cm.GetNetworkCapabilities network |> Option.ofNull
+                                let! (network : Network) = cm.ActiveNetwork |> Option.ofNull'
+                                let! (caps : NetworkCapabilities) = cm.GetNetworkCapabilities network |> Option.ofNull'
                                 return predicate caps
                             }
                         |> Option.defaultValue false

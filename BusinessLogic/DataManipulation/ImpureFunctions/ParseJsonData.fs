@@ -111,8 +111,8 @@ module ParseJsonData =
                                                             let timetables =
                                                                 option 
                                                                     {
-                                                                        let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull 
-                                                                        let! data = sample.Data |> Option.ofNull                                                             
+                                                                        let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull' 
+                                                                        let! data = sample.Data |> Option.ofNull'                                                             
                                                                         return 
                                                                             data
                                                                             |> Array.filter (not << isNull)
@@ -124,8 +124,8 @@ module ParseJsonData =
                                                             let vyluky =
                                                                 option 
                                                                     {
-                                                                        let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull 
-                                                                        let! data = sample.Data |> Option.ofNull                                                             
+                                                                        let! (sample : JsonProvider2.Root) = kodisJsonSample |> Option.ofNull' 
+                                                                        let! data = sample.Data |> Option.ofNull'                                                             
                                                                         return 
                                                                             data
                                                                             |> Array.filter (not << isNull)
@@ -138,7 +138,7 @@ module ParseJsonData =
                                                             let attachments =
                                                                 option 
                                                                     {
-                                                                        let! arr = vyluky |> Option.ofNull                                                             
+                                                                        let! arr = vyluky |> Option.ofNull'                                                             
                                                                         return
                                                                             arr
                                                                             |> Array.filter (not << isNull)
