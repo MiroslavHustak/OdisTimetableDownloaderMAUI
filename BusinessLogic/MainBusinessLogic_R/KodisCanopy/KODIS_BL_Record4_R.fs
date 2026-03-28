@@ -188,7 +188,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                         checkCancel token
 
                         (token, uri, pathToFile)
-                        |||> List.Parallel.map2_IO_AW_Token_Async                                    
+                        |||> List.Parallel.map2_IO_AW_Token_Async //_Stream                                    
                             (fun uri (pathToFile : string) 
                                 -> 
                                 async

@@ -17,6 +17,29 @@ open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 //*************************************************************
 
 open Settings.SettingsGeneral
+open System.Threading.Channels
+
+module Channels = // Create a bounded channel of a given type and capacity
+    
+    let createChannel<'a> (capacity: int) : Channel<'a> =
+        Channel.CreateBounded<'a>(capacity)
+
+module Consumers =
+
+    let consumer<'a> (reader: ChannelReader<'a>) (token: CancellationToken) : AsyncSeq<'a> =
+        AsyncSeq.unfoldAsync
+            (fun ()
+                ->
+                async
+                    {
+                        let! hasItem = reader.WaitToReadAsync(token).AsTask() |> Async.AwaitTask
+                        match hasItem with
+                        | false -> return None
+                        | true ->
+                            let! item = reader.ReadAsync(token).AsTask() |> Async.AwaitTask
+                            return Some(item, ())
+                    }
+            ) () 
 
 //************************************************************************
 
@@ -821,6 +844,116 @@ let map2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : Canc
                 return results |> Array.toList
             } 
 
+let map2_IO_AW_Token_Async_Stream (mapping: 'a -> 'b -> Async<'c>) (token: CancellationToken) (xs1: 'a list) (xs2: 'b list) : Async<'c list> =      
+ 
+    let xs1Length = List.length xs1
+    let xs2Length = List.length xs2
+
+    match (xs1Length = 0 || xs2.IsEmpty) || xs1Length <> xs2Length with
+    | true  
+        ->
+        async { return [] }
+    | false
+        ->
+        let degree = maxDegreeOfParallelismAdaptedAndroid xs1Length
+        let inputChannel  = Channel.CreateUnbounded<'a * 'b> ()
+        let outputChannel = Channel.CreateUnbounded<'c> ()
+
+        // Producer: zip lists, push pairs to inputChannel
+        let producer = 
+            async
+                {
+                    try
+                        do!
+                            List.zip xs1 xs2
+                            |> AsyncSeq.ofSeq
+                            |> AsyncSeq.iterAsync 
+                                (fun pair 
+                                    ->
+                                    inputChannel.Writer.WriteAsync(pair, token).AsTask()
+                                    |> Async.AwaitTask
+                                )
+                        inputChannel.Writer.Complete ()
+                    with 
+                    | ex -> inputChannel.Writer.Complete ex
+                }
+
+        // Worker: drain inputChannel, apply mapping, push to outputChannel
+        let worker = 
+            async
+                {
+                    let reader = inputChannel.Reader
+                    let writer = outputChannel.Writer
+
+                    let rec loop () = 
+                        async 
+                            {
+                                let! hasItem =
+                                    reader.WaitToReadAsync(token).AsTask()
+                                    |> Async.AwaitTask
+                                
+                                match hasItem with
+                                | false 
+                                    -> 
+                                    return ()
+                                | true
+                                    ->
+                                    let! (x, y) =
+                                        reader.ReadAsync(token).AsTask()
+                                        |> Async.AwaitTask
+                                    
+                                    token.ThrowIfCancellationRequested ()
+                                    
+                                    let! result = mapping x y
+                                    do! writer.WriteAsync(result, token).AsTask() |> Async.AwaitTask
+                                    
+                                    return! loop ()
+                            }
+            return! loop ()
+        }
+
+        // Supervisor: producer first, then workers in parallel, then seal output
+        let supervisor =
+            async
+                {
+                    do! producer
+                    do! 
+                        Array.init degree (fun _ -> worker)
+                        |> Async.Parallel
+                        |> Async.Ignore<unit array>
+                    outputChannel.Writer.Complete ()
+                }
+
+        // Collect all results from outputChannel into a list
+        async 
+            {
+                Async.Start (supervisor, cancellationToken = token)
+
+                return!
+                    AsyncSeq.unfoldAsync
+                        (fun ()
+                            ->
+                            async
+                                {
+                                    let! hasItem =
+                                        outputChannel.Reader.WaitToReadAsync(token).AsTask()
+                                        |> Async.AwaitTask
+                                
+                                    match hasItem with
+                                    | false 
+                                        ->
+                                        return None
+                                    | true
+                                        ->
+                                        let! item =
+                                            outputChannel.Reader.ReadAsync(token).AsTask()
+                                            |> Async.AwaitTask
+                                        return Some (item, ())
+                                }
+                        ) ()
+                    |> AsyncSeq.toListAsync
+            }
+
 // *********************************************************************
 // EXPERIMENTAL: Code quotations variants — DO NOT USE IN PRODUCTION
 // Kept only for educational comparison
@@ -955,4 +1088,44 @@ let map2'<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : 'b list)
             await Task.WhenAll(tasks).ConfigureAwait(false); //eqv. Async.Parallel
         }      
             
+    *)
+
+    (*
+    ---
+    
+    ## Mapping Your Functions to AsyncSeq Equivalents
+    
+    ```fsharp
+    // =====================================================================
+    // Mapping: custom parallel map functions  ->  AsyncSeq equivalents
+    // =====================================================================
+    //
+    // | Custom function             | AsyncSeq replacement                        | Notes                                                          |
+    // |-----------------------------|---------------------------------------------|----------------------------------------------------------------|
+    // | map_CPU_PT                  | mapAsyncParallel                            | PT uses threadpool directly; AsyncSeq uses async scheduler     |
+    // |                             |                                             | near-equivalent; benchmark for pure CPU-bound work             |
+    // | map_CPU_AW                  | mapAsyncParallel                            | Direct replacement                                             |
+    // | map_CPU_AW_Async            | mapAsyncParallel                            | Direct replacement                                             |
+    // | map_CPU_AW_Token            | mapAsyncParallel + token at run site        | Pass token to Async.RunSynchronously at execution boundary     |
+    // | map_CPU_AW_Token_Async      | mapAsyncParallel + token at run site        | Same pattern                                                   |
+    // | map_IO_AW                   | mapAsyncUnorderedParallel                   | IO-bound -> unordered is fine and faster                       |
+    // | map_IO_AW_Async             | mapAsyncUnorderedParallel                   | Direct replacement                                             |
+    // | map_IO_AW_Token             | mapAsyncUnorderedParallel + token           | Pass token to Async.RunSynchronously at execution boundary     |
+    // | map_IO_AW_Token_Async       | mapAsyncUnorderedParallel + token           | Same pattern                                                   |
+    ```
+    
+    ---
+    
+    ## One Thing AsyncSeq Cannot Replace Directly
+    
+    Your `maxDegreeOfParallelismAdaptedAndroid` throttling logic. The AsyncSeq functions don't expose a `maxDegreeOfParallelism` parameter directly.   
+   
+    
+    ## The One Real Caveat: `map2`
+    
+    AsyncSeq has no built-in `map2` (zipping two async sequences in parallel). 
+    Your `map2_*` family would still need to be implemented manually — or you pre-zip with `List.zip` and feed a single sequence.
+      
+    So in summary: AsyncSeq replaces everything cleanly **except** the `map2` family (no native support) and the `Array.Parallel.map` path in `map_CPU_PT`.
+    
     *)

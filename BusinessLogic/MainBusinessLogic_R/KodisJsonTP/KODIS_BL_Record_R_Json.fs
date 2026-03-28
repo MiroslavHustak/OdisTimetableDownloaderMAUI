@@ -168,7 +168,7 @@ module KODIS_BL_Record_Json =
                         checkCancel token
 
                         (token, jsonLinkList, pathToJsonList)
-                        |||> List.Parallel.map2_IO_AW_Token_Async 
+                        |||> List.Parallel.map2_IO_AW_Token_Async //_Stream 
                             (fun uri pathToFile 
                                 ->
                                 async 
