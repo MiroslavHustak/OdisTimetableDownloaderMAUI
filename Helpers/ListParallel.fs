@@ -5,6 +5,7 @@ module List.Parallel
 
 open System
 open System.Threading
+open System.Threading.Channels
 
 #if ANDROID
 open Android.OS
@@ -17,25 +18,29 @@ open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 //*************************************************************
 
 open Settings.SettingsGeneral
-open System.Threading.Channels
 
-module Channels = // Create a bounded channel of a given type and capacity
+module private Channels = // Create a bounded channel of a given type and capacity
     
-    let createChannel<'a> (capacity: int) : Channel<'a> =
+    let private createChannel<'a> (capacity: int) : Channel<'a> =
         Channel.CreateBounded<'a>(capacity)
 
-module Consumers =
+module private Consumers =
 
-    let consumer<'a> (reader: ChannelReader<'a>) (token: CancellationToken) : AsyncSeq<'a> =
+    let private consumer<'a> (reader: ChannelReader<'a>) (token: CancellationToken) : AsyncSeq<'a> =
+
         AsyncSeq.unfoldAsync
             (fun ()
                 ->
                 async
                     {
                         let! hasItem = reader.WaitToReadAsync(token).AsTask() |> Async.AwaitTask
+
                         match hasItem with
-                        | false -> return None
-                        | true ->
+                        | false 
+                            -> 
+                            return None
+                        | true 
+                            ->
                             let! item = reader.ReadAsync(token).AsTask() |> Async.AwaitTask
                             return Some(item, ())
                     }
