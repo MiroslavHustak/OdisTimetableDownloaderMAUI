@@ -10,21 +10,18 @@ open Helpers
 open Types.Haskell_IO_Monad_Simulation
 
 module Serialization =   
+   
+    let internal serializeWithThothAsync (json: string) (path: string) : IO<Async<Result<unit, string>>> =
 
-    // Async
-    let internal serializeWithThothAsync (json : string) (path : string) : IO<Async<Result<unit, string>>> =
-        
-        IO (fun ()
+        IO (fun () 
                 ->
-                try   
-                    asyncResult 
-                        {
-                            let! path = SafeFullPath.safeFullPathResult >> runIO <| path                                
-                            use writer = new StreamWriter(path, append = false)
-                            return! writer.WriteAsync json |> Async.AwaitTask
-                        }
-                with
-                | ex -> async { return Error <| string ex.Message }
+                asyncResult 
+                    {
+                        let! fullPath = SafeFullPath.safeFullPathResult >> runIO <| path    
+                        use writer = new StreamWriter(fullPath, append = false)    
+                        do! writer.WriteAsync json |> Async.AwaitTask
+                    }
+                |> AsyncResult.catch (fun ex -> string ex.Message)
         )
 
     // Sync

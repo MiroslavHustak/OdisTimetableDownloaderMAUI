@@ -10,3 +10,5 @@
 03/28/2026 03:31:47 +01:00  Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/670_2026_04_07_2026_04_21_v_4227464d5e.pdf Forbidden 403 #0007-K4BL
 03/28/2026 03:33:04 +01:00  Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/670_2026_04_07_2026_04_21_v_4227464d5e.pdf Forbidden 403 #0007-K4BL
 03/28/2026 03:33:04 +01:00 FileDownloadError Error#0010-K4BL
+03/31/2026 15:13:15 +02:00  Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/351_2026_04_07_2026_04_14_v_a9b06dc435.pdf Forbidden 403 #0007-K4BL
+03/31/2026 15:13:16 +02:00 FileDownloadError Error#0010-K4BL

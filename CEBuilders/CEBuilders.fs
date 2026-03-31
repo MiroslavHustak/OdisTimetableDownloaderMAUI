@@ -201,12 +201,13 @@ module Builders =
 
     type AsyncResultBuilder = AsyncResultBuilder with    
         member _.Bind(m : Async<Result<'a,'e>>, f : 'a -> Async<Result<'b,'e>>) : Async<Result<'b,'e>> =
-            async {
-                let! res = m
-                match res with
-                | Ok v -> return! f v
-                | Error e -> return Error e
-            }
+            async
+                {
+                    let! res = m
+                    match res with
+                    | Ok v -> return! f v
+                    | Error e -> return Error e
+                }
         member _.Return(x : 'a) : Async<Result<'a,'e>> = async { return Ok x }           
         member _.ReturnFrom(x : Async<Result<'a,'e>>) : Async<Result<'a,'e>> = x  
         member _.Zero() : Async<Result<unit,'e>> = async { return Ok () }
