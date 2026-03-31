@@ -24,8 +24,6 @@ module Option =
         | true  -> Some value  
         | false -> None
 
-    //Technically impure because of System.Object.ReferenceEquals
-    //Pragmatically pure as there are no side effects        
     let inline internal ofNull' (value : 'nullableValue) =
         match System.Object.ReferenceEquals(box value, null) with //boxing a null Nullable<'T> produces an actual null reference
         | true  -> None
@@ -72,7 +70,7 @@ module Option =
             {
                 let!_ = (not <| System.Object.ReferenceEquals(box value, null)) |> fromBool Some, None 
                 let value = string value 
-                let! _ = (not <| String.IsNullOrWhiteSpace(value)) |> fromBool Some, None
+                let! _ = (not <| String.IsNullOrWhiteSpace value) |> fromBool Some, None
        
                 return Some value
             }
