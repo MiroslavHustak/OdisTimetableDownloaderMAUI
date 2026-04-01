@@ -19,7 +19,10 @@ module Serialization =
                     {
                         let! fullPath = SafeFullPath.safeFullPathResult >> runIO <| path    
                         use writer = new StreamWriter(fullPath, append = false)    
-                        do! writer.WriteAsync json |> Async.AwaitTask
+                        return! 
+                            writer.WriteAsync json
+                            |> Async.AwaitTask
+                            |> Async.map Ok //see my Excel -> DB templates for explanation  
                     }
                 |> AsyncResult.catch (fun ex -> string ex.Message)
         )

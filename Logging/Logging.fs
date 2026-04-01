@@ -137,7 +137,10 @@ module Logging =
 
                         use writer = new StreamWriter(fs)
 
-                        return! writer.WriteLineAsync logEntries |> Async.AwaitTask   
+                        return! 
+                            writer.WriteLineAsync logEntries
+                            |> Async.AwaitTask
+                            |> Async.map Ok  //see my Excel -> DB templates for explanation  
                     }
                 |> AsyncResult.catch (fun ex -> string ex.Message)
         )
@@ -177,8 +180,10 @@ module Logging =
                         use writer = new StreamWriter(fs)
                         let s = sprintf "%s %s Error%s" <| string DateTimeOffset.Now <| string msg <| err 
                         
-                        return! writer.WriteLineAsync s |> Async.AwaitTask
-                          
+                        return! 
+                            writer.WriteLineAsync s 
+                            |> Async.AwaitTask 
+                            |> Async.map Ok //see my Excel -> DB templates for explanation                              
                     }
                 |> AsyncResult.catch (fun ex -> string ex.Message)
                 |> Async.Ignore<Result<unit, string>>
@@ -235,8 +240,9 @@ module Logging =
                                 (fun item 
                                     -> 
                                     let s = sprintf "%s %A Error%s" <| string DateTimeOffset.Now <| item <| err2 
-                                    writer.WriteLineAsync(s) |> Async.AwaitTask
-                                )  
+                                    writer.WriteLineAsync(s) |> Async.AwaitTask  
+                                ) 
+                            |> Async.map Ok //see my Excel -> DB templates for explanation    
                     }
                 |> AsyncResult.catch (fun ex -> string ex.Message)
                 |> Async.Ignore<Result<unit, string>>
