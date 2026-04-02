@@ -38,14 +38,14 @@ module RealInternetChecker =
         override _.OnLost _ = trigger()
         override _.OnUnavailable() = trigger()
 
-    let internal tryChecker () =
+    let internal testRealInternetConnectivity () =
 
         result 
             {
                 let! (cm : ConnectivityManager) = getConnectivityManager Application.Context
 
                 let connectivityChanged = Event<unit>()
-                let callback = new ConnectivityCallback(connectivityChanged.Trigger)
+                let callback = new ConnectivityCallback (connectivityChanged.Trigger)
 
                 use request =
                     (new NetworkRequest.Builder())

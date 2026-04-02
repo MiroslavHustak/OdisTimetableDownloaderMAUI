@@ -11,11 +11,53 @@ open Microsoft.Maui.ApplicationModel
 open FSharp.Control
 
 //**********************************
-               
+
+open Helpers.Builders       
+
 open Types.Types 
 open Types.Haskell_IO_Monad_Simulation
 
 open DotNetInteroperabilityCode.ConnectivityMonitorManager
+
+#if ANDROID
+open JavaInteroperabilityCode.RealInternetChecker
+#endif 
+
+module PingTest =
+
+    let pingHost (host: string) (timeoutMs: int) =
+        try
+            use ping = new Ping()
+            let reply = ping.Send(host, timeoutMs)
+        
+            match reply.Status with
+            | IPStatus.Success 
+                -> Some reply.RoundtripTime
+            | _ -> None
+        with
+        | _ -> None
+    
+    let rec tryPingHosts hosts timeoutMs =
+        match hosts with
+        | [] -> 
+            None  
+        | host :: remainingHosts 
+            ->
+            match pingHost host timeoutMs with
+            | Some _ -> Some host     
+            | None -> tryPingHosts remainingHosts timeoutMs  
+
+    let pingConnectionChecker () =
+    
+        let hosts =
+            [
+                "8.8.8.8"          // Google DNS
+                //"1.1.1.1"          // Cloudflare DNS
+                //"google.com"
+                //"cloudflare.com"
+            ]
+    
+        tryPingHosts hosts 3000 //timeout in ms        
 
 module Connectivity =  
 
@@ -84,6 +126,8 @@ module Connectivity =
 
 module ConnectivityWithDebouncing =
     
+    open PingTest
+    
     let internal startConnectivityMonitoring (debounceMs : int) (onConnectivityChange : bool -> unit) =
         
         IO (fun ()
@@ -127,8 +171,21 @@ module ConnectivityWithDebouncing =
                                                 // Same state → ignore
                                                 return! loop lastState
                                         }
+
+                                #if ANDROID
+                                let isConnected = 
+                                    optionBool
+                                        {                                           
+                                            let! _ = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                                            let! _ = testRealInternetConnectivity () |> Result.toBool
+                                            return! pingConnectionChecker () |> Option.toBool 
+                                        }
+                                #else
+                                let isConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                                #endif
+
                                 // Initial state
-                                loop (Connectivity.NetworkAccess = NetworkAccess.Internet)
+                                loop isConnected
                             )
             
                 // Event handler
@@ -137,15 +194,38 @@ module ConnectivityWithDebouncing =
                         (fun _ args
                             ->
                             try  
+                                #if ANDROID
+                                let isConnected = 
+                                    optionBool
+                                        {
+                                            let! _ = (=) args.NetworkAccess NetworkAccess.Internet
+                                            let! _ = testRealInternetConnectivity () |> Result.toBool                                            
+                                            return! pingConnectionChecker () |> Option.toBool 
+                                        }
+                                monitorActor.Post (StateChanged isConnected)
+                                #else
                                 let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
                                 monitorActor.Post (StateChanged isConnected)
+                                #endif
                             with
                             | _ -> ()
                         )
             
                 addHandler handler
                 
-                let initialState = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                #if ANDROID
+                let isConnected = 
+                    optionBool
+                        {
+                            let! _ = testRealInternetConnectivity () |> Result.toBool
+                            let! _ = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                            return! pingConnectionChecker () |> Option.toBool 
+                        }
+                #else
+                let isConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                #endif
+                
+                let initialState = isConnected
                 monitorActor.Post (StateChanged initialState)
         )
     

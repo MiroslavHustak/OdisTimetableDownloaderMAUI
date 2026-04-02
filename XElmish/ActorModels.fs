@@ -41,7 +41,7 @@ module ActorModels =
                                     ->
                                     cts.Cancel()
                                     cts.Dispose()
-                                    reply.Reply ()
+                                    reply.Reply()
                             }
     
                     loop (new CancellationTokenSource())
@@ -52,7 +52,7 @@ module ActorModels =
         let newCts = new CancellationTokenSource()
     
         actor.Post CancelToken
-        actor.Post (Reset newCts)
+        Reset >> actor.Post <| newCts
 
         (*
         async 
@@ -116,7 +116,7 @@ module ActorModels =
                                     | false -> () 
                                        
                                     cts.Dispose()
-                                    reply.Reply ()
+                                    reply.Reply()
                             }
 
                     loop false (new CancellationTokenSource())  

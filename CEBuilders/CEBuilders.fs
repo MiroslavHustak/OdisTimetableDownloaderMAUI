@@ -11,10 +11,10 @@ module Builders =
                 -> nextFunc()    
         member this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion      
         member _.Return x : 'a = x   
-        member _.ReturnFrom x : 'a = x 
-        member _.Using(x : 'a, _body: 'a -> 'b) : 'b = _body x    
-        member _.Delay(f : unit -> 'a) = f()
-        member _.Zero() = ()    
+        member _.ReturnFrom x : 'a = x       
+        member _.Using(resource, binder) =
+            use r = resource
+            binder r  
       
     let internal pyramidOfHell = MyBuilder
 
@@ -27,7 +27,7 @@ module Builders =
             | None   -> recovery    
         member this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion        
         member _.Return x : 'a = x   
-        member _.ReturnFrom x : 'a = x
+        member _.ReturnFrom x : 'a = x       
         member _.Using(resource, binder) =
             use r = resource
             binder r
@@ -44,9 +44,11 @@ module Builders =
             | (Error err, handler) 
                 -> handler err
         member this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion        
-        member _.Zero () = ()       
-        member _.Return x = x
-        member _.ReturnFrom x = x     
+        member _.Return x : 'a = x   
+        member _.ReturnFrom x : 'a = x       
+        member _.Using(resource, binder) =
+            use r = resource
+            binder r   
         
     let internal pyramidOfInferno = MyBuilder3  
 
@@ -61,26 +63,43 @@ module Builders =
                  -> nextFunc() 
          member this.Bind(m, f) = this.Recover(m, f) //an alias to prevent confusion              
          member _.Return x : 'a = x   
-         member _.ReturnFrom x : 'a = x 
-         member _.Using(x : 'a, _body: 'a -> 'b) : 'b = _body x    
-         member _.Delay(f : unit -> 'a) = f()
-         member _.Zero() = ()    
+         member _.ReturnFrom x : 'a = x       
+         member _.Using(resource, binder) =
+             use r = resource
+             binder r
 
     let internal pyramidOfDamnation = MyBuilder5
 
     //**************************************************************************************
-    type internal OptionAdaptedBuilder = OptionAdaptedBuilder with
+    type internal OptionAdaptedBuilder2 = OptionAdaptedBuilder2 with
         member _.Bind(m, nextFunc) =
             match m with
             | Some v -> nextFunc v
             | None   -> None    
         member _.Return x : 'a = x   
-        member _.ReturnFrom x : 'a = x
+        member _.ReturnFrom x : 'a = x      
         member _.Using(resource, binder) =
             use r = resource
             binder r
     
-    let internal option2 = OptionAdaptedBuilder
+    let internal option2 = OptionAdaptedBuilder2
+      
+    //**************************************************************************************
+    type internal OptionAdaptedBuilder = OptionAdaptedBuilder with
+        member _.Bind(m, nextFunc) =
+            match m with
+            | true  -> nextFunc() 
+            | false -> false    
+        member _.Return x : 'a = x   
+        member _.ReturnFrom x : 'a = x
+        member _.Zero() : bool = false
+        member _.Delay(f: unit -> bool) = f
+        member _.Run(f) = f()
+        member _.Using(resource, binder) =
+            use r = resource
+            binder r
+    
+    let internal optionBool = OptionAdaptedBuilder
       
     //**************************************************************************************
 

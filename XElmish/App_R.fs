@@ -212,7 +212,7 @@ module App_R =
     
     #if ANDROID
     let private networkError() =
-        match tryChecker() with
+        match testRealInternetConnectivity () with
         | Ok _      -> String.Empty
         | Error msg -> msg
     #endif 
