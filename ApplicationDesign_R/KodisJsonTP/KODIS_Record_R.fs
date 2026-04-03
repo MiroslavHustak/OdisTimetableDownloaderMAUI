@@ -1,7 +1,6 @@
 ﻿namespace ApplicationDesign_R
 
 open System
-open System.IO
 open System.Threading
 
 open FsToolkit.ErrorHandling

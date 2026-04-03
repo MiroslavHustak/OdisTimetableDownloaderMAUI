@@ -4,7 +4,10 @@ open System
 open System.Net.NetworkInformation
 
 open Microsoft.Maui.Networking
+
+#if ANDROID
 open Microsoft.Maui.ApplicationModel
+#endif 
 
 //**********************************
 
@@ -12,14 +15,13 @@ open FSharp.Control
 
 //**********************************
 
-open Helpers.Builders       
-
 open Types.Types 
 open Types.Haskell_IO_Monad_Simulation
 
 open DotNetInteroperabilityCode.ConnectivityMonitorManager
 
 #if ANDROID
+open Helpers.Builders   
 open JavaInteroperabilityCode.RealInternetChecker
 #endif 
 
@@ -124,9 +126,11 @@ module Connectivity =
                 Connectivity.ConnectivityChanged.Add connectivityChangedHandler
         )
 
-module ConnectivityWithDebouncing =
+module ConnectivityWithDebouncing =    
     
+    #if ANDROID
     open PingTest
+    #endif
 
     #if ANDROID
     let private isConnected() = 
@@ -158,11 +162,13 @@ module ConnectivityWithDebouncing =
                                             | StopConnectivityMonitoring
                                                 ->
                                                 return ()
+
                                             | StateChanged newState 
                                                 when newState <> lastState 
                                                 ->
                                                 // Wait for the debounce interval
                                                 let! maybeNextMsg = inbox.TryReceive debounceMs
+
                                                 match maybeNextMsg with
                                                 | Some (StateChanged newerState)
                                                     ->
@@ -176,6 +182,7 @@ module ConnectivityWithDebouncing =
                                                     // State is stable → notify
                                                     onConnectivityChange newState
                                                     return! loop newState
+
                                             | StateChanged _
                                                 ->
                                                 // Same state → ignore
@@ -207,10 +214,12 @@ module ConnectivityWithDebouncing =
                                             return! pingConnectionChecker () |> Option.toBool 
                                         }
                                 monitorActor.Post (StateChanged isConnected)
+
                                 #else
                                 let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
                                 monitorActor.Post (StateChanged isConnected)
                                 #endif
+
                             with
                             | _ -> ()
                         )

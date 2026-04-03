@@ -1,8 +1,7 @@
 ﻿namespace OdisTimetableDownloaderMAUI
 
-// nechej reference, jak jsou, intellisense jen halucinuje
-open System
-open System.Net.Http
+#if ANDROID
+
 open System.Threading
 
 open FsToolkit.ErrorHandling
@@ -16,17 +15,13 @@ open Helpers.Builders
 
 open Types.Haskell_IO_Monad_Simulation
 
-#if ANDROID
-
 open Android.OS
 open Android.App
 open Android.Net
 open Android.Views
 open Android.Content
-open Android.Runtime
 open Android.Provider 
 
-open Xamarin
 open Xamarin.Essentials
 
 module WakeLockHelper = //pouze pro Android API 33 a Android API 34

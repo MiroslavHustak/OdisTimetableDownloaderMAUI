@@ -1,11 +1,9 @@
 ﻿namespace JavaInteroperabilityCode
 
-// nechej reference, jak jsou, intellisense jen halucinuje
+#if ANDROID
 open System
 open System.Net.Http
 open System.Threading
-
-#if ANDROID
 
 open Android.OS
 open Android.App
