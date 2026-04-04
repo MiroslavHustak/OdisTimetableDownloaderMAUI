@@ -32,6 +32,7 @@ open Microsoft.Maui
 
 open Microsoft.Maui.Controls
 open Microsoft.Maui.Graphics
+
 open Microsoft.Maui.Networking
 open Microsoft.Maui.Primitives
 open Microsoft.Maui.Accessibility
@@ -60,10 +61,13 @@ open Api.Logging
 open IO_Operations.IO_Operations
 
 open Helpers
-open Helpers.ConnectivityWithDebouncing
 open Helpers.ExceptionHelpers
+open Helpers.ConnectivityWithDebouncing
+
 
 #if ANDROID
+open Helpers.Builders
+
 open AndroidUIHelpers 
 open JavaInteroperabilityCode.RealInternetChecker
 #endif
@@ -72,7 +76,6 @@ open ApplicationDesign_R.WebScraping_DPO
 open ApplicationDesign_R.WebScraping_MDPO
 open ApplicationDesign_R.WebScraping_KODIS
 open ApplicationDesign4_R.WebScraping_KODIS4
-
 
 (*     
     AndroidManifest.xml : Remember to review and update it if necessary. 
@@ -171,7 +174,7 @@ module App_R =
                                         ->
                                         // First message: lost connection → dispatch immediately
                                         NetConnMessage >> dispatch <| noNetConn
-                                        runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                        //runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                         return! loop isConnected now false
                                     | true, true, _, _
                                         ->
@@ -182,7 +185,7 @@ module App_R =
                                         ->
                                         // Lost connection: react immediately (no debouncing)
                                         NetConnMessage >> dispatch <| noNetConn
-                                        runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                        //runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                         return! loop isConnected now false
                                     | false, true, false, true
                                         ->
@@ -192,10 +195,12 @@ module App_R =
                                     | false, _, _, _ when isConnected <> lastState
                                         ->
                                         // State changed but not ready to dispatch yet
+                                        dispatch (NetConnMessage "Čekám ...")
                                         return! loop isConnected now false
                                     | _
                                         ->
                                         // No state change or still waiting
+                                        dispatch (NetConnMessage "Stále čekám ...")
                                         return! loop lastState lastChangeTime false
                                 }
                         loop true DateTime.MinValue true
@@ -210,14 +215,7 @@ module App_R =
     let private kodis4Actor = localCancellationActor()        
     let private dpoActor = localCancellationActor()
     let private mdpoActor = localCancellationActor()
-    
-    #if ANDROID
-    let private networkError() =
-        match testRealInternetConnectivity () with
-        | Ok _      -> String.Empty
-        | Error msg -> msg
-    #endif 
-    
+            
     let init () =                 
 
         #if ANDROID
@@ -268,15 +266,13 @@ module App_R =
                     MdpoVisible = false
                     AnimatedButton = None
             }              
-
-        let isInitiallyConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
-
+                    
         match runIO <| ensureMainDirectoriesExist with 
         | Ok _ 
             -> 
             try               
                 let m =
-                    match isInitiallyConnected with
+                    match isNowConnected () with
                     | true  -> initialModel
                     | false -> initialModelNoConn
 
@@ -309,7 +305,7 @@ module App_R =
         let initialModel = 
             {       
                 PermissionGranted = permissionGranted
-                ProgressMsg = String.Empty
+                ProgressMsg = String.Empty 
                 NetConnMsg = 
                     #if ANDROID                    
                         isConnected |> function true -> networkError() | false -> noNetConn3
@@ -347,15 +343,13 @@ module App_R =
                     AnimatedButton = None
                     InternetIsConnected = false
             }  
-            
-        let isNowConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
-
+                  
         match runIO <| ensureMainDirectoriesExist with 
         | Ok _ 
             -> 
             try                      
                 let m =
-                    match isNowConnected with
+                    match isNowConnected () with
                     | true  -> initialModel
                     | false -> initialModelNoConn
 
@@ -800,8 +794,8 @@ module App_R =
                                             match result with
                                             | Ok result -> return WorkIsComplete >> dispatch <| (result, false)  
                                             | Error err -> return WorkIsComplete >> dispatch <| (err, false)     
-                                    | true  ->
-                                            WorkIsComplete >> dispatch <| (String.Empty, Connectivity.NetworkAccess = NetworkAccess.Internet) 
+                                    | true  ->                                            
+                                            WorkIsComplete >> dispatch <| (String.Empty, isNowConnected ()) 
                                             return dispatch Home2   
                                 with 
                                 | ex
@@ -811,10 +805,10 @@ module App_R =
                                         ->
                                         runIO (postToLog2 <| string ex.Message <| " StopDownloading #9998 Kodis TP")
                                         NetConnMessage >> dispatch <| androidError
-                                        dispatch Home2   
+                                        return dispatch Home2   
                                     | _ ->
                                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
-                                        NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
+                                        return NetConnMessage >> dispatch <| criticalElmishErrorKodisJson
                             }  
 
                     let delayedCmd2 (token2 : CancellationToken) (dispatch : Msg -> unit) : Async<unit> =  
@@ -844,12 +838,12 @@ module App_R =
                                        
                                                 return runIO result
                                             }
-                          
+                                        
                                     match token2.IsCancellationRequested with
                                     | false ->
-                                            return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
+                                            return WorkIsComplete >> dispatch <| (result, isNowConnected ())    
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (String.Empty, Connectivity.NetworkAccess = NetworkAccess.Internet) 
+                                            WorkIsComplete >> dispatch <| (String.Empty, isNowConnected ()) 
                                             return dispatch Home2  
                                 with 
                                 | ex
@@ -858,10 +852,10 @@ module App_R =
                                     | err 
                                         when err = StopDownloading 
                                         ->
-                                        dispatch Home2   
+                                        return dispatch Home2   
                                     | _ ->
                                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
-                                        NetConnMessage >> dispatch <| criticalElmishErrorKodis
+                                        return NetConnMessage >> dispatch <| criticalElmishErrorKodis
                             }     
 
                     let executeSequentially dispatch =
@@ -878,7 +872,7 @@ module App_R =
                             }
                         |> Async.Start                 
 
-                    match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
+                    match isNowConnected () |> Option.ofBool with
                     | Some _
                         ->             
                         { 
@@ -966,9 +960,9 @@ module App_R =
                                        
                                     match token2.IsCancellationRequested with
                                     | false ->
-                                            return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
+                                            return WorkIsComplete >> dispatch <| (result, isNowConnected ())    
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (String.Empty, Connectivity.NetworkAccess = NetworkAccess.Internet) 
+                                            WorkIsComplete >> dispatch <| (String.Empty, isNowConnected ()) 
                                             return dispatch Home2  
                                 with 
                                 | ex
@@ -979,10 +973,10 @@ module App_R =
                                         ->
                                         runIO (postToLog2 <| string ex.Message <| " StopDownloading #9998 Kodis Canopy")
                                         NetConnMessage >> dispatch <| androidError
-                                        dispatch Home2   
+                                        return dispatch Home2   
                                     | _ ->
                                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
-                                        NetConnMessage >> dispatch <| criticalElmishErrorKodis                                          
+                                        return NetConnMessage >> dispatch <| criticalElmishErrorKodis                                          
                             }  
 
                     let delayedCmd5 (dispatch : Msg -> unit) : Async<unit> =    
@@ -991,14 +985,14 @@ module App_R =
                             {    
                                 try
                                     match! stateReducerCmd5 >> runIO <| () with  //cannot block the UI thread for long enough to be visible, Async.SwitchToThreadPool() not needed
-                                    | Ok _      -> return NetConnMessage >> dispatch <| String.Empty
+                                    | Ok _      -> return () //NetConnMessage >> dispatch <| String.Empty
                                     | Error err -> return NetConnMessage >> dispatch <| err
                                     
                                 with 
                                 | ex
                                     ->
                                     runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
-                                    NetConnMessage >> dispatch <| criticalElmishErrorKodis4
+                                    return NetConnMessage >> dispatch <| criticalElmishErrorKodis4
                             }  
                    
                     let executeSequentially dispatch = 
@@ -1010,9 +1004,9 @@ module App_R =
 
                                 return! delayedCmd5 dispatch                           
                             }
-                        |> Async.Start                     
-
-                    match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
+                        |> Async.Start    
+                  
+                    match isNowConnected () |> Option.ofBool with
                     | Some _
                         ->             
                         { 
@@ -1104,9 +1098,9 @@ module App_R =
                                         
                                     match token2.IsCancellationRequested with
                                     | false ->
-                                            return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
+                                            return WorkIsComplete >> dispatch <| (result, isNowConnected ())    
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet) 
+                                            WorkIsComplete >> dispatch <| (result, isNowConnected ()) 
                                             return dispatch Home2                                          
                                 with 
                                 | ex
@@ -1114,10 +1108,10 @@ module App_R =
                                     match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token2 ex with
                                     | err when err = StopDownloading 
                                         ->
-                                        dispatch Home2   
+                                        return dispatch Home2   
                                     | _ ->
                                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
-                                        NetConnMessage >> dispatch <| criticalElmishErrorDpo
+                                        return NetConnMessage >> dispatch <| criticalElmishErrorDpo
                             }  
                      
                     let execute dispatch = 
@@ -1139,7 +1133,7 @@ module App_R =
                             } 
                         |> Async.Start
 
-                    match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
+                    match isNowConnected () |> Option.ofBool with
                     | Some _
                         ->             
                         { 
@@ -1230,9 +1224,9 @@ module App_R =
                                     
                                     match token2.IsCancellationRequested with
                                     | false ->
-                                            return WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet)    
+                                            return WorkIsComplete >> dispatch <| (result, isNowConnected ())    
                                     | true  ->
-                                            WorkIsComplete >> dispatch <| (result, Connectivity.NetworkAccess = NetworkAccess.Internet) 
+                                            WorkIsComplete >> dispatch <| (result, isNowConnected ()) 
                                             return dispatch Home2  
                                 with 
                                 | ex
@@ -1240,10 +1234,10 @@ module App_R =
                                     match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token2 ex with
                                     | err when err = StopDownloading 
                                         ->
-                                        dispatch Home2                                                       
+                                        return dispatch Home2                                                       
                                     | _ ->
                                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
-                                        NetConnMessage >> dispatch <| criticalElmishErrorMdpo
+                                        return NetConnMessage >> dispatch <| criticalElmishErrorMdpo
                             }  
                   
                     let execute dispatch =
@@ -1265,7 +1259,7 @@ module App_R =
                             }
                         |> Async.Start
 
-                    match Connectivity.NetworkAccess = NetworkAccess.Internet |> Option.ofBool with
+                    match isNowConnected () |> Option.ofBool with
                     | Some _
                         ->             
                         { 

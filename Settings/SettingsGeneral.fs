@@ -61,7 +61,7 @@ module SettingsGeneral =
         
     let internal timeOutInSeconds : int<s> = 60<s>
     let internal timeOutInSeconds2 : int<s> = 60<s>
-    let internal timeoutMs : int<ms> = 900_000<ms>
+    let internal timeoutMs : int<ms> = 31_000<ms>
     let internal waitingForNetConn : int<s> = 30<s>
 
     let internal maxFileSizeKb : int64<KiB> = 150L<KiB> 

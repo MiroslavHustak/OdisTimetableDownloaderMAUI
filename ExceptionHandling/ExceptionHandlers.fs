@@ -310,6 +310,7 @@ module ExceptionHelpers =
                     match (string ex.Message).Contains"net_io_readfailure" with
                     | false -> Error fileDownloadError
                     | true  -> Error letItBe
+
                 //temporary code for stress testing  
                 |> function
                     | err 

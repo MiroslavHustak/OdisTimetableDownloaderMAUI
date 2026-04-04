@@ -17,23 +17,22 @@ Licensed under the Apache License, Version 2.0 (the "License")
 
 namespace OdisTimetableDownloaderMAUI
 
-open System.IO
 open System.Net
-open System.Threading
 
 open Microsoft.Maui.Hosting
-open Microsoft.Maui.Networking
+
+#if ANDROID
 open Microsoft.Maui.LifecycleEvents
 open Microsoft.Maui.ApplicationModel
-open Microsoft.Extensions.DependencyInjection
 
 open Fabulous
+#endif
+
 open Fabulous.Maui
 
 //******************************************
 
 open Api.Logging
-open JavaInteroperabilityCode 
 open Types.Haskell_IO_Monad_Simulation                   
 
 type MauiProgram = 

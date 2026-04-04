@@ -15,6 +15,7 @@ open Types.Haskell_IO_Monad_Simulation
 
 open Helpers
 open Helpers.Builders
+open Helpers.ConnectivityWithDebouncing
 
 open Api.Logging
 
@@ -190,6 +191,7 @@ module WebScraping_KODIS4 =
                 let!_ = runIO <| deleteAllODISDirectories path, errFn                     
                 let!_ = runIO <| createFolders dirList, errFn 
                
+                let!_ =  isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
                 let! msg1 = result contextCurrentValidity, errFn
                 let! msg2 = result contextFutureValidity, errFn
                 let! msg3 = result contextLongTermValidity, errFn 

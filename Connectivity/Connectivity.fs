@@ -27,7 +27,7 @@ open JavaInteroperabilityCode.RealInternetChecker
 
 module PingTest =
 
-    let pingHost (host: string) (timeoutMs: int) =
+    let private pingHost (host: string) (timeoutMs: int) =
         try
             use ping = new Ping()
             let reply = ping.Send(host, timeoutMs)
@@ -39,7 +39,7 @@ module PingTest =
         with
         | _ -> None
     
-    let rec tryPingHosts hosts timeoutMs =
+    let rec private tryPingHosts hosts timeoutMs =
         match hosts with
         | [] -> 
             None  
@@ -49,12 +49,12 @@ module PingTest =
             | Some _ -> Some host     
             | None -> tryPingHosts remainingHosts timeoutMs  
 
-    let pingConnectionChecker () =
+    let internal pingConnectionChecker () =
     
         let hosts =
             [
                 "8.8.8.8"          // Google DNS
-                //"1.1.1.1"          // Cloudflare DNS
+                "1.1.1.1"          // Cloudflare DNS
                 //"google.com"
                 //"cloudflare.com"
             ]
@@ -133,14 +133,25 @@ module ConnectivityWithDebouncing =
     #endif
 
     #if ANDROID
-    let private isConnected() = 
-        optionBool
+    let internal networkError() =       
+        pyramidOfInferno 
             {
-                let! _ = testRealInternetConnectivity () |> Result.toBool
-                let! _ = (=) Connectivity.NetworkAccess NetworkAccess.Internet
-                return! pingConnectionChecker () |> Option.toBool 
+                let! _ = testRealInternetConnectivity (), (fun _ -> "No internet connection A") 
+                let!__ = PingTest.pingConnectionChecker () |> Result.fromOption, (fun _ -> "No internet connection P") 
+                return String.Empty
             }
-    #endif  
+    #endif 
+
+    let internal isNowConnected () = 
+        #if ANDROID                    
+            optionBool
+                {
+                    let! _ = testRealInternetConnectivity () |> Result.toBool 
+                    return! PingTest.pingConnectionChecker () |> Option.toBool 
+                }
+        #else
+            (=) Connectivity.NetworkAccess NetworkAccess.Internet
+        #endif 
     
     let internal startConnectivityMonitoring (debounceMs : int) (onConnectivityChange : bool -> unit) =
         
@@ -190,7 +201,7 @@ module ConnectivityWithDebouncing =
                                         }
 
                                 #if ANDROID
-                                let isConnected = isConnected ()                                   
+                                let isConnected = isNowConnected ()                                   
                                 #else
                                 let isConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
                                 #endif
@@ -209,9 +220,9 @@ module ConnectivityWithDebouncing =
                                 let isConnected = 
                                     optionBool
                                         {
-                                            let! _ = (=) args.NetworkAccess NetworkAccess.Internet
-                                            let! _ = testRealInternetConnectivity () |> Result.toBool                                            
-                                            return! pingConnectionChecker () |> Option.toBool 
+                                            let! _ = testRealInternetConnectivity () |> Result.toBool 
+                                            let! _ = pingConnectionChecker () |> Option.toBool                                                                                      
+                                            return! (=) args.NetworkAccess NetworkAccess.Internet  
                                         }
                                 monitorActor.Post (StateChanged isConnected)
 
@@ -227,7 +238,7 @@ module ConnectivityWithDebouncing =
                 addHandler handler
                 
                 #if ANDROID
-                let isConnected = isConnected()
+                let isConnected = isNowConnected()
                 #else
                 let isConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
                 #endif

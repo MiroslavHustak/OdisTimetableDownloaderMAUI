@@ -16,6 +16,7 @@ open Types.Haskell_IO_Monad_Simulation
 open Helpers
 open Helpers.Builders
 open Helpers.ExceptionHelpers
+open Helpers.ConnectivityWithDebouncing
 
 open IO_Operations
 open IO_Operations.IO_Operations
@@ -63,22 +64,22 @@ module WebScraping_KODIS =
                 source2 = path0 <| ODIS_Variants.board.board I1 I2
                 source3 = path0 <| ODIS_Variants.board.board I2 I1 
                 destination = oldTimetablesPath 
-            }          
+            } 
+            
+        let errFn err =                     
+            match err with
+            | JsonDownloadError     -> jsonDownloadError
+            | JsonConnectionError   -> cancelMsg2
+            | NetConnJsonError err  -> err
+            | JsonTimeoutError      -> timeoutErrorJson
+            | StopJsonDownloading   -> jsonCancel
+            | FolderMovingError     -> folderMovingError
+            | JsonLetItBe           -> letItBe
+            | JsonTlsHandshakeError -> tlsHandShakeErrorKodis
     
         IO (fun () 
                 ->       
                 let downloadAndSaveJson reportProgress (token : CancellationToken) = 
-
-                    let errFn err =                     
-                        match err with
-                        | JsonDownloadError     -> jsonDownloadError
-                        | JsonConnectionError   -> cancelMsg2
-                        | NetConnJsonError err  -> err
-                        | JsonTimeoutError      -> timeoutErrorJson
-                        | StopJsonDownloading   -> jsonCancel
-                        | FolderMovingError     -> folderMovingError
-                        | JsonLetItBe           -> letItBe
-                        | JsonTlsHandshakeError -> tlsHandShakeErrorKodis
                     
                     try
                         try
@@ -121,7 +122,9 @@ module WebScraping_KODIS =
                     |> Result.map (fun _ -> dispatchMsg2) // spravne dispatchMsg1, ale drzi se to po celou dobu ocekavaneho dispatchMsg2
                     |> Result.mapError errFn
 
-                downloadAndSaveJson reportProgress token 
+                match isNowConnected () with 
+                | true  -> downloadAndSaveJson reportProgress token 
+                | false -> Error noNetConn2
         )
 
     let internal stateReducerCmd2 (token : CancellationToken) (state : State) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
@@ -297,7 +300,8 @@ module WebScraping_KODIS =
                                 //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
                         
                         //dispatchCancelVisible true
-                        
+
+                        let!_ =  isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn
                         let! msg3 = result lazyList contextLongTermValidity, errFn   
