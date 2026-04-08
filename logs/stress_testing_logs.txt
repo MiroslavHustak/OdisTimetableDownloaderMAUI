@@ -21,3 +21,8 @@
 04/09/2026 00:16:23 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
 04/09/2026 00:16:29 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
 04/09/2026 00:16:29 +02:00 JsonLetItBe Error#0013-IO
+04/09/2026 01:05:04 +02:00 The operation was canceled. Error#0002-ParseJson
+04/09/2026 01:05:04 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/09/2026 01:05:09 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/09/2026 01:05:09 +02:00 JsonLetItBe Error#0013-IO
+04/09/2026 01:05:09 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO

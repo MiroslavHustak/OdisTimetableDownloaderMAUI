@@ -57,7 +57,7 @@ module ParseJsonData =
                                                 async
                                                     {
                                                         try
-                                                            token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
+                                                            checkCancel token //pouzit v parallel loops jen u async verze
                                                             counterAndProgressBar.Post <| Inc 1   
                                                             let! result = readAllTextAsync >> runIO <| pathToJson 
 
@@ -78,7 +78,7 @@ module ParseJsonData =
                                                 async
                                                     {
                                                         try
-                                                            token.ThrowIfCancellationRequested () //pouzit v parallel loops jen u async verze
+                                                            checkCancel token //pouzit v parallel loops jen u async verze
                                                             counterAndProgressBar.Post <| Inc 1
                                                             
                                                             //JsonProvider's results are of Array type => Array is used
