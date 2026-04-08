@@ -20,6 +20,7 @@ open Helpers
 open Helpers.Builders
 open Helpers.Validation
 open Helpers.DirFileHelper
+open Helpers.ProgressValues
 open Helpers.ExceptionHelpers
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
@@ -32,6 +33,10 @@ module ParseJsonData =
               //FSharp.Control.Lazy.Create  // Use FSharp.Control.Lazy.Create to explicitly reference the F# Lazy type and avoid conflicts with System.Lazy<'T> from .NET.
                  // (fun () 
                      // ->
+                        let inline checkCancel (token : CancellationToken) =
+                            token.ThrowIfCancellationRequested()
+                            ()
+                            
                         let kodisTimetables3 : Reader<string list, string seq> = 
 
                             reader //Reader monad for educational purposes only, no real benefit here  
@@ -40,37 +45,7 @@ module ParseJsonData =
 
                                     let l = pathToJsonList3 |> List.length
                                        
-                                    let counterAndProgressBar =
-                                        MailboxProcessor<MsgIncrement>.StartImmediate
-                                            <|
-                                            fun inbox 
-                                                ->
-                                                (*
-                                                use _ =
-                                                    token.Register
-                                                        (fun () 
-                                                            ->
-                                                            inbox.Post (Unchecked.defaultof<MsgIncrement>)
-                                                        )
-                                                *)
-                                                let rec loop n = 
-                                                    async
-                                                        {
-                                                            try
-                                                                let! msg = inbox.Receive()  
-                                                                    
-                                                                match msg with
-                                                                | Inc i 
-                                                                    -> 
-                                                                    reportProgress (float n, float l)
-                                                                    return! loop (n + i)
-                                                                | Stop
-                                                                    ->
-                                                                    return () // exit loop → agent terminates
-                                                            with
-                                                            | ex -> () 
-                                                        }
-                                                loop 0
+                                    let counterAndProgressBar = counterAndProgressBar l token checkCancel reportProgress                                        
 
                                     let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 

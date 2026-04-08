@@ -12,3 +12,12 @@
 03/28/2026 03:33:04 +01:00 FileDownloadError Error#0010-K4BL
 03/31/2026 15:13:15 +02:00  Errorhttps://kodis-files.s3.eu-central-1.amazonaws.com/351_2026_04_07_2026_04_14_v_a9b06dc435.pdf Forbidden 403 #0007-K4BL
 03/31/2026 15:13:16 +02:00 FileDownloadError Error#0010-K4BL
+04/09/2026 00:13:50 +02:00 The operation was canceled. Error#0001-K
+04/09/2026 00:13:52 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/09/2026 00:13:52 +02:00 JsonLetItBe Error#0013-IO
+04/09/2026 00:13:52 +02:00 JsonLetItBe Error#0013-IO
+04/09/2026 00:13:52 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/09/2026 00:16:23 +02:00 The operation was canceled. Error#0002-ParseJson
+04/09/2026 00:16:23 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/09/2026 00:16:29 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/09/2026 00:16:29 +02:00 JsonLetItBe Error#0013-IO
