@@ -62,7 +62,7 @@ module ParseJsonData =
                                                             let! result = readAllTextAsync >> runIO <| pathToJson 
 
                                                             return result |> JsonProvider2.Parse
-                                                             // The biggest performance drag    
+                                                            // The biggest performance drag    
                                                         with
                                                         | _ -> return JsonProvider2.Parse tempJson2 //silently swallowing exn 
                                                     }

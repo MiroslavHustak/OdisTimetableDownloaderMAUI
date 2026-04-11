@@ -29,7 +29,6 @@ module FilterTimetableLinks =
 
         IO (fun () //mozna overkill - je to quli Regexu, u ktereho je impurity nejednoznacna, zbytek je dle mne pragmatically pure
                 ->      
-
                 //*************************************Helpers for SQL columns********************************************
 
                 let datePatternRegex = Regex(@"202[3-9]_[0-1][0-9]_[0-3][0-9]_202[4-9]_[0-1][0-9]_[0-3][0-9]", RegexOptions.Compiled)
