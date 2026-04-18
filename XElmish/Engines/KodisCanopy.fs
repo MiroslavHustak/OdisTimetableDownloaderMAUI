@@ -3,17 +3,15 @@
 open System.Threading
 
 open Types.Types
+open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
-open IO_Operations.IO_Operations
-open Helpers.ConnectivityWithDebouncing
-
+open Helpers.ExceptionHelpers
 open ApplicationDesign4_R.WebScraping_KODIS4
 
+open Settings.Messages
 open Settings.SettingsGeneral
-
-open OdisTimetableDownloaderMAUI.ActorModels
 
 type KodisCanopyMsg =
     | Progress of float * float
@@ -48,9 +46,19 @@ let execute dispatch (token: CancellationToken) =
                     | true  -> return dispatch NavigateHome
                     | false -> return dispatch (Completed result)
     
-                with ex ->
-                    runIO (postToLog2 ex.Message "Kodis-CMD2")
-                    return dispatch (ErrorKodis ex.Message)
+                with 
+                | ex 
+                    ->
+                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                    | err 
+                        when err = StopDownloading 
+                        ->
+                        runIO (postToLog2 <| string ex.Message <| " StopDownloading #9998 Kodis Canopy")
+                        ErrorKodis >> dispatch <| androidError
+                        return dispatch NavigateHome   
+                    | _ ->
+                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
+                        return ErrorKodis >> dispatch <| criticalElmishErrorKodis        
             }
 
     let cmd5 dispatch =           
@@ -65,7 +73,7 @@ let execute dispatch (token: CancellationToken) =
                 | ex
                     ->
                     runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
-                    return  dispatch (ErrorKodis ex.Message)
+                    return ErrorKodis >> dispatch <| string ex.Message
             }  
        
     let executeSequentially dispatch = 

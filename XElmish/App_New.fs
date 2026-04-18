@@ -318,7 +318,7 @@ module App =
                                             |> Async.AwaitTask
 
                                         match newStatus = PermissionStatus.Granted with
-                                        | true  -> return Navigate Home
+                                        | true  -> return SetScreen Home
                                         | false -> return Dummy
                                 with 
                                 | _ -> return Dummy
@@ -733,9 +733,9 @@ module App =
             VStack(spacing = 25.) {
                 Label(
                     match dt with
-                    | KodisJsonTP  -> "Varianta stahování JŘ ODIS: Kodis TP"
-                    | KodisPdfTP   -> "Varianta stahování JŘ ODIS: Kodis TP"
-                    | KodisCanopy4 -> "Varianta stahování JŘ ODIS: Kodis Canopy"
+                    | KodisJsonTP  -> "Varianta stahování: Kodis TP"
+                    | KodisPdfTP   -> "Varianta stahování: Kodis TP"
+                    | KodisCanopy4 -> "Varianta stahování: Kodis Canopy"
                     | Dpo          -> progressMsgDpo
                     | Mdpo         -> progressMsgMdpo   
                 )
@@ -771,9 +771,6 @@ module App =
 
         let noPermissionView =
             VStack(spacing = 25.) {
-                Label(appInfoInvoker)
-                    .font(size = 14.)
-                    .centerTextHorizontal()
                 #if ANDROID
                 Button(buttonRequestPermission, RequestPermission)
                     .semantics(hint = "Grant permission to access storage")

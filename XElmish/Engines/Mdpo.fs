@@ -6,16 +6,13 @@ open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
-open IO_Operations.IO_Operations
-open Helpers.ConnectivityWithDebouncing
-
+open Types.ErrorTypes
 open ApplicationDesign_R.WebScraping_MDPO
 
+open Settings.Messages
 open Settings.SettingsGeneral
 
-open OdisTimetableDownloaderMAUI.ActorModels
-open FsToolkit.ErrorHandling
-open Settings.Messages
+open Helpers.ExceptionHelpers
 
 type MdpoMsg  =
     | Progress of float * float
@@ -32,32 +29,44 @@ let executeMdpo dispatch (token: CancellationToken) =
         | false -> dispatch (Progress (progressValue, totalProgress))
 
     let cmd (token: CancellationToken) =
-        async {
-            try
-                do! Async.SwitchToThreadPool()
 
-                let! result =
-                    async { return runIO (webscraping_MDPO reportProgress token mdpoPathTemp) }
+        async 
+            {
+                try
+                    do! Async.SwitchToThreadPool()
 
-                match token.IsCancellationRequested with
-                | true  ->
-                    dispatch NavigateHome
-                | false ->
-                    match result with
-                    | Ok _    -> dispatch (Completed mauiDpoMsg)
-                    | Error e -> dispatch (ErrorMdpo e)
+                    let! result =
+                        async { return runIO (webscraping_MDPO reportProgress token mdpoPathTemp) }
 
-            with ex ->
-                runIO (postToLog2 ex.Message "Mdpo-CMD")
-                dispatch (ErrorMdpo ex.Message)
-        }
+                    match token.IsCancellationRequested with
+                    | true  
+                        ->
+                        dispatch NavigateHome
+                    | false 
+                        ->
+                        match result with
+                        | Ok _    -> dispatch (Completed mauiDpoMsg)
+                        | Error e -> dispatch (ErrorMdpo e)
 
-    async {
-        use cts = CancellationTokenSource.CreateLinkedTokenSource token
-        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                with 
+                | ex
+                    ->
+                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                    | err when err = StopDownloading 
+                        ->
+                        return dispatch NavigateHome                                                       
+                    | _ ->
+                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
+                        return ErrorMdpo >> dispatch <| criticalElmishErrorMdpo
+            }
+
+    async 
+        {
+            use cts = CancellationTokenSource.CreateLinkedTokenSource token
+            umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
         
-        match cts.Token.IsCancellationRequested with
-        | true  -> dispatch NavigateHome
-        | false -> return! cmd cts.Token
-    }
+            match cts.Token.IsCancellationRequested with
+            | true  -> dispatch NavigateHome
+            | false -> return! cmd cts.Token
+        }
     |> Async.Start

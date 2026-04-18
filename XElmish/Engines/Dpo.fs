@@ -6,16 +6,13 @@ open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
-open IO_Operations.IO_Operations
-open Helpers.ConnectivityWithDebouncing
-
+open Types.ErrorTypes
 open ApplicationDesign_R.WebScraping_DPO
 
+open Settings.Messages
 open Settings.SettingsGeneral
 
-open OdisTimetableDownloaderMAUI.ActorModels
-open FsToolkit.ErrorHandling
-open Settings.Messages
+open Helpers.ExceptionHelpers
 
 type DpoMsg  =
     | Progress of float * float
@@ -40,24 +37,34 @@ let executeDpo dispatch (token: CancellationToken) =
                     async { return runIO (webscraping_DPO reportProgress token dpoPathTemp) }
 
                 match token.IsCancellationRequested with
-                | true  ->
+                | true 
+                    ->
                     dispatch NavigateHome
-                | false ->
+                | false
+                    ->
                     match result with
                     | Ok _    -> dispatch (Completed mauiDpoMsg)
                     | Error e -> dispatch (ErrorDpo e)
 
-            with ex ->
-                runIO (postToLog2 ex.Message "Dpo-CMD")
-                dispatch (ErrorDpo ex.Message)
+            with 
+            | ex 
+                ->
+                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                | err when err = StopDownloading 
+                    ->
+                    return dispatch NavigateHome   
+                | _ ->
+                    runIO (postToLog2 <| string ex.Message <| " #XElmish_Dpo_Critical_Error")
+                    return ErrorDpo >> dispatch <| criticalElmishErrorDpo
         }
 
-    async {
-        use cts = CancellationTokenSource.CreateLinkedTokenSource token
-        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+    async
+        {
+            use cts = CancellationTokenSource.CreateLinkedTokenSource token
+            umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
 
-        match cts.Token.IsCancellationRequested with
-        | true  -> dispatch NavigateHome
-        | false -> return! cmd cts.Token
-    }
+            match cts.Token.IsCancellationRequested with
+            | true  -> dispatch NavigateHome
+            | false -> return! cmd cts.Token
+        }
     |> Async.Start

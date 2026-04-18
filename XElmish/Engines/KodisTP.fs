@@ -7,16 +7,11 @@ open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
-open IO_Operations.IO_Operations
-open Helpers.ConnectivityWithDebouncing
-
+open Helpers.ExceptionHelpers
 open ApplicationDesign_R.WebScraping_KODIS
 
-open Settings.SettingsGeneral
-
-open OdisTimetableDownloaderMAUI.ActorModels
-open Helpers.ExceptionHelpers
 open Settings.Messages
+open Settings.SettingsGeneral
 
 type KodisTPMsg =
     | Progress of float * float
