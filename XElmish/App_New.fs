@@ -24,14 +24,12 @@ open ProgressCircle
 open Settings.Messages
 open Settings.SettingsGeneral
 
-open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
 open ActorModels
 open IO_Operations.IO_Operations
 
-open Helpers
 open Helpers.ConnectivityWithDebouncing
 
 #if ANDROID
@@ -65,6 +63,7 @@ module App =
 
     type ProgressState =
         | Idle
+        | Preparing   
         | InProgress of current : float * total : float
 
     type Screen =
@@ -138,7 +137,7 @@ module App =
     
         let permission = match permissionGranted with true -> Granted | false -> NotGranted        
     
-        let connectivity = connectivity noNetConnInitial
+        let connectivity = connectivity noNetConn2
     
         let initialScreen = 
             match permission, connectivity with
@@ -173,7 +172,7 @@ module App =
 
     let update (msg : Msg) (m : Model) : Model * Cmd<Msg> =
 
-        let connectivity = connectivity noNetConn
+        let connectivity = connectivity noNetConn2
          
         match msg with   
         | Dummy 
@@ -548,7 +547,14 @@ module App =
                 -> { m with Screen = ErrorScreen err; KodisCTS = None }, Cmd.none
         
             | Engines.KodisCanopy.NavigateHome 
-                -> { m with Screen = Home; KodisCTS = None }, Cmd.none      
+                -> { m with Screen = Home; KodisCTS = None }, Cmd.none   
+                
+            | Engines.KodisCanopy.Preparing
+                ->
+                match m.Screen with
+                | Downloading (dt, _) 
+                    -> { m with Screen = Downloading (dt, ProgressState.Preparing) }, Cmd.none
+                | _ -> m, Cmd.none
                 
         | DpoMsg msg
             ->
@@ -745,6 +751,11 @@ module App =
                 Button(buttonCancel, CancelDownload)
                     .semantics(hint = String.Empty)
                     .centerHorizontal()
+                    .isVisible(                    // ← only show when actually downloading
+                        match ps with
+                        | InProgress _ -> true
+                        | _            -> false
+                    )
             }
     
         let completedView msg =

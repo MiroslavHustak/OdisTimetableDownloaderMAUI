@@ -108,7 +108,7 @@ module Messages =
     let [<Literal>] internal noNetConn3 = "Kvůli přerušení připojení k internetu byla činnost aplikace předčasně ukončena. Vypni aplikaci, připoj se k internetu a spusť ji znovu." 
     let [<Literal>] internal noNetConnPlusPlus = "Není přístup k internetu, počkám zhruba dvě minuty." 
     let [<Literal>] internal noNetConn1 = "Operace nebyla provedena, není přístup k internetu." 
-    let [<Literal>] internal noNetConn2 = "Není přístup k internetu, nutno vyčkat, až bude." 
+    let [<Literal>] internal noNetConn2 = "Není přístup k internetu, buď vyčkej, až bude, anebo vypni aplikaci, připoj se k internetu a spusť ji znovu." 
     let [<Literal>] internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se k internetu a spusť ji znovu."  
     let [<Literal>] internal noNetConn4 = "Není přístup k internetu, činnost aplikace byla předčasně ukončena. Vypni aplikaci, připoj se k internetu a spusť ji znovu." 
    

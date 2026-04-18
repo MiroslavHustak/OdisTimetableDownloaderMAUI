@@ -352,3 +352,4 @@
 04/18/2026 20:56:38 +02:00 The directory is not empty. : 'g:\Users\User\DataOld4\' Error#0006-IO
 04/18/2026 21:05:53 +02:00 The directory is not empty. : 'g:\Users\User\DataOld\' Error#0005-IO
 04/18/2026 21:17:26 +02:00 The operation was canceled. Error#0001-K
+04/19/2026 00:38:41 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO

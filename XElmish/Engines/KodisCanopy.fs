@@ -15,6 +15,7 @@ open Settings.SettingsGeneral
 
 type KodisCanopyMsg =
     | Progress of float * float
+    | Preparing
     | IterationMsg of string  
     | Completed of string
     | ErrorKodis of string
@@ -32,6 +33,8 @@ let execute dispatch (token: CancellationToken) =
             {
                 try
                     do! Async.SwitchToThreadPool()    
+
+                    dispatch Preparing 
    
                     let computation =
                         stateReducerCmd4
