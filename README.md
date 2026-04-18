@@ -118,13 +118,20 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── DPO_R.fs      
 │   └── MDPO_R.fs       
 ├── XElmish/
-│   ├── ComparisonResultFileLauncher.fs 
-│   ├── HardRestart.fs
-│   ├── ActorModels.fs 
-│   ├── AndroidSpecificCode.fs
-│   ├── ProgressCircle.fs
-│   ├── Counters.fs
-│   └── App_R.fs 
+│   ├── Infrastructure/
+│   │   ├── ComparisonResultFileLauncher.fs
+│   │   ├── HardRestart.fs
+│   │   ├── ActorModels.fs
+│   │   ├── AndroidSpecificCode.fs
+│   │   ├── ProgressCircle.fs
+│   │   └── Counters.fs
+│   ├── Engine/
+│   │   ├── KodisTP.fs
+│   │   ├── KodisCanopy.fs
+│   │   ├── Dpo.fs
+│   │   └── Mdpo.fs
+│   ├── Test_App_Old.fs
+│   └── App_New.fs
 ├── Platforms/
 │   ├── Android/
 │   │   ├── Resources/
