@@ -142,9 +142,9 @@ module App =
     
         let initialScreen = 
             match permission, connectivity with
-            | NotGranted, _           -> NoPermission
-            | Granted, Disconnected _ -> NoConnection
-            | Granted, Connected _    -> Home
+            | _, Disconnected _    -> NoConnection  // ← disconnected always wins
+            | NotGranted, _        -> NoPermission
+            | Granted, Connected _ -> Home
     
         let baseModel =
             {
@@ -182,7 +182,7 @@ module App =
 
         | SetScreen s 
             ->
-            { m with Screen = s }, Cmd.none
+            { m with Screen = s; Status = String.Empty }, Cmd.none
    
         | Navigate screen
             ->
@@ -839,6 +839,15 @@ module App =
                 )
             )
         )    
+
+    (*        
+    Fabulous / Elmish World
+        ↕
+    MAUI World  
+
+    MAUI lifecycle events fire completely outside the Elmish/Fabulous world.
+    Lifecycle events -> OnResume, OnStart, OnSleep,...
+    *)
 
     type internal DispatchHolder = 
         static member val DispatchRef : System.WeakReference<Dispatch<Msg>> option = None with get, set
