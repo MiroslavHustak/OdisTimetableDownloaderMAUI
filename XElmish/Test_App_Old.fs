@@ -154,27 +154,27 @@ module App_R =
         | Dummy
 
     let connectivityDebouncerSubscription (_model : Model) =
-
-        let sub (dispatch : Msg -> unit) =
     
+        let sub (dispatch : Msg -> unit) =
+        
             let debounceActor =
                 MailboxProcessor.StartImmediate
                     (fun inbox
                         ->
                         let rec loop lastState (lastChangeTime : DateTime) isFirstMessage =
-    
+        
                             async
                                 {
                                     let! isConnected = inbox.Receive()
                                     let now = DateTime.Now
                                     let timeDiff = (now - lastChangeTime).TotalSeconds
-                                            
+                                                
                                     match isFirstMessage, isConnected, lastState, timeDiff > 0.5 with
                                     | true, false, _, _
                                         ->
                                         // First message: lost connection → dispatch immediately
                                         NetConnMessage >> dispatch <| noNetConn
-                                        //runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                        //runIO <| countDown2 isConnected QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                         return! loop isConnected now false
                                     | true, true, _, _
                                         ->
@@ -185,7 +185,7 @@ module App_R =
                                         ->
                                         // Lost connection: react immediately (no debouncing)
                                         NetConnMessage >> dispatch <| noNetConn
-                                        //runIO <| countDown2 QuitCountdown RestartVisible NetConnMessage Quit dispatch
+                                        //runIO <| countDown2 isConnected QuitCountdown RestartVisible NetConnMessage Quit dispatch
                                         return! loop isConnected now false
                                     | false, true, false, true
                                         ->
@@ -205,10 +205,10 @@ module App_R =
                                 }
                         loop true DateTime.MinValue true
                     )
-                
+                    
             //250 = debounceMs, (now - lastChangeTime).TotalSeconds > 0.5 resp. 0.2 - s temito hodnotami si pohrat
             runIO <| startConnectivityMonitoring 250 (fun isConnected -> debounceActor.Post isConnected)     
-            
+                
         Cmd.ofSub sub
 
     let private kodisActor = localCancellationActor()
@@ -830,7 +830,6 @@ module App_R =
                                                 let result = 
                                                     stateReducerCmd2 
                                                     <| token2
-                                                    <| stateDefault
                                                     <| kodisPathTemp
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
                                                     <| fun message -> IterationMessage >> dispatch <| message 
@@ -1483,69 +1482,3 @@ module App_R =
         Program.statefulWithCmd init update view 
         |> Program.withSubscription (connectivityDebouncerSubscription)
         |> Program.withSubscription captureDispatchSub
-                
-    (* 
-        The professional FE code should include patterns similar to the following ones:
-
-        type AppState =
-        | Normal of NormalModel
-        | EmergencyNoInternet of EmergencyModel
-
-        type Screen =
-        | Home
-        | Clearing
-        | Progress of ProgressState
-        | NoConnection
-        | Completed of string
-
-        type ProgressState =
-        | Idle
-        | Running of current :float * total :float
-        | Cancelling
-        | Finished
-
-        type ClearingState =
-        | NotStarted
-        | Confirming
-        | Clearing
-        | Cleared
-
-        type Connectivity =
-        | Connected
-        | Disconnected
-
-        type Model =
-            {
-                Permission : PermissionState
-                Connectivity : Connectivity
-                Screen : Screen
-                Clearing : ClearingState
-                Progress : ProgressState
-                Message : string option
-                AnimatedButton : ButtonId option
-            }
-
-        match model.Screen with
-        | Home ->
-            homeView()
-            
-        | Clearing ->
-            clearingView()
-            
-        | Progress p ->
-            progressView p
-            
-        | NoConnection ->
-            noConnectionView()
-
-    App/             
-    ├─ MVU/
-    │   ├─ Home.fs
-    │   ├─ Clearing.fs
-    │   ├─ Progress.fs
-    │   └─ NoConnection.fs
-    └─ Commands/
-        ├─ Connectivity.fs
-        ├─ Kodis.fs
-        └─ Clearing.fs 
-    *)

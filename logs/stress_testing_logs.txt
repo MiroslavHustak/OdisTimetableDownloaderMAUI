@@ -26,3 +26,329 @@
 04/09/2026 01:05:09 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
 04/09/2026 01:05:09 +02:00 JsonLetItBe Error#0013-IO
 04/09/2026 01:05:09 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/17/2026 18:36:34 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 18:39:10 +02:00 The match cases were incomplete Error#0001-K
+04/17/2026 18:39:10 +02:00 The match cases were incomplete Error#0041-ExceptionHandlers
+04/17/2026 18:39:10 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 18:39:10 +02:00 The match cases were incomplete ErrorKodis-CMD1
+04/17/2026 18:42:57 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 19:46:23 +02:00 The operation was canceled. Error#0001-K
+04/17/2026 19:51:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/17/2026 19:51:47 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 19:51:47 +02:00 JsonLetItBe Error#0013-IO
+04/17/2026 19:51:47 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/17/2026 19:54:46 +02:00 The process cannot access the file '236_2025_12_14_2026_12_12.pdf' because it is being used by another process. Error#0012-IO
+04/17/2026 19:54:46 +02:00 FolderMovingError Error#0013-IO
+04/17/2026 19:54:47 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\822_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:47 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\865_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:47 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\822_2025_12_14_2026_12_12.pdf'. Error#0041-ExceptionHandlers
+04/17/2026 19:54:47 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\865_2025_12_14_2026_12_12.pdf'. Error#0041-ExceptionHandlers
+04/17/2026 19:54:47 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\863_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:47 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:48 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\861_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:48 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\866_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:48 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:48 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:48 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:48 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\811_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:48 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:48 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:48 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:48 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:49 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\880_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:49 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:49 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:49 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:49 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\913_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:49 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:50 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:50 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:50 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\908_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:50 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\908_2025_12_14_2026_12_12.pdf'. Error#0041-ExceptionHandlers
+04/17/2026 19:54:50 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:50 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:50 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\815_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:50 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 800-899\815_2025_12_14_2026_12_12.pdf'. Error#0041-ExceptionHandlers
+04/17/2026 19:54:50 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:50 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:50 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:50 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:50 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\909_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:50 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:51 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\911_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:51 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:51 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\927_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:51 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\901_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:51 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\914_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:51 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\914_2025_12_14_2026_12_12.pdf'. Error#0041-ExceptionHandlers
+04/17/2026 19:54:52 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:52 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\978_2025_12_14_2026_12_12.pdf'. Error#0041-ExceptionHandlers
+04/17/2026 19:54:52 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\920_2025_12_14_2026_12_12.pdf'. Error#0041-ExceptionHandlers
+04/17/2026 19:54:52 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\922_2025_12_14_2026_12_12.pdf'. Error#0041-ExceptionHandlers
+04/17/2026 19:54:52 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:52 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:52 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 19:54:52 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+PdfDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 19:54:52 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk\linky 900-999\979_2025_12_14_2026_12_12.pdf'. Error#0088-KBL
+04/17/2026 19:54:52 +02:00 FileDownloadError Error#0015-KBL
+04/17/2026 20:07:14 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 20:07:14 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/17/2026 20:12:25 +02:00 The process cannot access the file 'e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\kodisMHDNAD2_0.json' because it is being used by another process. Error#0002-KBLJson
+04/17/2026 20:12:28 +02:00 The process cannot access the file 'e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\kodisRegion6002_0.json' because it is being used by another process. Error#0002-KBLJson
+04/17/2026 20:12:28 +02:00 The process cannot access the file 'e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\kodisRegion5002_0.json' because it is being used by another process. Error#0002-KBLJson
+04/17/2026 20:22:57 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 20:22:57 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/17/2026 23:06:29 +02:00 The operation was canceled. Error#0001-K
+04/17/2026 23:06:55 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 23:06:55 +02:00 JsonLetItBe Error#0013-IO
+04/17/2026 23:06:55 +02:00 JsonLetItBe Error#0013-IO
+04/17/2026 23:06:58 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 23:07:02 +02:00 JsonLetItBe Error#0013-IO
+04/17/2026 23:07:02 +02:00 JsonLetItBe Error#0013-IO
+04/17/2026 23:07:06 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:07:07 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:07:07 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 23:13:21 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 23:13:21 +02:00 JsonLetItBe Error#0013-IO
+04/17/2026 23:13:21 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/17/2026 23:13:21 +02:00 JsonLetItBe Error#0013-IO
+04/17/2026 23:13:36 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:36 +02:00 The operation was canceled. Error#0001-K
+04/17/2026 23:13:36 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/17/2026 23:13:38 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 23:13:39 +02:00 JsonLetItBe Error#0013-IO
+04/17/2026 23:13:39 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/17/2026 23:13:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:43 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:43 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:43 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:44 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:13:44 +02:00 The operation was canceled. Error#0001-K
+04/17/2026 23:13:52 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/17/2026 23:13:52 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_pouze_budouci_platnost'. Error#0010-IO
+04/17/2026 23:15:49 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/17/2026 23:15:49 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/18/2026 00:28:24 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 00:28:25 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 00:29:35 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 00:29:35 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/18/2026 00:31:07 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 00:31:07 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_pouze_budouci_platnost'. Error#0010-IO
+04/18/2026 00:31:07 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 00:31:07 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 00:31:07 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 00:45:05 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 00:52:33 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 00:52:33 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 00:52:37 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 00:52:37 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/18/2026 00:52:41 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 00:52:41 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 00:52:44 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 00:52:47 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 00:52:47 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 00:52:47 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 00:55:43 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 00:55:43 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 01:40:06 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:40:07 +02:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 01:40:07 +02:00 LetItBe Error#0013-IO
+04/18/2026 01:40:14 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:40:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:40:17 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:40:17 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:40:18 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:40:18 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:40:18 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/18/2026 01:43:04 +02:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 01:43:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:43:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:43:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:43:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:43:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:43:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 01:43:11 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/18/2026 01:43:13 +02:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 01:43:13 +02:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 01:57:00 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 01:57:00 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 01:57:26 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 01:57:26 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/18/2026 01:57:31 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 01:57:31 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_pouze_budouci_platnost'. Error#0010-IO
+04/18/2026 01:57:31 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 02:01:46 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 02:22:04 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 02:25:21 +02:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 02:25:39 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 02:25:39 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 03:52:39 +02:00 The operation was canceled. Error#0003-MDPO
+04/18/2026 03:52:43 +02:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_MDPO'. Error#0010-IO
+04/18/2026 03:52:43 +02:00 LetItBeMHD Error#0013-IO
+04/18/2026 12:49:23 +02:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 12:49:45 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/18/2026 12:49:45 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/18/2026 12:52:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 12:52:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 12:52:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 12:52:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 12:52:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 12:52:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 12:52:47 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 13:06:59 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 13:06:59 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 13:09:56 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 13:09:57 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 13:16:06 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 13:20:58 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 13:36:19 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 13:48:52 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 13:48:53 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 13:48:53 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 13:50:22 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:15:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:15:35 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:15:36 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:15:36 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:15:37 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 15:16:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:16:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:16:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:16:48 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:16:48 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:16:48 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:16:49 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:16:49 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:16:49 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 15:20:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:26:01 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:26:06 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 15:26:06 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 15:26:14 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:26:15 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:26:15 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:26:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:26:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:26:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:26:16 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 15:27:59 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:33:28 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:34:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:38:12 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:43:02 +02:00 Could not find a part of the path 'g:\Users\User\Data4\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 15:43:02 +02:00 LetItBe Error#0013-IO
+04/18/2026 15:43:19 +02:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+04/18/2026 15:45:05 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 15:50:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:05:41 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 16:05:42 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 16:05:57 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:05:58 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:05:58 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 16:06:07 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 16:06:07 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 16:06:15 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 16:06:15 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 16:06:39 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 16:06:39 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 16:07:04 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:07:05 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:07:05 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:07:05 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:07:06 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:07:06 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:07:06 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 16:21:53 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:23:29 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 16:23:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 16:23:41 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 16:23:41 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/18/2026 16:23:43 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 16:23:43 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 16:23:46 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 16:23:48 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 16:23:48 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 16:23:48 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 16:23:52 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 16:23:52 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 16:23:54 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 16:24:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 16:24:16 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 16:24:18 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 16:24:18 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 16:27:50 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:27:50 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:27:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:27:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:27:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:27:51 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 16:29:01 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 16:29:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 16:29:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 16:29:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 16:29:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 16:29:12 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 16:29:12 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 16:29:12 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/18/2026 16:29:13 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 16:29:13 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 16:29:17 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 16:52:06 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 16:52:06 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 16:52:19 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 16:52:19 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/18/2026 16:53:05 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 16:53:06 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 16:53:16 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 16:53:16 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 16:53:24 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 16:53:24 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 16:53:34 +02:00 The operation was canceled. Error#0002-ParseJson
+04/18/2026 16:53:34 +02:00 JsonParsingError2 StopJsonParsing Error#0022-K
+04/18/2026 16:53:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/18/2026 16:53:52 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/18/2026 17:19:10 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 17:19:10 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 17:19:10 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 17:19:10 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 17:25:41 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 17:31:45 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 17:31:45 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 17:40:44 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 17:40:44 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 17:40:44 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 17:41:02 +02:00 End of counter loop Error#0001-Counters
+04/18/2026 17:44:44 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 17:44:45 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 17:55:10 +02:00 End of counter loop Error#0001-Counters
+04/18/2026 18:11:58 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 18:11:58 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 18:45:04 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 18:46:13 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 18:46:13 +02:00 JsonLetItBe Error#0013-IO
+04/18/2026 18:46:38 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 18:46:39 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 18:46:40 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 18:46:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 18:47:18 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 18:51:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/18/2026 18:51:54 +02:00 The operation was canceled. Error#0001-K
+04/18/2026 18:51:54 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/18/2026 19:28:41 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_aktualni_vcetne_vyluk'. Error#0010-IO
+04/18/2026 19:28:42 +02:00 Could not find a part of the path 'g:\Users\User\Data\JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk'. Error#0010-IO
+04/18/2026 19:57:11 +02:00 Cannot create 'g:\Users\User\DataOld\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:01:07 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:01:07 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:02:44 +02:00 Cannot create 'g:\Users\User\DataOld\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:02:44 +02:00 Cannot create 'g:\Users\User\DataOld\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:06:51 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:06:51 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:12:29 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:19:02 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/18/2026 20:56:11 +02:00 The directory is not empty. : 'g:\Users\User\DataOld4\' Error#0006-IO
+04/18/2026 20:56:38 +02:00 The directory is not empty. : 'g:\Users\User\DataOld4\' Error#0006-IO
+04/18/2026 21:05:53 +02:00 The directory is not empty. : 'g:\Users\User\DataOld\' Error#0005-IO
+04/18/2026 21:17:26 +02:00 The operation was canceled. Error#0001-K

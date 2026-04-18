@@ -119,16 +119,12 @@ module WebScraping_KODIS4 =
             }        
        
         let result (context2 : Context2) =   
-        
-            //dispatchCancelVisible false    
-                             
+                                     
             let dir = context2.DirList |> List.item context2.VariantInt  
 
             let list =
                 runIO <| operationOnDataFromJson_resumable token context2.Variant dir 
                 |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-
-            //dispatchRestartVisible false 
         
             match list with //to je strasne slozite davat to do Elmishe
             | Ok list

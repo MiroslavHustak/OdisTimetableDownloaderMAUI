@@ -213,3 +213,621 @@ static member CreateMauiApp(): MauiApp =
             runIO (postToLog2 (string ex.Message) "#3008")
             MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception
     *) 
+
+
+
+    namespace Helpers
+
+open System
+open System.Net.NetworkInformation
+
+open Microsoft.Maui.Networking
+
+#if ANDROID
+open Microsoft.Maui.ApplicationModel
+#endif 
+
+//**********************************
+
+open FSharp.Control
+
+//**********************************
+
+open Types.Types 
+open Types.Haskell_IO_Monad_Simulation
+
+open DotNetInteroperabilityCode.ConnectivityMonitorManager
+
+#if ANDROID
+open Helpers.Builders   
+open JavaInteroperabilityCode.RealInternetChecker
+#endif 
+
+module PingTest =
+
+    let private pingHost (host: string) (timeoutMs: int) =
+        try
+            use ping = new Ping()
+            let reply = ping.Send(host, timeoutMs)
+        
+            match reply.Status with
+            | IPStatus.Success 
+                -> Some reply.RoundtripTime
+            | _ -> None
+        with
+        | _ -> None
+    
+    let rec private tryPingHosts hosts timeoutMs =
+        match hosts with
+        | [] -> 
+            None  
+        | host :: remainingHosts 
+            ->
+            match pingHost host timeoutMs with
+            | Some _ -> Some host     
+            | None -> tryPingHosts remainingHosts timeoutMs  
+
+    let internal pingConnectionChecker () =
+    
+        let hosts =
+            [
+                "8.8.8.8"          // Google DNS
+                "1.1.1.1"          // Cloudflare DNS
+                //"google.com"
+                //"cloudflare.com"
+            ]
+    
+        tryPingHosts hosts 3000 //timeout in ms        
+
+module Connectivity =  
+
+    let private actor = //tady nelze IO Monad (pak se actor nespusti tak, jak je treba)
+
+        //If no timeout or cancellation token is applied or the mailbox is not disposed (all three cases are under my control),
+        //the mailbox will not raise an exception on its own. 
+
+        MailboxProcessor<ConnectivityMessage>.StartImmediate
+            <|
+            fun inbox
+                ->
+                let rec loop (isConnected : bool) = 
+                    async
+                        {
+                            match! inbox.Receive() with
+                            | UpdateState newState
+                                ->
+                                return! loop newState
+
+                            | CheckState replyChannel
+                                ->                            
+                                replyChannel.Reply(isConnected) 
+                                return! loop isConnected
+                        }
+            
+                loop false // Start the loop with whatever initial value 
+
+    // nepouzivano                   
+    let internal connectivityListener () = //impure
+
+        IO (fun () 
+                -> 
+                let initialConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet     
+                
+                actor.Post <| UpdateState initialConnected // prvotni inicializace mailboxu
+    
+                let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
+             
+                    try  
+                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet                              
+                        actor.Post <| UpdateState isConnected
+                    with
+                    | _ -> ()  //Proste at to tise pokracuje
+            
+                Connectivity.ConnectivityChanged.Add connectivityChangedHandler 
+            
+                actor.PostAndReply (fun replyChannel -> CheckState replyChannel)
+        )        
+
+    // nepouzivano   
+    let internal connectivityListener2 onConnectivityChange = //impure
+
+        IO (fun () 
+                ->         
+                let connectivityChangedHandler (args : ConnectivityChangedEventArgs) =
+
+                    try  
+                        let isConnected = (=) args.NetworkAccess NetworkAccess.Internet                            
+                        onConnectivityChange isConnected
+                    with
+                    | _ -> ()  //Proste at to tise pokracuje         
+            
+                Connectivity.ConnectivityChanged.Add connectivityChangedHandler
+        )
+
+module ConnectivityWithDebouncing =    
+    
+    #if ANDROID
+    open PingTest
+    #endif
+
+    #if ANDROID
+    let internal networkError() =       
+        pyramidOfInferno 
+            {
+                let! _ = testRealInternetConnectivity (), (fun _ -> "No internet connection A") 
+                let!__ = PingTest.pingConnectionChecker () |> Result.fromOption, (fun _ -> "No internet connection P") 
+                return String.Empty
+            }
+    #endif 
+
+    let internal isNowConnected () = 
+        #if ANDROID                    
+            optionBool
+                {
+                    let! _ = testRealInternetConnectivity () |> Result.toBool 
+                    return! PingTest.pingConnectionChecker () |> Option.toBool 
+                }
+        #else
+            (=) Connectivity.NetworkAccess NetworkAccess.Internet
+        #endif 
+    
+    let internal startConnectivityMonitoring (debounceMs : int) (onConnectivityChange : bool -> unit) =
+        
+        IO (fun ()
+                ->
+                // Debouncing actor
+                let monitorActor =
+                    MailboxProcessor<ConnectivityMonitorMsg>
+                        .StartImmediate
+                            (fun inbox 
+                                ->
+                                let rec loop lastState = 
+                        
+                                    async
+                                        {
+                                            let! msg = inbox.Receive()
+
+                                            match msg with
+                                            | StopConnectivityMonitoring
+                                                ->
+                                                return ()
+
+                                            | StateChanged newState 
+                                                when newState <> lastState 
+                                                ->
+                                                // Wait for the debounce interval
+                                                let! maybeNextMsg = inbox.TryReceive debounceMs
+
+                                                match maybeNextMsg with
+                                                | Some (StateChanged newerState)
+                                                    ->
+                                                    // Another state change occurred → restart waiting
+                                                    return! loop newerState
+                                                | Some StopConnectivityMonitoring 
+                                                    ->
+                                                    return ()
+                                                | _ 
+                                                    ->
+                                                    // State is stable → notify
+                                                    onConnectivityChange newState
+                                                    return! loop newState
+
+                                            | StateChanged _
+                                                ->
+                                                // Same state → ignore
+                                                return! loop lastState
+                                        }
+
+                                #if ANDROID
+                                let isConnected = isNowConnected ()                                   
+                                #else
+                                let isConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                                #endif
+
+                                // Initial state
+                                loop isConnected
+                            )
+            
+                // Event handler
+                let handler = 
+                    System.EventHandler<ConnectivityChangedEventArgs>
+                        (fun _ args
+                            ->
+                            try  
+                                #if ANDROID
+                                let isConnected = 
+                                    optionBool
+                                        {
+                                            let! _ = testRealInternetConnectivity () |> Result.toBool 
+                                            let! _ = pingConnectionChecker () |> Option.toBool                                                                                      
+                                            return! (=) args.NetworkAccess NetworkAccess.Internet  
+                                        }
+                                monitorActor.Post (StateChanged isConnected)
+
+                                #else
+                                let isConnected = (=) args.NetworkAccess NetworkAccess.Internet
+                                monitorActor.Post (StateChanged isConnected)
+                                #endif
+
+                            with
+                            | _ -> ()
+                        )
+            
+                addHandler handler
+                
+                #if ANDROID
+                let isConnected = isNowConnected()
+                #else
+                let isConnected = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+                #endif
+                
+                let initialState = isConnected
+                monitorActor.Post (StateChanged initialState)
+        )
+    
+    //Pro in production nevyuzito, mozno vyuzit v prubehu stress testing
+    let internal stopAllConnectivityMonitoring () = IO (fun () -> removeAllHandlers())
+
+        (*
+        OS event
+        └─ actor receives
+            └─ cancel old timer
+                └─ wait debounceMs
+                    └─ if uninterrupted → notify app
+
+        Layer 1
+
+        OS connectivity events (raw, noisy)
+        Wi-Fi ───┐    ┌─── none ──┐ ┌── Wi-Fi
+                 │    │            │ │
+                 │    │            │ │
+        Time →   ─────┼────────────┼──────────────
+
+        OS event ──► startConnectivityMonitoring ──(200 ms debounce)─► stable events
+        Wi-Fi ───┐
+                 │
+        none ────┘
+        Wi-Fi ─────────────────────────────► Stable "Connected" event
+
+        Layer 2
+
+        Stable event ──► debounceActor ──► app reaction
+        true ─────────────────────► Dispatch "Connected"
+        false ───────────────────► Dispatch "No Connection" + start countdown
+
+
+        Combined flow diagram (simplified)
+
+        OS Connectivity Events (Wi-Fi / None / Wi-Fi / None)
+                    │
+                    ▼
+        startConnectivityMonitoring (200 ms debounce) //OS-level debounce: 200 ms → filters micro-flickers. Must be much shorter than all operational timeouts.
+                    │
+                    ▼
+        Stable Connectivity Events (true / false)
+                    │
+                    ▼
+        debounceActor (0.2s app logic debounce)  Must be much shorter than all operational timeouts.
+                    │
+                    ▼
+        App reacts:
+            - Dispatch UI messages
+            - Start/stop quit/restart countdown
+
+        Key notes from this diagram
+        
+        Two separate debounce layers:
+        
+        Layer 1: removes OS noise.
+        
+        Layer 2: ensures app logic isn’t spammed.
+        
+        Layer 2 never sees raw OS flicker, only already debounced signals.
+
+        Layer 2 uses non-blocking timeout-based debounce (MailboxProcessor.TryReceive) → always responsive, no frozen mailbox during waiting period    
+        
+        Timers cancel safely in both layers, avoiding race conditions.
+        
+        Makes the UI stable and countdowns reliable.  
+
+        Note: Combined debounce (OS + App) = 0.4 s → < 2% of 30 s countdown → fast and safe.
+        Debounce times should be < 5% of your shortest operational timeout.
+        *)
+
+module CheckNetConnection =      
+
+    //******************** Zatim se nepouziva TODO IO Monad ********************************************     
+           
+    let internal checkInternetConnectivityWM () = //Only for Windows Machine        
+        NetworkInterface.GetIsNetworkAvailable () |> Option.ofBool 
+        
+
+    //******************** Zatim se nepouziva TODO IO Monad ******************************************** 
+    #if ANDROID
+    let internal checkInternetConnectivityAE () =
+
+        let requestLocationPermission () =
+                
+            async
+                {
+                    let! status = 
+                        Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>() |> Async.AwaitTask
+
+                    match status <> PermissionStatus.Granted with
+                    | true  ->
+                            let! result = 
+                                Permissions.RequestAsync<Permissions.LocationWhenInUse>() |> Async.AwaitTask
+
+                            return (=) result PermissionStatus.Granted
+                    | false ->
+                            return true
+                }
+
+        async
+            {
+                try                          
+                    match Connectivity.Current.ConnectionProfiles |> Option.ofNull' with            
+                    | Some profiles
+                        ->
+                        match profiles |> List.ofSeq with
+                        | [] 
+                            -> 
+                            return None                                         
+                        | _  
+                            ->
+                            let! hasPermission = requestLocationPermission ()
+
+                            let cond1 = profiles |> Seq.contains ConnectionProfile.WiFi
+                            let cond2 = (=) Connectivity.NetworkAccess NetworkAccess.Internet
+
+                            match cond1 && cond2 && hasPermission with
+                            | true  -> return Some ()
+                            | false -> return None  
+
+                    | None 
+                        ->
+                        return None
+                with
+                | _ -> return None                
+            }  
+    #endif
+
+    //Next time do something around the following code:
+    (*
+    namespace JavaInteroperabilityCodeEducation
+    
+    open System
+    open FsToolkit.ErrorHandling
+    
+    type internal RealInternetStatus =
+        { 
+            HasRealInternet : unit -> bool
+            IsCaptivePortalSuspected : unit -> bool
+            ConnectivityChanged : IObservable<unit>
+        }
+    
+    type internal RealInternetService =
+        {
+            Status : RealInternetStatus
+            Dispose : unit -> unit
+        }
+    
+    module private ObservableHelpers =
+    
+        let internal neverObservable<'a> () : IObservable<'a> =
+            {
+                new IObservable<'a> with
+                    member _.Subscribe _observer =
+                        { 
+                            new IDisposable with
+                                member _.Dispose() = () 
+                        } 
+            }
+    
+    #if ANDROID
+    open Android.Net
+    open Android.App
+    open Android.Content
+    
+    module private Internals =
+    
+        let getConnectivityManager (ctx : Context) =
+            match ctx.GetSystemService Context.ConnectivityService with
+            | :? ConnectivityManager as cm
+                -> Ok cm
+            | _ -> Error "Varování: Nepodařilo se inicializovat kontrolu sítě. Pokud se soubory nestahují, restartuj aplikaci."
+    
+        type private ConnectivityCallback(trigger : unit -> unit) =
+    
+            inherit ConnectivityManager.NetworkCallback()
+            override _.OnCapabilitiesChanged(_, _) = trigger ()
+            override _.OnAvailable _ = trigger ()
+            override _.OnLost _ = trigger ()
+            override _.OnUnavailable() = trigger ()
+    
+        let internal tryCreateChecker () : Result<RealInternetStatus * IDisposable, string> =
+            
+            result
+                {
+                    let! cm = getConnectivityManager Application.Context
+    
+                    let connectivityChanged = Event<unit>()
+                    let callback = new ConnectivityCallback(connectivityChanged.Trigger)
+    
+                    let request =
+                        (new NetworkRequest.Builder())
+                            .AddCapability(NetCapability.Internet)
+                            .Build()
+    
+                    cm.RegisterNetworkCallback(request, callback)
+    
+                    let check predicate =
+                        option 
+                            {
+                                let! (network : Network) = cm.ActiveNetwork |> Option.ofNull'
+                                let! (caps : NetworkCapabilities) = cm.GetNetworkCapabilities network |> Option.ofNull'
+                                return predicate caps
+                            }
+                        |> Option.defaultValue false
+    
+                    let status = 
+                        {
+                            HasRealInternet = 
+                                fun () ->
+                                    check 
+                                        (fun c ->
+                                            c.HasCapability NetCapability.Internet &&
+                                            c.HasCapability NetCapability.Validated
+                                        )
+    
+                            IsCaptivePortalSuspected =
+                                fun () -> check (fun c -> c.HasCapability NetCapability.CaptivePortal)
+    
+                            ConnectivityChanged = connectivityChanged.Publish
+                        }
+    
+                    let disposable =
+                        { 
+                            new IDisposable with
+                                member _.Dispose() =
+                                    try cm.UnregisterNetworkCallback callback
+                                    with _ -> ()
+                        }
+    
+                    return status, disposable
+                }
+    
+    module RealInternetChecker =
+    
+        let private never () : RealInternetStatus =
+            {
+                HasRealInternet          = fun () -> false
+                IsCaptivePortalSuspected = fun () -> false
+                ConnectivityChanged      = ObservableHelpers.neverObservable ()
+            }
+    
+        let internal tryCheckerForDI () : Result<RealInternetService, string> =
+            match Internals.tryCreateChecker () with
+            | Ok (checker, disp)
+                ->
+                Ok { Status = checker; Dispose = disp.Dispose }
+            | Error err
+                ->
+                Error err
+    
+        let internal checkerForDI () : RealInternetService =
+            match tryCheckerForDI () with
+            | Ok svc 
+                -> svc
+            | Error _ 
+                ->
+                {
+                    Status  = never ()
+                    Dispose = fun () -> ()
+                }
+    #endif
+    *)
+
+
+namespace OdisTimetableDownloaderMAUI
+
+open Fabulous
+open Fabulous.Maui
+open FSharp.Control
+
+//********************************
+
+open Settings.Messages
+open Settings.SettingsGeneral
+
+open Api.Logging
+open Helpers.Connectivity
+
+open Types.Types
+open Types.Haskell_IO_Monad_Simulation
+
+module Counters =   
+
+    let internal countDown quitCountdown netConnMessage quit dispatch = //Not used yet
+
+        IO (fun () 
+                ->  
+                //abych se zbavil varovani ohledne capital letters v parametrech
+                let QuitCountdown = quitCountdown 
+                let NetConnMessage = netConnMessage
+                let Quit = quit
+
+                //tato varianta odpocitadla v pozadi jede dal az do 0, aji kdyz predcasne ukoncime
+      
+                [ umSecondsToInt32 waitingForNetConn .. -1 .. 0 ]  // -1 for backward counting
+                |> List.toSeq                                             
+                |> AsyncSeq.ofSeq
+                |> AsyncSeq.iterAsync
+                    (fun remaining 
+                        ->      
+                        QuitCountdown >> dispatch <| (quitMsg remaining)
+                
+                        match connectivityListener >> runIO <| () with
+                        | false 
+                            when remaining = 0  
+                                ->
+                                async { return dispatch Quit } |> Async.executeOnMainThread    
+                        | false
+                            when remaining <> 0
+                                -> 
+                                Async.Sleep 1000 //po vterine to odpocitava
+                        | _
+                                -> 
+                                async
+                                    { 
+                                        //tato varianta v pozadi jede dal
+                                        return NetConnMessage >> dispatch <| continueDownload
+                                    } 
+                                |> Async.executeOnMainThread                           
+                    ) 
+        )
+
+    let internal countDown2 quitCountdown restartVisible netConnMessage quit dispatch =
+        
+        IO (fun () 
+                ->  
+                //abych se zbavil varovani ohledne capital letters v parametrech
+                let QuitCountdown = quitCountdown 
+                let NetConnMessage = netConnMessage
+                let Quit = quit
+                let RestartVisible = restartVisible
+
+                //This "loop" fn anotated with [<TailCall>] tested as a module fn in another F# project; no warnings encountered
+                let rec loop remaining =
+
+                    async
+                        {
+                            QuitCountdown >> dispatch <| (quitMsg remaining)
+    
+                            match connectivityListener >> runIO <| () with
+                            | false 
+                                when remaining = 0
+                                    ->
+                                    RestartVisible >> dispatch <| false
+
+                                    do! 
+                                        async { return dispatch Quit }
+                                        |> Async.executeOnMainThread  
+                            | false 
+                                when remaining <> 0 
+                                    ->
+                                    do! Async.Sleep 1000
+                                    RestartVisible >> dispatch <| false
+                           
+                                    return! loop (remaining - 1) // Recurring with the next remaining value
+                            | _ 
+                                    ->
+                                    do! runIO (postToLog2Async <| "End of counter loop" <| "#0001-Counters")                                    
+                                    return!                                        
+                                        async { return NetConnMessage >> dispatch <| continueDownload } 
+                                        |> Async.executeOnMainThread 
+                        }
+    
+                //Async.StartImmediate (loop waitingForNetConn) //Async.StartImmediate -> common cause of ANRs (Application Not Responding) on Android.
+                Async.Start (umSecondsToInt32 >> loop <| waitingForNetConn) 
+        )

@@ -112,7 +112,7 @@ module Messages =
     let [<Literal>] internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se k internetu a spusť ji znovu."  
     let [<Literal>] internal noNetConn4 = "Není přístup k internetu, činnost aplikace byla předčasně ukončena. Vypni aplikaci, připoj se k internetu a spusť ji znovu." 
    
-    let [<Literal>] internal yesNetConn = "Přípojení k internetu opět funguje." 
+    let [<Literal>] internal yesNetConn = "Přípojení k internetu funguje." 
    
     let [<Literal>] internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
     let [<Literal>] internal ctsMsg = "Problém s detekcí internetového připojení."
@@ -122,7 +122,8 @@ module Messages =
     let [<Literal>] internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
     let [<Literal>] internal cancelMsg3 = "Chvíli strpení, operace se ukončuje. Pokud ukončování trvá dlouho a jsi netrpělivý, vypni a zapni aplikaci."
 
-    let [<Literal>] internal cancelMsg4 = "Stahování JŘ KODIS předčasně ukončeno."
+    let [<Literal>] internal cancelMsg4 = "Stahování JŘ KODIS bylo předčasně ukončeno."
+    let [<Literal>] internal cancelMsg42 = "Stahování příslušného JŘ bylo předčasně ukončeno."
     let [<Literal>] internal cancelMsg44 = "JSON parsing a JŘ KODIS předčasně ukončeny."
     let [<Literal>] internal cancelMsg5 = "Stahování JŘ KODIS předčasně ukončeno, úklid se nepodařil."
 

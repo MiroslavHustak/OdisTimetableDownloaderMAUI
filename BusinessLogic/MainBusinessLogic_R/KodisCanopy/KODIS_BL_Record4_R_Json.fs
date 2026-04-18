@@ -194,8 +194,9 @@ module KODIS_BL_Record4_Json =
 
                 let inline checkCancel () = token.ThrowIfCancellationRequested ()
 
-                let shouldRetry (errs : ParsingAndDownloadingErrors list) =
-                    errs
+                let shouldRetry (errors : ParsingAndDownloadingErrors list) =
+
+                    errors
                     |> List.exists
                         (
                             function

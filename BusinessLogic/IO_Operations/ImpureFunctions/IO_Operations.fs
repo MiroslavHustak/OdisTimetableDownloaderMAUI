@@ -154,7 +154,7 @@ module IO_Operations =
                     let dirInfo = DirectoryInfo oldTimetablesPath
 
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, ParsingAndDownloadingErrors>>
-                    dirInfo.Delete()
+                    dirInfo.Delete true
 
                     (*
                     //Time-of-Check-To-Time-Of-Use TOCTOU   
@@ -162,7 +162,7 @@ module IO_Operations =
                     | true
                         -> 
                         deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
-                        dirInfo.Delete()
+                        dirInfo.Delete true
                     | false 
                         ->
                         ()
@@ -188,7 +188,7 @@ module IO_Operations =
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
 
-                    dirInfo.Delete()
+                    dirInfo.Delete true
 
                     (*
                     //Time-of-Check-To-Time-Of-Use TOCTOU   
@@ -200,7 +200,7 @@ module IO_Operations =
                         runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
                         runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
 
-                        dirInfo.Delete()
+                        dirInfo.Delete true
                     | false 
                         ->
                         ()    
@@ -406,18 +406,41 @@ module IO_Operations =
                     } 
         )
 
-    let internal moveFolders source destination err1 err2 : IO<Result<unit, 'a>>= 
+    let private moveFoldersWindows source destination err1 err2 =
+
+        IO (fun () 
+                ->
+                try
+                    //TOCTOU
+                    match Directory.Exists source, Directory.Exists destination with
+                    | false, _    
+                        -> Ok ()
+                    | true, true  
+                        ->
+                        Directory.Delete(destination, true)
+                        Directory.Move(source, destination)
+                        Ok ()
+                    | true, false  
+                        ->
+                        Directory.Move(source, destination)
+                        Ok ()
+                with
+                | ex ->
+                    runIO (postToLog2 <| string ex.Message <| "#0010-IO")
+                    Error err2
+        )
+
+    let internal moveFolders source destination err1 err2 : IO<Result<unit, 'a>> = 
 
         try
             #if ANDROID 
             let isAtLeastAndroid11 = int Build.VERSION.SdkInt >= 30
-            #else
-            let isAtLeastAndroid11 = true
-            #endif
-
             match isAtLeastAndroid11 with   
             | true  -> moveFoldersAndroid11Plus source destination err1 err2
-            | false -> moveFoldersAndroid7_1 source destination err1 err2   
+            | false -> moveFoldersAndroid7_1 source destination err1 err2
+            #else
+            moveFoldersWindows source destination err1 err2
+            #endif
         with
         | ex 
             ->
@@ -425,7 +448,7 @@ module IO_Operations =
                     ->  
                     runIO (postToLog2 <| string ex.Message <| "#0018-IO") 
                     Error err2   
-            )   
+            )
 
     let internal moveAll configKodis (token : CancellationToken)=  
     

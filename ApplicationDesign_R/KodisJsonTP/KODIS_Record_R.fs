@@ -127,7 +127,7 @@ module WebScraping_KODIS =
                 | false -> Error noNetConn2
         )
 
-    let internal stateReducerCmd2 (token : CancellationToken) (state : State) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
+    let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
 
         IO (fun () 
                 ->    
@@ -159,49 +159,7 @@ module WebScraping_KODIS =
                 let result lazyList (context2 : Context2) =                     
                     
                     let dir = context2.DirList |> List.item context2.VariantInt 
-                    
-                    // Paralelni dispatch vubec nepomuze, aby se dispatchMsg2 objevil, ale kod ponechavam for educational purposes
-                    let dispatch () = dispatchWorkIsComplete dispatchMsg1_1
-                        
-                    let list1 () = 
-                        try  
-                            runIO <| filterTimetableLinks context2.Variant dir lazyList //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
-                        with
-                        | ex
-                            ->
-                            runIO (postToLog2 <| string ex.Message <| "#0002-K")
-                            Error <| JsonParsingError2 JsonDataFilteringError 
-                                                      
-                    let taskDispatch param = async { return DispatchDone param } //for educational purposes
-                    let taskList param = async { return ListDone param } //for educational purposes
-                    
-                    let result : Result<TaskResults array, exn>  = //for educational purposes
-                         [|
-                            taskDispatch (dispatch ())
-                            taskList (list1())
-                         |] 
-                         |> Async.Parallel 
-                         |> Async.Catch
-                         |> Async.RunSynchronously
-                         |> Result.ofChoice
-
-                    let result2 : Result<(string * string) list, ParsingAndDownloadingErrors> = //for educational purposes
-                        match result with   
-                        | Ok resultsArray 
-                            ->                         
-                            resultsArray 
-                            |> Array.tryPick 
-                                (
-                                    function 
-                                        | ListDone listResult -> Some listResult 
-                                        | DispatchDone _      -> None
-                                )
-                            |> Option.defaultValue (Error <| JsonParsingError2 JsonDataFilteringError)
-                        | Error _ 
-                            ->  
-                            Error <| JsonParsingError2 JsonDataFilteringError                                
-                   
-                    (*
+                  
                     dispatchWorkIsComplete dispatchMsg1_1 // dispatchMsg2
 
                     let list2 = 
@@ -211,11 +169,9 @@ module WebScraping_KODIS =
                         | ex
                             ->
                             runIO (postToLog <| string ex.Message <| "#0029-K")
-                            Error <| JsonError JsonDataFilteringError                     
-                     *)
+                            Error <| JsonParsingError2 JsonDataFilteringError   
 
-                    //match list2 with                    
-                    match result2 with
+                    match list2 with                    
                     | Ok list
                         when
                             list <> List.empty
@@ -247,41 +203,39 @@ module WebScraping_KODIS =
                         Error err 
                        
                 let dirList = createNewDirectoryPaths path listOfODISVariants
-                    in
-                    let contextCurrentValidity = 
-                        {
-                            DirList = dirList
-                            Variant = CurrentValidity
-                            Msg1 = msg1CurrentValidity
-                            Msg2 = msg2CurrentValidity
-                            Msg3 = msg3CurrentValidity
-                            VariantInt = 0
-                        }
+                   
+                let contextCurrentValidity = 
+                    {
+                        DirList = dirList
+                        Variant = CurrentValidity
+                        Msg1 = msg1CurrentValidity
+                        Msg2 = msg2CurrentValidity
+                        Msg3 = msg3CurrentValidity
+                        VariantInt = 0
+                    }
         
-                    let contextFutureValidity = 
-                        {
-                            DirList = dirList
-                            Variant = FutureValidity
-                            Msg1 = msg1FutureValidity
-                            Msg2 = msg2FutureValidity
-                            Msg3 = msg3FutureValidity
-                            VariantInt = 1
-                        }
+                let contextFutureValidity = 
+                    {
+                        DirList = dirList
+                        Variant = FutureValidity
+                        Msg1 = msg1FutureValidity
+                        Msg2 = msg2FutureValidity
+                        Msg3 = msg3FutureValidity
+                        VariantInt = 1
+                    }
         
-                    let contextLongTermValidity = 
-                        {
-                            DirList = dirList
-                            Variant = LongTermValidity
-                            Msg1 = msg1LongTermValidity
-                            Msg2 = msg2LongTermValidity
-                            Msg3 = msg3LongTermValidity
-                            VariantInt = 2
-                        }
+                let contextLongTermValidity = 
+                    {
+                        DirList = dirList
+                        Variant = LongTermValidity
+                        Msg1 = msg1LongTermValidity
+                        Msg2 = msg2LongTermValidity
+                        Msg3 = msg3LongTermValidity
+                        VariantInt = 2
+                    }
                                                            
                 pyramidOfInferno
                     {       
-                        //dispatchCancelVisible false
-
                         #if ANDROID
                         let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                         #endif
@@ -291,16 +245,14 @@ module WebScraping_KODIS =
                         let lazyList = 
                             //laziness jen jako priprava pro pripadne threadsafe multitasking, zatim zadny rozdil oproti eager + parameterless (krome trochu vetsiho overhead u lazy)
                             try               
-                                runIO <| parseJsonStructure reportProgress token  //TODO pri tvorbe profi UI/UX toto dej jako stateReducerCmd2, ostatni jako stateReducerCmd3
+                                runIO <| parseJsonStructure reportProgress token                                
                             with
                             | ex
                                 ->
                                 runIO (postToLog2 <| string ex.Message <| "#0003-K")
                                 Error <| JsonParsingError2 JsonParsingError
-                                //|> Lazy<Result<string list, JsonParsingAndPdfDownloadErrors>>   
-                        
-                        //dispatchCancelVisible true
-
+                                //|> Lazy<Result<string list, ParsingAndDownloadingErrors>>  
+                      
                         let!_ =  isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn

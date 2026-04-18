@@ -239,6 +239,7 @@ module ProgressValues =
                                 match msg with
                                 | Inc i 
                                     -> 
+                                    //let n' = n + i
                                     reportProgress (float n, float l)
                                     return! loop (n + i)
                                 | Stop
@@ -266,6 +267,7 @@ module ProgressValues =
                                 match msg with
                                 | Inc2 i 
                                     ->
+                                    //let n' = n + i
                                     reportProgress (float n, float l)
                                     return! loop (n + i)
                                 | GetCount2 replyChannel //not used anymore, kept for educational purposes

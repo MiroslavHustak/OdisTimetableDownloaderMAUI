@@ -109,8 +109,7 @@ module Builders =
         member __.Bind(m, f) = fun env -> f (m env) env      
         member __.Return x = fun _ -> x
         member __.ReturnFrom x = x
-        //member __.Zero x = x
-
+  
     let internal reader = ReaderBuilder 
 
     //**************************************************************************************
