@@ -686,8 +686,8 @@ module App =
                     .semantics(hint = hintClearing)
                     .centerHorizontal()
                     .background(SolidColorBrush(Colors.YellowGreen))
-                    .scaleX(animate Clear)
-                    .scaleY(animate Clear)
+                    //.scaleX(animate Clear)
+                    //.scaleY(animate Clear)
     
                 Button(buttonHome, Navigate Home)
                     .semantics(hint = String.Empty)
@@ -706,8 +706,8 @@ module App =
                                 .cornerRadius(2)
                                 .height(25.)
                                 .background(SolidColorBrush(Colors.DarkRed))
-                                .scaleX(animate ClearYes)
-                                .scaleY(animate ClearYes)
+                                //.scaleX(animate ClearYes)
+                                //.scaleY(animate ClearYes)
     
                             Button(buttonClearingCancel, Click ClearNot)
                                 .font(size = 14., attributes = FontAttributes.None)
@@ -715,8 +715,8 @@ module App =
                                 .cornerRadius(2)
                                 .height(25.)
                                 .background(SolidColorBrush(Colors.DarkRed))
-                                .scaleX(animate ClearNot)
-                                .scaleY(animate ClearNot)
+                                //.scaleX(animate ClearNot)
+                                //.scaleY(animate ClearNot)
                         }
                     )
                 )
