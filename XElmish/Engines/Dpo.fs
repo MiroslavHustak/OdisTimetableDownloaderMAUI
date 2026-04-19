@@ -60,11 +60,17 @@ let executeDpo dispatch (token: CancellationToken) =
 
     async
         {
-            use cts = CancellationTokenSource.CreateLinkedTokenSource token
-            umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-
-            match cts.Token.IsCancellationRequested with
-            | true  -> dispatch NavigateHome
-            | false -> return! cmd cts.Token
+            match token.IsCancellationRequested with
+            | true  
+                -> 
+                dispatch NavigateHome
+            | false
+                ->
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                       
+                match cts.Token.IsCancellationRequested with
+                | true  -> dispatch NavigateHome
+                | false -> return! cmd cts.Token
         }
     |> Async.Start

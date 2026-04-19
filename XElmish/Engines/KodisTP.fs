@@ -65,14 +65,18 @@ let internal executeJson dispatch (token : CancellationToken) =
     
     async 
         {   
-            use cts = CancellationTokenSource.CreateLinkedTokenSource token
-            umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-
-            do! cmd cts.Token dispatch 
-                
-            match cts.Token.IsCancellationRequested with 
-            | true  -> return dispatch NavigateHome
-            | false -> return ()
+            match token.IsCancellationRequested with
+            | true  
+                -> 
+                return dispatch NavigateHome
+            | false 
+                ->
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                    
+                match cts.Token.IsCancellationRequested with 
+                | true  -> return dispatch NavigateHome
+                | false -> return! cmd cts.Token dispatch
         }
     |> Async.Start  
     
@@ -117,12 +121,18 @@ let internal executePdf dispatch (token : CancellationToken) =
     
     async 
         {   
-            use cts = CancellationTokenSource.CreateLinkedTokenSource token
-            umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                
-            match cts.Token.IsCancellationRequested with 
-            | true  -> return dispatch NavigateHome
-            | false -> return! cmd cts.Token dispatch
+            match token.IsCancellationRequested with
+            | true  
+                -> 
+                return dispatch NavigateHome
+            | false 
+                ->
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                               
+                match cts.Token.IsCancellationRequested with 
+                | true  -> return dispatch NavigateHome
+                | false -> return! cmd cts.Token dispatch
         }
 
     |> Async.Start       

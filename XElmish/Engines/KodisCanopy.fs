@@ -38,10 +38,10 @@ let execute dispatch (token: CancellationToken) =
    
                     let computation =
                         stateReducerCmd4
-                            token
-                            kodisPathTemp4
-                            (fun msg -> dispatch (IterationMsg msg))   
-                            reportProgress
+                        <| token
+                        <| kodisPathTemp4
+                        <| (fun msg -> dispatch (IterationMsg msg))   
+                        <| reportProgress
     
                     let! result = async { return runIO computation }
     
@@ -80,24 +80,25 @@ let execute dispatch (token: CancellationToken) =
             }  
        
     let executeSequentially dispatch = 
+
         async 
             {          
-                use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                do! cmd4 cts.Token dispatch
-
-                return! cmd5 dispatch                           
+                match token.IsCancellationRequested with
+                | true 
+                    -> dispatch NavigateHome
+                | false 
+                    ->
+                    use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                    umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                    do! cmd4 cts.Token dispatch
+                    return! cmd5 dispatch                           
             }
         |> Async.Start  
     
     async 
         {   
-            use cts = CancellationTokenSource.CreateLinkedTokenSource token
-            umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                
-            match cts.Token.IsCancellationRequested with 
+            match token.IsCancellationRequested with
             | true  -> return dispatch NavigateHome
             | false -> return executeSequentially dispatch
         }
-    |> Async.Start                    
-
+    |> Async.Start          

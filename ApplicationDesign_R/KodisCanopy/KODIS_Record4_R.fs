@@ -180,8 +180,6 @@ module WebScraping_KODIS4 =
                 #if ANDROID
                 let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
                 #endif
-                
-                //dispatchCancelVisible false
                
                 let!_ = runIO <| moveAll configKodis token, errFn
                 let!_ = runIO <| deleteAllODISDirectories path, errFn                     

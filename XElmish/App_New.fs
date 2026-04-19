@@ -370,7 +370,17 @@ module App =
             }, Cmd.none    
    
         | StartDownload KodisJsonTP 
-            ->           
+            ->       
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
+
             let cts = new CancellationTokenSource()
    
             let cmd =
@@ -392,6 +402,16 @@ module App =
 
         | StartDownload KodisPdfTP 
             ->      
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
+
             let cts = new CancellationTokenSource()
    
             let cmd =
@@ -413,6 +433,16 @@ module App =
 
         | StartDownload KodisCanopy4 
             ->
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
+
             let cts = new CancellationTokenSource()
    
             let cmd =
@@ -431,9 +461,19 @@ module App =
                     Connectivity = connectivity 
                     KodisCTS = Some cts
             }, cmd 
-
+       
         | StartDownload Dpo
             -> 
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
+
             let cts = new CancellationTokenSource()
              
             let cmd =
@@ -455,6 +495,16 @@ module App =
         
         | StartDownload Mdpo
             -> 
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
+
             let cts = new CancellationTokenSource()
          
             let cmd =

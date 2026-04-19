@@ -353,3 +353,45 @@
 04/18/2026 21:05:53 +02:00 The directory is not empty. : 'g:\Users\User\DataOld\' Error#0005-IO
 04/18/2026 21:17:26 +02:00 The operation was canceled. Error#0001-K
 04/19/2026 00:38:41 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/19/2026 01:32:37 +02:00 Access to the path '015_2026_04_15_2026_12_12.pdf' is denied. Error#0010-IO
+04/19/2026 01:33:25 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:33:25 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/19/2026 01:34:06 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:13 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:15 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:17 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:17 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/19/2026 01:34:34 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:34 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:35 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:35 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:35 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:35 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:34:35 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/19/2026 01:35:20 +02:00 The operation was canceled. Error#0001-K
+04/19/2026 01:38:13 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/19/2026 01:38:14 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/19/2026 01:38:14 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/19/2026 01:38:14 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+04/19/2026 01:38:14 +02:00 Cancelled at RunSynchronously Error#0018-KBL
+04/19/2026 01:48:14 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:48:23 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 01:48:23 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/19/2026 02:07:36 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:07:45 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:07:46 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:07:46 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:07:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:07:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:07:47 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/19/2026 02:08:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:08:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:08:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:08:20 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/19/2026 02:09:14 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:09:15 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:09:15 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:09:15 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/19/2026 02:09:15 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
