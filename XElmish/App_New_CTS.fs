@@ -24,7 +24,6 @@ open ProgressCircle
 open Settings.Messages
 open Settings.SettingsGeneral
 
-open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
@@ -45,7 +44,7 @@ open OdisTimetableDownloaderMAUI.Engines.KodisCanopy
 open OdisTimetableDownloaderMAUI.Engines.Dpo
 open OdisTimetableDownloaderMAUI.Engines.Mdpo
 
-module App =
+module App_CTS =
 
     type PermissionState = 
         | Granted 
@@ -90,6 +89,7 @@ module App =
             Screen : Screen
             Status : string
             ActiveButton : ButtonType option
+            KodisCTS : CancellationTokenSource option
         }
 
     type Msg =
@@ -117,12 +117,6 @@ module App =
             runIO <| startConnectivityMonitoring 250 (fun isConnected -> debounceActor.Post isConnected)     
                 
         Cmd.ofSub sub
-
-    let private kodisJsonActor = localCancellationActor()
-    let private kodisPdfActor = localCancellationActor()
-    let private kodisCanopyActor = localCancellationActor()         
-    let private dpoActor = localCancellationActor()
-    let private mdpoActor = localCancellationActor()
           
     // =============================================
     // INIT
@@ -158,6 +152,7 @@ module App =
                 Screen = initialScreen
                 Status = match permission with Granted -> String.Empty | NotGranted -> appInfoInvoker
                 ActiveButton = None
+                KodisCTS = None
             }
     
         match permission with
@@ -255,19 +250,7 @@ module App =
                         let! _ = saveJsonToFileAsync >> runIO <| ()
                         return Dummy
                     }
-                |> Cmd.ofAsyncMsg     
-                
-            match m.Screen with
-            | Downloading _ 
-                ->
-                kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
-                kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
-                kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
-            | _ 
-                -> 
-                ()
+                |> Cmd.ofAsyncMsg      
           
             let msg = HardRestart.exitApp >> runIO <| () 
             { m with Status = msg }, cmd ()
@@ -275,18 +258,6 @@ module App =
 
             #if ANDROID
             runIO <| KeepScreenOnManager.keepScreenOn false  
-
-            match m.Screen with
-            | Downloading _ 
-                ->
-                kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
-                kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
-                kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
-            | _ 
-                -> 
-                ()
 
             let msg = HardRestart.exitApp >> runIO <| () 
 
@@ -298,19 +269,20 @@ module App =
    
         | CancelDownload 
             ->           
-            [
-                kodisJsonActor
-                kodisPdfActor
-                kodisCanopyActor
-                mdpoActor
-                dpoActor
-            ]
-            |> List.iter cancelLocalActor
+            match m.KodisCTS with
+            | Some cts 
+                ->
+                cts.Cancel()
+                cts.Dispose()
+            | None
+                ->
+                ()
         
             {
                 m with
                     Screen = Home
                     Status = cancelMsg42
+                    KodisCTS = None
             }, Cmd.none 
    
         | RequestPermission
@@ -398,134 +370,159 @@ module App =
             }, Cmd.none    
    
         | StartDownload KodisJsonTP 
-            ->    
-            kodisJsonActor.PostAndReply(fun reply -> GetToken reply) 
-            |> function
-                | Some token 
-                    ->  
-                    let cmd =
-                        Cmd.ofSub
-                            (fun dispatch
-                                ->
-                                Engines.KodisTP.executeJson
-                                <| (fun m -> KodisTPMsg >> dispatch <| m)
-                                <| token
-                            )
-   
-                    { 
-                        m with
-                            Screen = Downloading (KodisJsonTP, Idle)
-                            Status = progressMsgKodis
-                            Connectivity = connectivity 
-                    }, cmd
+            ->       
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
 
-                | None 
-                    -> 
-                    m, Cmd.none 
+            let cts = new CancellationTokenSource()
+   
+            let cmd =
+                Cmd.ofSub
+                    (fun dispatch
+                        ->
+                        Engines.KodisTP.executeJson
+                        <| (fun m -> KodisTPMsg >> dispatch <| m)
+                        <| cts.Token
+                    )
+   
+            { 
+                m with
+                    Screen = Downloading (KodisJsonTP, Idle)
+                    Status = progressMsgKodis
+                    Connectivity = connectivity 
+                    KodisCTS = Some cts
+            }, cmd
 
         | StartDownload KodisPdfTP 
             ->      
-            kodisPdfActor.PostAndReply(fun reply -> GetToken reply) 
-            |> function
-                | Some token 
-                    ->    
-                    let cmd =
-                        Cmd.ofSub 
-                            (fun dispatch
-                                ->
-                                Engines.KodisTP.executePdf
-                                <| (fun m -> KodisTPMsg >> dispatch <| m)
-                                <| token
-                            )
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
+
+            let cts = new CancellationTokenSource()
    
-                    { 
-                        m with
-                            Screen = Downloading (KodisPdfTP, Idle)
-                            Status = dispatchMsg2
-                            Connectivity = connectivity 
-                    }, cmd    
-                    
-                | None 
-                    -> 
-                    m, Cmd.none 
+            let cmd =
+                Cmd.ofSub 
+                    (fun dispatch
+                        ->
+                        Engines.KodisTP.executePdf
+                        <| (fun m -> KodisTPMsg >> dispatch <| m)
+                        <| cts.Token
+                    )
+   
+            { 
+                m with
+                    Screen = Downloading (KodisPdfTP, Idle)
+                    Status = dispatchMsg2
+                    Connectivity = connectivity 
+                    KodisCTS = Some cts
+            }, cmd               
 
         | StartDownload KodisCanopy4 
             ->
-            kodisCanopyActor.PostAndReply(fun reply -> GetToken reply) 
-            |> function
-                | Some token 
-                    ->       
-                    let cmd =
-                        Cmd.ofSub 
-                            (fun dispatch
-                                ->
-                                Engines.KodisCanopy.execute
-                                <| (fun m -> KodisCanopyMsg >> dispatch <| m)
-                                <| token
-                            )
-   
-                    { 
-                        m with
-                            Screen = Downloading (KodisCanopy4, Idle)
-                            Status = String.Empty 
-                            Connectivity = connectivity 
-                    }, cmd
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
 
-                | None 
-                    ->
-                    m, Cmd.none 
+            let cts = new CancellationTokenSource()
+   
+            let cmd =
+                Cmd.ofSub 
+                    (fun dispatch
+                        ->
+                        Engines.KodisCanopy.execute
+                        <| (fun m -> KodisCanopyMsg >> dispatch <| m)
+                        <| cts.Token
+                    )
+   
+            { 
+                m with
+                    Screen = Downloading (KodisCanopy4, Idle)
+                    Status = String.Empty 
+                    Connectivity = connectivity 
+                    KodisCTS = Some cts
+            }, cmd 
        
         | StartDownload Dpo
             -> 
-            dpoActor.PostAndReply(fun reply -> GetToken reply) 
-            |> function
-                | Some token 
-                    ->
-                    let cmd =
-                        Cmd.ofSub 
-                            (fun dispatch
-                                ->
-                                Engines.Dpo.executeDpo
-                                <| (fun m -> DpoMsg >> dispatch <| m)
-                                <| token
-                            )
-   
-                    { 
-                        m with
-                            Screen = Downloading (Dpo, Idle)
-                            Status = String.Empty  //TODO
-                            Connectivity = connectivity 
-                    }, cmd 
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
 
-                | None 
-                    ->
-                    m, Cmd.none 
+            let cts = new CancellationTokenSource()
+             
+            let cmd =
+                Cmd.ofSub 
+                    (fun dispatch
+                        ->
+                        Engines.Dpo.executeDpo
+                        <| (fun m -> DpoMsg >> dispatch <| m)
+                        <| cts.Token
+                    )
+   
+            { 
+                m with
+                    Screen = Downloading (Dpo, Idle)
+                    Status = String.Empty  //TODO
+                    Connectivity = connectivity 
+                    KodisCTS = Some cts
+            }, cmd 
         
         | StartDownload Mdpo
             -> 
-            mdpoActor.PostAndReply(fun reply -> GetToken reply) 
-            |> function
-                | Some token 
-                    ->         
-                    let cmd =
-                        Cmd.ofSub 
-                            (fun dispatch
-                                ->
-                                Engines.Mdpo.executeMdpo
-                                <| (fun m -> MdpoMsg >> dispatch <| m)
-                                <| token
-                            )
-   
-                    { 
-                        m with
-                            Screen = Downloading (Mdpo, Idle)
-                            Status = String.Empty  
-                            Connectivity = connectivity 
-                    }, cmd 
+            match m.KodisCTS with
+            | Some oldCts
+                -> 
+                try 
+                    oldCts.Cancel()
+                    oldCts.Dispose() 
+                with
+                | _ -> ()
+            | None -> ()
 
-                | None 
-                    ->
-                    m, Cmd.none
+            let cts = new CancellationTokenSource()
+         
+            let cmd =
+                Cmd.ofSub 
+                    (fun dispatch
+                        ->
+                        Engines.Mdpo.executeMdpo
+                        <| (fun m -> MdpoMsg >> dispatch <| m)
+                        <| cts.Token
+                    )
+   
+            { 
+                m with
+                    Screen = Downloading (Mdpo, Idle)
+                    Status = String.Empty  
+                    Connectivity = connectivity 
+                    KodisCTS = Some cts
+            }, cmd 
 
         | KodisTPMsg msg
             ->
@@ -545,29 +542,27 @@ module App =
                 ->            
                 match m.Screen with            
                 | Downloading (KodisJsonTP, _)
-                    ->   
-                    kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Status = dispatchMsg2 }, StartDownload >> Cmd.ofMsg <| KodisPdfTP           
+                    ->            
+                    { m with Status = dispatchMsg2; KodisCTS = None },
+                        StartDownload >> Cmd.ofMsg <| KodisPdfTP           
                
                 | Downloading (KodisPdfTP, _) 
-                    ->      
-                    kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = String.Empty }, Cmd.none
+                    ->            
+                    {
+                        m with
+                            Screen = Completed result
+                            Status = String.Empty // result
+                            KodisCTS = None
+                    }, Cmd.none
             
                 | _ ->
                     m, Cmd.none
         
             | Engines.KodisTP.ErrorKodis err
-                ->
-                kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
-                kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = ErrorScreen err }, Cmd.none
+                -> { m with Screen = ErrorScreen err; KodisCTS = None }, Cmd.none
         
             | Engines.KodisTP.NavigateHome 
-                -> 
-                kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
-                kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = Home }, Cmd.none            
+                -> { m with Screen = Home; KodisCTS = None }, Cmd.none            
                 
         | KodisCanopyMsg msg
             ->
@@ -587,22 +582,22 @@ module App =
                 ->            
                 match m.Screen with               
                 | Downloading (KodisCanopy4 , _) 
-                    ->  
-                    kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = String.Empty }, Cmd.none
+                    ->            
+                    {
+                        m with
+                            Screen = Completed result
+                            Status = String.Empty //result
+                            KodisCTS = None
+                    }, Cmd.none
         
                 | _ ->
                     m, Cmd.none
         
             | Engines.KodisCanopy.ErrorKodis err
-                -> 
-                kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = ErrorScreen err }, Cmd.none
+                -> { m with Screen = ErrorScreen err; KodisCTS = None }, Cmd.none
         
             | Engines.KodisCanopy.NavigateHome 
-                -> 
-                kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = Home }, Cmd.none   
+                -> { m with Screen = Home; KodisCTS = None }, Cmd.none   
                 
             | Engines.KodisCanopy.Preparing
                 ->
@@ -629,22 +624,22 @@ module App =
                 ->            
                 match m.Screen with               
                 | Downloading (Dpo , _) 
-                    ->    
-                    dpoActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = String.Empty }, Cmd.none
+                    ->            
+                    {
+                        m with
+                            Screen = Completed result
+                            Status = String.Empty //result
+                            KodisCTS = None
+                    }, Cmd.none
         
                 | _ ->
                     m, Cmd.none
         
             | Engines.Dpo.ErrorDpo err
-                -> 
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = ErrorScreen err }, Cmd.none
+                -> { m with Screen = ErrorScreen err; KodisCTS = None }, Cmd.none
         
             | Engines.Dpo.NavigateHome 
-                ->
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = Home }, Cmd.none  
+                -> { m with Screen = Home; KodisCTS = None }, Cmd.none  
                 
         | MdpoMsg msg
             ->
@@ -664,22 +659,22 @@ module App =
                 ->            
                 match m.Screen with               
                 | Downloading (Mdpo , _) 
-                    ->    
-                    mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = String.Empty }, Cmd.none
+                    ->            
+                    {
+                        m with
+                            Screen = Completed result
+                            Status = String.Empty 
+                            KodisCTS = None
+                    }, Cmd.none
                
                 | _ ->
                     m, Cmd.none
                
             | Engines.Mdpo.ErrorMdpo err
-                -> 
-                mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = ErrorScreen err }, Cmd.none
+                -> { m with Screen = ErrorScreen err; KodisCTS = None }, Cmd.none
                
             | Engines.Mdpo.NavigateHome  
-                -> 
-                mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = Home }, Cmd.none  
+                -> { m with Screen = Home; KodisCTS = None }, Cmd.none  
 
     let view (m: Model) : WidgetBuilder<Msg, IFabApplication> =
         
@@ -806,7 +801,7 @@ module App =
                 Button(buttonCancel, CancelDownload)
                     .semantics(hint = String.Empty)
                     .centerHorizontal()
-                    .isVisible(                    
+                    .isVisible(                    // ← only show when actually downloading
                         match ps with
                         | InProgress _ -> true
                         | _            -> false
@@ -899,11 +894,6 @@ module App =
                             .semantics(hint = String.Empty)
                             .centerHorizontal()
                             .background(SolidColorBrush(Colors.Green))
-                            .isEnabled(
-                                match m.Screen with
-                                | Downloading _ -> false
-                                | _             -> true                            
-                            )
                     })
                         .padding(30., 0., 30., 0.)
                         .centerVertical()

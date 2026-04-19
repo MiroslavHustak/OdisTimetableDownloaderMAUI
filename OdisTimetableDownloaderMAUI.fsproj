@@ -192,6 +192,7 @@
     <Compile Include="XElmish\Engines\Dpo.fs" />
     <Compile Include="XElmish\Engines\Mdpo.fs" />
     <Compile Include="XElmish\Test_App_Old.fs" />
+    <Compile Include="XElmish\App_New_CTS.fs" />
     <Compile Include="XElmish\App_New.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
