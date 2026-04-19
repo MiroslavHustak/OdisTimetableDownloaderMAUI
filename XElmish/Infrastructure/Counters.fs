@@ -12,52 +12,9 @@ open Api.Logging
 
 open Types.Types
 open Types.Haskell_IO_Monad_Simulation
-open Helpers.ConnectivityWithDebouncing
 
 module Counters =  
-
-    // Not used yet
-    let internal countDownNew countDownMessage netConnMessage quit dispatch =
-              
-        IO (fun () 
-                ->  
-                //abych se zbavil varovani ohledne capital letters v parametrech
-                let CountDownMessage = countDownMessage 
-                let NetConnMessage = netConnMessage
-                let Quit = quit
-
-                //This "loop" fn anotated with [<TailCall>] tested as a module fn in another F# project; no warnings encountered
-                let rec loop remaining =
-
-                    async
-                        {
-                            CountDownMessage >> dispatch <| (quitMsg remaining)
-          
-                            match isNowConnected () with
-                            | false 
-                                when remaining = 0
-                                    ->
-                                    do! 
-                                        async { return dispatch Quit }
-                                        |> Async.executeOnMainThread  
-                            | false 
-                                when remaining <> 0 
-                                    ->
-                                    do! Async.Sleep 1000
-                                 
-                                    return! loop (remaining - 1) // Recurring with the next remaining value
-                            | _ 
-                                    ->
-                                    do! runIO (postToLog2Async <| "End of counter loop" <| "#0001-Counters")                                    
-                                    return!                                        
-                                        async { return NetConnMessage >> dispatch <| continueDownload } 
-                                        |> Async.executeOnMainThread 
-                        }
-          
-                //Async.StartImmediate (loop waitingForNetConn) //Async.StartImmediate -> common cause of ANRs (Application Not Responding) on Android.
-                Async.Start (umSecondsToInt32 >> loop <| waitingForNetConn) 
-        )
-
+   
     // Not used yet 
     let internal countDown2 isConnected quitCountdown restartVisible netConnMessage quit dispatch =
            
@@ -142,6 +99,3 @@ module Counters =
                                 |> Async.executeOnMainThread                           
                     ) 
         )
-
-    // Pouzivana varianta odpocitadla 
-   

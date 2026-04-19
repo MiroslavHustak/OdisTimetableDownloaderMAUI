@@ -96,9 +96,10 @@ module Types =
        | DispatchDone of unit
        | ListDone of Result<(string * string) list, ParsingAndDownloadingErrors> 
         
-    type [<Struct>] internal MsgIncrement =
+    type internal MsgIncrement =
         | Inc of int 
         | Stop 
+        | StopAndWait of AsyncReplyChannel<unit>
 
     type internal MsgIncrement2 = 
         | Inc2 of int

@@ -1,7 +1,6 @@
 ﻿namespace OdisTimetableDownloaderMAUI
 
 open System
-open System.Threading
 
 open Fabulous
 open Fabulous.Maui
@@ -19,6 +18,7 @@ open Xamarin.Essentials
 
 open type Fabulous.Maui.View
 
+open ActorModels
 open ProgressCircle
 
 open Settings.Messages
@@ -28,9 +28,7 @@ open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
-open ActorModels
 open IO_Operations.IO_Operations
-
 open Helpers.ConnectivityWithDebouncing
 
 #if ANDROID
@@ -108,6 +106,10 @@ module App =
         | Dummy
         | Quit
 
+   // =============================================
+   // CANCELLATION AND CONNECTIVITY HELPERS
+   // =============================================
+
     let connectivityDebouncerSubscription (_model : Model) =
     
         let sub (dispatch : Msg -> unit) =       
@@ -123,16 +125,16 @@ module App =
     let private kodisCanopyActor = localCancellationActor()         
     let private dpoActor = localCancellationActor()
     let private mdpoActor = localCancellationActor()
-          
-    // =============================================
-    // INIT
-    // =============================================
 
     let private connectivity msg = 
         match isNowConnected () with    
         | true  -> Connected yesNetConn
-        | false -> Disconnected msg
-
+        | false -> Disconnected msg // nech to tak, aji kdyz zatim jen noNetConn4, mozna se bude hodit
+          
+    // =============================================
+    // INIT
+    // =============================================
+    
     let init () : Model * Cmd<Msg> =
 
         #if ANDROID
@@ -143,11 +145,11 @@ module App =
     
         let permission = match permissionGranted with true -> Granted | false -> NotGranted        
     
-        let connectivity = connectivity noNetConn2
+        let connectivity = connectivity noNetConn4
     
         let initialScreen = 
             match permission, connectivity with
-            | _, Disconnected _    -> NoConnection  // ← disconnected always wins
+            | _, Disconnected _    -> NoConnection  
             | NotGranted, _        -> NoPermission
             | Granted, Connected _ -> Home
     
@@ -156,7 +158,16 @@ module App =
                 Permission = permission
                 Connectivity = connectivity
                 Screen = initialScreen
-                Status = match permission with Granted -> String.Empty | NotGranted -> appInfoInvoker
+                Status = 
+                    match initialScreen with
+                    | NoConnection 
+                        -> 
+                        noNetConn4
+                    | _ 
+                        ->
+                        match permission with
+                        | Granted    -> String.Empty
+                        | NotGranted -> appInfoInvoker
                 ActiveButton = None
             }
     
@@ -177,7 +188,7 @@ module App =
 
     let update (msg : Msg) (m : Model) : Model * Cmd<Msg> =
 
-        let connectivity = connectivity noNetConn2
+        let connectivity = connectivity noNetConn4
          
         match msg with   
         | Dummy 
@@ -290,10 +301,7 @@ module App =
 
             let msg = HardRestart.exitApp >> runIO <| () 
 
-            { 
-                m with Status = msg
-            },
-            Cmd.none
+            { m with Status = msg }, Cmd.none
             #endif
    
         | CancelDownload 
@@ -404,7 +412,7 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.KodisTP.executeJson
-                                <| (fun m -> KodisTPMsg >> dispatch <| m)
+                                <| fun m -> KodisTPMsg >> dispatch <| m
                                 <| token
                             )
    
@@ -430,7 +438,7 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.KodisTP.executePdf
-                                <| (fun m -> KodisTPMsg >> dispatch <| m)
+                                <| fun m -> KodisTPMsg >> dispatch <| m
                                 <| token
                             )
    
@@ -456,7 +464,7 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.KodisCanopy.execute
-                                <| (fun m -> KodisCanopyMsg >> dispatch <| m)
+                                <| fun m -> KodisCanopyMsg >> dispatch <| m
                                 <| token
                             )
    
@@ -482,7 +490,7 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.Dpo.executeDpo
-                                <| (fun m -> DpoMsg >> dispatch <| m)
+                                <| fun m -> DpoMsg >> dispatch <| m
                                 <| token
                             )
    
@@ -508,7 +516,7 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.Mdpo.executeMdpo
-                                <| (fun m -> MdpoMsg >> dispatch <| m)
+                                <| fun m -> MdpoMsg >> dispatch <| m
                                 <| token
                             )
    
@@ -563,7 +571,13 @@ module App =
                 -> 
                 kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
                 kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = Home }, Cmd.none            
+                { m with Screen = Home }, Cmd.none      
+                
+            | Engines.KodisTP.NoInternet 
+                ->
+                kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
+                kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
+                { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none
                 
         | KodisCanopyMsg msg
             ->
@@ -606,6 +620,11 @@ module App =
                 | Downloading (dt, _) 
                     -> { m with Screen = Downloading (dt, ProgressState.Preparing) }, Cmd.none
                 | _ -> m, Cmd.none
+
+            | Engines.KodisCanopy.NoInternet 
+                ->
+                kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
+                { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none   
                 
         | DpoMsg msg
             ->
@@ -641,6 +660,11 @@ module App =
                 ->
                 dpoActor.PostAndReply(fun reply -> StopLocal reply)
                 { m with Screen = Home }, Cmd.none  
+
+            | Engines.Dpo.NoInternet 
+                ->
+                dpoActor.PostAndReply(fun reply -> StopLocal reply)
+                { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none
                 
         | MdpoMsg msg
             ->
@@ -676,6 +700,11 @@ module App =
                 -> 
                 mdpoActor.PostAndReply(fun reply -> StopLocal reply)
                 { m with Screen = Home }, Cmd.none  
+
+            | Engines.Mdpo.NoInternet 
+                ->
+                mdpoActor.PostAndReply(fun reply -> StopLocal reply)
+                { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none
 
     let view (m: Model) : WidgetBuilder<Msg, IFabApplication> =
         
@@ -814,18 +843,22 @@ module App =
                 Label(msg)
                     .font(size = 14.)
                     .centerTextHorizontal()
-    
+        
                 Button(buttonHome, Navigate Home)
                     .semantics(hint = String.Empty)
                     .background(SolidColorBrush(Colors.LightGreen))
                     .centerHorizontal()
                     .scaleX(animate Restart)
                     .scaleY(animate Restart)
+                    .isVisible(
+                        match m.Connectivity with
+                        | Connected _    -> true
+                        | Disconnected _ -> false
+                    )
             }
     
         let noConnectionView =
             VStack(spacing = 25.) {
-                //Label(noNetConnInitial)
                 Label(String.Empty)
                     .font(size = 14.)
                     .centerTextHorizontal()
@@ -874,8 +907,8 @@ module App =
 
                         Label(m.Connectivity 
                                  |> function 
-                                     | Connected msg    -> msg
-                                     | Disconnected msg -> msg
+                                     | Connected msg  -> msg
+                                     | Disconnected _ -> String.Empty
                              )
                             .semantics(SemanticHeadingLevel.Level3, String.Empty)
                             .font(size = 14.)

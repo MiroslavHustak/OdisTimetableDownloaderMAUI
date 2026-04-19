@@ -239,12 +239,15 @@ module ProgressValues =
                                 match msg with
                                 | Inc i 
                                     -> 
-                                    //let n' = n + i
                                     reportProgress (float n, float l)
                                     return! loop (n + i)
                                 | Stop
                                     ->
                                     return () // exit loop → agent terminates
+                                | StopAndWait reply 
+                                    ->
+                                    reply.Reply()
+                                    return ()
                             with
                             | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0001-KBLJson")
                         }
@@ -267,7 +270,6 @@ module ProgressValues =
                                 match msg with
                                 | Inc2 i 
                                     ->
-                                    //let n' = n + i
                                     reportProgress (float n, float l)
                                     return! loop (n + i)
                                 | GetCount2 replyChannel //not used anymore, kept for educational purposes

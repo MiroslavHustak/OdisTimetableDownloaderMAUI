@@ -20,6 +20,7 @@ type MdpoMsg  =
     | Completed of string
     | ErrorMdpo of string
     | NavigateHome
+    | NoInternet 
     
 let executeMdpo dispatch (token: CancellationToken) =
 
@@ -52,12 +53,15 @@ let executeMdpo dispatch (token: CancellationToken) =
                 | ex
                     ->
                     match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
-                    | err when err = StopDownloading 
+                    | err 
+                        when err = StopDownloading 
                         ->
-                        return dispatch NavigateHome                                                       
+                        match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                        | false -> return dispatch NoInternet
+                        | true  -> return dispatch NavigateHome                                                       
                     | _ ->
                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
-                        return ErrorMdpo >> dispatch <| criticalElmishErrorMdpo
+                        return dispatch NoInternet
             }
 
     async 

@@ -19,33 +19,6 @@ open FSharp.Quotations.Evaluator.QuotationEvaluationExtensions
 
 open Settings.SettingsGeneral
 
-module private Channels = // Create a bounded channel of a given type and capacity
-    
-    let private createChannel<'a> (capacity: int) : Channel<'a> =
-        Channel.CreateBounded<'a>(capacity)
-
-module private Consumers =
-
-    let private consumer<'a> (reader: ChannelReader<'a>) (token: CancellationToken) : AsyncSeq<'a> =
-
-        AsyncSeq.unfoldAsync
-            (fun ()
-                ->
-                async
-                    {
-                        let! hasItem = reader.WaitToReadAsync(token).AsTask() |> Async.AwaitTask
-
-                        match hasItem with
-                        | false 
-                            -> 
-                            return None
-                        | true 
-                            ->
-                            let! item = reader.ReadAsync(token).AsTask() |> Async.AwaitTask
-                            return Some(item, ())
-                    }
-            ) () 
-
 //************************************************************************
 
 // !!!! APPLY TRY-WITH BLOCKS WHEN USING FUNCTIONS FROM List.Parallel !!!!!

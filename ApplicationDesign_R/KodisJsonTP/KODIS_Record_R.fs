@@ -124,7 +124,7 @@ module WebScraping_KODIS =
 
                 match isNowConnected () with 
                 | true  -> downloadAndSaveJson reportProgress token 
-                | false -> Error noNetConn2
+                | false -> Error noNetConn4
         )
 
     let internal stateReducerCmd2 (token : CancellationToken) path dispatchWorkIsComplete dispatchIterationMessage reportProgress =
@@ -253,7 +253,7 @@ module WebScraping_KODIS =
                                 Error <| JsonParsingError2 JsonParsingError
                                 //|> Lazy<Result<string list, ParsingAndDownloadingErrors>>  
                       
-                        let!_ =  isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
+                        let!_ = isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
                         let! msg1 = result lazyList contextCurrentValidity, errFn
                         let! msg2 = result lazyList contextFutureValidity, errFn
                         let! msg3 = result lazyList contextLongTermValidity, errFn   

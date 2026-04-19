@@ -10,7 +10,6 @@ open Api.Logging
 open Helpers.ExceptionHelpers
 open ApplicationDesign_R.WebScraping_KODIS
 
-open Settings.Messages
 open Settings.SettingsGeneral
 
 type KodisTPMsg =
@@ -19,10 +18,11 @@ type KodisTPMsg =
     | Completed of string
     | ErrorKodis of string
     | NavigateHome
+    | NoInternet 
 
 let internal executeJson dispatch (token : CancellationToken) =
 
-    let reportProgress (progressValue : float, totalProgress: float) =
+    let reportProgress (progressValue : float, totalProgress : float) =
         match token.IsCancellationRequested with
         | true  -> dispatch (Progress (0.0, 1.0))
         | false -> dispatch (Progress (progressValue, totalProgress))
@@ -53,14 +53,17 @@ let internal executeJson dispatch (token : CancellationToken) =
                 with
                 | ex ->                    
                     match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
-                    | err when err = StopDownloading 
+                    | err 
+                        when err = StopDownloading 
                         ->
                         runIO (postToLog2 <| string ex.Message <| " StopDownloading #9998 Kodis TP")
-                        ErrorKodis >> dispatch <| androidError
-                        return dispatch NavigateHome   
+
+                        match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                        | false -> return dispatch NoInternet
+                        | true  -> return dispatch NavigateHome 
                     | _ ->
                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
-                        return ErrorKodis >> dispatch <| string ex.Message 
+                        return dispatch NoInternet
             }
     
     async 
@@ -113,10 +116,12 @@ let internal executePdf dispatch (token : CancellationToken) =
                     | err 
                         when err = StopDownloading 
                         ->
-                        return dispatch NavigateHome   
+                        match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                        | false -> return dispatch NoInternet
+                        | true  -> return dispatch NavigateHome  
                     | _ ->
                         runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
-                        return ErrorKodis >> dispatch <| criticalElmishErrorKodis
+                        return dispatch NoInternet
             }
     
     async 

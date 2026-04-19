@@ -70,8 +70,7 @@ module ParseJsonData =
                                         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
                                         |> List.filter (not << isNull)  //just in case
 
-                                    counterAndProgressBar.Post Stop 
-                                    async { checkCancel token; return Thread.Sleep 3000 } |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                    counterAndProgressBar.PostAndReply(fun reply -> StopAndWait reply)
                                                                        
                                     return 
                                         (token, pathToJsonList3, kodisJsonSamples) 

@@ -72,7 +72,7 @@ module Messages =
     let [<Literal>] internal dpoCancelMsg = "Stahování JŘ DPO předčasně ukončeno."
     let [<Literal>] internal dpoCancelMsg1 = "Stahování JŘ DPO předčasně ukončeno, úklid se nepodařil."
   
-    let [<Literal>] internal progressMsgKodis = "Stahují se JSON soubory potřebné pro stahování JŘ ODIS ..." 
+    let [<Literal>] internal progressMsgKodis = "Stahování JSON souborů potřebných pro stahování JŘ ODIS" 
     let [<Literal>] internal progressMsgKodis1 = "Varianta bez stahování JSON souborů a s použitím web API. Vyčkej na zahájení ..." 
     let [<Literal>] internal progressMsgDpo = "Zálohují se staré JŘ DPO a stahují se nové ..." 
     let [<Literal>] internal progressMsgMdpo = "Zálohují se staré zastávkové JŘ MDPO a stahují se nové ..."
