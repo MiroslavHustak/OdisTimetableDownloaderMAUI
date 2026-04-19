@@ -84,6 +84,7 @@ module Types =
         | CancelToken
         | Reset of CancellationTokenSource
         | StopLocal of AsyncReplyChannel<unit> 
+        | CancelAndReset of AsyncReplyChannel<unit>
 
     type internal CancellationMessageGlobal =
         | UpdateStateGlobal of bool * CancellationTokenSource

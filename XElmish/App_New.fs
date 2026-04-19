@@ -305,13 +305,9 @@ module App =
                 mdpoActor
                 dpoActor
             ]
-            |> List.iter cancelLocalActor
+            |> List.iter cancelLocalActor2
         
-            {
-                m with
-                    Screen = Home
-                    Status = cancelMsg42
-            }, Cmd.none 
+            { m with Status = cancelMsg42 }, Cmd.ofMsg (Navigate Home)
    
         | RequestPermission
             ->
@@ -451,7 +447,7 @@ module App =
 
         | StartDownload KodisCanopy4 
             ->
-            kodisCanopyActor.PostAndReply(fun reply -> GetToken reply) 
+            kodisCanopyActor.PostAndReply(fun reply -> GetToken reply)            
             |> function
                 | Some token 
                     ->       

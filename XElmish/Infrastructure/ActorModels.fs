@@ -94,6 +94,15 @@ module ActorModels =
                                     cts.Cancel()
                                     cts.Dispose()
                                     reply.Reply()
+                                    return! loop (new CancellationTokenSource()) //for App_New
+
+                                | CancelAndReset reply
+                                    ->
+                                    cts.Cancel()
+                                    cts.Dispose()
+                                    let newCts = new CancellationTokenSource()
+                                    reply.Reply()
+                                    return! loop newCts
                             }
     
                     loop (new CancellationTokenSource())
@@ -105,6 +114,10 @@ module ActorModels =
     
         actor.Post CancelToken
         Reset >> actor.Post <| newCts
+
+    let internal cancelLocalActor2 (actor : MailboxProcessor<CancellationMessageLocal>) =
+
+        actor.PostAndReply(fun reply -> CancelAndReset reply)
 
         (*
         async 
