@@ -33,9 +33,7 @@ let execute dispatch (token : CancellationToken) =
             {
                 try
                     do! Async.SwitchToThreadPool()    
-
-                    dispatch Preparing // zabranuje overlap v progress circle
-   
+                                           
                     let computation =
                         stateReducerCmd4
                         <| token

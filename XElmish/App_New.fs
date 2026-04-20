@@ -470,7 +470,7 @@ module App =
    
                     { 
                         m with
-                            Screen = Downloading (KodisCanopy4, Idle)
+                            Screen = Downloading (KodisCanopy4, Preparing)  //Screen = Downloading (KodisCanopy4, Idle)
                             Status = String.Empty 
                             Connectivity = connectivity 
                     }, cmd
@@ -734,7 +734,8 @@ module App =
     
         let progressCircleVisible =
             match m.Screen with
-            | Downloading (_, InProgress _) 
+            | Downloading (_, InProgress _)
+            | Downloading (_, Preparing)
                 -> true
             | _ -> false
     
