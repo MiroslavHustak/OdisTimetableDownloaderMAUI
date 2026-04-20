@@ -1,4 +1,21 @@
-﻿namespace OdisTimetableDownloaderMAUI
+﻿(*
+Code in this file uses Fabulous, a functional-first UI framework.
+
+https://fabulous.dev
+https://github.com/fabulous-dev/Fabulous
+
+Copyright 2016-2023 Timothée Larivoir, Edgar Gonzales, and contributors
+
+Licensed under the Apache License, Version 2.0 (the "License")
+*)
+
+//^(?!\s*//)(?!\s*open[\s(])(?!\s*[(){}\s]*$).+$
+//or replace open with some string not appearing in fs code
+
+//dotnet fsi OdisDownloaderMAUI_build_release.fsx
+//dotnet fsi OdisDownloaderMAUI_build_release_publish_apk.fsx
+
+namespace OdisTimetableDownloaderMAUI
 
 open System
 
@@ -706,7 +723,7 @@ module App =
                 mdpoActor.PostAndReply(fun reply -> StopLocal reply)
                 { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none
 
-    let view (m: Model) : WidgetBuilder<Msg, IFabApplication> =
+    let view (m : Model) : WidgetBuilder<Msg, IFabApplication> =
         
         // =============================================
         // VIEW HELPERS 
@@ -756,16 +773,23 @@ module App =
                 Button(buttonMdpo, StartDownload Mdpo)
                     .semantics(hint = hintMdpo)
                     .centerHorizontal()
+                    .isEnabled(
+                        #if ANDROID
+                        false
+                        #else
+                        true
+                        #endif
+                    )                       
     
-                Button("Nástroje", Navigate Utilities)
-                    .semantics(hint = String.Empty)
+                Button(buttonUtilities, Navigate Utilities)
+                    .semantics(hint = hintUtilities)
                     .centerHorizontal()
             }
     
         let utilitiesView =
             VStack(spacing = 25.) {
                 Button(buttonLauncher, RunFileLauncher)
-                    .semantics(hint = String.Empty)
+                    .semantics(hint = hintLauncher)
                     .centerHorizontal()
                     .background(SolidColorBrush(Colors.YellowGreen))
     
@@ -882,7 +906,7 @@ module App =
             }
     
         // =============================================
-        // UI/UX - actual view
+        // UI/UX 
         // =============================================
     
         Application(
@@ -958,5 +982,5 @@ module App =
   
     let program : Program<unit, Model, Msg, IFabApplication> = 
         Program.statefulWithCmd init update view 
-        |> Program.withSubscription (connectivityDebouncerSubscription)
+        |> Program.withSubscription connectivityDebouncerSubscription
         |> Program.withSubscription captureDispatchSub

@@ -1,5 +1,23 @@
-﻿ 
-        // no longer used, kept for educational purposes
+﻿  This mirrors what the actor's PostAndReply did — it waited for acknowledgment before proceeding. 
+  The 500ms gives Android's thread pool time to reach a cancellation check point inside stateReducerCmd4 before the new download starts.
+  
+  "Standard CTS system versus actor-based cancellation system"
+  Honestly, yes. The localCancellationActor approach was more robust for exactly this reason — it gave you synchronous, blocking coordination via PostAndReply which guaranteed the old workflow was fully stopped before anything new started. The delay hack is fragile — 500ms might not be enough on a slow device, and it's a guess rather than a guarantee.
+  The actor pattern gave you:
+
+    * Deterministic stop — PostAndReply(StopLocal) blocked until confirmed
+    * Fresh token on every run — GetToken always returned a clean, non-cancelled token
+    * No race conditions — impossible to have two workflows running simultaneously
+
+    The new CTS approach requires you to re-engineer all of that manually and the Android timing issues show it's not equivalent.
+
+    The pure CTS-in-Model approach can work well in simpler scenarios or when you invest significant effort into lifetime management 
+    (root CTS, linked tokens, careful disposal ordering, IProgress instead of dispatch, etc.). 
+    But for your current architecture — with complex nested async workflows, parallel file downloads, resume logic, 
+    and Android-specific timing — the MailboxProcessor actors are the pragmatic, battle-tested choice.
+
+                  
+      // no longer used, kept for educational purposes
         let monitorConnectivity (dispatch : Msg -> unit) =         
            
             AsyncSeq.initInfinite (fun _ -> true)

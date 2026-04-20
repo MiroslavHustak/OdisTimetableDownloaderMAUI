@@ -98,7 +98,10 @@ module Messages =
     let [<Literal>] internal buttonHome = "Zpět na úvod"  
     let [<Literal>] internal buttonRequestPermission = "Spustit AppInfo"  
     let [<Literal>] internal buttonLauncher = "Diskrepance" 
+    let [<Literal>] internal hintLauncher = "Otevření souboru s diskrepancemi JŘ"
     let [<Literal>] internal launchErrorMsg = "Soubor s diskrepancemi JŘ se neotevřel. Je s ním nějaký problém."
+    let [<Literal>] internal buttonUtilities = "Nástroje"
+    let [<Literal>] internal hintUtilities = "Nástroje aplikace"    
 
     let [<Literal>] internal buttonClearingConfirmation = "Ano, pryč s nimi"
     let [<Literal>] internal buttonClearingCancel = "Ponechat"
