@@ -9,6 +9,11 @@ Copyright 2016-2023 Timothée Larivoir, Edgar Gonzales, and contributors
 Licensed under the Apache License, Version 2.0 (the "License")
 *)
 
+(*
+ I'm looking for a UX/UI expert to create the design for this mobile app. 
+ Since the project uses an Elmish architecture, front-end skills are welcomed.
+*)
+
 //^(?!\s*//)(?!\s*open[\s(])(?!\s*[(){}\s]*$).+$
 //or replace open with some string not appearing in fs code
 
@@ -255,7 +260,7 @@ module App =
                                    return ()
                                with
                                | ex ->
-                                   runIO (postToLog2 (string ex.Message) "#XElmish_ClearData")
+                                   runIO <| postToLog2 (string ex.Message) "#XElmish_ClearData"
                                    dispatch (Navigate (Completed deleteOldTimetablesMsg3))
                                    return ()
                            }

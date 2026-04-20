@@ -15,7 +15,6 @@ Licensed under the Apache License, Version 2.0 (the "License")
 //dotnet fsi OdisDownloaderMAUI_build_release.fsx
 //dotnet fsi OdisDownloaderMAUI_build_release_publish_apk.fsx
 
-
 namespace OdisTimetableDownloaderMAUI
 
 open System.Net
@@ -113,7 +112,7 @@ type MauiProgram =
                                                         | false
                                                             -> ()
                                                     with
-                                                    | ex -> runIO (postToLog2 (string ex.Message) "#3002")
+                                                    | ex -> runIO <| postToLog2 (string ex.Message) "#3002"
 
                                                     return ()
                                                 }
@@ -139,7 +138,7 @@ type MauiProgram =
         with
         | ex
             ->
-            runIO (postToLog2 (string ex.Message) "#3008")
+            runIO <| postToLog2 (string ex.Message) "#3008"
             MauiApp.CreateBuilder().Build() //dummy process quli typu, dulezite je logging exception 
 
 (*

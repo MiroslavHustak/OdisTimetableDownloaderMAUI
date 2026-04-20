@@ -56,6 +56,7 @@ module ProgressCircle =
                                 percentageText,
                                 dirtyRect,
                                 HorizontalAlignment.Center,
-                                VerticalAlignment.Center)
+                                VerticalAlignment.Center
+                            )
                 }
         )
