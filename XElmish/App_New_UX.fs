@@ -87,7 +87,6 @@ module App =
 
     type ProgressState =
         | Idle
-        | Preparing   
         | InProgress of current : float * total : float
 
     type Screen =
@@ -113,7 +112,6 @@ module App =
             Screen       : Screen
             Status       : string
             ActiveButton : ButtonType option
-            IsBusy       : bool
         }
 
     type Msg =
@@ -170,7 +168,7 @@ module App =
     
         let permission = match permissionGranted with true -> Granted | false -> NotGranted        
     
-        let connectivity = connectivity noNetConn4
+        let connectivity = connectivity noNetConn
     
         let initialScreen = 
             match permission, connectivity with
@@ -185,13 +183,12 @@ module App =
                 Screen       = initialScreen
                 Status = 
                     match initialScreen with
-                    | NoConnection -> noNetConn4
+                    | NoConnection -> noNetConn
                     | _ ->
                         match permission with
                         | Granted    -> String.Empty
                         | NotGranted -> appInfoInvoker
                 ActiveButton = None
-                IsBusy       = false
             }
     
         match permission with
@@ -215,7 +212,7 @@ module App =
 
     let update (msg : Msg) (m : Model) : Model * Cmd<Msg> =
 
-        let connectivity = connectivity noNetConn4
+        let connectivity = connectivity noNetConn
          
         match msg with   
         | Dummy 
@@ -224,11 +221,17 @@ module App =
 
         | SetScreen s 
             ->
-            { m with Screen = s; Status = String.Empty }, Cmd.none
+            match m.Screen, s with
+            | Downloading _, Home  // don't interrupt a download
+                ->
+                m, Cmd.none
+            | _ 
+                ->
+                { m with Screen = s; Status = String.Empty }, Cmd.none
    
         | Navigate screen
             ->
-            { m with Screen = screen; ActiveButton = None; Status = String.Empty; IsBusy = false }, Cmd.none  
+            { m with Screen = screen; ActiveButton = None; Status = String.Empty }, Cmd.none  
    
         | Click Clear 
             ->
@@ -337,6 +340,7 @@ module App =
                         async 
                             {
                                 do! Async.SwitchToThreadPool()
+
                                 match dt with
                                 | KodisJsonTP  -> cancelLocalActor2 kodisJsonActor
                                 | KodisPdfTP   -> cancelLocalActor2 kodisPdfActor
@@ -350,7 +354,7 @@ module App =
                             }
                     )
             
-            { m with Status = cancelMsg42; IsBusy = false }, cancelCmd        
+            { m with Status = cancelMsg42 }, cancelCmd        
    
         | RequestPermission
             ->
@@ -490,36 +494,29 @@ module App =
 
         | StartDownload KodisCanopy4 
             ->
-            match m.IsBusy with
-            | true
-                ->
-                m, Cmd.none   // or show a toast "Operation already in progress"
-            | false 
-                ->
-                kodisCanopyActor.PostAndReply(fun reply -> GetToken reply)            
-                |> function
-                    | Some token 
-                        ->       
-                        let cmd =
-                            Cmd.ofSub 
-                                (fun dispatch
-                                    ->                                
-                                    Engines.KodisCanopy.execute
-                                    <| fun m -> KodisCanopyMsg >> dispatch <| m
-                                    <| token
-                                )
+            kodisCanopyActor.PostAndReply(fun reply -> GetToken reply)            
+            |> function
+                | Some token 
+                    ->   
+                    let cmd =
+                        Cmd.ofSub
+                            (fun dispatch 
+                                ->                                
+                                Engines.KodisCanopy.execute
+                                <| fun m -> KodisCanopyMsg >> dispatch <| m
+                                <| token
+                            )
    
-                        { 
-                            m with
-                                Screen       = Downloading (KodisCanopy4, Preparing)  //Screen = Downloading (KodisCanopy4, Idle)
-                                Status       = String.Empty 
-                                Connectivity = connectivity 
-                                IsBusy       = true
-                        }, cmd
+                    { 
+                        m with
+                            Screen       = Downloading (KodisCanopy4, Idle)
+                            Status       = String.Empty 
+                            Connectivity = connectivity 
+                    }, cmd
 
-                    | None 
-                        ->
-                        m, Cmd.none 
+                | None 
+                    ->
+                    m, Cmd.none 
        
         | StartDownload Dpo
             -> 
@@ -619,7 +616,7 @@ module App =
                 ->
                 kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
                 kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none
+                { m with Screen = NoConnection; Status = noNetConn }, Cmd.none
                 
         | KodisCanopyMsg msg
             ->
@@ -641,7 +638,7 @@ module App =
                 | Downloading (KodisCanopy4, _) 
                     ->  
                     kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = String.Empty; IsBusy = false }, Cmd.none
+                    { m with Screen = Completed result; Status = String.Empty }, Cmd.none
         
                 | _ ->
                     m, Cmd.none
@@ -649,24 +646,17 @@ module App =
             | Engines.KodisCanopy.ErrorKodis err
                 -> 
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = ErrorScreen err; IsBusy = false }, Cmd.none
+                { m with Screen = ErrorScreen err }, Cmd.none
         
             | Engines.KodisCanopy.NavigateHome 
                 -> 
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = Home; IsBusy = false }, Cmd.none   
-                
-            | Engines.KodisCanopy.Preparing
-                ->
-                match m.Screen with
-                | Downloading (dt, _) 
-                    -> { m with Screen = Downloading (dt, ProgressState.Preparing); IsBusy = true }, Cmd.none
-                | _ -> m, Cmd.none
-
+                { m with Screen = Home }, Cmd.none                   
+          
             | Engines.KodisCanopy.NoInternet 
                 ->
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = NoConnection; Status = noNetConn4; IsBusy = false }, Cmd.none   
+                { m with Screen = NoConnection; Status = noNetConn }, Cmd.none   
                 
         | DpoMsg msg
             ->
@@ -706,7 +696,7 @@ module App =
             | Engines.Dpo.NoInternet 
                 ->
                 dpoActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none
+                { m with Screen = NoConnection; Status = noNetConn }, Cmd.none
                 
         | MdpoMsg msg
             ->
@@ -746,7 +736,7 @@ module App =
             | Engines.Mdpo.NoInternet 
                 ->
                 mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none
+                { m with Screen = NoConnection; Status = noNetConn }, Cmd.none
 
     // ══════════════════════════════════════════════════════════════════════════
     //  VIEW
@@ -823,7 +813,7 @@ module App =
                 disabledCard
                     (iconBadge gray050 gray400 "🚎")
                     buttonMdpo
-                    "V mobilní appce nedostupné"
+                    hintMdpo
                 |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 0.))
                 #else
                 actionCard
@@ -878,16 +868,12 @@ module App =
                 | Disconnected msg -> msg
         
             (VStack(spacing = 0.) {
-                   topBar connText labelOdis "Dopravní integrovaný systém MSK (ODIS)"
-                   
-                   ScrollView(scrollContent)
-                       .verticalOptions(LayoutOptions.Fill)   // important: let ScrollView take remaining space
-                   
+                   topBar connText labelOdis labelOdisExpl                   
+                   ScrollView(scrollContent)                   
                    quitButton
-                       .verticalOptions(LayoutOptions.End)    // keep quit button at the bottom
                })
-                   .verticalOptions(LayoutOptions.Fill)           // make outer VStack fill the page
-
+                  .centerVertical()
+                  .padding(Thickness(20., 32., 20., 20.))
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  2 – Downloading
         // ══════════════════════════════════════════════════════════════════════════
@@ -975,7 +961,7 @@ module App =
                     .width(130.)
                     .centerHorizontal()
 
-            VStack(spacing = 0.) {
+            (VStack(spacing = 0.) {
 
                 let connText =
                     match m.Connectivity with
@@ -994,7 +980,9 @@ module App =
                         .centerVertical()
                         .padding(Thickness(20., 32., 20., 20.))
                 )
-            }
+            })
+                .centerVertical()
+                .padding(Thickness(20., 32., 20., 20.))
 
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  3 – Completed
@@ -1007,12 +995,12 @@ module App =
                 | Connected msg    
                     ->                     
                     msg, 
-                        (resultCircle teal050 "✓")
+                        (resultCircle teal050 "🚋") //(resultCircle teal050 "✓")
                             .centerHorizontal()
                 | Disconnected msg 
                     -> 
                     msg, 
-                        (resultCircle red050 "!")
+                        (resultCircle teal050 "🚋") //(resultCircle red050 "!")
                             .centerHorizontal()
 
             let labelFinished = 
@@ -1028,7 +1016,7 @@ module App =
                      .centerTextHorizontal()
                      .margin(Thickness(24., 0., 24., 0.))
      
-            VStack(spacing = 0.) {                
+            (VStack(spacing = 0.) {                
      
                 topBar connText labelOdis m.Status
                 
@@ -1040,7 +1028,9 @@ module App =
                 })
                     .centerVertical()
                     .padding(Thickness(20., 40., 20., 20.))
-            }
+            })
+                .centerVertical()
+                .padding(Thickness(20., 32., 20., 20.))
      
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  4 – Utilities
@@ -1048,7 +1038,7 @@ module App =
      
         let utilitiesView (m : Model) =
 
-            VStack(spacing = 0.) {
+            (VStack(spacing = 0.) {
 
                 let connText =
                     match m.Connectivity with
@@ -1086,13 +1076,15 @@ module App =
                         |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))   
 
                 ScrollView(
-                    VStack(spacing = 0.) {     
+                    (VStack(spacing = 0.) {     
                         sectionLabel1     
                         actionCardFileLauncher                            
                         divider      
                         sectionLabel2                           
                         actionCardClearing
-                    }
+                    })
+                         .centerVertical()
+                         .padding(Thickness(20., 32., 20., 20.))
                 )
      
                 Border(
@@ -1108,7 +1100,9 @@ module App =
                     .strokeThickness(0.5)
                     .padding(Thickness(0., 2., 0., 2.))
                     .margin(Thickness(18., 0., 18., 20.))
-            }
+            })
+                .centerVertical()
+                .padding(Thickness(20., 32., 20., 20.)) 
 
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  5 – Clearing confirmation dialog
@@ -1116,14 +1110,14 @@ module App =
      
         let clearingConfirmView (m : Model) =
 
-            VStack(spacing = 0.) {
+            (VStack(spacing = 0.) {
                 
                 let connText =
                     match m.Connectivity with
                     | Connected msg    -> msg
                     | Disconnected msg -> msg
 
-                topBar connText "Nástroje" "Potvrdit odstranění"
+                topBar connText "Nástroje" String.Empty
         
                 // ── labels ───────────────────────────────
                 let label1 =
@@ -1194,7 +1188,10 @@ module App =
                 // ── final layout ──────────────────────────
                 ContentView(card)
                     .padding(Thickness(0., 40., 0., 0.))
-            }
+                    
+            })
+                .centerVertical()
+                .padding(Thickness(20., 32., 20., 20.)) 
 
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  6 – No connection
@@ -1202,14 +1199,14 @@ module App =
             
         let noConnectionView (m : Model) =
 
-            VStack(spacing = 0.) {
+            (VStack(spacing = 0.) {
 
                 let connText =
                     match m.Connectivity with
                     | Connected msg    -> msg
                     | Disconnected msg -> msg
             
-                topBar connText labelOdis "Dopravní integrovaný systém MSK (ODIS)"
+                topBar connText labelOdis labelOdisExpl
 
                 let resultCircle = 
                     (resultCircle red050 "✕")
@@ -1238,7 +1235,9 @@ module App =
                     .padding(Thickness(20., 40., 20., 20.))
             
                 //quitButton 
-            }
+            })
+                .centerVertical()
+                .padding(Thickness(20., 32., 20., 20.))
             
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  7 – Error
@@ -1279,7 +1278,7 @@ module App =
                     .centerVertical()
                     .padding(Thickness(20., 40., 20., 20.))
         
-            VStack(spacing = 0.) {
+            (VStack(spacing = 0.) {
 
                 let connText =
                     match m.Connectivity with
@@ -1288,7 +1287,9 @@ module App =
 
                 topBar connText labelOdis m.Status
                 innerStack
-            }
+            })
+                .centerVertical()
+                .padding(Thickness(20., 32., 20., 20.))
             
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  8 – No permission  (Android only)
@@ -1335,7 +1336,7 @@ module App =
                     .centerVertical()
                     .padding(Thickness(20., 40., 20., 20.))
         
-            VStack(spacing = 0.) {
+            (VStack(spacing = 0.) {
 
                 let connText =
                     match m.Connectivity with
@@ -1344,7 +1345,9 @@ module App =
 
                 topBar connText labelOdis String.Empty
                 innerStack
-            }
+            })
+                .centerVertical()
+                .padding(Thickness(20., 32., 20., 20.))
 
         // ══════════════════════════════════════════════════════════════════════════
         //  PAGE ROUTER

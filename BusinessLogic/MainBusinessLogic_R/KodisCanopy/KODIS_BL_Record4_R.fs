@@ -40,7 +40,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
 
                 let l = context.list |> List.length
 
-                let counterAndProgressBar = counterAndProgressBar l token checkCancel context.reportProgress     
+                let counterAndProgressBar = counterAndProgressBar2 l token checkCancel context.reportProgress     
                 
                 let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                
@@ -203,7 +203,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                             | Some _ 
                                                 ->
                                                 // File already exists → skip download entirely
-                                                counterAndProgressBar.Post <| Inc 1                                                
+                                                counterAndProgressBar.Post <| Inc2 1                                                
                                                 return Ok ()
    
                                             | None 
@@ -213,7 +213,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
 
                                                 //runIO (postToLog2 (sprintf "downloadWithResume returned: %A for %s" result uri) "#DEBUG-K4BL")
 
-                                                counterAndProgressBar.Post <| Inc 1
+                                                counterAndProgressBar.Post <| Inc2 1
                                                 
                                                 return
                                                     result
@@ -293,7 +293,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                 ] 
                         
                         context.reportProgress (float l, float l)
-                        counterAndProgressBar.Post Stop
+                        counterAndProgressBar.Post Stop2
                         
                         let len = result |> List.length
                                          

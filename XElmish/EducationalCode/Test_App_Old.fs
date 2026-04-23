@@ -948,7 +948,7 @@ module App_R =
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)
 
                                                 let result = 
-                                                    stateReducerCmd4
+                                                    stateReducer
                                                     <| token2
                                                     <| kodisPathTemp4
                                                     <| fun message -> WorkIsComplete >> dispatch <| (message, false)
@@ -983,10 +983,10 @@ module App_R =
                         async 
                             {    
                                 try
-                                    match! stateReducerCmd5 >> runIO <| () with  //cannot block the UI thread for long enough to be visible, Async.SwitchToThreadPool() not needed
-                                    | Ok _      -> return () //NetConnMessage >> dispatch <| String.Empty
-                                    | Error err -> return NetConnMessage >> dispatch <| err
-                                    
+                                    //match! stateReducerCmd5 >> runIO <| () with  //cannot block the UI thread for long enough to be visible, Async.SwitchToThreadPool() not needed
+                                    //| Ok _      -> return () //NetConnMessage >> dispatch <| String.Empty
+                                    //| Error err -> return NetConnMessage >> dispatch <| err
+                                    return ()
                                 with 
                                 | ex
                                     ->

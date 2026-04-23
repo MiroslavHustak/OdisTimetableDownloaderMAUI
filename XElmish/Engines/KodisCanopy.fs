@@ -14,7 +14,6 @@ open Settings.SettingsGeneral
 
 type KodisCanopyMsg =
     | Progress of float * float
-    | Preparing
     | IterationMsg of string  
     | Completed of string
     | ErrorKodis of string
@@ -23,11 +22,14 @@ type KodisCanopyMsg =
     
 let execute dispatch (token : CancellationToken) =
 
+    let reportProgress (progressValue : float, totalProgress : float) =
+        match token.IsCancellationRequested with
+        | true  -> dispatch (Progress (0.0, 1.0))
+        | false -> dispatch (Progress (progressValue, totalProgress))
+
     async
         {
             try
-                dispatch Preparing
-
                 match token.IsCancellationRequested with
                 | true 
                     ->
@@ -40,33 +42,26 @@ let execute dispatch (token : CancellationToken) =
                         ->
                         return dispatch NoInternet
 
-                    | true ->
+                    | true
+                        ->
+                        do! Async.SwitchToThreadPool() 
+
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                        
 
-                        // reportProgress now closes over cts.Token, not outer token
-                        let reportProgress (progressValue : float, totalProgress : float) =
-                            match cts.Token.IsCancellationRequested with
-                            | true  -> dispatch (Progress (0.0, 1.0))
-                            | false -> dispatch (Progress (progressValue, totalProgress))
-
-                        let computation =
-                            stateReducerCmd4
+                        let computation = 
+                            stateReducer
                             <| cts.Token
                             <| kodisPathTemp4
-                            <| (fun msg -> dispatch (IterationMsg msg))
+                            <| fun msg -> IterationMsg >> dispatch <| msg
                             <| reportProgress
 
                         let! result = async { return runIO computation }
 
                         match cts.Token.IsCancellationRequested with
-                        | true 
-                            -> return dispatch NavigateHome
-                        | false
-                            ->
-                            match! stateReducerCmd5 >> runIO <| () with
-                            | Ok _      -> return dispatch (Completed result)
-                            | Error err -> return ErrorKodis >> dispatch <| err
+                        | true  -> return dispatch NavigateHome
+                        | false -> return Completed >> dispatch <| result
+                           
             with
             | ex ->
                 match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with

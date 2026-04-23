@@ -139,8 +139,31 @@ module ScreenHelpers =
             .margin(Thickness(0., 2., 0., 2.))
             |> fun b -> b.gestureRecognizers() { TapGestureRecognizer(msg) }
 
-    /// Disabled action row – no tap handler, grayed out with a status pill.
     let disabledCard (icon : WidgetBuilder<'a, #IFabView>) label pillText =
+        Border(
+            ContentView(
+                HStack(spacing = 12.) {
+                    icon
+                    VStack(spacing = 2.) {
+                        Label(label)
+                            .font(size = 14.)
+                            .textColor(textPrimary)
+                        Label(pillText)
+                            .font(size = 12.)
+                            .textColor(textSecond)
+                    }                   
+                }
+            )
+                .padding(Thickness(14., 12., 14., 12.))
+        )
+            .background(gray050Brush<'a>())
+            .stroke(cardBorderBrush<'a>())
+            .strokeShape(RoundRectangle(cornerRadius = 12.))
+            .strokeThickness(0.5)
+            .margin(Thickness(0., 2., 0., 2.))
+
+    /// Disabled action row – no tap handler, grayed out with a status pill.
+    let disabledCard2 (icon : WidgetBuilder<'a, #IFabView>) label pillText =
         Border(
             ContentView(
                 HStack(spacing = 12.) {

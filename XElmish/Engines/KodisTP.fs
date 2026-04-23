@@ -42,10 +42,10 @@ let internal executeJson dispatch (token : CancellationToken) =
                         return dispatch NoInternet
                     | true
                         ->
+                        do! Async.SwitchToThreadPool() 
+
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
                         umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-
-                        do! Async.SwitchToThreadPool()
 
                         let! result = async { return runIO (stateReducerCmd1 cts.Token stateDefault reportProgress) }
 
@@ -77,7 +77,7 @@ let internal executeJson dispatch (token : CancellationToken) =
     
 let internal executePdf dispatch (token : CancellationToken) =
 
-    let reportProgress (progressValue : float, totalProgress: float) =
+    let reportProgress (progressValue : float, totalProgress : float) =
 
         match token.IsCancellationRequested with
         | true  -> dispatch (Progress (0.0, 1.0))
@@ -98,10 +98,10 @@ let internal executePdf dispatch (token : CancellationToken) =
                         return dispatch NoInternet
                     | true 
                         ->
+                        do! Async.SwitchToThreadPool() 
+
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                        
-                        do! Async.SwitchToThreadPool()
+                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                       
                         
                         let computation =
                             stateReducerCmd2

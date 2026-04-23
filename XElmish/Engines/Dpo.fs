@@ -44,10 +44,10 @@ let executeDpo dispatch (token : CancellationToken) =
                         return dispatch NoInternet
                     | true 
                         ->
-                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-
                         do! Async.SwitchToThreadPool()
+
+                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                        
 
                         let! result = async { return runIO (webscraping_DPO reportProgress cts.Token dpoPathTemp) }
 

@@ -44,10 +44,10 @@ let executeMdpo dispatch (token : CancellationToken) =
                         return dispatch NoInternet
                     | true
                         ->
+                        do! Async.SwitchToThreadPool()
+
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
                         umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-
-                        do! Async.SwitchToThreadPool()
                         
                         let! result = async { return runIO (webscraping_MDPO reportProgress cts.Token mdpoPathTemp) }
 

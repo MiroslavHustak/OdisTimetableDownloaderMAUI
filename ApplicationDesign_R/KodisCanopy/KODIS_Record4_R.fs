@@ -51,171 +51,162 @@ module WebScraping_KODIS4 =
             VariantInt : int
         }
     
-    let private stateReducer (token : CancellationToken) path dispatchIterationMessage reportProgress (state : State) =
-              
-        let errFn err =  
+    let internal stateReducer (token : CancellationToken) path dispatchIterationMessage reportProgress =
+         
+        IO (fun () 
+                ->     
+                let errFn err =  
 
-            match err with
-            | PdfDownloadError2 NotAllFilesDownloaded  -> notAllFilesDownloaded
-            | PdfDownloadError2 NoFolderError          -> noFolderError            
-            | PdfDownloadError2 FileDeleteError        -> fileDeleteError 
-            | PdfDownloadError2 CreateFolderError4     -> createFolderError
-            | PdfDownloadError2 CreateFolderError2     -> createFolderError2
-            | PdfDownloadError2 FileDownloadError      -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
-            | PdfDownloadError2 FolderMovingError4     -> folderMovingError 
-            | PdfDownloadError2 CanopyError            -> canopyError
-            | PdfDownloadError2 TimeoutError           -> timeoutError
-            | PdfDownloadError2 PdfConnectionError     -> cancelMsg2 
-            | PdfDownloadError2 ApiResponseError       -> apiResponseError 
-            | PdfDownloadError2 ApiDecodingError       -> canopyError
-            | PdfDownloadError2 (NetConnPdfError err)  -> err
-            | PdfDownloadError2 StopDownloading        -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
-            | PdfDownloadError2 LetItBe                -> letItBe 
-            | PdfDownloadError2 NoPermissionError      -> String.Empty
-            | PdfDownloadError2 TlsHandshakeError      -> tlsHandShakeErrorKodis4
-            | JsonParsingError2 JsonParsingError       -> jsonParsingError 
-            | JsonParsingError2 StopJsonParsing        -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
-            | JsonParsingError2 JsonDataFilteringError -> dataFilteringError 
-            | _                                        -> "Unknown error"
+                    match err with
+                    | PdfDownloadError2 NotAllFilesDownloaded  -> notAllFilesDownloaded
+                    | PdfDownloadError2 NoFolderError          -> noFolderError            
+                    | PdfDownloadError2 FileDeleteError        -> fileDeleteError 
+                    | PdfDownloadError2 CreateFolderError4     -> createFolderError
+                    | PdfDownloadError2 CreateFolderError2     -> createFolderError2
+                    | PdfDownloadError2 FileDownloadError      -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> dispatchMsg4) (fun _ -> dispatchMsg0)
+                    | PdfDownloadError2 FolderMovingError4     -> folderMovingError 
+                    | PdfDownloadError2 CanopyError            -> canopyError
+                    | PdfDownloadError2 TimeoutError           -> timeoutError
+                    | PdfDownloadError2 PdfConnectionError     -> cancelMsg2 
+                    | PdfDownloadError2 ApiResponseError       -> apiResponseError 
+                    | PdfDownloadError2 ApiDecodingError       -> canopyError
+                    | PdfDownloadError2 (NetConnPdfError err)  -> err
+                    | PdfDownloadError2 StopDownloading        -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg4) (fun _ -> cancelMsg5)
+                    | PdfDownloadError2 LetItBe                -> letItBe 
+                    | PdfDownloadError2 NoPermissionError      -> String.Empty
+                    | PdfDownloadError2 TlsHandshakeError      -> tlsHandShakeErrorKodis4
+                    | JsonParsingError2 JsonParsingError       -> jsonParsingError 
+                    | JsonParsingError2 StopJsonParsing        -> (deleteAllODISDirectories >> runIO) path |> Result.either (fun _ -> cancelMsg44) (fun _ -> cancelMsg5) //tady nenastane
+                    | JsonParsingError2 JsonDataFilteringError -> dataFilteringError 
+                    | _                                        -> "Unknown error"
                                      
-        let dirList = createNewDirectoryPaths path listOfODISVariants
-            in
-            let contextCurrentValidity = 
-                {
-                    DirList = dirList
-                    Variant = CurrentValidity
-                    Msg1 = msg1CurrentValidity
-                    Msg2 = msg2CurrentValidity
-                    Msg3 = msg3CurrentValidity
-                    VariantInt = 0
-                }
+                let dirList = createNewDirectoryPaths path listOfODISVariants
+                    in
+                    let contextCurrentValidity = 
+                        {
+                            DirList = dirList
+                            Variant = CurrentValidity
+                            Msg1 = msg1CurrentValidity
+                            Msg2 = msg2CurrentValidity
+                            Msg3 = msg3CurrentValidity
+                            VariantInt = 0
+                        }
 
-            let contextFutureValidity = 
-                {
-                    DirList = dirList
-                    Variant = FutureValidity
-                    Msg1 = msg1FutureValidity
-                    Msg2 = msg2FutureValidity
-                    Msg3 = msg3FutureValidity
-                    VariantInt = 1
-                }
+                    let contextFutureValidity = 
+                        {
+                            DirList = dirList
+                            Variant = FutureValidity
+                            Msg1 = msg1FutureValidity
+                            Msg2 = msg2FutureValidity
+                            Msg3 = msg3FutureValidity
+                            VariantInt = 1
+                        }
 
-            let contextLongTermValidity = 
-                {
-                    DirList = dirList
-                    Variant = LongTermValidity
-                    Msg1 = msg1LongTermValidity
-                    Msg2 = msg2LongTermValidity
-                    Msg3 = msg3LongTermValidity
-                    VariantInt = 2
-                }
+                    let contextLongTermValidity = 
+                        {
+                            DirList = dirList
+                            Variant = LongTermValidity
+                            Msg1 = msg1LongTermValidity
+                            Msg2 = msg2LongTermValidity
+                            Msg3 = msg3LongTermValidity
+                            VariantInt = 2
+                        }
 
-        let configKodis =
-            {
-                source1 = path4 <| ODIS_Variants.board.board I1 I1 
-                source2 = path4 <| ODIS_Variants.board.board I1 I2 
-                source3 = path4 <| ODIS_Variants.board.board I2 I1 
-                destination = oldTimetablesPath4 
-            }        
+                let configKodis =
+                    {
+                        source1 = path4 <| ODIS_Variants.board.board I1 I1 
+                        source2 = path4 <| ODIS_Variants.board.board I1 I2 
+                        source3 = path4 <| ODIS_Variants.board.board I2 I1 
+                        destination = oldTimetablesPath4 
+                    }        
        
-        let result (context2 : Context2) =   
+                let result (context2 : Context2) =   
                                      
-            let dir = context2.DirList |> List.item context2.VariantInt  
+                    let dir = context2.DirList |> List.item context2.VariantInt  
 
-            let list =
-                runIO <| operationOnDataFromJson_resumable token context2.Variant dir 
-                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                    let list =
+                        runIO <| operationOnDataFromJson_resumable token context2.Variant dir 
+                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         
-            match list with //to je strasne slozite davat to do Elmishe
-            | Ok list
-                when
-                    list <> List.empty
-                        -> 
-                        let context = 
-                            {
-                                reportProgress = reportProgress
-                                dir = dir
-                                list = list
-                            }
+                    match list with //to je strasne slozite davat to do Elmishe
+                    | Ok list
+                        when
+                            list <> List.empty
+                                -> 
+                                let context = 
+                                    {
+                                        reportProgress = reportProgress
+                                        dir = dir
+                                        list = list
+                                    }
                                 
-                        dispatchIterationMessage context2.Msg1  
-                        runIO (downloadAndSave token context)   
+                                dispatchIterationMessage context2.Msg1  
+                                runIO (downloadAndSave token context)   
         
-            | Ok _
-                ->   
-                dispatchIterationMessage context2.Msg2
-                Ok context2.Msg3 
+                    | Ok _
+                        ->   
+                        dispatchIterationMessage context2.Msg2
+                        Ok context2.Msg3 
         
-            | Error list 
-                when list |> List.exists (fun item -> item = PdfDownloadError2 StopDownloading)
-                ->
-                runIO (postToLog2 <| string StopDownloading <| "#0011-K4")
-                Error <| PdfDownloadError2 StopDownloading  
+                    | Error list 
+                        when list |> List.exists (fun item -> item = PdfDownloadError2 StopDownloading)
+                        ->
+                        runIO (postToLog2 <| string StopDownloading <| "#0011-K4")
+                        Error <| PdfDownloadError2 StopDownloading  
 
-            | Error list 
-                when list |> List.exists (fun item -> item = PdfDownloadError2 ApiResponseError)
-                ->
-                runIO (postToLog2 <| string ApiResponseError <| "#0001-K4")
-                Error <| PdfDownloadError2 ApiResponseError  
+                    | Error list 
+                        when list |> List.exists (fun item -> item = PdfDownloadError2 ApiResponseError)
+                        ->
+                        runIO (postToLog2 <| string ApiResponseError <| "#0001-K4")
+                        Error <| PdfDownloadError2 ApiResponseError  
 
-            | Error list 
-                when list |> List.exists (fun item -> item = PdfDownloadError2 ApiDecodingError)
-                ->
-                runIO (postToLog2 <| string ApiDecodingError <| "#0002-K4")
-                Error <| PdfDownloadError2 ApiDecodingError  
+                    | Error list 
+                        when list |> List.exists (fun item -> item = PdfDownloadError2 ApiDecodingError)
+                        ->
+                        runIO (postToLog2 <| string ApiDecodingError <| "#0002-K4")
+                        Error <| PdfDownloadError2 ApiDecodingError  
 
-            | Error list 
-                when list |> List.exists (fun item -> item = PdfDownloadError2 FileDownloadError)
-                ->
-                runIO (postToLog2 <| string FileDownloadError <| "#0003-K4")
-                Error <| PdfDownloadError2 FileDownloadError  
+                    | Error list 
+                        when list |> List.exists (fun item -> item = PdfDownloadError2 FileDownloadError)
+                        ->
+                        runIO (postToLog2 <| string FileDownloadError <| "#0003-K4")
+                        Error <| PdfDownloadError2 FileDownloadError  
         
-            | Error err                    
-                ->
-                runIO (postToLog2 <| sprintf "%A" err <| "#0004-K4")
-                Error <| PdfDownloadError2 LetItBe                     
+                    | Error err                    
+                        ->
+                        runIO (postToLog2 <| sprintf "%A" err <| "#0004-K4")
+                        Error <| PdfDownloadError2 LetItBe                     
         
-        pyramidOfInferno
-            {                       
-                #if ANDROID
-                let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
-                #endif
+                pyramidOfInferno
+                    {                       
+                        #if ANDROID
+                        let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
+                        #endif
                
-                let!_ = runIO <| moveAll configKodis token, errFn
-                let!_ = runIO <| deleteAllODISDirectories path, errFn                     
-                let!_ = runIO <| createFolders dirList, errFn 
+                        let!_ = runIO <| moveAll configKodis token, errFn
+                        let!_ = runIO <| deleteAllODISDirectories path, errFn                     
+                        let!_ = runIO <| createFolders dirList, errFn 
                
-                let!_ =  isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
-                let! msg1 = result contextCurrentValidity, errFn
-                let! msg2 = result contextFutureValidity, errFn
-                let! msg3 = result contextLongTermValidity, errFn 
+                        let!_ =  isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
+                        let! msg1 = result contextCurrentValidity, errFn
+                        let! msg2 = result contextFutureValidity, errFn
+                        let! msg3 = result contextLongTermValidity, errFn 
 
-                let msg4 = String.Empty //viz App.fs a viz stateReducerCmd5 dole
-                    //match BusinessLogic.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| () with
-                    //| Ok _      -> String.Empty
-                    //| Error err -> err                    
+                        let msg4 =                
+                            BusinessLogic_R.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| ()
+                            |> fun a -> Async.RunSynchronously(a, cancellationToken = token)                   
+                            |> function
+                                | Ok _      -> String.Empty
+                                | Error err -> err                    
 
-                let separator = String.Empty
+                        let separator = String.Empty
 
-                let combinedMessage = 
-                    [ msg1; msg2; msg3; msg4 ] 
-                    |> List.choose Option.ofNullEmptySpace
-                    |> List.map (fun msg -> sprintf "\n%s" msg)
-                    |> String.concat separator       
+                        let combinedMessage = 
+                            [ msg1; msg2; msg3; msg4 ] 
+                            |> List.choose Option.ofNullEmptySpace
+                            |> List.map (fun msg -> sprintf "\n%s" msg)
+                            |> String.concat separator       
 
-                return sprintf "%s%s" dispatchMsg3 combinedMessage
-            }    
-    
-    let internal stateReducerCmd4 token path dispatchIterationMessage reportProgress = 
-
-        IO (fun () 
-                ->
-                stateReducer token path dispatchIterationMessage reportProgress stateDefault 
-        )
-
-    let internal stateReducerCmd5 () = // For educational purposes
-    
-        IO (fun () 
-                ->
-                BusinessLogic_R.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| ()
+                        return sprintf "%s%s" dispatchMsg3 combinedMessage
+                    }    
         )
