@@ -113,6 +113,7 @@ module App =
             Screen       : Screen
             Status       : string
             ActiveButton : ButtonType option
+            IsBusy       : bool
         }
 
     type Msg =
@@ -190,6 +191,7 @@ module App =
                         | Granted    -> String.Empty
                         | NotGranted -> appInfoInvoker
                 ActiveButton = None
+                IsBusy       = false
             }
     
         match permission with
@@ -226,7 +228,7 @@ module App =
    
         | Navigate screen
             ->
-            { m with Screen = screen; ActiveButton = None; Status = String.Empty }, Cmd.none  
+            { m with Screen = screen; ActiveButton = None; Status = String.Empty; IsBusy = false }, Cmd.none  
    
         | Click Clear 
             ->
@@ -348,7 +350,7 @@ module App =
                             }
                     )
             
-            { m with Status = cancelMsg42 }, cancelCmd        
+            { m with Status = cancelMsg42; IsBusy = false }, cancelCmd        
    
         | RequestPermission
             ->
@@ -488,29 +490,36 @@ module App =
 
         | StartDownload KodisCanopy4 
             ->
-            kodisCanopyActor.PostAndReply(fun reply -> GetToken reply)            
-            |> function
-                | Some token 
-                    ->       
-                    let cmd =
-                        Cmd.ofSub 
-                            (fun dispatch
-                                ->                                
-                                Engines.KodisCanopy.execute
-                                <| fun m -> KodisCanopyMsg >> dispatch <| m
-                                <| token
-                            )
+            match m.IsBusy with
+            | true
+                ->
+                m, Cmd.none   // or show a toast "Operation already in progress"
+            | false 
+                ->
+                kodisCanopyActor.PostAndReply(fun reply -> GetToken reply)            
+                |> function
+                    | Some token 
+                        ->       
+                        let cmd =
+                            Cmd.ofSub 
+                                (fun dispatch
+                                    ->                                
+                                    Engines.KodisCanopy.execute
+                                    <| fun m -> KodisCanopyMsg >> dispatch <| m
+                                    <| token
+                                )
    
-                    { 
-                        m with
-                            Screen       = Downloading (KodisCanopy4, Preparing)  //Screen = Downloading (KodisCanopy4, Idle)
-                            Status       = String.Empty 
-                            Connectivity = connectivity 
-                    }, cmd
+                        { 
+                            m with
+                                Screen       = Downloading (KodisCanopy4, Preparing)  //Screen = Downloading (KodisCanopy4, Idle)
+                                Status       = String.Empty 
+                                Connectivity = connectivity 
+                                IsBusy       = true
+                        }, cmd
 
-                | None 
-                    ->
-                    m, Cmd.none 
+                    | None 
+                        ->
+                        m, Cmd.none 
        
         | StartDownload Dpo
             -> 
@@ -632,7 +641,7 @@ module App =
                 | Downloading (KodisCanopy4, _) 
                     ->  
                     kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = String.Empty }, Cmd.none
+                    { m with Screen = Completed result; Status = String.Empty; IsBusy = false }, Cmd.none
         
                 | _ ->
                     m, Cmd.none
@@ -640,24 +649,24 @@ module App =
             | Engines.KodisCanopy.ErrorKodis err
                 -> 
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = ErrorScreen err }, Cmd.none
+                { m with Screen = ErrorScreen err; IsBusy = false }, Cmd.none
         
             | Engines.KodisCanopy.NavigateHome 
                 -> 
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = Home }, Cmd.none   
+                { m with Screen = Home; IsBusy = false }, Cmd.none   
                 
             | Engines.KodisCanopy.Preparing
                 ->
                 match m.Screen with
                 | Downloading (dt, _) 
-                    -> { m with Screen = Downloading (dt, ProgressState.Preparing) }, Cmd.none
+                    -> { m with Screen = Downloading (dt, ProgressState.Preparing); IsBusy = true }, Cmd.none
                 | _ -> m, Cmd.none
 
             | Engines.KodisCanopy.NoInternet 
                 ->
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = NoConnection; Status = noNetConn4 }, Cmd.none   
+                { m with Screen = NoConnection; Status = noNetConn4; IsBusy = false }, Cmd.none   
                 
         | DpoMsg msg
             ->
@@ -862,18 +871,22 @@ module App =
                     sectionOstatni
                     utilitiesCard
                 }
-        
-            VStack(spacing = 0.) {
-                
-                let connText =
-                    match m.Connectivity with
-                    | Connected msg    -> msg
-                    | Disconnected msg -> msg
 
-                topBar connText labelOdis "Dopravní integrovaný systém MSK (ODIS)"
-                ScrollView(scrollContent)
-                quitButton
-            }
+            let connText =
+                match m.Connectivity with
+                | Connected msg    -> msg
+                | Disconnected msg -> msg
+        
+            (VStack(spacing = 0.) {
+                   topBar connText labelOdis "Dopravní integrovaný systém MSK (ODIS)"
+                   
+                   ScrollView(scrollContent)
+                       .verticalOptions(LayoutOptions.Fill)   // important: let ScrollView take remaining space
+                   
+                   quitButton
+                       .verticalOptions(LayoutOptions.End)    // keep quit button at the bottom
+               })
+                   .verticalOptions(LayoutOptions.Fill)           // make outer VStack fill the page
 
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  2 – Downloading
@@ -1288,7 +1301,7 @@ module App =
                     .centerHorizontal()
         
             let titleLabel =
-                Label("Aplikace nemá potřebné oprávnění")
+                Label(m.Status)
                     .font(size = 16.)
                     .textColor(textPrimary)
                     .centerTextHorizontal()
@@ -1329,7 +1342,7 @@ module App =
                     | Connected msg    -> msg
                     | Disconnected msg -> msg
 
-                topBar connText labelOdis m.Status
+                topBar connText labelOdis String.Empty
                 innerStack
             }
 
