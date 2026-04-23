@@ -715,3 +715,109 @@
 04/23/2026 05:18:48 +02:00 The operation was canceled. Error#0001-K
 04/23/2026 05:18:48 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
 04/23/2026 05:21:45 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 05:38:24 +02:00 AAAAAAhhhhhhhoooojjjjjj Error #XElmish_Kodis4_Critical_Error
+04/23/2026 05:40:05 +02:00 AAAAAAhhhhhhhoooojjjjjj Error #XElmish_Kodis4_Critical_Error
+04/23/2026 05:41:14 +02:00 Access to the path '222.pdf' is denied. Error#0010-IO
+04/23/2026 05:41:16 +02:00 AAAAAAhhhhhhhoooojjjjjj Error#0041-ExceptionHandlers
+04/23/2026 05:41:16 +02:00 AAAAAAhhhhhhhoooojjjjjj Error #XElmish_Kodis4_Critical_Error
+04/23/2026 05:43:42 +02:00 Access to the path '929_2026_04_29_2026_11_12_v.pdf' is denied. Error#0010-IO
+04/23/2026 05:43:44 +02:00 Attempted to divide by zero. Error#0041-ExceptionHandlers
+04/23/2026 05:43:44 +02:00 Attempted to divide by zero. Error #XElmish_Kodis4_Critical_Error
+04/23/2026 05:46:17 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 05:46:18 +02:00 Attempted to divide by zero. Error#0041-ExceptionHandlers
+04/23/2026 05:46:18 +02:00 Attempted to divide by zero. Error #XElmish_Kodis4_Critical_Error
+04/23/2026 05:51:38 +02:00 Access to the path '\\?\g:\Users\User\DataOld4\linky 200-299' is denied. Error#0010-IO
+04/23/2026 05:51:39 +02:00 Attempted to divide by zero. Error#0019-K4BL
+04/23/2026 05:51:39 +02:00 Attempted to divide by zero. Error#0041-ExceptionHandlers
+04/23/2026 05:51:39 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+ParsingAndDownloadingErrors] Error#7777-ExceptionHandlers
+04/23/2026 13:06:50 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 13:06:56 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:06:56 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:06:57 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:06:57 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:06:57 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:06:57 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:06:57 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:06:57 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:06:57 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 13:07:24 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 13:07:25 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 13:07:25 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 13:07:25 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 13:07:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 13:07:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 13:07:26 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 13:07:38 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 13:07:38 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 13:07:38 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 13:07:38 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 13:07:38 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 13:16:02 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 13:20:00 +02:00 Attempted to divide by zero. Error#0041-ExceptionHandlers
+04/23/2026 13:20:34 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 13:20:34 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 13:55:13 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 13:55:31 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 13:55:31 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 13:55:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 13:55:41 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 13:55:41 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 13:56:36 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:00:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 14:00:50 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:00:50 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:00:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:00:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:00:51 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 14:01:08 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:01:08 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:01:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:01:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:01:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:01:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:01:10 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 14:01:10 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 14:02:25 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 14:02:34 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:02:34 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 14:03:45 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:03:45 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 14:03:52 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:03:52 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 14:05:32 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:05:40 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:05:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:05:41 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 14:05:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 14:05:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 14:05:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 14:05:55 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 14:09:18 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 14:09:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:09:26 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 14:09:31 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:09:31 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:09:31 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 14:09:31 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 14:18:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 14:18:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:18:21 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:18:21 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:18:22 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:18:22 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 14:18:22 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 14:18:28 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:18:28 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 14:18:28 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 14:24:27 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 14:34:54 +02:00 The process cannot access the file '\\?\g:\Users\User\DataOld\' because it is being used by another process. Error#0005-IO
+04/23/2026 14:35:23 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0005-IO
+04/23/2026 14:57:37 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0005-IO-Locked
+04/23/2026 14:59:30 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0005-IO-Locked
+04/23/2026 15:01:05 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0005-IO-Locked
+04/23/2026 15:05:45 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0005-IO-Locked
+04/23/2026 15:07:00 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0010-IO
+04/23/2026 15:07:01 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0010-IO
+04/23/2026 15:07:01 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0010-IO
+04/23/2026 15:11:00 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 15:12:43 +02:00 The process cannot access the file 'Sekvence uceni se FSharp.docx' because it is being used by another process. Error#0005-IO-Locked

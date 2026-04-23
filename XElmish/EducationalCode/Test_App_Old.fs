@@ -703,16 +703,16 @@ module App_R =
             
                                     let! results =
                                         [
-                                            async { return deleteOld >> runIO <| () }
-                                            async { return deleteOld4 >> runIO <| () }
+                                            async { return deleteOld () |> runIO }
+                                            async { return deleteOld4 () |> runIO }
                                         ]
                                         |> Async.Parallel
                                         |> Async.Catch
-            
+                                                
                                     let message =
                                         match results |> Result.ofChoice with
-                                        | Ok [| _; _ |] -> deleteOldTimetablesMsg2
-                                        | _             -> deleteOldTimetablesMsg3
+                                        | Ok [| Ok (); Ok () |] -> deleteOldTimetablesMsg2
+                                        | _                     -> deleteOldTimetablesMsg3
             
                                     DataClearingMessage message |> dispatch
 

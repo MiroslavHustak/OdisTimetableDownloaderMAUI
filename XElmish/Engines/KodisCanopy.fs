@@ -31,7 +31,7 @@ let execute dispatch (token : CancellationToken) =
     let cmd4 (token : CancellationToken) dispatch =
         async 
             {
-                try
+                try                      
                     do! Async.SwitchToThreadPool()    
                                            
                     let computation =
@@ -82,24 +82,43 @@ let execute dispatch (token : CancellationToken) =
     let executeSequentially dispatch =
         async
             {
-                match token.IsCancellationRequested with
-                | true 
-                    ->
-                    dispatch NavigateHome    
+                try
+                    dispatch Preparing
 
-                | false 
-                    ->    
-                    match Helpers.ConnectivityWithDebouncing.isNowConnected () with
-                    | false
-                        ->
-                        return dispatch NoInternet
-    
+                    match token.IsCancellationRequested with
                     | true 
+                        ->
+                        dispatch NavigateHome    
+
+                    | false 
                         ->    
-                        use cts = CancellationTokenSource.CreateLinkedTokenSource token    
-                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs    
-                        do! cmd4 cts.Token dispatch
-                        return! cmd5 dispatch                       
+                        match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                        | false
+                            ->
+                            return dispatch NoInternet
+    
+                        | true 
+                            ->    
+                            use cts = CancellationTokenSource.CreateLinkedTokenSource token    
+                            umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs    
+
+                            do! cmd4 cts.Token dispatch
+                            
+                            return! cmd5 dispatch    
+                with 
+                | ex ->
+                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                    | err 
+                        when err = StopDownloading 
+                        ->
+                        runIO (postToLog2 <| string ex.Message <| " StopDownloading #9999 Kodis Canopy")
+
+                        match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                        | false -> return dispatch NoInternet
+                        | true  -> return dispatch NavigateHome 
+                    | _ ->
+                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error2")
+                        return dispatch NoInternet       
             }
             
     executeSequentially dispatch |> fun a -> Async.Start(a, token) 

@@ -264,7 +264,7 @@ module WebScraping_KODIS =
                            | Error err -> err      
                                 
                         #if ANDROID     
-                        deleteAllJsonFilesInDirectory >> runIO <| partialPathJsonTemp 
+                        let!_ = deleteAllJsonFilesInDirectory >> runIO <| partialPathJsonTemp, fun _ -> String.Empty 
                         #endif
 
                         let separator = String.Empty

@@ -1,5 +1,6 @@
 ﻿namespace IO_Operations
 
+open System
 open System.IO
 open System.Threading
 open System.Collections
@@ -135,27 +136,28 @@ module IO_Operations =
                         in 
                         dirInfo.EnumerateFiles()
                         |> Seq.toList
-                        |> List.Parallel.iter_IO_AW (fun item -> item.Delete())   
+                        |> List.Parallel.iter_IO_AW (fun item -> item.Delete()) 
+                        |> Ok
                 with
                 | :? System.IO.DirectoryNotFoundException
                     ->
-                    ()   // nothing to delete 
+                    Ok ()   // nothing to delete 
                 | ex
                     ->
-                    () //runIO (postToLog2 <| string ex.Message <| "#0004-IO") 
-                    //proste se nic nestane, tak se nesmazou, no...
-        )  
-        
-    let internal deleteOld () = 
+                    Ok () //runIO (postToLog2 <| string ex.Message <| "#0004-IO") 
+                    //proste se nic nestane, tak se nesmazou, no ...
+        )      
+
+    let internal deleteOld () : IO<Result<unit, string>> = 
 
         IO (fun () 
                 ->  
                 try
                     let dirInfo = DirectoryInfo oldTimetablesPath
-
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, ParsingAndDownloadingErrors>>
                     dirInfo.Delete true
-
+                    
+                    Ok ()
                     (*
                     //Time-of-Check-To-Time-Of-Use TOCTOU   
                     match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
@@ -170,36 +172,38 @@ module IO_Operations =
                 with
                 | :? System.IO.DirectoryNotFoundException
                     ->
-                    ()   // nothing to delete 
+                    Ok ()   // nothing to delete
+                | :? System.IO.IOException as ex
+                    ->
+                    runIO (postToLog2 <| string ex.Message <| "#0005-IO-Locked")
+                    Error String.Empty
                 | ex
                     ->
-                    runIO (postToLog2 <| string ex.Message <| "#0005-IO") 
+                    runIO (postToLog2 <| string ex.Message <| "#0005-IO")
+                    Error String.Empty
         )
                           
-    let internal deleteOld4 () = //Async.Catch is in App.fs
+    let internal deleteOld4 () : IO<Result<unit, string>> = 
 
         IO (fun () 
                 ->  
                 try
                     let dirInfo = DirectoryInfo oldTimetablesPath4
-
+                   
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, ParsingAndDownloadingErrors>>
-
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
-
+                   
                     dirInfo.Delete true
-
+                    Ok ()
                     (*
                     //Time-of-Check-To-Time-Of-Use TOCTOU   
                     match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
                     | true
                         -> 
                         deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, JsonParsingAndPdfDownloadErrors>>
-
                         runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
                         runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
-
                         dirInfo.Delete true
                     | false 
                         ->
@@ -208,11 +212,16 @@ module IO_Operations =
                 with
                 | :? System.IO.DirectoryNotFoundException
                     ->
-                    ()   // nothing to delete 
+                    Ok ()   // nothing to delete
+                | :? System.IO.IOException as ex
+                    ->
+                    runIO (postToLog2 <| string ex.Message <| "#0006-IO-Locked")
+                    Error String.Empty
                 | ex
                     ->
-                    runIO (postToLog2 <| string ex.Message <| "#0006-IO")  
-        )
+                    runIO (postToLog2 <| string ex.Message <| "#0006-IO")
+                    Error String.Empty
+        )  
       
     let internal createFolders dirList =  
         IO (fun () 

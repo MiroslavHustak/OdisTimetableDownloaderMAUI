@@ -246,18 +246,16 @@ module App =
 
                                     let! results =
                                         [
-                                            async { return deleteOld >> runIO <| () }
-                                            async { return deleteOld4 >> runIO <| () }
+                                            async { return deleteOld () |> runIO }
+                                            async { return deleteOld4 () |> runIO }
                                         ]
                                         |> Async.Parallel
                                         |> Async.Catch
+                                                
+                                    match results |> Result.ofChoice with
+                                    | Ok [| Ok (); Ok () |] -> dispatch (Navigate (Completed deleteOldTimetablesMsg2)) 
+                                    | _                     -> dispatch (Navigate (ErrorScreen deleteOldTimetablesMsg3))
 
-                                    let message =
-                                        match results |> Result.ofChoice with
-                                        | Ok [| _; _ |] -> deleteOldTimetablesMsg2
-                                        | _             -> deleteOldTimetablesMsg3
-
-                                    dispatch (Navigate (Completed message))
                                     do! Async.Sleep 1000
 
                                     return ()
@@ -328,28 +326,29 @@ module App =
 
             { m with Status = msg }, Cmd.none
             #endif
-   
-        | CancelDownload dt
+      
+        | CancelDownload dt 
             ->
-            match dt with
-            | KodisJsonTP  -> cancelLocalActor2 kodisJsonActor
-            | KodisPdfTP   -> cancelLocalActor2 kodisPdfActor
-            | KodisCanopy4 -> cancelLocalActor2 kodisCanopyActor
-            | Dpo          -> cancelLocalActor2 dpoActor
-            | Mdpo         -> cancelLocalActor2 mdpoActor
+            let cancelCmd =
+                Cmd.ofAsyncMsg
+                    (
+                        async 
+                            {
+                                do! Async.SwitchToThreadPool()
+                                match dt with
+                                | KodisJsonTP  -> cancelLocalActor2 kodisJsonActor
+                                | KodisPdfTP   -> cancelLocalActor2 kodisPdfActor
+                                | KodisCanopy4 -> cancelLocalActor2 kodisCanopyActor
+                                | Dpo          -> cancelLocalActor2 dpoActor
+                                | Mdpo         -> cancelLocalActor2 mdpoActor
 
-            System.Threading.Thread.Sleep 1000
+                                System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = false, compacting = false)
 
-            [
-                kodisJsonActor
-                kodisPdfActor
-                kodisCanopyActor
-                mdpoActor
-                dpoActor
-            ]
-            |> List.iter cancelLocalActor2
-                               
-            { m with Status = cancelMsg42 }, Cmd.ofMsg (Navigate Home)
+                                return Navigate Home
+                            }
+                    )
+            
+            { m with Status = cancelMsg42 }, cancelCmd        
    
         | RequestPermission
             ->
@@ -496,7 +495,7 @@ module App =
                     let cmd =
                         Cmd.ofSub 
                             (fun dispatch
-                                ->
+                                ->                                
                                 Engines.KodisCanopy.execute
                                 <| fun m -> KodisCanopyMsg >> dispatch <| m
                                 <| token
@@ -989,13 +988,22 @@ module App =
         // ══════════════════════════════════════════════════════════════════════════
      
         let completedView (m : Model) msg =
-                
-            let result = 
-                (resultCircle teal050 "✓")
-                    .centerHorizontal()
+
+            let connText, result =
+                match m.Connectivity with
+                | Connected msg    
+                    ->                     
+                    msg, 
+                        (resultCircle teal050 "✓")
+                            .centerHorizontal()
+                | Disconnected msg 
+                    -> 
+                    msg, 
+                        (resultCircle red050 "!")
+                            .centerHorizontal()
 
             let labelFinished = 
-                Label("Hotovo")
+                Label("Operace byla ukončena s níže uvedeným výsledkem:")
                         .font(size = 16.)
                         .textColor(textPrimary)
                         .centerTextHorizontal()  
@@ -1007,12 +1015,7 @@ module App =
                      .centerTextHorizontal()
                      .margin(Thickness(24., 0., 24., 0.))
      
-            VStack(spacing = 0.) {
-
-                let connText =
-                    match m.Connectivity with
-                    | Connected msg    -> msg
-                    | Disconnected msg -> msg
+            VStack(spacing = 0.) {                
      
                 topBar connText labelOdis m.Status
                 
@@ -1235,7 +1238,7 @@ module App =
                     .centerHorizontal()
         
             let titleLabel =
-                Label("Nastala chyba")
+                Label("O jéje ...")
                     .font(size = 16.)
                     .textColor(textPrimary)
                     .centerTextHorizontal()

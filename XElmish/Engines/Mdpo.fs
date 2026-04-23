@@ -14,7 +14,7 @@ open Settings.SettingsGeneral
 
 open Helpers.ExceptionHelpers
 
-type MdpoMsg  =
+type MdpoMsg =
     | Progress of float * float
     | IterationMsg of string  
     | Completed of string
@@ -22,64 +22,55 @@ type MdpoMsg  =
     | NavigateHome
     | NoInternet 
     
-let executeMdpo dispatch (token: CancellationToken) =
+let executeMdpo dispatch (token : CancellationToken) =
 
-    let reportProgress (progressValue: float, totalProgress: float) =
+    let reportProgress (progressValue : float, totalProgress : float) =
         match token.IsCancellationRequested with
         | true  -> dispatch (Progress (0.0, 1.0))
         | false -> dispatch (Progress (progressValue, totalProgress))
 
-    let cmd (token: CancellationToken) =
-
-        async 
-            {
-                try
-                    do! Async.SwitchToThreadPool()
-
-                    let! result =
-                        async { return runIO (webscraping_MDPO reportProgress token mdpoPathTemp) }
-
-                    match token.IsCancellationRequested with
-                    | true  
-                        ->
-                        dispatch NavigateHome
-                    | false 
-                        ->
-                        match result with
-                        | Ok _    -> dispatch (Completed mauiMdpoMsg)
-                        | Error e -> dispatch (ErrorMdpo e)
-
-                with 
-                | ex
-                    ->
-                    match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
-                    | err 
-                        when err = StopDownloading 
-                        ->
-                        match Helpers.ConnectivityWithDebouncing.isNowConnected () with
-                        | false -> return dispatch NoInternet
-                        | true  -> return dispatch NavigateHome                                                       
-                    | _ ->
-                        runIO (postToLog2 <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
-                        return dispatch NoInternet
-            }
-
-    async 
+    async
         {
-            match token.IsCancellationRequested with
-            | true  
-                -> 
-                dispatch NavigateHome
-            | false
-                ->
-                match Helpers.ConnectivityWithDebouncing.isNowConnected () with
-                | false  
-                    -> 
-                    return dispatch NoInternet
+            try
+                match token.IsCancellationRequested with
                 | true 
-                    -> 
-                    use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                    umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                    return! cmd cts.Token
+                    ->
+                    dispatch NavigateHome
+                | false
+                    ->
+                    match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                    | false
+                        ->
+                        return dispatch NoInternet
+                    | true
+                        ->
+                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+
+                        do! Async.SwitchToThreadPool()
+                        
+                        let! result = async { return runIO (webscraping_MDPO reportProgress cts.Token mdpoPathTemp) }
+
+                        match cts.Token.IsCancellationRequested with
+                        | true 
+                            ->
+                            dispatch NavigateHome
+                        | false
+                            ->
+                            match result with
+                            | Ok _    -> dispatch (Completed mauiMdpoMsg)
+                            | Error e -> dispatch (ErrorMdpo e)
+            with
+            | ex ->
+                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                | err 
+                    when err = StopDownloading
+                    ->
+                    match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                    | false -> return dispatch NoInternet
+                    | true  -> return dispatch NavigateHome
+                | _ ->
+                    runIO (postToLog2 <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
+                    return dispatch NoInternet
         }
     |> fun a -> Async.Start(a, token)
