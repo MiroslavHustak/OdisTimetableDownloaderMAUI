@@ -184,15 +184,17 @@
     <Compile Include="XElmish\Infrastructure\ComparisonResultFileLauncher.fs" />
     <Compile Include="XElmish\Infrastructure\HardRestart.fs" />
     <Compile Include="XElmish\Infrastructure\AndroidSpecificCode.fs" />
-    <Compile Include="XElmish\Infrastructure\ProgressCircle.fs" />
     <Compile Include="XElmish\Infrastructure\Counters.fs" />
     <Compile Include="XElmish\Infrastructure\ActorModels.fs" />
+    <Compile Include="XElmish\ViewHelpers\ScreenHelpers.fs" />
+    <Compile Include="XElmish\ViewHelpers\ProgressCircle.fs" />
     <Compile Include="XElmish\Engines\KodisTP.fs" />
     <Compile Include="XElmish\Engines\KodisCanopy.fs" />
     <Compile Include="XElmish\Engines\Dpo.fs" />
     <Compile Include="XElmish\Engines\Mdpo.fs" />
     <Compile Include="XElmish\EducationalCode\Test_App_Old.fs" />
     <Compile Include="XElmish\App_New.fs" />
+    <Compile Include="XElmish\App_New_UX.fs" />
     <Compile Include="MauiProgram.fs" />
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 

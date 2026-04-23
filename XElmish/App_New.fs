@@ -65,7 +65,7 @@ open OdisTimetableDownloaderMAUI.Engines.KodisCanopy
 open OdisTimetableDownloaderMAUI.Engines.Dpo
 open OdisTimetableDownloaderMAUI.Engines.Mdpo
 
-module App =
+module App74764 =
 
     type PermissionState = 
         | Granted 

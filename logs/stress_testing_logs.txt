@@ -453,3 +453,265 @@
 04/20/2026 00:49:26 +02:00 Access to the path '\\?\g:\Users\User\DataOld4\linky 600-699' is denied. Error#0010-IO
 04/20/2026 00:52:30 +02:00 Could not find a part of the path '\\?\g:\Users\User\DataOld4\linky 300-399'. Error#0010-IO
 04/20/2026 22:45:02 +02:00 Access to the path '005_2026_04_15_2026_12_12.pdf' is denied. Error#0010-IO
+04/22/2026 21:53:21 +02:00 Access to the path '031_2026-03-01.pdf' is denied. Error#0010-IO
+04/22/2026 22:57:27 +02:00 Access to the path '007_2026-04-15.pdf' is denied. Error#0010-IO
+04/23/2026 01:38:23 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 01:47:51 +02:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+04/23/2026 01:48:00 +02:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (www.mdpo.cz:443))) Error#0001-MDPOBL
+04/23/2026 01:48:01 +02:00 No such host is known. (www.mdpo.cz:443) Error#0003-MDPO
+04/23/2026 01:48:04 +02:00 Access to the path '212.pdf' is denied. Error#0010-IO
+04/23/2026 01:48:04 +02:00 Access to the path '202.pdf' is denied. Error#0010-IO
+04/23/2026 01:50:29 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 01:50:39 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 01:50:39 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 01:50:39 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 01:50:40 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 01:50:40 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 01:50:40 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 02:07:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 02:26:03 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:26:28 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:26:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:26:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:26:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:26:29 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 02:26:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 02:26:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 02:26:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 02:26:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 02:26:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 02:26:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 02:26:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 02:26:42 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 02:26:50 +02:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (www.mdpo.cz:443))) Error#0001-MDPOBL
+04/23/2026 02:26:51 +02:00 No such host is known. (www.mdpo.cz:443) Error#0003-MDPO
+04/23/2026 02:27:06 +02:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+04/23/2026 02:31:43 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:32:08 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:32:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:32:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:32:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:32:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:32:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 02:32:09 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 02:33:04 +02:00 Access to the path '219.pdf' is denied. Error#0010-IO
+04/23/2026 02:33:04 +02:00 Access to the path '204.pdf' is denied. Error#0010-IO
+04/23/2026 02:39:59 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 02:44:16 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 02:44:49 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 02:44:59 +02:00 Could not find a part of the path '\\?\g:\Users\User\DataOld4\'. Error#0010-IO
+04/23/2026 02:46:11 +02:00 Access to the path '\\?\g:\Users\User\DataOld4\linky 001-199' is denied. Error#0010-IO
+04/23/2026 02:48:53 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 02:56:49 +02:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+04/23/2026 03:03:52 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 03:06:57 +02:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+04/23/2026 03:07:01 +02:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+04/23/2026 03:07:05 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 03:12:28 +02:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+04/23/2026 03:16:49 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:17:14 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 03:17:27 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 03:18:07 +02:00 No such host is known. (www.dpo.cz:443) Error#0004-DPO
+04/23/2026 03:18:13 +02:00 One or more errors occurred. (One or more errors occurred. (No such host is known. (www.mdpo.cz:443))) Error#0001-MDPOBL
+04/23/2026 03:18:13 +02:00 HtmlDocument Error Error#0002-MDPOBL
+04/23/2026 03:18:14 +02:00 No such host is known. (www.mdpo.cz:443) Error#0003-MDPO
+04/23/2026 03:23:00 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 03:23:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:11 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 03:23:18 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:19 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:19 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 03:23:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:27 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:27 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:27 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:27 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:23:28 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 03:23:35 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 03:23:39 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/23/2026 03:23:47 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:23:48 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:23:48 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:23:48 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:23:48 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 03:24:02 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:24:02 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:24:02 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 03:24:02 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 03:28:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:37:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:37:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:37:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:37:29 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 03:37:50 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:37:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:37:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:37:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:37:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:37:51 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 03:38:38 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:38:39 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:38:39 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:38:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:38:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:38:41 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 03:38:46 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 03:38:46 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 03:38:53 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:38:53 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:38:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:38:54 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 03:48:22 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 03:48:49 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:48:50 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 03:48:50 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 03:48:59 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:48:59 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:48:59 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:00 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:00 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:00 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 03:49:18 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:49:19 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:49:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:49:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:49:21 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:49:21 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:49:21 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 03:49:50 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:52 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:52 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:53 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:53 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:53 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 03:49:53 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 03:50:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 03:50:10 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 04:10:27 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:10:44 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:10:45 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:10:45 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:10:46 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:10:46 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 04:11:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:11:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:11:21 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:11:21 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:11:21 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:11:21 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 04:14:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0006-MDPOBL
+04/23/2026 04:14:11 +02:00 One or more errors occurred. (A task was canceled.) Error#0006-MDPOBL
+04/23/2026 04:14:12 +02:00 One or more errors occurred. (A task was canceled.) Error#0006-MDPOBL
+04/23/2026 04:14:12 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 04:14:17 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 04:14:17 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 04:14:25 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 04:14:31 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:14:32 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:14:32 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 04:14:50 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:14:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:14:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:14:51 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:22:12 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:25:23 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:31:33 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:31:42 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 04:31:42 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 04:31:49 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:31:49 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 04:38:19 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:41:17 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:41:28 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:41:28 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:41:28 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:41:28 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 04:41:28 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 04:44:36 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:46:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:47:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:47:36 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:47:37 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 04:47:37 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 04:48:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:49:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:54:14 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:54:22 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:54:22 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 04:54:22 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 04:54:28 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:29 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:30 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:31 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:31 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:31 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:31 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 04:54:46 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 04:54:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:55 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:55 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:55 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:54:55 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 04:57:03 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 04:57:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 04:57:11 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 04:57:19 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:57:19 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:57:19 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:57:19 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 04:57:19 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/23/2026 04:57:35 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:57:36 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 04:57:36 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 04:57:36 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 05:02:50 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 05:03:02 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 05:03:02 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 05:03:02 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 05:03:02 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 05:03:17 +02:00 One or more errors occurred. (A task was canceled.) Error#0006-MDPOBL
+04/23/2026 05:03:17 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 05:03:25 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:03:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:03:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:03:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:03:26 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:03:26 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 05:10:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 05:10:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:10:54 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:10:55 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:10:56 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:10:56 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:10:56 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 05:11:07 +02:00 One or more errors occurred. (A task was canceled.) Error#0006-MDPOBL
+04/23/2026 05:11:07 +02:00 One or more errors occurred. (A task was canceled.) Error#0006-MDPOBL
+04/23/2026 05:11:08 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 05:11:13 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 05:11:13 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 05:11:13 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 05:13:12 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 05:14:23 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 05:15:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 05:16:52 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 05:17:05 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/23/2026 05:17:05 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 05:17:05 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 05:17:16 +02:00 The operation was canceled. Error#0003-MDPO
+04/23/2026 05:18:33 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/23/2026 05:18:41 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:18:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:18:42 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:18:43 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:18:43 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/23/2026 05:18:43 +02:00 The operation was canceled. Error#0004-DPO
+04/23/2026 05:18:48 +02:00 The operation was canceled. Error#0001-K
+04/23/2026 05:18:48 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+JsonDownloadErrors] Error#7777-ExceptionHandlers
+04/23/2026 05:21:45 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL

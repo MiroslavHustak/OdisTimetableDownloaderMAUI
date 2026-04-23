@@ -116,7 +116,7 @@ module ActorModels =
         Reset >> actor.Post <| newCts
 
     let internal cancelLocalActor2 (actor : MailboxProcessor<CancellationMessageLocal>) =
-
+        
         actor.PostAndReply(fun reply -> CancelAndReset reply)
 
         (*

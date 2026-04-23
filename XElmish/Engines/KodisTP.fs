@@ -67,21 +67,24 @@ let internal executeJson dispatch (token : CancellationToken) =
             }
     
     async 
-        {   
+        {  
             match token.IsCancellationRequested with
             | true  
                 -> 
-                return dispatch NavigateHome
-            | false 
+                dispatch NavigateHome
+            | false
                 ->
-                use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                    
-                match cts.Token.IsCancellationRequested with 
-                | true  -> return dispatch NavigateHome
-                | false -> return! cmd cts.Token dispatch
+                match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                | false  
+                    -> 
+                    return dispatch NoInternet
+                | true 
+                    -> 
+                    use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                    umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                    return! cmd cts.Token dispatch
         }
-    |> Async.Start  
+    |> fun a -> Async.Start(a, token)
     
 let internal executePdf dispatch (token : CancellationToken) =
 
@@ -132,12 +135,15 @@ let internal executePdf dispatch (token : CancellationToken) =
                 return dispatch NavigateHome
             | false 
                 ->
-                use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                               
-                match cts.Token.IsCancellationRequested with 
-                | true  -> return dispatch NavigateHome
-                | false -> return! cmd cts.Token dispatch
+                match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                | false  
+                    -> 
+                    return dispatch NoInternet
+                | true 
+                    -> 
+                    use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                    umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                    return! cmd cts.Token dispatch
         }
 
-    |> Async.Start       
+    |> fun a -> Async.Start(a, token)       

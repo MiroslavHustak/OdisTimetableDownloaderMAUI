@@ -41,8 +41,8 @@ let execute dispatch (token : CancellationToken) =
                         <| (fun msg -> dispatch (IterationMsg msg))   
                         <| reportProgress
     
-                    let! result = async { return runIO computation }
-    
+                    let! result = async { return runIO computation }                    
+                
                     match token.IsCancellationRequested with 
                     | true  -> return dispatch NavigateHome
                     | false -> return dispatch (Completed result)
@@ -79,26 +79,27 @@ let execute dispatch (token : CancellationToken) =
                     return dispatch NoInternet
             }  
        
-    let executeSequentially dispatch = 
-
-        async 
-            {          
+    let executeSequentially dispatch =
+        async
+            {
                 match token.IsCancellationRequested with
                 | true 
-                    -> dispatch NavigateHome
-                | false 
                     ->
-                    use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                    umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                    do! cmd4 cts.Token dispatch
-                    return! cmd5 dispatch                           
-            }
-        |> Async.Start  
+                    dispatch NavigateHome    
+
+                | false 
+                    ->    
+                    match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                    | false
+                        ->
+                        return dispatch NoInternet
     
-    async 
-        {   
-            match token.IsCancellationRequested with
-            | true  -> return dispatch NavigateHome
-            | false -> return executeSequentially dispatch
-        }
-    |> Async.Start          
+                    | true 
+                        ->    
+                        use cts = CancellationTokenSource.CreateLinkedTokenSource token    
+                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs    
+                        do! cmd4 cts.Token dispatch
+                        return! cmd5 dispatch                       
+            }
+            
+    executeSequentially dispatch |> fun a -> Async.Start(a, token) 

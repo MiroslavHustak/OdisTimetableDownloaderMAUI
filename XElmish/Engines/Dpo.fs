@@ -71,11 +71,14 @@ let executeDpo dispatch (token : CancellationToken) =
                 dispatch NavigateHome
             | false
                 ->
-                use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
-                       
-                match cts.Token.IsCancellationRequested with
-                | true  -> dispatch NavigateHome
-                | false -> return! cmd cts.Token
+                match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                | false  
+                    -> 
+                    return dispatch NoInternet
+                | true 
+                    -> 
+                    use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                    umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                    return! cmd cts.Token                      
         }
-    |> Async.Start
+    |> fun a -> Async.Start(a, token)
