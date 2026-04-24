@@ -126,6 +126,7 @@ module App =
         | StartDownload  of DownloadType
         | CancelDownload of DownloadType
         | RequestPermission
+        | OpenStorageViewer
         | RunFileLauncher
         | Dummy
         | Quit
@@ -152,7 +153,7 @@ module App =
     let private connectivity msg = 
         match isNowConnected () with    
         | true  -> Connected yesNetConn
-        | false -> Disconnected msg // nech to tak, aji kdyz zatim jen noNetConn4, mozna se bude hodit
+        | false -> Disconnected msg // nech to tak, aji kdyz zatim je jen noNetConn, mozna se bude hodit
           
     // =============================================
     // INIT
@@ -172,8 +173,8 @@ module App =
     
         let initialScreen = 
             match permission, connectivity with
-            | _, Disconnected _    -> NoConnection  
             | NotGranted, _        -> NoPermission
+            | _, Disconnected _    -> NoConnection  
             | Granted, Connected _ -> Home
     
         let baseModel =
@@ -182,12 +183,15 @@ module App =
                 Connectivity = connectivity
                 Screen       = initialScreen
                 Status = 
-                    match initialScreen with
-                    | NoConnection -> noNetConn
-                    | _ ->
-                        match permission with
-                        | Granted    -> String.Empty
-                        | NotGranted -> appInfoInvoker
+                    match permission with
+                    | Granted   
+                        ->
+                        match initialScreen with
+                        | NoConnection -> noNetConn
+                        | _            -> String.Empty                        
+                    | NotGranted 
+                        -> 
+                        appInfoInvoker   
                 ActiveButton = None
             }
     
@@ -399,6 +403,24 @@ module App =
             m, Cmd.none
             #endif
 
+        | OpenStorageViewer
+            ->
+            #if ANDROID
+            m,
+                try
+                    Cmd.ofSub 
+                        (fun _ 
+                            ->
+                            FileLauncher.openStorageRoot >> runIO 
+                                <| Android.App.Application.Context
+                        )  
+                with
+                | _ -> ErrorScreen >> SetScreen >> Cmd.ofMsg <| androidFolderAccessError                 
+                   
+            #else
+            m, Cmd.none                        
+            #endif           
+
         | RunFileLauncher
             ->
             let cmd = 
@@ -457,7 +479,7 @@ module App =
    
                     { 
                         m with
-                            Screen       = Downloading (KodisJsonTP, Idle)
+                            Screen       = Downloading (KodisJsonTP, InProgress (0, 0))
                             Status       = progressMsgKodis
                             Connectivity = connectivity 
                     }, cmd
@@ -483,7 +505,7 @@ module App =
    
                     { 
                         m with
-                            Screen       = Downloading (KodisPdfTP, Idle)
+                            Screen       = Downloading (KodisPdfTP, InProgress (0, 0))
                             Status       = dispatchMsg2
                             Connectivity = connectivity 
                     }, cmd    
@@ -509,7 +531,7 @@ module App =
    
                     { 
                         m with
-                            Screen       = Downloading (KodisCanopy4, Idle)
+                            Screen       = Downloading (KodisCanopy4, InProgress (0, 0))
                             Status       = String.Empty 
                             Connectivity = connectivity 
                     }, cmd
@@ -585,7 +607,9 @@ module App =
                 { m with Status = text }, Cmd.none
         
             | Engines.KodisTP.Completed result
-                ->            
+                ->   
+                System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = false, compacting = false)
+
                 match m.Screen with            
                 | Downloading (KodisJsonTP, _)
                     ->   
@@ -633,7 +657,9 @@ module App =
                 { m with Status = text }, Cmd.none
         
             | Engines.KodisCanopy.Completed result
-                ->            
+                ->       
+                System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = true, compacting = false)
+
                 match m.Screen with               
                 | Downloading (KodisCanopy4, _) 
                     ->  
@@ -890,10 +916,11 @@ module App =
 
             let progressValue =
                 match ps with
-                | InProgress (curr, total) when total > 0.0 ->
-                    min 1.0 ((1.0 / total) * curr)
-                | _ -> 0.0
-
+                | InProgress (curr, total) 
+                    when total > 0.0
+                    -> min 1.0 (curr / total)
+                | _ -> 0.0         
+                          
             let progressPct = sprintf "%.0f %%" (progressValue * 100.0)
 
             let isInProgress =
@@ -1048,7 +1075,7 @@ module App =
                 topBar connText "Nástroje" m.Status
                 
                 let sectionLabel1 = 
-                    (sectionLabel "Soubory")
+                    (sectionLabel "Nesoulad JŘ")
                      .margin(Thickness(18., 16., 18., 0.))
                 
                 let actionCardFileLauncher = 
@@ -1064,7 +1091,7 @@ module App =
                     |> fun v -> v.margin(Thickness(18., 8., 18., 0.))
 
                 let sectionLabel2 = 
-                    (sectionLabel "Správa dat")
+                    (sectionLabel "Správa uložených JŘ")
                         .margin(Thickness(18., 4., 18., 0.))     
                 
                 let actionCardClearing = 
@@ -1075,6 +1102,18 @@ module App =
                         hintClearing
                         |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))   
 
+                let sectionLabel3 = 
+                    (sectionLabel "Přístup k adresářům s JŘ")
+                        .margin(Thickness(18., 4., 18., 0.))     
+                
+                let actionCardOpenStorage = 
+                    actionCard
+                        (iconBadge red050 red600 "🗑")
+                        OpenStorageViewer
+                        "Spustit file manager"//buttonClearing
+                        "Umožnění přístupu k JŘ"//hintClearing
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))   
+
                 ScrollView(
                     (VStack(spacing = 0.) {     
                         sectionLabel1     
@@ -1082,6 +1121,8 @@ module App =
                         divider      
                         sectionLabel2                           
                         actionCardClearing
+                        sectionLabel3
+                        actionCardOpenStorage
                     })
                          .centerVertical()
                          .padding(Thickness(20., 32., 20., 20.))

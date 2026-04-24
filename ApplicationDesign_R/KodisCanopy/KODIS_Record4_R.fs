@@ -56,7 +56,7 @@ module WebScraping_KODIS4 =
         IO (fun () 
                 ->     
                 let errFn err =  
-
+                    
                     match err with
                     | PdfDownloadError2 NotAllFilesDownloaded  -> notAllFilesDownloaded
                     | PdfDownloadError2 NoFolderError          -> noFolderError            
@@ -189,8 +189,11 @@ module WebScraping_KODIS4 =
                
                         let!_ =  isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
                         let! msg1 = result contextCurrentValidity, errFn
+                        System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = true, compacting = false)
                         let! msg2 = result contextFutureValidity, errFn
+                        System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = true, compacting = false)
                         let! msg3 = result contextLongTermValidity, errFn 
+                        System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = true, compacting = false)
 
                         let msg4 =                
                             BusinessLogic_R.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| ()

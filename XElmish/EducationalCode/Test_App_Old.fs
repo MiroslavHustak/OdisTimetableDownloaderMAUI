@@ -390,6 +390,7 @@ module App_R =
         | Dummy 
             -> 
             m, Cmd.none
+
         | ClickClearingConfirmation
             ->
             { m with AnimatedButton = Some buttonClearingConfirmation }, cmdOnClickAnimation AllowDataClearing            

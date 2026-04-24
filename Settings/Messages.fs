@@ -40,6 +40,7 @@ module Messages =
     let internal letItBe = String.Empty
 
     let [<Literal>] internal androidError = "Android to vzdal, je toho na něj moc." 
+    let [<Literal>] internal androidFolderAccessError = "Nelze otevřít příslušný adresář"  
 
     let [<Literal>] internal canopyError = "REST API error." 
     let [<Literal>] internal timeoutError = "JŘ ODIS se nepodařilo stáhnout, neb vypršel časový limit požadavku. Zkus znovu (možná bude potřeba mít stabilnější či rychlejší připojení)." 

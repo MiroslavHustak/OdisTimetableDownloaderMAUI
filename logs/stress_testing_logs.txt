@@ -858,3 +858,9 @@
 04/24/2026 01:51:37 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
 04/24/2026 01:51:37 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
 04/24/2026 01:51:37 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/24/2026 02:43:54 +02:00 Access to the path '048_2026-03-01.pdf' is denied. Error#0010-IO
+04/24/2026 02:51:10 +02:00 Access to the path '202.pdf' is denied. Error#0010-IO
+04/24/2026 02:55:34 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/24/2026 02:55:34 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/24/2026 13:21:16 +02:00 Access to the path '213.pdf' is denied. Error#0010-IO
+04/24/2026 13:28:06 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
