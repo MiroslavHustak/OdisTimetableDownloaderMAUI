@@ -471,7 +471,7 @@ module App =
                                 Engines.KodisTP.executeJson
                                     <| fun m -> KodisTPMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)                                 
+                                |> Async.Start                                 
                             )   
                     { 
                         m with
@@ -497,7 +497,7 @@ module App =
                                 Engines.KodisTP.executePdf
                                     <| fun m -> KodisTPMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)  
+                                |> Async.Start 
                             )                       
                     { 
                         m with
@@ -520,10 +520,10 @@ module App =
                         Cmd.ofSub
                             (fun dispatch
                                 ->
-                                Engines.KodisCanopy.execute
+                                Engines.KodisCanopy.execute2
                                     <| fun m -> KodisCanopyMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)  
+                                |> Async.Start  
                             )
                     { 
                         m with
@@ -549,7 +549,7 @@ module App =
                                 Engines.Dpo.executeDpo
                                     <| fun m -> DpoMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)  
+                                |> Async.Start  
                             )   
                     { 
                         m with
@@ -575,7 +575,7 @@ module App =
                                 Engines.Mdpo.executeMdpo
                                     <| fun m -> MdpoMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)    
+                                |> Async.Start    
                             )   
                     { 
                         m with
@@ -1094,32 +1094,20 @@ module App =
                 let divider =       
                     divider ()
                     |> fun v -> v.margin(Thickness(18., 8., 18., 0.))
-
+                                    
                 let sectionLabel2 = 
-                    (sectionLabel "Přístup k adresářům s JŘ ODIS")
+                    (sectionLabel "Přístup k adresářům s JŘ ODIS, DPO, MDPO")
                         .margin(Thickness(18., 4., 18., 0.))   
 
-                let actionCardOpenStorage1 = 
+                let actionCardOpenStorage = 
                     actionCard
                         (iconBadge amber050 amber400 "📄")
-                        (OpenStorageViewer "FabulousTimetables")
+                        (OpenStorageViewer String.Empty)
                         "Spustit file manager"//buttonClearing
                         "Umožnění přístupu k JŘ"//hintClearing
                         |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))     
 
                 let sectionLabel3 = 
-                    (sectionLabel "Přístup k adresářům s JŘ ODIS, DPO, MDPO")
-                        .margin(Thickness(18., 4., 18., 0.))   
-
-                let actionCardOpenStorage2 = 
-                    actionCard
-                        (iconBadge amber050 amber400 "📄")
-                        (OpenStorageViewer "FabulousTimetables4")
-                        "Spustit file manager 2"//buttonClearing
-                        "Umožnění přístupu k JŘ"//hintClearing
-                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))     
-
-                let sectionLabel4 = 
                     (sectionLabel "Odstranění uložených JŘ")
                         .margin(Thickness(18., 4., 18., 0.))     
                 
@@ -1137,10 +1125,8 @@ module App =
                         actionCardFileLauncher                            
                         divider      
                         sectionLabel2   
-                        actionCardOpenStorage1
+                        actionCardOpenStorage
                         sectionLabel3
-                        actionCardOpenStorage2
-                        sectionLabel4
                         actionCardClearing    
                     })
                          .centerVertical()
@@ -1196,6 +1182,12 @@ module App =
                         .font(size = 13.)
                         .textColor(textSecond)
                         .margin(Thickness(0., 0., 0., 20.))
+
+                let label4 =
+                    Label(m.Status)
+                        .font(size = 13.)
+                        .textColor(textSecond)
+                        .margin(Thickness(0., 0., 0., 20.))
         
                 // ── buttons row ───────────────────────────
                 let hsStack =
@@ -1235,6 +1227,7 @@ module App =
                             label1
                             label2
                             label3
+                            label4
                             hsStack
                         }
                     )
