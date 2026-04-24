@@ -24,18 +24,22 @@ type MdpoMsg =
     
 let executeMdpo dispatch (token : CancellationToken) =
 
-    let reportProgress (progressValue : float, totalProgress : float) =
-        match token.IsCancellationRequested with
-        | true  -> dispatch (Progress (0.0, 1.0))
-        | false -> dispatch (Progress (progressValue, totalProgress))
-
     async
         {
             try
-                match token.IsCancellationRequested with
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+
+                let token2 = cts.Token
+    
+                let reportProgress (progressValue : float, totalProgress : float) =
+                    match token2.IsCancellationRequested with
+                    | true  -> dispatch (Progress (0.0, 1.0))
+                    | false -> dispatch (Progress (progressValue, totalProgress))
+
+                match token2.IsCancellationRequested with
                 | true 
                     ->
-                    dispatch NavigateHome
+                    return dispatch NavigateHome
                 | false
                     ->
                     match Helpers.ConnectivityWithDebouncing.isNowConnected () with
@@ -45,24 +49,24 @@ let executeMdpo dispatch (token : CancellationToken) =
                     | true
                         ->
                         do! Async.SwitchToThreadPool()
-
-                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
                         umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
                         
-                        let! result = async { return runIO (webscraping_MDPO reportProgress cts.Token mdpoPathTemp) }
+                        let! result = async { return runIO (webscraping_MDPO reportProgress token2 mdpoPathTemp) }
 
-                        match cts.Token.IsCancellationRequested with
+                        match token2.IsCancellationRequested with
                         | true 
                             ->
-                            dispatch NavigateHome
+                            return dispatch NavigateHome
                         | false
                             ->
                             match result with
-                            | Ok _    -> dispatch (Completed mauiMdpoMsg)
-                            | Error e -> dispatch (ErrorMdpo e)
+                            | Ok _    -> return dispatch (Completed mauiMdpoMsg)
+                            | Error e -> return dispatch (ErrorMdpo e)
             with
             | ex ->
-                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+
+                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
                 | err 
                     when err = StopDownloading
                     ->
@@ -73,4 +77,3 @@ let executeMdpo dispatch (token : CancellationToken) =
                     runIO (postToLog2 <| string ex.Message <| " #XElmish_Mdpo_Critical_Error")
                     return dispatch NoInternet
         }
-    |> fun a -> Async.Start(a, token)

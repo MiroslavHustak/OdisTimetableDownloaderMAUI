@@ -469,10 +469,10 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.KodisTP.executeJson
-                                <| fun m -> KodisTPMsg >> dispatch <| m
-                                <| token
-                            )
-   
+                                    <| fun m -> KodisTPMsg >> dispatch <| m
+                                    <| token
+                                |> fun a -> Async.Start(a, token)                                 
+                            )   
                     { 
                         m with
                             Screen       = Downloading (KodisJsonTP, Idle)
@@ -489,16 +489,16 @@ module App =
             kodisPdfActor.PostAndReply(fun reply -> GetToken reply) 
             |> function
                 | Some token 
-                    ->    
-                    let cmd =
-                        Cmd.ofSub 
+                    ->  
+                    let cmd = 
+                        Cmd.ofSub
                             (fun dispatch
                                 ->
                                 Engines.KodisTP.executePdf
-                                <| fun m -> KodisTPMsg >> dispatch <| m
-                                <| token
-                            )
-   
+                                    <| fun m -> dispatch (KodisTPMsg m)
+                                    <| token
+                                |> fun a -> Async.Start(a, token)
+                            )                       
                     { 
                         m with
                             Screen       = Downloading (KodisPdfTP, Idle)
@@ -516,18 +516,15 @@ module App =
             |> function
                 | Some token 
                     ->   
-                    let cmd : Cmd<Msg> =
+                    let cmd = 
                         Cmd.ofSub
                             (fun dispatch
                                 ->
                                 Engines.KodisCanopy.execute
-                                    <| fun m -> KodisCanopyMsg >> dispatch <| m
+                                    <| fun m -> dispatch (KodisCanopyMsg m)
                                     <| token
-                                    
                                 |> fun a -> Async.Start(a, token)
-                        )
-                        
-   
+                            )
                     { 
                         m with
                             Screen       = Downloading (KodisCanopy4, Idle)
@@ -550,10 +547,10 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.Dpo.executeDpo
-                                <| fun m -> DpoMsg >> dispatch <| m
-                                <| token
-                            )
-   
+                                    <| fun m -> DpoMsg >> dispatch <| m
+                                    <| token
+                                |> fun a -> Async.Start(a, token)
+                            )   
                     { 
                         m with
                             Screen       = Downloading (Dpo, Idle)
@@ -576,10 +573,10 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.Mdpo.executeMdpo
-                                <| fun m -> MdpoMsg >> dispatch <| m
-                                <| token
-                            )
-   
+                                    <| fun m -> MdpoMsg >> dispatch <| m
+                                    <| token
+                                |> fun a -> Async.Start(a, token)  
+                            )   
                     { 
                         m with
                             Screen       = Downloading (Mdpo, Idle)

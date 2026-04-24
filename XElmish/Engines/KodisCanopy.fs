@@ -22,15 +22,19 @@ type KodisCanopyMsg =
     
 let execute dispatch (token : CancellationToken) =
 
-    let reportProgress (progressValue : float, totalProgress : float) =
-        match token.IsCancellationRequested with
-        | true  -> dispatch (Progress (0.0, 1.0))
-        | false -> dispatch (Progress (progressValue, totalProgress))
-
     async
         {
-            try
-                match token.IsCancellationRequested with
+            try    
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+
+                let token2 = cts.Token
+
+                let inline reportProgress (progressValue : float, totalProgress : float) =
+                    match token2.IsCancellationRequested with
+                    | true  -> dispatch (Progress (0.0, 1.0))
+                    | false -> dispatch (Progress (progressValue, totalProgress))
+
+                match token2.IsCancellationRequested with
                 | true 
                     ->
                     dispatch NavigateHome
@@ -45,26 +49,26 @@ let execute dispatch (token : CancellationToken) =
                     | true
                         ->
                         do! Async.SwitchToThreadPool() 
-
-                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
-                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                        
-
+                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs 
+                       
                         let computation = 
                             stateReducer
-                            <| cts.Token
+                            <| token2
                             <| kodisPathTemp4
                             <| fun msg -> IterationMsg >> dispatch <| msg
                             <| reportProgress
 
                         let! result = async { return runIO computation }
 
-                        match cts.Token.IsCancellationRequested with
+                        match token2.IsCancellationRequested with
                         | true  -> return dispatch NavigateHome
                         | false -> return Completed >> dispatch <| result
                            
             with
             | ex ->
-                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+
+                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
                 | err 
                     when err = StopDownloading
                      ->
@@ -76,4 +80,3 @@ let execute dispatch (token : CancellationToken) =
                     runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                     return dispatch NoInternet
         }
-    //|> fun a -> Async.Start(a, token)

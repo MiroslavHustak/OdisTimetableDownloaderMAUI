@@ -21,16 +21,20 @@ type KodisTPMsg =
     | NoInternet 
 
 let internal executeJson dispatch (token : CancellationToken) =
-
-    let reportProgress (progressValue : float, totalProgress : float) =
-        match token.IsCancellationRequested with
-        | true  -> dispatch (Progress (0.0, 1.0))
-        | false -> dispatch (Progress (progressValue, totalProgress))
-
+   
     async
         {
-            try
-                match token.IsCancellationRequested with
+            use cts = CancellationTokenSource.CreateLinkedTokenSource token  
+
+            try               
+                let token2 = cts.Token
+
+                let inline reportProgress (progressValue : float, totalProgress : float) =
+                    match token2.IsCancellationRequested with
+                    | true  -> dispatch (Progress (0.0, 1.0))
+                    | false -> dispatch (Progress (progressValue, totalProgress))
+                
+                match token2.IsCancellationRequested with
                 | true 
                     ->
                     dispatch NavigateHome
@@ -42,25 +46,23 @@ let internal executeJson dispatch (token : CancellationToken) =
                         return dispatch NoInternet
                     | true
                         ->
-                        do! Async.SwitchToThreadPool() 
-
-                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                        do! Async.SwitchToThreadPool()                       
                         umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
 
-                        let! result = async { return runIO (stateReducerCmd1 cts.Token stateDefault reportProgress) }
+                        let! result = async { return runIO (stateReducerCmd1 token2 stateDefault reportProgress) }
 
-                        match cts.Token.IsCancellationRequested with
+                        match token2.IsCancellationRequested with
                         | true 
                             ->
-                            dispatch NavigateHome
+                            return dispatch NavigateHome
                         | false 
                             ->
                             match result with
-                            | Ok msg    -> Completed >> dispatch <| msg
-                            | Error err -> ErrorKodis >> dispatch <| err
+                            | Ok msg    -> return Completed >> dispatch <| msg
+                            | Error err -> return ErrorKodis >> dispatch <| err
             with
             | ex ->
-                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
                 | err 
                     when err = StopDownloading
                     ->
@@ -73,20 +75,22 @@ let internal executeJson dispatch (token : CancellationToken) =
                     runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
                     return dispatch NoInternet
         }
-    |> fun a -> Async.Start(a, token)
     
 let internal executePdf dispatch (token : CancellationToken) =
-
-    let reportProgress (progressValue : float, totalProgress : float) =
-
-        match token.IsCancellationRequested with
-        | true  -> dispatch (Progress (0.0, 1.0))
-        | false -> dispatch (Progress (progressValue, totalProgress))
 
     async
         {
             try
-                match token.IsCancellationRequested with
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+
+                let token2 = cts.Token
+
+                let inline reportProgress (progressValue : float, totalProgress : float) =
+                    match token2.IsCancellationRequested with
+                    | true  -> dispatch (Progress (0.0, 1.0))
+                    | false -> dispatch (Progress (progressValue, totalProgress))
+
+                match token2.IsCancellationRequested with
                 | true 
                     ->
                     return dispatch NavigateHome
@@ -99,13 +103,11 @@ let internal executePdf dispatch (token : CancellationToken) =
                     | true 
                         ->
                         do! Async.SwitchToThreadPool() 
-
-                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
                         umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                       
                         
                         let computation =
                             stateReducerCmd2
-                            <| cts.Token
+                            <| token2
                             <| kodisPathTemp
                             <| fun _   -> ()
                             <| fun msg -> IterationMsg >> dispatch <| msg
@@ -113,12 +115,14 @@ let internal executePdf dispatch (token : CancellationToken) =
                         
                         let! result = async { return runIO computation }
                         
-                        match cts.Token.IsCancellationRequested with
+                        match token2.IsCancellationRequested with
                         | true  -> return dispatch NavigateHome
                         | false -> return Completed >> dispatch <| result
             with
             | ex ->
-                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError token ex with
+                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+
+                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
                 | err 
                     when err = StopDownloading 
                     ->                    
@@ -129,4 +133,3 @@ let internal executePdf dispatch (token : CancellationToken) =
                     runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
                     return dispatch NoInternet
         }
-    |> fun a -> Async.Start(a, token)
