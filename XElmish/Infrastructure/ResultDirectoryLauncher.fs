@@ -17,16 +17,17 @@ module FileLauncher =
                 let uri =
                     DocumentsContract.BuildRootUri(
                         "com.android.externalstorage.documents",
-                        "primary"
+                        "primary:FabulousTimetables"
                     )
 
                 (*
                 /storage/emulated/0/MyApp/DownloadsA
+                @"/storage/emulated/0/FabulousTimetables/"
 
                 let uri =
                     DocumentsContract.BuildDocumentUri(
                         "com.android.externalstorage.documents",
-                        "primary:MyApp/DownloadsA"
+                        "primary:FabulousTimetables"
                     )
                 *) 
     

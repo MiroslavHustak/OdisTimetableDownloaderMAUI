@@ -38,6 +38,7 @@ module KODIS_BL_Record_Json =
                 let l = jsonLinkList |> List.length    
   
                 let counterAndProgressBar = counterAndProgressBar l token checkCancel reportProgress 
+                reportProgress (0.0, 1.0)
     
                 let downloadWithResume (uri : string) (pathToFile : string) =
 

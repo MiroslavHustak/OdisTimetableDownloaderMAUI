@@ -40,7 +40,8 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
 
                 let l = context.list |> List.length
 
-                let counterAndProgressBar = counterAndProgressBar2 l token checkCancel context.reportProgress     
+                let counterAndProgressBar = counterAndProgressBar2 l token checkCancel context.reportProgress  
+                context.reportProgress (0.0, 1.0)
                 
                 let downloadWithResume (uri : string) (pathToFile : string) (token : CancellationToken) : Async<Result<unit, PdfDownloadErrors>> = 
                

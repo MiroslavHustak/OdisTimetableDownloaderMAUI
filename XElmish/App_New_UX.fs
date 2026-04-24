@@ -475,7 +475,7 @@ module App =
    
                     { 
                         m with
-                            Screen       = Downloading (KodisJsonTP, InProgress (0, 0))
+                            Screen       = Downloading (KodisJsonTP, Idle)
                             Status       = progressMsgKodis
                             Connectivity = connectivity 
                     }, cmd
@@ -501,7 +501,7 @@ module App =
    
                     { 
                         m with
-                            Screen       = Downloading (KodisPdfTP, InProgress (0, 0))
+                            Screen       = Downloading (KodisPdfTP, Idle)
                             Status       = dispatchMsg2
                             Connectivity = connectivity 
                     }, cmd    
@@ -516,18 +516,21 @@ module App =
             |> function
                 | Some token 
                     ->   
-                    let cmd =
+                    let cmd : Cmd<Msg> =
                         Cmd.ofSub
-                            (fun dispatch 
-                                ->                                
+                            (fun dispatch
+                                ->
                                 Engines.KodisCanopy.execute
-                                <| fun m -> KodisCanopyMsg >> dispatch <| m
-                                <| token
-                            )
+                                    <| fun m -> KodisCanopyMsg >> dispatch <| m
+                                    <| token
+                                    
+                                |> fun a -> Async.Start(a, token)
+                        )
+                        
    
                     { 
                         m with
-                            Screen       = Downloading (KodisCanopy4, InProgress (0, 0))
+                            Screen       = Downloading (KodisCanopy4, Idle)
                             Status       = String.Empty 
                             Connectivity = connectivity 
                     }, cmd
@@ -595,8 +598,14 @@ module App =
                 ->
                 match m.Screen with
                 | Downloading (dt, _) 
-                    -> { m with Screen = Downloading (dt, InProgress (c, t)) }, Cmd.none
-                | _ -> m, Cmd.none       
+                    -> 
+                    let ps = 
+                        match c, t with
+                        | 0.0, 1.0 -> Idle  // explicit reset signal from counterAndProgressBar on cancellation/new variant
+                        | _        -> InProgress (c, t)
+                    { m with Screen = Downloading (dt, ps) }, Cmd.none
+                | _ -> 
+                    m, Cmd.none      
             
             | Engines.KodisTP.IterationMsg text 
                 ->
@@ -645,21 +654,27 @@ module App =
                 ->
                 match m.Screen with
                 | Downloading (dt, _) 
-                    -> { m with Screen = Downloading (dt, InProgress (c, t)) }, Cmd.none
-                | _ -> m, Cmd.none       
-        
+                    -> 
+                    let ps = 
+                        match c, t with
+                        | 0.0, 1.0 -> Idle  // explicit reset signal from counterAndProgressBar on cancellation/new variant
+                        | _        -> InProgress (c, t)
+                    { m with Screen = Downloading (dt, ps) }, Cmd.none
+                | _ -> 
+                    m, Cmd.none
+                   
             | Engines.KodisCanopy.IterationMsg text 
                 ->
                 { m with Status = text }, Cmd.none
         
             | Engines.KodisCanopy.Completed result
                 ->       
-                System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = true, compacting = false)
-
                 match m.Screen with               
                 | Downloading (KodisCanopy4, _) 
                     ->  
+                    System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = false, compacting = false)
                     kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
+
                     { m with Screen = Completed result; Status = String.Empty }, Cmd.none
         
                 | _ ->

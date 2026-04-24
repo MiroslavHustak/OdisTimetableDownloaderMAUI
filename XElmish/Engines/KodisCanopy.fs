@@ -76,4 +76,4 @@ let execute dispatch (token : CancellationToken) =
                     runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                     return dispatch NoInternet
         }
-    |> fun a -> Async.Start(a, token)
+    //|> fun a -> Async.Start(a, token)
