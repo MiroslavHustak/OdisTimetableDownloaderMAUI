@@ -39,6 +39,7 @@ module FileLauncher =
                 intent.AddFlags(
                     ActivityFlags.GrantReadUriPermission
                     ||| ActivityFlags.GrantWriteUriPermission
+                    ||| ActivityFlags.NewTask
                 )
                 |> ignore<Intent>
     

@@ -403,23 +403,19 @@ module App =
             m, Cmd.none
             #endif
 
-        | OpenStorageViewer
+        | OpenStorageViewer 
             ->
             #if ANDROID
-            m,
-                try
-                    Cmd.ofSub 
-                        (fun _ 
-                            ->
-                            FileLauncher.openStorageRoot >> runIO 
-                                <| Android.App.Application.Context
-                        )  
-                with
-                | _ -> ErrorScreen >> SetScreen >> Cmd.ofMsg <| androidFolderAccessError                 
-                   
+                m,
+                    Cmd.ofSub (fun dispatch ->
+                        try
+                            FileLauncher.openStorageRoot >> runIO <| Android.App.Application.Context
+                        with 
+                        | _ -> dispatch (ErrorScreen >> SetScreen <| androidFolderAccessError)
+                    )
             #else
-            m, Cmd.none                        
-            #endif           
+                m, Cmd.none
+            #endif
 
         | RunFileLauncher
             ->
@@ -1091,6 +1087,18 @@ module App =
                     |> fun v -> v.margin(Thickness(18., 8., 18., 0.))
 
                 let sectionLabel2 = 
+                    (sectionLabel "Přístup k adresářům s JŘ")
+                        .margin(Thickness(18., 4., 18., 0.))   
+
+                let actionCardOpenStorage = 
+                    actionCard
+                         (iconBadge amber050 amber400 "📄")
+                        OpenStorageViewer
+                        "Spustit file manager"//buttonClearing
+                        "Umožnění přístupu k JŘ"//hintClearing
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))     
+
+                let sectionLabel3 = 
                     (sectionLabel "Správa uložených JŘ")
                         .margin(Thickness(18., 4., 18., 0.))     
                 
@@ -1100,29 +1108,17 @@ module App =
                         (Click Clear)
                         buttonClearing
                         hintClearing
-                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))   
-
-                let sectionLabel3 = 
-                    (sectionLabel "Přístup k adresářům s JŘ")
-                        .margin(Thickness(18., 4., 18., 0.))     
-                
-                let actionCardOpenStorage = 
-                    actionCard
-                        (iconBadge red050 red600 "🗑")
-                        OpenStorageViewer
-                        "Spustit file manager"//buttonClearing
-                        "Umožnění přístupu k JŘ"//hintClearing
-                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))   
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))                   
 
                 ScrollView(
                     (VStack(spacing = 0.) {     
                         sectionLabel1     
                         actionCardFileLauncher                            
                         divider      
-                        sectionLabel2                           
-                        actionCardClearing
-                        sectionLabel3
+                        sectionLabel2   
                         actionCardOpenStorage
+                        sectionLabel3
+                        actionCardClearing    
                     })
                          .centerVertical()
                          .padding(Thickness(20., 32., 20., 20.))

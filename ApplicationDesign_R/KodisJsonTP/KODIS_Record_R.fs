@@ -255,11 +255,8 @@ module WebScraping_KODIS =
                       
                         let!_ = isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
                         let! msg1 = result lazyList contextCurrentValidity, errFn
-                        System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = true, compacting = false)
                         let! msg2 = result lazyList contextFutureValidity, errFn
-                        System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = true, compacting = false)
                         let! msg3 = result lazyList contextLongTermValidity, errFn  
-                        System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = true, compacting = false)
 
                         let msg4 = //viz App.fs
                            match calculate_TP_Canopy_Difference >> runIO <| () |> Async.RunSynchronously with
