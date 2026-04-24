@@ -54,6 +54,7 @@ module Messages =
     let [<Literal>] internal dispatchMsg1_1 = "Dokončeny pomocné operace."
     let [<Literal>] internal dispatchMsg2 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
     let [<Literal>] internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
+    let [<Literal>] internal dispatchMsg2_1 = "Chvíli strpení, provádím přípravu na stahování ..."
     
     let [<Literal>] internal dispatchMsg0 = "Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
     let [<Literal>] internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
@@ -85,7 +86,7 @@ module Messages =
     let [<Literal>] internal labelOdisExpl ="ODIS -> integrovaný dopravní systém MSK"
 
     let [<Literal>] internal buttonClearing = "Odstranit předchozí JŘ"  
-    let [<Literal>] internal hintClearing = "Odstranění předchozích JŘ"
+    let [<Literal>] internal hintClearing = "A pak už je nikdy neuvidíš ..."
     let [<Literal>] internal buttonKodis = "Kompletní JŘ ODIS (Json TP)"   
     let [<Literal>] internal buttonKodis4 = "Kompletní JŘ ODIS (Canopy)"   
     let [<Literal>] internal hintOdis = "JŘ všech dopravců ODIS"
@@ -100,7 +101,7 @@ module Messages =
     let [<Literal>] internal buttonHome = "Zpět na úvod"  
     let [<Literal>] internal buttonRequestPermission = "Spustit AppInfo"  
     let [<Literal>] internal buttonLauncher = "Diskrepance" 
-    let [<Literal>] internal hintLauncher = "Otevření souboru s diskrepancemi JŘ"
+    let [<Literal>] internal hintLauncher = "Náhled na diskrepance v JŘ"
     let [<Literal>] internal launchErrorMsg = "Soubor s diskrepancemi JŘ se neotevřel. Je s ním nějaký problém."
     let [<Literal>] internal buttonUtilities = "Nástroje"
     let [<Literal>] internal hintUtilities = "Nástroje aplikace"    

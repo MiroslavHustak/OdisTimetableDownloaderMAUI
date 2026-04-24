@@ -907,3 +907,21 @@
 04/24/2026 21:06:32 +02:00 The CancellationTokenSource has been disposed. Error #XElmish_Mdpo_Critical_Error
 04/24/2026 21:06:44 +02:00 The CancellationTokenSource has been disposed. Error#0041-ExceptionHandlers
 04/24/2026 21:15:26 +02:00 Access to the path '202.pdf' is denied. Error#0010-IO
+04/24/2026 22:45:48 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/24/2026 22:45:58 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/24/2026 22:45:58 +02:00 The operation was canceled. Error#0001-K
+04/24/2026 22:46:02 +02:00 Access to the path '\\?\g:\Users\User\DataOld4\' is denied. Error#0010-IO
+04/24/2026 22:46:08 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/24/2026 22:46:08 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/24/2026 22:46:09 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/24/2026 22:46:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/24/2026 22:46:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/24/2026 22:46:10 +02:00 One or more errors occurred. (A task was canceled.) Error#0009-K4BL
+04/24/2026 22:46:10 +02:00 Cancelled at RunSynchronously Error#0018-K4BL
+04/24/2026 22:46:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/24/2026 22:46:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/24/2026 22:46:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/24/2026 22:46:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/24/2026 22:46:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/24/2026 22:46:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+04/24/2026 22:46:17 +02:00 The operation was canceled. Error#0001-K

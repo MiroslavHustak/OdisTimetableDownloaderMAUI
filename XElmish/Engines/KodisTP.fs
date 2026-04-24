@@ -103,17 +103,20 @@ let internal executePdf dispatch (token : CancellationToken) =
                     | true 
                         ->
                         do! Async.SwitchToThreadPool() 
-                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                       
-                        
-                        let computation =
-                            stateReducerCmd2
-                            <| token2
-                            <| kodisPathTemp
-                            <| fun _   -> ()
-                            <| fun msg -> IterationMsg >> dispatch <| msg
-                            <| reportProgress
-                        
-                        let! result = async { return runIO computation }
+                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                                           
+
+                        let! result = 
+                            async
+                                { 
+                                    return
+                                        stateReducerCmd2
+                                            <| token2
+                                            <| kodisPathTemp
+                                            <| fun _   -> ()
+                                            <| fun msg -> IterationMsg >> dispatch <| msg
+                                            <| reportProgress
+                                        |> runIO
+                                }
                         
                         match token2.IsCancellationRequested with
                         | true  -> return dispatch NavigateHome

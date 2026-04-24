@@ -126,7 +126,7 @@ module App =
         | StartDownload  of DownloadType
         | CancelDownload of DownloadType
         | RequestPermission
-        | OpenStorageViewer
+        | OpenStorageViewer of string
         | RunFileLauncher
         | Dummy
         | Quit
@@ -403,13 +403,13 @@ module App =
             m, Cmd.none
             #endif
 
-        | OpenStorageViewer 
+        | OpenStorageViewer fabulousTimetablesFolder
             ->
             #if ANDROID
                 m,
                     Cmd.ofSub (fun dispatch ->
                         try
-                            FileLauncher.openStorageRoot >> runIO <| Android.App.Application.Context
+                            runIO <| FileLauncher.openStorageRoot Android.App.Application.Context fabulousTimetablesFolder
                         with 
                         | _ -> dispatch (ErrorScreen >> SetScreen <| androidFolderAccessError)
                     )
@@ -495,9 +495,9 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.KodisTP.executePdf
-                                    <| fun m -> dispatch (KodisTPMsg m)
+                                    <| fun m -> KodisTPMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)
+                                |> fun a -> Async.Start(a, token)  
                             )                       
                     { 
                         m with
@@ -521,14 +521,14 @@ module App =
                             (fun dispatch
                                 ->
                                 Engines.KodisCanopy.execute
-                                    <| fun m -> dispatch (KodisCanopyMsg m)
+                                    <| fun m -> KodisCanopyMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)
+                                |> fun a -> Async.Start(a, token)  
                             )
                     { 
                         m with
                             Screen       = Downloading (KodisCanopy4, Idle)
-                            Status       = String.Empty 
+                            Status       = dispatchMsg2_1
                             Connectivity = connectivity 
                     }, cmd
 
@@ -549,7 +549,7 @@ module App =
                                 Engines.Dpo.executeDpo
                                     <| fun m -> DpoMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)
+                                |> fun a -> Async.Start(a, token)  
                             )   
                     { 
                         m with
@@ -575,7 +575,7 @@ module App =
                                 Engines.Mdpo.executeMdpo
                                     <| fun m -> MdpoMsg >> dispatch <| m
                                     <| token
-                                |> fun a -> Async.Start(a, token)  
+                                |> fun a -> Async.Start(a, token)    
                             )   
                     { 
                         m with
@@ -598,7 +598,7 @@ module App =
                     -> 
                     let ps = 
                         match c, t with
-                        | 0.0, 1.0 -> Idle  // explicit reset signal from counterAndProgressBar on cancellation/new variant
+                        | 0.0, 1.0 -> Idle  
                         | _        -> InProgress (c, t)
                     { m with Screen = Downloading (dt, ps) }, Cmd.none
                 | _ -> 
@@ -610,8 +610,6 @@ module App =
         
             | Engines.KodisTP.Completed result
                 ->   
-                System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = false, compacting = false)
-
                 match m.Screen with            
                 | Downloading (KodisJsonTP, _)
                     ->   
@@ -654,7 +652,7 @@ module App =
                     -> 
                     let ps = 
                         match c, t with
-                        | 0.0, 1.0 -> Idle  // explicit reset signal from counterAndProgressBar on cancellation/new variant
+                        | 0.0, 1.0 -> Idle 
                         | _        -> InProgress (c, t)
                     { m with Screen = Downloading (dt, ps) }, Cmd.none
                 | _ -> 
@@ -669,7 +667,6 @@ module App =
                 match m.Screen with               
                 | Downloading (KodisCanopy4, _) 
                     ->  
-                    System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = false, compacting = false)
                     kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
 
                     { m with Screen = Completed result; Status = String.Empty }, Cmd.none
@@ -1083,7 +1080,7 @@ module App =
                 topBar connText "Nástroje" m.Status
                 
                 let sectionLabel1 = 
-                    (sectionLabel "Nesoulad JŘ")
+                    (sectionLabel "Nesoulad v JŘ vydaných KODISem")
                      .margin(Thickness(18., 16., 18., 0.))
                 
                 let actionCardFileLauncher = 
@@ -1099,19 +1096,31 @@ module App =
                     |> fun v -> v.margin(Thickness(18., 8., 18., 0.))
 
                 let sectionLabel2 = 
-                    (sectionLabel "Přístup k adresářům s JŘ")
+                    (sectionLabel "Přístup k adresářům s JŘ ODIS")
                         .margin(Thickness(18., 4., 18., 0.))   
 
-                let actionCardOpenStorage = 
+                let actionCardOpenStorage1 = 
                     actionCard
-                         (iconBadge amber050 amber400 "📄")
-                        OpenStorageViewer
+                        (iconBadge amber050 amber400 "📄")
+                        (OpenStorageViewer "FabulousTimetables")
                         "Spustit file manager"//buttonClearing
                         "Umožnění přístupu k JŘ"//hintClearing
                         |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))     
 
                 let sectionLabel3 = 
-                    (sectionLabel "Správa uložených JŘ")
+                    (sectionLabel "Přístup k adresářům s JŘ ODIS, DPO, MDPO")
+                        .margin(Thickness(18., 4., 18., 0.))   
+
+                let actionCardOpenStorage2 = 
+                    actionCard
+                        (iconBadge amber050 amber400 "📄")
+                        (OpenStorageViewer "FabulousTimetables4")
+                        "Spustit file manager 2"//buttonClearing
+                        "Umožnění přístupu k JŘ"//hintClearing
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))     
+
+                let sectionLabel4 = 
+                    (sectionLabel "Odstranění uložených JŘ")
                         .margin(Thickness(18., 4., 18., 0.))     
                 
                 let actionCardClearing = 
@@ -1128,8 +1137,10 @@ module App =
                         actionCardFileLauncher                            
                         divider      
                         sectionLabel2   
-                        actionCardOpenStorage
+                        actionCardOpenStorage1
                         sectionLabel3
+                        actionCardOpenStorage2
+                        sectionLabel4
                         actionCardClearing    
                     })
                          .centerVertical()

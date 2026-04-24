@@ -8,16 +8,18 @@ open Types.Haskell_IO_Monad_Simulation
 
 module FileLauncher =
       
-    let internal openStorageRoot (context : Context) =
+    let internal openStorageRoot (context : Context) fabulousTimetablesFolder =
         
         IO (fun ()
                 ->
                 use intent = new Intent(Intent.ActionOpenDocumentTree)
-    
+                
+                let uriPart = sprintf "primary:%s" fabulousTimetablesFolder
+
                 let uri =
                     DocumentsContract.BuildRootUri(
                         "com.android.externalstorage.documents",
-                        "primary:FabulousTimetables"
+                        uriPart
                     )
 
                 (*
