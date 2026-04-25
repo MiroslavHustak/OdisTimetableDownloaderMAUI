@@ -1,14 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-	<!-- White F# text, 20% smaller and centered -->
-	<text
-	  x="512"
-	  y="590"
-	  font-family="Arial Black, sans-serif"
-	  font-size="416"
-	  font-weight="900"
-	  fill="#FFFFFF"
-	  text-anchor="middle"
-	  dominant-baseline="middle">
-		F#
-	</text>
+  <!-- White F# – better centered (moved right + down) -->
+  <text 
+    x="555" 
+    y="640" 
+    font-family="Arial Black, sans-serif" 
+    font-size="416" 
+    font-weight="900" 
+    fill="#FFFFFF" 
+    text-anchor="middle" 
+    dominant-baseline="middle">
+    F#
+  </text>
 </svg>
+

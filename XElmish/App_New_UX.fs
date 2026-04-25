@@ -529,7 +529,7 @@ module App =
                         Cmd.ofSub
                             (fun dispatch
                                 ->
-                                Engines.KodisCanopy.execute2
+                                Engines.KodisCanopy.execute
                                     <| fun m -> KodisCanopyMsg >> dispatch <| m
                                     <| token
                                 |> Async.Start  
@@ -1098,7 +1098,7 @@ module App =
                         RunFileLauncher
                         buttonLauncher
                         hintLauncher
-                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 0.))
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))
 
                 let divider =       
                     divider ()
@@ -1135,6 +1135,7 @@ module App =
                         divider      
                         sectionLabel2   
                         actionCardOpenStorage
+                        divider 
                         sectionLabel3
                         actionCardClearing    
                     })
