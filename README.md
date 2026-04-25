@@ -48,7 +48,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── TDD.fs
 │   ├── ErrorTypes.fs
 │   ├── Types.fs
-│   └── Grid3Algebra.fs  
+│   └── Grid3Algebra.fs
 ├── Settings/
 │   ├── Messages.fs
 │   ├── SettingsGeneral.fs
@@ -59,7 +59,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── Applicatives.fs
 ├── CEBuilders/
 │   └── CEBuilders.fs
-├── OptionResultExtensions/ 
+├── OptionResultExtensions/
 │   ├── ResultExtensions.fs
 │   └── OptionExtensions.fs
 ├── Helpers/
@@ -68,7 +68,10 @@ OdisTimetableDownloaderMAUI (Solution)
 │   ├── CopyOrMoveDir.fs
 │   ├── Helpers.fs
 │   ├── Serialization.fs
-│   ├── Parsers.fs 
+│   └── Parsers.fs
+├── ProgressTrackers/
+│   └── ProgressTrackers.fs
+├── Libraries/
 │   └── ListParallel.fs
 ├── Monads/
 │   ├── FreeMonads/
@@ -85,8 +88,8 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Logging/
 │   ├── LogEntries.fs
 │   └── Logging.fs
-├── ExceptionHandling/ 
-│   └── ExceptionHandlers.fs  
+├── ExceptionHandling/
+│   └── ExceptionHandlers.fs
 ├── BusinessLogic/
 │   ├── DataManipulation/
 │   │   ├── PureFunctions/
@@ -95,7 +98,7 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │       ├── ParseJsonData.fs
 │   │       └── FilterTimetableLinks.fs
 │   ├── IO_Operations/
-│   │   ├── PureHelpers/ 
+│   │   ├── PureHelpers/
 │   │   │   └── CreatePathsAndNames.fs
 │   │   └── ImpureFunctions/
 │   │       ├── FutureValidityRestApi.fs
@@ -110,42 +113,38 @@ OdisTimetableDownloaderMAUI (Solution)
 │       ├── DPO_BL_R.fs
 │       ├── MDPO_BL_R.fs
 │       └── TP_Canopy_Difference_R.fs
-├── ApplicationDesign_R/    
-│   └── KodisJsonTP/
+├── ApplicationDesign_R/
+│   ├── KodisJsonTP/
 │   │   └── KODIS_Record_R.fs
 │   ├── KodisCanopy/
-│   │   └── KODIS_Record4_R.fs 
-│   ├── DPO_R.fs      
-│   └── MDPO_R.fs       
+│   │   └── KODIS_Record4_R.fs
+│   ├── DPO_R.fs
+│   └── MDPO_R.fs
 ├── XElmish/
 │   ├── Infrastructure/
+│   │   ├── ResultDirectoryLauncher.fs
 │   │   ├── ComparisonResultFileLauncher.fs
 │   │   ├── HardRestart.fs
-│   │   ├── ActorModels.fs
 │   │   ├── AndroidSpecificCode.fs
-│   │   ├── ProgressCircle.fs
-│   │   └── Counters.fs
+│   │   ├── Counters.fs
+│   │   └── ActorModels.fs
+│   ├── ViewHelpers/
+│   │   ├── ProgressCircleUI.fs
+│   │   └── ScreenHelpers.fs
 │   ├── Engines/
 │   │   ├── KodisTP.fs
 │   │   ├── KodisCanopy.fs
 │   │   ├── Dpo.fs
 │   │   └── Mdpo.fs
-│   ├── Test_App_Old.fs
-│   └── App_New.fs
+│   ├── EducationalCode/
+│   │   └── Test_App_Old.fs
+│   └── App_New_UX.fs
 ├── Platforms/
-│   ├── Android/
-│   │   ├── Resources/
-│   │   │   ├── xml/
-│   │   │   │   └── network_security_config.xml
-│   │   │   └── values/
-│   │   │       └── colors.xml
-│   │   ├── AndroidManifest.xml
-│   │   ├── MainActivity.fs
-│   │   └── MainApplication.fs   
-│   └── Windows/
-│       ├── app.manifest
-│       ├── Package.appxmanifest
-│       ├── App.fs
-│       └── Main.fs
+│   └── Android/
+│       └── Resources/
+│           ├── xml/
+│           │   └── network_security_config.xml
+│           └── values/
+│               └── colors.xml
 └── MauiProgram.fs
 ``` </pre>
