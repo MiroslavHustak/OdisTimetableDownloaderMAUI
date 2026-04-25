@@ -22,9 +22,7 @@ type DpoMsg =
     | NavigateHome
     | NoInternet 
     
-let executeDpo dispatch (token : CancellationToken) =
-
-    
+let executeDpo dispatch (token : CancellationToken) =   
 
     async
         {
