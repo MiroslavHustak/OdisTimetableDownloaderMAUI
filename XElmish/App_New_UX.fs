@@ -338,6 +338,15 @@ module App =
       
         | CancelDownload dt 
             ->
+            (*
+            [
+                kodisJsonActor
+                kodisPdfActor
+                mdpoActor
+                dpoActor
+            ]
+            |> List.iter cancelLocalActor
+            *)
             let cancelCmd =
                 Cmd.ofAsyncMsg
                     (

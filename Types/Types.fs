@@ -105,6 +105,7 @@ module Types =
         | Inc2 of int
         | GetCount2 of AsyncReplyChannel<int>
         | Stop2 
+        | Stop2WithAck of AsyncReplyChannel<unit>
            
     type internal ConnectivityMessage =
         | UpdateState of bool

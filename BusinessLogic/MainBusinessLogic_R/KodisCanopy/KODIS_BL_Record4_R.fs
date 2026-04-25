@@ -294,7 +294,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                 ] 
                         
                         context.reportProgress (float l, float l)
-                        counterAndProgressBar.Post Stop2
+                        counterAndProgressBar.PostAndReply(fun reply -> Stop2WithAck reply)
                         
                         let len = result |> List.length
                                          

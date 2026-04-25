@@ -276,6 +276,12 @@ module ProgressValues =
                                     ->
                                     replyChannel.Reply n
                                     return! loop n
+
+                                | Stop2WithAck reply
+                                    ->
+                                    reply.Reply()
+                                    return ()
+                                
                                 | Stop2  
                                     ->
                                     return ()

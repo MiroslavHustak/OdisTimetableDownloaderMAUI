@@ -120,64 +120,62 @@ module WebScraping_KODIS4 =
                         destination = oldTimetablesPath4 
                     }  
                    
-                let result (context2 : Context2) =   
-                           
-                    async
-                        {
-                            let dir = context2.DirList |> List.item context2.VariantInt  
+                let result (context2 : Context2) =                              
+                  
+                    let dir = context2.DirList |> List.item context2.VariantInt  
 
-                            let! list =
-                                runIO <| operationOnDataFromJson_resumable token context2.Variant dir 
+                    let list =
+                        runIO <| operationOnDataFromJson_resumable token context2.Variant dir 
+                        |> Async.RunSynchronously
         
-                            match list with //to je strasne slozite davat to do Elmishe
-                            | Ok list
-                                when
-                                    list <> List.empty
-                                        -> 
-                                        let context = 
-                                            {
-                                                reportProgress = reportProgress
-                                                dir = dir
-                                                list = list
-                                            }
+                    match list with //to je strasne slozite davat to do Elmishe
+                    | Ok list
+                        when
+                            list <> List.empty
+                                -> 
+                                let context = 
+                                    {
+                                        reportProgress = reportProgress
+                                        dir = dir
+                                        list = list
+                                    }
                                 
-                                        dispatchIterationMessage context2.Msg1  
-                                        return! async { return runIO (downloadAndSave token context) }
-        
-                            | Ok _
-                                ->   
-                                dispatchIterationMessage context2.Msg2
-                                return Ok context2.Msg3 
-        
-                            | Error list 
-                                when list |> List.exists (fun item -> item = PdfDownloadError2 StopDownloading)
-                                ->
-                                runIO (postToLog2 <| string StopDownloading <| "#0011-K4")
-                                return Error <| PdfDownloadError2 StopDownloading  
+                                dispatchIterationMessage context2.Msg1  
+                                runIO (downloadAndSave token context)
 
-                            | Error list 
-                                when list |> List.exists (fun item -> item = PdfDownloadError2 ApiResponseError)
-                                ->
-                                runIO (postToLog2 <| string ApiResponseError <| "#0001-K4")
-                                return Error <| PdfDownloadError2 ApiResponseError  
-
-                            | Error list 
-                                when list |> List.exists (fun item -> item = PdfDownloadError2 ApiDecodingError)
-                                ->
-                                runIO (postToLog2 <| string ApiDecodingError <| "#0002-K4")
-                                return Error <| PdfDownloadError2 ApiDecodingError  
-
-                            | Error list 
-                                when list |> List.exists (fun item -> item = PdfDownloadError2 FileDownloadError)
-                                ->
-                                runIO (postToLog2 <| string FileDownloadError <| "#0003-K4")
-                                return Error <| PdfDownloadError2 FileDownloadError  
+                    | Ok _
+                        ->   
+                        dispatchIterationMessage context2.Msg2
+                        Ok context2.Msg3 
         
-                            | Error err                    
-                                ->
-                                runIO (postToLog2 <| sprintf "%A" err <| "#0004-K4")
-                                return Error <| PdfDownloadError2 LetItBe
-                        }
+                    | Error list 
+                        when list |> List.exists (fun item -> item = PdfDownloadError2 StopDownloading)
+                        ->
+                        runIO (postToLog2 <| string StopDownloading <| "#0011-K4")
+                        Error <| PdfDownloadError2 StopDownloading  
+
+                    | Error list 
+                        when list |> List.exists (fun item -> item = PdfDownloadError2 ApiResponseError)
+                        ->
+                        runIO (postToLog2 <| string ApiResponseError <| "#0001-K4")
+                        Error <| PdfDownloadError2 ApiResponseError  
+
+                    | Error list 
+                        when list |> List.exists (fun item -> item = PdfDownloadError2 ApiDecodingError)
+                        ->
+                        runIO (postToLog2 <| string ApiDecodingError <| "#0002-K4")
+                        Error <| PdfDownloadError2 ApiDecodingError  
+
+                    | Error list 
+                        when list |> List.exists (fun item -> item = PdfDownloadError2 FileDownloadError)
+                        ->
+                        runIO (postToLog2 <| string FileDownloadError <| "#0003-K4")
+                        Error <| PdfDownloadError2 FileDownloadError  
+        
+                    | Error err                    
+                        ->
+                        runIO (postToLog2 <| sprintf "%A" err <| "#0004-K4")
+                        Error <| PdfDownloadError2 LetItBe
         
                 pyramidOfInferno
                     {                       
@@ -189,27 +187,11 @@ module WebScraping_KODIS4 =
                         let!_ = runIO <| deleteAllODISDirectories path, errFn                     
                         let!_ = runIO <| createFolders dirList, errFn 
                
-                        let!_ = 
-                            isNowConnected ()
-                            |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
-                        let! msg1 = 
-                            (
-                                result contextCurrentValidity 
-                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                            )
-                            , errFn
-                        let! msg2 =                           
-                            (
-                                result contextFutureValidity 
-                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                            )
-                            , errFn
-                        let! msg3 =
-                            (
-                                result contextLongTermValidity 
-                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
-                            )
-                            , errFn
+                        let!_ = isNowConnected () |> Result.fromBool () (PdfDownloadError2 (NetConnPdfError noNetConn4)), errFn
+                        let! msg1 = result contextCurrentValidity, errFn
+                        let! msg2 = result contextFutureValidity, errFn 
+                        let! msg3 = result contextLongTermValidity, errFn 
+                     
                         let msg4 =                
                             BusinessLogic_R.TP_Canopy_Difference.calculate_TP_Canopy_Difference >> runIO <| ()
                             |> fun a -> Async.RunSynchronously(a, cancellationToken = token)                   

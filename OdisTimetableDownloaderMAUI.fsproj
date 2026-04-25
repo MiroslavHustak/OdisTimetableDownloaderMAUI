@@ -195,27 +195,27 @@
     <Compile Include="XElmish\Engines\Mdpo.fs" />
     <Compile Include="XElmish\EducationalCode\Test_App_Old.fs" />
     <Compile Include="XElmish\App_New_UX.fs" />
-    <Compile Include="MauiProgram.fs" />
-	  
-	<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#0A3D91" />  
-
+    <Compile Include="MauiProgram.fs" />	  
+	
     <!-- Custom Fonts -->
-    <MauiFont Include="Resources\Fonts\*" />
+<MauiFont Include="Resources\Fonts\*" />
 
-	<!-- Images -->
-	<MauiImage Include="Resources\Images\*" />
+<!-- Images -->
+<MauiImage Include="Resources\Images\*" />
 
-	<!-- App Icon (you already have or will add this) -->
-	<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#0A3D91" />
+<!-- App Icon - Correct configuration -->
+<MauiIcon Include="Resources\AppIcon\appicon.svg" 
+          ForegroundFile="Resources\AppIcon\appiconfg.svg" 
+          Color="#0A3D91" />
 
-	<!-- Splash Screen (if you want to customize it later) -->
-	<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0A3D91" BaseSize="128,128" />	  
+<!-- Raw Assets -->
+<MauiAsset Include="Resources\Raw\*" 
+           LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 
-    <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
-    <MauiAsset Include="Resources\Raw\*" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	  
-    <!-- Splash Screen -->
-    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+<!-- Splash Screen -->
+<MauiSplashScreen Include="Resources\Splash\splash.svg" 
+                  Color="#0A3D91" 
+                  BaseSize="128,128" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetPlatformIdentifier) == 'android'">	

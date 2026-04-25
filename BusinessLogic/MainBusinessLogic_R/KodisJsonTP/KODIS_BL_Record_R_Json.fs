@@ -197,7 +197,8 @@ module KODIS_BL_Record_Json =
                         async
                             {
                                 checkCancel token
-                                runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson")  
+                                runIO (postToLog2 <| string ex.Message <| "#0008-KBLJson") 
+                                
                                 return
                                     [
                                         runIO <| comprehensiveTryWith 
