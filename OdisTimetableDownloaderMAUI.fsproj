@@ -213,11 +213,11 @@
            LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 
 <!-- Splash Screen -->
-<!-- 
+
 <MauiSplashScreen Include="Resources\Splash\splash.svg" 
                   Color="#0A3D91" 
                   BaseSize="128,128" />
--->
+
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetPlatformIdentifier) == 'android'">	

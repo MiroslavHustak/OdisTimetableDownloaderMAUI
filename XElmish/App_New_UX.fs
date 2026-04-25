@@ -1090,7 +1090,7 @@ module App =
                 
                 let sectionLabel1 = 
                     (sectionLabel "Nesoulad v JŘ vydaných KODISem")
-                     .margin(Thickness(18., 16., 18., 0.))
+                     .margin(Thickness(18., 4., 18., 0.))
                 
                 let actionCardFileLauncher = 
                     actionCard
@@ -1098,7 +1098,7 @@ module App =
                         RunFileLauncher
                         buttonLauncher
                         hintLauncher
-                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 4., 18., 12.))
 
                 let divider =       
                     divider ()
@@ -1129,7 +1129,8 @@ module App =
                         |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))                   
 
                 ScrollView(
-                    (VStack(spacing = 0.) {     
+                    (VStack(spacing = 0.) {  
+                        divider  
                         sectionLabel1     
                         actionCardFileLauncher                            
                         divider      
