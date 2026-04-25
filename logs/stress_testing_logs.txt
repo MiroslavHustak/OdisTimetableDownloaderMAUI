@@ -926,3 +926,4 @@
 04/24/2026 22:46:16 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
 04/24/2026 22:46:17 +02:00 The operation was canceled. Error#0001-K
 04/25/2026 02:00:26 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
+04/25/2026 22:07:45 +02:00 Access to the path '013_2026-04-15.pdf' is denied. Error#0010-IO

@@ -50,7 +50,6 @@ module Messages =
     let [<Literal>] internal deleteOldTimetablesMsg2 = "Odstranění zálohovaných předchozích JŘ úspěšně provedeno."
     let [<Literal>] internal deleteOldTimetablesMsg3 = "Při odstraňování zálohovaných předchozích JŘ došlo k problému, ověř, že nemáš otevřen předchozí JŘ."
 
-    let [<Literal>] internal dispatchMsg1 = "Dokončeno stahování JSON souborů." 
     let [<Literal>] internal dispatchMsg1_1 = "Dokončeny pomocné operace."
     let [<Literal>] internal dispatchMsg2 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
     let [<Literal>] internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
@@ -58,9 +57,6 @@ module Messages =
     
     let [<Literal>] internal dispatchMsg0 = "Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
     let [<Literal>] internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
-
-    let [<Literal>] internal dispatchParseMsg = "Došlo k chybě při parsování JSON souborů."  
-    let [<Literal>] internal parseCancelMsg = "Parsování JSON souborů. Stahování JŘ DPO předčasně ukončeno."
 
     let [<Literal>] internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
     let [<Literal>] internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."
@@ -95,7 +91,7 @@ module Messages =
 
     let [<Literal>] internal labelOperationResult = "Operace byla ukončena s níže uvedeným výsledkem:"
     let [<Literal>] internal labelUtilities = "Nástroje"
-    let [<Literal>] internal labelDesparatesness = "O jéje ..."
+    let [<Literal>] internal labelDesperateness = "O jéje ..."
     let [<Literal>] internal labelClearingWarning = "Trvale odstranění všech záloh předchozích JŘ. Ujisti se, že nemáš otevřen předchozí JŘ."
 
     let [<Literal>] internal labelKodisMismatch = "Nesoulad v JŘ vydaných KODISem"
@@ -132,10 +128,7 @@ module Messages =
     let [<Literal>] internal buttonClearingCancel = "Ponechat"
    
     let [<Literal>] internal noNetConn = "Není přístup k internetu." 
-    let [<Literal>] internal noNetConnPlus = "Kvůli přerušení připojení k internetu bude činnost aplikace ukončena." 
     let [<Literal>] internal noNetConn3 = "Kvůli přerušení připojení k internetu byla činnost aplikace předčasně ukončena. Vypni aplikaci, připoj se k internetu a spusť ji znovu." 
-    let [<Literal>] internal noNetConnPlusPlus = "Není přístup k internetu, počkám zhruba dvě minuty." 
-    let [<Literal>] internal noNetConn1 = "Operace nebyla provedena, není přístup k internetu." 
     let [<Literal>] internal noNetConn2 = "Není přístup k internetu, buď vyčkej, až bude, anebo vypni aplikaci, připoj se k internetu a spusť ji znovu." 
     let [<Literal>] internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se k internetu a spusť ji znovu."  
     let [<Literal>] internal noNetConn4 = "Není přístup k internetu, operace nemohla být provedena." 
@@ -145,8 +138,6 @@ module Messages =
     let [<Literal>] internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
     let [<Literal>] internal ctsMsg = "Problém s detekcí internetového připojení."
     
-    let [<Literal>] internal cancelMsg1 = "Kvůli přerušení připojení k internetu se činnost aplikace ukončuje, může to chvíli trvat ..."
-    let [<Literal>] internal cancelMsg1NoConn = "Po obnovení připojení k internetu se činnost aplikace ukončí, může to chvíli trvat ..."
     let [<Literal>] internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
     let [<Literal>] internal cancelMsg3 = "Chvíli strpení, operace se ukončuje. Pokud ukončování trvá dlouho a jsi netrpělivý, vypni a zapni aplikaci."
 
@@ -155,12 +146,9 @@ module Messages =
     let [<Literal>] internal cancelMsg44 = "JSON parsing a JŘ KODIS předčasně ukončeny."
     let [<Literal>] internal cancelMsg5 = "Stahování JŘ KODIS předčasně ukončeno, úklid se nepodařil."
 
-    let [<Literal>] internal netConnError = "Přerušené internetové připojení způsobilo přerušení stahování souborů. Stahuj vše znova."
-    let [<Literal>] internal unKnownError = "Chyba, kterou se mi už nechce diagnostikovat, způsobila přerušení stahování souborů. Stahuj vše znova."
     let [<Literal>] internal apiResponseError = "Nelze se dostat k odkazům na JŘ umístěným na www.kodis.somee.com. Zkontroluj připojení k internetu a spusť aplikaci znovu."
 
     let [<Literal>] internal buttonQuit = "Vypnout aplikaci" 
-    let [<Literal>] internal buttonQuit2 = "Vypnout odpočítávání a aplikaci" 
     let [<Literal>] internal quitError = "Nepodařilo se vypnout aplikaci, zkus znovu" 
 
     let [<Literal>] internal criticalElmishErrorMdpo = "Kritická chyba při stahování JŘ MDPO. Vypni aplikaci a spusť ji znovu."

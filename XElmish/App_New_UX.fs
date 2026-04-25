@@ -1394,7 +1394,7 @@ module App =
                     .centerHorizontal()
         
             let titleLabel =
-                Label(labelDesparatesness)
+                Label(labelDesperateness)
                     .font(size = 16.)
                     .textColor(textPrimary)
                     .centerTextHorizontal()
