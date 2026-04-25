@@ -1098,7 +1098,7 @@ module App =
                         RunFileLauncher
                         buttonLauncher
                         hintLauncher
-                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 4., 18., 12.))
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))
 
                 let divider =       
                     divider ()
