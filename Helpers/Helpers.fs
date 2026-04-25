@@ -244,7 +244,7 @@ module ProgressValues =
                                 | Stop
                                     ->
                                     return () // exit loop → agent terminates
-                                | StopAndWait reply 
+                                | StopAndReply reply 
                                     ->
                                     reply.Reply()
                                     return ()
@@ -277,7 +277,7 @@ module ProgressValues =
                                     replyChannel.Reply n
                                     return! loop n
 
-                                | Stop2WithAck reply
+                                | Stop2AndReply reply
                                     ->
                                     reply.Reply()
                                     return ()

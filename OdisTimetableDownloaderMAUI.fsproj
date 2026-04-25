@@ -153,7 +153,7 @@
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Serialization.fs" />
     <Compile Include="Helpers\Parsers.fs" />
-    <Compile Include="Helpers\ListParallel.fs" />
+    <Compile Include="Libraries\ListParallel.fs" />
     <Compile Include="Monads\FreeMonads\CmdLineWorkflows.fs" />
     <Compile Include="Monads\FreeMonads\FreeMonad.fs" />
     <Compile Include="Monads\StateMonads\StateMonad.fs" />
@@ -204,19 +204,14 @@
 <MauiImage Include="Resources\Images\*" />
 
 <!-- App Icon - Correct configuration -->
-<MauiIcon Include="Resources\AppIcon\appicon.svg" 
-          ForegroundFile="Resources\AppIcon\appiconfg.svg" 
-          Color="#0A3D91" />
+<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#0A3D91" />
 
 <!-- Raw Assets -->
-<MauiAsset Include="Resources\Raw\*" 
-           LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+<MauiAsset Include="Resources\Raw\*" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 
 <!-- Splash Screen -->
 
-<MauiSplashScreen Include="Resources\Splash\splash.svg" 
-                  Color="#0A3D91" 
-                  BaseSize="128,128" />
+<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0A3D91" BaseSize="128,128" />
 
   </ItemGroup>
 

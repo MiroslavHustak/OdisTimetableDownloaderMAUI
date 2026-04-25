@@ -99,13 +99,13 @@ module Types =
     type internal MsgIncrement =
         | Inc of int 
         | Stop 
-        | StopAndWait of AsyncReplyChannel<unit>
+        | StopAndReply of AsyncReplyChannel<unit>
 
     type internal MsgIncrement2 = 
         | Inc2 of int
         | GetCount2 of AsyncReplyChannel<int>
         | Stop2 
-        | Stop2WithAck of AsyncReplyChannel<unit>
+        | Stop2AndReply of AsyncReplyChannel<unit>
            
     type internal ConnectivityMessage =
         | UpdateState of bool

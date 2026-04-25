@@ -84,7 +84,28 @@ module Messages =
 
     let [<Literal>] internal labelOdis = "Stahování JŘ ODIS"
     let [<Literal>] internal labelOdisExpl ="ODIS -> integrovaný dopravní systém MSK"
+    let [<Literal>] internal labelOdis2 = "Kompletní JŘ ODIS"
+    let [<Literal>] internal labelOdis3 = "Vybraní dopravci"
+    let [<Literal>] internal labelOdis4 = "Ostatní"
 
+    let [<Literal>] internal downloadingVariantTP = "Varianta stahování: Kodis TP"
+    let [<Literal>] internal downloadingVariantCanopy = "Varianta stahování: Kodis Canopy"
+    let [<Literal>] internal downloadingVariantDpo = "Varianta stahování: DPO"
+    let [<Literal>] internal downloadingVariantMdpo = "Varianta stahování: MDPO"  
+
+    let [<Literal>] internal labelOperationResult = "Operace byla ukončena s níže uvedeným výsledkem:"
+    let [<Literal>] internal labelUtilities = "Nástroje"
+    let [<Literal>] internal labelDesparatesness = "O jéje ..."
+    let [<Literal>] internal labelClearingWarning = "Trvale odstranění všech záloh předchozích JŘ. Ujisti se, že nemáš otevřen předchozí JŘ."
+
+    let [<Literal>] internal labelKodisMismatch = "Nesoulad v JŘ vydaných KODISem"
+    let [<Literal>] internal labelAccessDirectories = "Přístup k adresářům s JŘ ODIS, DPO, MDPO"   
+    let [<Literal>] internal labelFileManager = "Spustit file manager"
+    let [<Literal>] internal labelTimetableAccess = "Umožnění přístupu k JŘ"      
+    
+    let [<Literal>] internal labelClearing = "Odstranění uložených JŘ"         
+    let [<Literal>] internal labelClearingConfirmation = "Odstranit záložní JŘ?"
+    
     let [<Literal>] internal buttonClearing = "Odstranit předchozí JŘ"  
     let [<Literal>] internal hintClearing = "A pak už je nikdy neuvidíš ..."
     let [<Literal>] internal buttonKodis = "Kompletní JŘ ODIS (Json TP)"   
@@ -99,6 +120,7 @@ module Messages =
     let [<Literal>] internal buttonRestart = "Restart"
     let [<Literal>] internal hintRestart = "Zpět na úvod anebo restart aplikace"    
     let [<Literal>] internal buttonHome = "Zpět na úvod"  
+    let [<Literal>] internal buttonBackToUtilities = "Zpět do nástrojů"
     let [<Literal>] internal buttonRequestPermission = "Spustit AppInfo"  
     let [<Literal>] internal buttonLauncher = "Diskrepance" 
     let [<Literal>] internal hintLauncher = "Náhled na diskrepance v JŘ"

@@ -306,7 +306,7 @@ module KODIS_BL_Record =
                                 ] 
                         
                         context.reportProgress (float l, float l)
-                        counterAndProgressBar.PostAndReply(fun reply -> Stop2WithAck reply)
+                        counterAndProgressBar.PostAndReply(fun reply -> Stop2AndReply reply)
                         
                         let len = result |> List.length
                         

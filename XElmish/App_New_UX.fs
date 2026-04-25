@@ -62,11 +62,11 @@ open AndroidUIHelpers
 open JavaInteroperabilityCode.RealInternetChecker
 #endif
 
-open OdisTimetableDownloaderMAUI.Engines.KodisTP
-open OdisTimetableDownloaderMAUI.Engines.KodisCanopy
-
 open OdisTimetableDownloaderMAUI.Engines.Dpo
 open OdisTimetableDownloaderMAUI.Engines.Mdpo
+
+open OdisTimetableDownloaderMAUI.Engines.KodisTP
+open OdisTimetableDownloaderMAUI.Engines.KodisCanopy
 
 module App =
 
@@ -95,6 +95,7 @@ module App =
         | ClearingConfirm
         | Downloading of DownloadType * ProgressState
         | Completed of string
+        | CompletedUtilities of string
         | NoConnection
         | NoPermission
         | ErrorScreen of string
@@ -112,19 +113,20 @@ module App =
             Screen       : Screen
             Status       : string
             ActiveButton : ButtonType option
+            IsClearing   : bool 
         }
 
     type Msg =
-        | KodisTPMsg     of KodisTPMsg
-        | KodisCanopyMsg of KodisCanopyMsg
-        | DpoMsg         of DpoMsg
-        | MdpoMsg        of MdpoMsg
-        | NetConnMessage of string
-        | SetScreen      of Screen
-        | Navigate       of Screen
-        | Click          of ButtonType
-        | StartDownload  of DownloadType
-        | CancelDownload of DownloadType
+        | KodisTPMsg        of KodisTPMsg
+        | KodisCanopyMsg    of KodisCanopyMsg
+        | DpoMsg            of DpoMsg
+        | MdpoMsg           of MdpoMsg
+        | NetConnMessage    of string
+        | SetScreen         of Screen
+        | Navigate          of Screen
+        | Click             of ButtonType
+        | StartDownload     of DownloadType
+        | CancelDownload    of DownloadType
         | RequestPermission
         | OpenStorageViewer of string
         | RunFileLauncher
@@ -162,12 +164,14 @@ module App =
     let init () : Model * Cmd<Msg> =
 
         #if ANDROID
-        let permissionGranted = permissionCheck >> runIO >> Async.RunSynchronously <| ()
+        let permissionGranted = 
+            permissionCheck >> runIO >> Async.RunSynchronously <| ()
         #else
         let permissionGranted = true
         #endif
     
-        let permission = match permissionGranted with true -> Granted | false -> NotGranted        
+        let permission = 
+            match permissionGranted with true -> Granted | false -> NotGranted        
     
         let connectivity = connectivity noNetConn
     
@@ -193,6 +197,7 @@ module App =
                         -> 
                         appInfoInvoker   
                 ActiveButton = None
+                IsClearing   = false
             }
     
         match permission with
@@ -235,7 +240,13 @@ module App =
    
         | Navigate screen
             ->
-            { m with Screen = screen; ActiveButton = None; Status = String.Empty }, Cmd.none  
+            { 
+                m with 
+                    Screen = screen
+                    ActiveButton = None
+                    Status = String.Empty
+                    IsClearing = false
+            }, Cmd.none  
    
         | Click Clear 
             ->
@@ -262,7 +273,7 @@ module App =
                                         |> Async.Catch
                                                 
                                     match results |> Result.ofChoice with
-                                    | Ok [| Ok (); Ok () |] -> dispatch (Navigate (Completed deleteOldTimetablesMsg2)) 
+                                    | Ok [| Ok (); Ok () |] -> dispatch (Navigate (CompletedUtilities deleteOldTimetablesMsg2)) 
                                     | _                     -> dispatch (Navigate (ErrorScreen deleteOldTimetablesMsg3))
 
                                     do! Async.Sleep 1000
@@ -277,7 +288,12 @@ module App =
                         |> Async.Start
                     )
 
-            { m with ActiveButton = Some ClearYes; Status = deleteOldTimetablesMsg1 }, clearDataCmd
+            { 
+                m with 
+                    ActiveButton = Some ClearYes
+                    Status = deleteOldTimetablesMsg1
+                    IsClearing = true
+            }, clearDataCmd
 
         | Click ClearNot 
             ->
@@ -347,6 +363,7 @@ module App =
             ]
             |> List.iter cancelLocalActor
             *)
+
             let cancelCmd =
                 Cmd.ofAsyncMsg
                     (
@@ -416,12 +433,15 @@ module App =
             ->
             #if ANDROID
                 m,
-                    Cmd.ofSub (fun dispatch ->
-                        try
-                            runIO <| FileLauncher.openStorageRoot Android.App.Application.Context fabulousTimetablesFolder
-                        with 
-                        | _ -> dispatch (ErrorScreen >> SetScreen <| androidFolderAccessError)
-                    )
+                    Cmd.ofSub 
+                        (fun dispatch 
+                            ->
+                            try
+                                runIO 
+                                <| FileLauncher.openStorageRoot Android.App.Application.Context fabulousTimetablesFolder
+                            with 
+                            | _ -> dispatch (ErrorScreen >> SetScreen <| androidFolderAccessError)
+                        )
             #else
                 m, Cmd.none
             #endif
@@ -677,7 +697,6 @@ module App =
                 | Downloading (KodisCanopy4, _) 
                     ->  
                     kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-
                     { m with Screen = Completed result; Status = String.Empty }, Cmd.none
         
                 | _ ->
@@ -799,6 +818,21 @@ module App =
                 .padding(Thickness(20., 2., 20., 2.))
                 .centerHorizontal() 
 
+        let backToUtilitiesButton =
+            Border(
+                Button(buttonBackToUtilities, Navigate Utilities)
+                    .background(SolidColorBrush(Colors.Transparent))
+                    .textColor(teal800)
+                    .font(size = 14.)
+                    .borderWidth(0.)
+            )
+                .background(teal050Brush<Msg>())
+                .stroke(teal100Brush<Msg>())
+                .strokeShape(RoundRectangle(cornerRadius = 10.))
+                .strokeThickness(0.5)
+                .padding(Thickness(20., 2., 20., 2.))
+                .centerHorizontal()   
+
         let quitButton =
             Border(
                 Button(buttonQuit, Quit)
@@ -877,15 +911,15 @@ module App =
                 |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))
         
             let sectionOdis =
-                (sectionLabel "Kompletní JŘ ODIS")
+                (sectionLabel labelOdis2)
                     .margin(Thickness(18., 16., 18., 0.))
         
             let sectionDopravci =
-                (sectionLabel "Vybraní dopravci")
+                (sectionLabel labelOdis3)
                     .margin(Thickness(18., 4., 18., 0.))
         
             let sectionOstatni =
-                (sectionLabel "Ostatní")
+                (sectionLabel labelOdis4)
                     .margin(Thickness(18., 4., 18., 0.))
         
             let scrollContent =
@@ -922,11 +956,11 @@ module App =
 
             let subtitle =
                 match dt with
-                | KodisJsonTP  -> "Varianta stahování: Kodis TP"
-                | KodisPdfTP   -> "Varianta stahování: Kodis TP"
-                | KodisCanopy4 -> "Varianta stahování: Kodis Canopy"
-                | Dpo          -> "Varianta stahování: DPO"
-                | Mdpo         -> "Varianta stahování: MDPO"  
+                | KodisJsonTP  -> downloadingVariantTP
+                | KodisPdfTP   -> downloadingVariantTP
+                | KodisCanopy4 -> downloadingVariantCanopy
+                | Dpo          -> downloadingVariantDpo
+                | Mdpo         -> downloadingVariantMdpo      
 
             let progressValue =
                 match ps with
@@ -1045,7 +1079,7 @@ module App =
                             .centerHorizontal()
 
             let labelFinished = 
-                Label("Operace byla ukončena s níže uvedeným výsledkem:")
+                Label(labelOperationResult)
                         .font(size = 16.)
                         .textColor(textPrimary)
                         .centerTextHorizontal()  
@@ -1072,6 +1106,50 @@ module App =
             })
                 .centerVertical()
                 .padding(Thickness(20., 32., 20., 20.))
+
+        let completedUtilitiesView (m : Model) msg =
+        
+            let connText, result =
+                match m.Connectivity with
+                | Connected msg    
+                    ->                     
+                    msg, 
+                        (resultCircle teal050 "🚋") //(resultCircle teal050 "✓")
+                            .centerHorizontal()
+                | Disconnected msg 
+                    -> 
+                    msg, 
+                        (resultCircle teal050 "🚋") //(resultCircle red050 "!")
+                            .centerHorizontal()
+        
+            let labelFinished = 
+                Label(labelOperationResult)
+                        .font(size = 16.)
+                        .textColor(textPrimary)
+                        .centerTextHorizontal()  
+        
+            let labelMsg = 
+                    Label(msg)
+                        .font(size = 13.)
+                        .textColor(textSecond)
+                        .centerTextHorizontal()
+                        .margin(Thickness(24., 0., 24., 0.))
+             
+            (VStack(spacing = 0.) {                
+             
+                topBar connText labelOdis m.Status
+                        
+                (VStack(spacing = 18.) {
+                    result
+                    labelFinished
+                    labelMsg
+                    backToUtilitiesButton
+                })
+                    .centerVertical()
+                    .padding(Thickness(20., 40., 20., 20.))
+            })
+                .centerVertical()
+                .padding(Thickness(20., 32., 20., 20.))
      
         // ══════════════════════════════════════════════════════════════════════════
         //  SCREEN  4 – Utilities
@@ -1086,10 +1164,10 @@ module App =
                     | Connected msg    -> msg
                     | Disconnected msg -> msg
      
-                topBar connText "Nástroje" m.Status
+                topBar connText labelUtilities m.Status
                 
                 let sectionLabel1 = 
-                    (sectionLabel "Nesoulad v JŘ vydaných KODISem")
+                    (sectionLabel labelKodisMismatch)
                      .margin(Thickness(18., 4., 18., 0.))
                 
                 let actionCardFileLauncher = 
@@ -1105,19 +1183,19 @@ module App =
                     |> fun v -> v.margin(Thickness(18., 8., 18., 0.))
                                     
                 let sectionLabel2 = 
-                    (sectionLabel "Přístup k adresářům s JŘ ODIS, DPO, MDPO")
+                    (sectionLabel labelAccessDirectories)
                         .margin(Thickness(18., 4., 18., 0.))   
 
                 let actionCardOpenStorage = 
                     actionCard
                         (iconBadge amber050 amber400 "📄")
                         (OpenStorageViewer String.Empty)
-                        "Spustit file manager"//buttonClearing
-                        "Umožnění přístupu k JŘ"//hintClearing
+                        labelFileManager //buttonClearing
+                        labelTimetableAccess   //hintClearing
                         |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))     
 
                 let sectionLabel3 = 
-                    (sectionLabel "Odstranění uložených JŘ")
+                    (sectionLabel labelClearing)
                         .margin(Thickness(18., 4., 18., 0.))     
                 
                 let actionCardClearing = 
@@ -1174,7 +1252,7 @@ module App =
                     | Connected msg    -> msg
                     | Disconnected msg -> msg
 
-                topBar connText "Nástroje" String.Empty
+                topBar connText labelUtilities String.Empty
         
                 // ── labels ───────────────────────────────
                 let label1 =
@@ -1183,13 +1261,13 @@ module App =
                         .margin(Thickness(0., 0., 0., 12.))
         
                 let label2 =
-                    Label("Odstranit záložní JŘ?")
+                    Label(labelClearingConfirmation)
                         .font(size = 16.)
                         .textColor(textPrimary)
                         .margin(Thickness(0., 0., 0., 8.))
         
                 let label3 =
-                    Label("Tato akce trvale odstraní všechny zálohy předchozích jízdních řádů. Ujisti se, že nemáš otevřen předchozí JŘ.")
+                    Label(labelClearingWarning)
                         .font(size = 13.)
                         .textColor(textSecond)
                         .margin(Thickness(0., 0., 0., 20.))
@@ -1207,9 +1285,10 @@ module App =
                         Border(
                             Button(buttonClearingConfirmation, Click ClearYes)
                                 .background(SolidColorBrush(Colors.Transparent))
-                                .textColor(Colors.White)
+                                .textColor(m.IsClearing |> function true -> gray400 | false -> Colors.White)
                                 .font(size = 13.)
                                 .borderWidth(0.)
+                                .isEnabled(not m.IsClearing)
                         )
                             .background(red400Brush<Msg>())
                             .strokeShape(RoundRectangle(cornerRadius = 8.))
@@ -1220,9 +1299,10 @@ module App =
                         Border(
                             Button(buttonClearingCancel, Click ClearNot)
                                 .background(SolidColorBrush(Colors.Transparent))
-                                .textColor(textPrimary)
+                                .textColor(m.IsClearing |> function true -> gray400 | false -> textPrimary)
                                 .font(size = 13.)
                                 .borderWidth(0.)
+                                .isEnabled(not m.IsClearing)
                         )
                             .background(gray050Brush<Msg>())
                             .stroke(brush cardBorder)
@@ -1314,7 +1394,7 @@ module App =
                     .centerHorizontal()
         
             let titleLabel =
-                Label("O jéje ...")
+                Label(labelDesparatesness)
                     .font(size = 16.)
                     .textColor(textPrimary)
                     .centerTextHorizontal()
@@ -1419,14 +1499,15 @@ module App =
 
         let pageContent =
             match m.Screen with
-            | Home                 -> homeView            m
-            | Utilities            -> utilitiesView       m
-            | ClearingConfirm      -> clearingConfirmView m
-            | Downloading (dt, ps) -> downloadingView     m dt ps
-            | Completed msg        -> completedView       m msg
-            | NoConnection         -> noConnectionView    m
-            | NoPermission         -> noPermissionView    m
-            | ErrorScreen err      -> errorView           m err
+            | Home                   -> homeView               m
+            | Utilities              -> utilitiesView          m
+            | ClearingConfirm        -> clearingConfirmView    m
+            | Downloading (dt, ps)   -> downloadingView        m dt ps
+            | Completed msg          -> completedView          m msg
+            | CompletedUtilities msg -> completedUtilitiesView m msg
+            | NoConnection           -> noConnectionView       m
+            | NoPermission           -> noPermissionView       m
+            | ErrorScreen err        -> errorView              m err
 
         Application(
             ContentPage(
