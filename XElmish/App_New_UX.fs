@@ -232,11 +232,8 @@ module App =
             ->
             match m.Screen, s with
             | Downloading _, Home  // don't interrupt a download
-                ->
-                m, Cmd.none
-            | _ 
-                ->
-                { m with Screen = s; Status = String.Empty }, Cmd.none
+                -> m, Cmd.none
+            | _ -> { m with Screen = s; Status = String.Empty }, Cmd.none
    
         | Navigate screen
             ->
@@ -914,11 +911,11 @@ module App =
                 (sectionLabel labelOdis2)
                     .margin(Thickness(18., 16., 18., 0.))
         
-            let sectionDopravci =
+            let sectionCarriers =
                 (sectionLabel labelOdis3)
                     .margin(Thickness(18., 4., 18., 0.))
         
-            let sectionOstatni =
+            let sectionMiscellaneous =
                 (sectionLabel labelOdis4)
                     .margin(Thickness(18., 4., 18., 0.))
         
@@ -928,11 +925,11 @@ module App =
                     kodisCard
                     canopyCard
                     divider1
-                    sectionDopravci
+                    sectionCarriers
                     dpoCard
                     mdpoCard
                     divider2
-                    sectionOstatni
+                    sectionMiscellaneous
                     utilitiesCard
                 }
 
