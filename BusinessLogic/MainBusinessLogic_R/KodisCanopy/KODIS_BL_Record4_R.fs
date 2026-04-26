@@ -34,7 +34,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
    
         IO (fun ()
                 ->
-                let inline checkCancel (token : CancellationToken) =
+                let checkCancel (token : CancellationToken) =
                     token.ThrowIfCancellationRequested()
                     ()
 

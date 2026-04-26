@@ -31,7 +31,7 @@ module KODIS_BL_Record_Json =
     
         IO (fun () 
                 ->
-                let inline checkCancel (token : CancellationToken) =
+                let checkCancel (token : CancellationToken) =
                     token.ThrowIfCancellationRequested()
                     ()
     

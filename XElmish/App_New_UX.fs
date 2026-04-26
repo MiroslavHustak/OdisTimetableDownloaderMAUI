@@ -494,9 +494,12 @@ module App =
                         Cmd.ofSub
                             (fun dispatch
                                 ->
-                                Engines.KodisTP.executeJson
-                                    <| fun m -> KodisTPMsg >> dispatch <| m
-                                    <| token
+                                runIO
+                                    (
+                                        Engines.KodisTP.executeJson
+                                            <| fun m -> KodisTPMsg >> dispatch <| m
+                                            <| token
+                                    )
                                 |> Async.Start                                 
                             )   
                     { 
@@ -520,9 +523,12 @@ module App =
                         Cmd.ofSub
                             (fun dispatch
                                 ->
-                                Engines.KodisTP.executePdf
-                                    <| fun m -> KodisTPMsg >> dispatch <| m
-                                    <| token
+                                runIO
+                                    (
+                                        Engines.KodisTP.executePdf
+                                            <| fun m -> KodisTPMsg >> dispatch <| m
+                                            <| token
+                                    )
                                 |> Async.Start 
                             )                       
                     { 
@@ -546,9 +552,12 @@ module App =
                         Cmd.ofSub
                             (fun dispatch
                                 ->
-                                Engines.KodisCanopy.execute
-                                    <| fun m -> KodisCanopyMsg >> dispatch <| m
-                                    <| token
+                                runIO
+                                    (
+                                        Engines.KodisCanopy.execute
+                                            <| fun m -> KodisCanopyMsg >> dispatch <| m
+                                            <| token
+                                    )
                                 |> Async.Start  
                             )
                     { 
@@ -572,9 +581,12 @@ module App =
                         Cmd.ofSub 
                             (fun dispatch
                                 ->
-                                Engines.Dpo.executeDpo
-                                    <| fun m -> DpoMsg >> dispatch <| m
-                                    <| token
+                                runIO
+                                    (
+                                        Engines.Dpo.executeDpo
+                                            <| fun m -> DpoMsg >> dispatch <| m
+                                            <| token
+                                    )
                                 |> Async.Start  
                             )   
                     { 
@@ -598,9 +610,12 @@ module App =
                         Cmd.ofSub 
                             (fun dispatch
                                 ->
-                                Engines.Mdpo.executeMdpo
-                                    <| fun m -> MdpoMsg >> dispatch <| m
-                                    <| token
+                                runIO
+                                    (
+                                        Engines.Mdpo.executeMdpo
+                                            <| fun m -> MdpoMsg >> dispatch <| m
+                                            <| token
+                                    )
                                 |> Async.Start    
                             )   
                     { 
@@ -1028,7 +1043,7 @@ module App =
                     .isVisible(isInProgress)
 
             let progressCircleView =
-                GraphicsView(runIO <| progressCircle progressValue)
+                GraphicsView(progressCircle progressValue)
                     .height(130.)
                     .width(130.)
                     .centerHorizontal()

@@ -81,20 +81,20 @@ module ScreenHelpers =
     // =============================================
 
     /// Thin separator line between groups.
-    let divider () =
+    let internal divider () =
         BoxView(color = gray100)
             .height(0.5)
             .margin(Thickness(0., 4., 0., 4.))
 
     /// Small all-caps section label above a group of cards.
-    let sectionLabel text =
+    let internal sectionLabel text =
         Label(text)
             .font(size = 11.)
             .textColor(textHint)
             .margin(Thickness(0., 8., 0., 2.))
 
     /// Coloured square icon badge used inside card rows.
-    let iconBadge (bg : Color) (fg : Color) (glyph : string) =
+    let internal iconBadge (bg : Color) (fg : Color) (glyph : string) =
         Border(
             Label(glyph)
                 .font(size = 16.)
@@ -110,7 +110,7 @@ module ScreenHelpers =
             .height(38.)
 
     /// One tappable download / action row (icon + title + hint + right arrow).
-    let actionCard (icon : WidgetBuilder<'a, #IFabView>) (msg : 'a) label hint =
+    let internal actionCard (icon : WidgetBuilder<'a, #IFabView>) (msg : 'a) label hint =
         Border(
             ContentView(
                 HStack(spacing = 12.) {
@@ -139,7 +139,7 @@ module ScreenHelpers =
             .margin(Thickness(0., 2., 0., 2.))
             |> fun b -> b.gestureRecognizers() { TapGestureRecognizer(msg) }
 
-    let disabledCard (icon : WidgetBuilder<'a, #IFabView>) label pillText =
+    let internal disabledCard (icon : WidgetBuilder<'a, #IFabView>) label pillText =
         Border(
             ContentView(
                 HStack(spacing = 12.) {
@@ -163,7 +163,7 @@ module ScreenHelpers =
             .margin(Thickness(0., 2., 0., 2.))
 
     /// Disabled action row – no tap handler, grayed out with a status pill.
-    let disabledCard2 (icon : WidgetBuilder<'a, #IFabView>) label pillText =
+    let internal disabledCard2 (icon : WidgetBuilder<'a, #IFabView>) label pillText =
         Border(
             ContentView(
                 HStack(spacing = 12.) {
@@ -197,7 +197,7 @@ module ScreenHelpers =
             .margin(Thickness(0., 2., 0., 2.))
 
     /// Top bar shared by all screens.
-    let topBar connText title subtitle =   
+    let internal topBar connText title subtitle =   
 
         let titleLabel =
             Label(title)

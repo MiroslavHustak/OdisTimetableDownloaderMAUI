@@ -1329,7 +1329,7 @@ module App_R =
                 ScrollView(
                     (VStack(spacing = 25.)
                         {
-                            GraphicsView(runIO <| progressCircle m.Progress)
+                            GraphicsView(progressCircle m.Progress)
                                 .height(130.)
                                 .width(130.)
                                 .isVisible(not m.KodisVisible || m.ProgressCircleVisible)

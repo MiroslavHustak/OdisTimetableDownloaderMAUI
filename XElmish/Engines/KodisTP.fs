@@ -21,35 +21,79 @@ type KodisTPMsg =
     | NoInternet 
 
 let internal executeJson dispatch (token : CancellationToken) =
-   
-    async
-        {
-            use cts = CancellationTokenSource.CreateLinkedTokenSource token  
 
-            try               
-                let token2 = cts.Token
+    IO (fun () 
+            -> 
+            async
+                {
+                    use cts = CancellationTokenSource.CreateLinkedTokenSource token  
 
-                let inline reportProgress (progressValue : float, totalProgress : float) =
-                    match token2.IsCancellationRequested with
-                    | true  -> dispatch (Progress (0.0, 1.0))
-                    | false -> dispatch (Progress (progressValue, totalProgress))
+                    try               
+                        let token2 = cts.Token
+
+                        let reportProgress (progressValue : float, totalProgress : float) =
+                            match token2.IsCancellationRequested with
+                            | true  -> dispatch (Progress (0.0, 1.0))
+                            | false -> dispatch (Progress (progressValue, totalProgress))
                 
-                match token2.IsCancellationRequested with
-                | true 
-                    ->
-                    dispatch NavigateHome
-                | false 
-                    ->
-                    match Helpers.ConnectivityWithDebouncing.isNowConnected () with
-                    | false
-                        ->
-                        return dispatch NoInternet
-                    | true
-                        ->
-                        do! Async.SwitchToThreadPool()                       
-                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
+                        match token2.IsCancellationRequested with
+                        | true 
+                            ->
+                            dispatch NavigateHome
+                        | false 
+                            ->
+                            match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                            | false
+                                ->
+                                return dispatch NoInternet
+                            | true
+                                ->
+                                do! Async.SwitchToThreadPool()                       
+                                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
 
-                        let! result = async { return runIO (stateReducerCmd1 token2 stateDefault reportProgress) }
+                                let! result = async { return runIO (stateReducerCmd1 token2 stateDefault reportProgress) }
+
+                                match token2.IsCancellationRequested with
+                                | true 
+                                    ->
+                                    return dispatch NavigateHome
+                                | false 
+                                    ->
+                                    match result with
+                                    | Ok msg    -> return Completed >> dispatch <| msg
+                                    | Error err -> return ErrorKodis >> dispatch <| err
+                    with
+                    | ex ->
+                        match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
+                        | err 
+                            when err = StopDownloading
+                            ->
+                            runIO (postToLog2 <| string ex.Message <| " StopDownloading #9999 Kodis TP")
+
+                            match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                            | false -> return dispatch NoInternet
+                            | true  -> return dispatch NavigateHome
+                        | _ ->
+                            runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
+                            return dispatch NoInternet
+                }
+    )
+    
+let internal executePdf dispatch (token : CancellationToken) =
+
+    IO (fun () 
+            -> 
+            async
+                {
+                    try
+                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
+
+                        let token2 = cts.Token
+
+                        let reportProgress (progressValue : float, totalProgress : float) =
+                            match token2.IsCancellationRequested with
+                            | true  -> dispatch (Progress (0.0, 1.0))
+                            | false -> dispatch (Progress (progressValue, totalProgress))
 
                         match token2.IsCancellationRequested with
                         | true 
@@ -57,82 +101,44 @@ let internal executeJson dispatch (token : CancellationToken) =
                             return dispatch NavigateHome
                         | false 
                             ->
-                            match result with
-                            | Ok msg    -> return Completed >> dispatch <| msg
-                            | Error err -> return ErrorKodis >> dispatch <| err
-            with
-            | ex ->
-                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
-                | err 
-                    when err = StopDownloading
-                    ->
-                    runIO (postToLog2 <| string ex.Message <| " StopDownloading #9999 Kodis TP")
+                            match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                            | false 
+                                ->
+                                return dispatch NoInternet
+                            | true 
+                                ->
+                                do! Async.SwitchToThreadPool() 
+                                umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                                           
 
-                    match Helpers.ConnectivityWithDebouncing.isNowConnected () with
-                    | false -> return dispatch NoInternet
-                    | true  -> return dispatch NavigateHome
-                | _ ->
-                    runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error_Json")
-                    return dispatch NoInternet
-        }
-    
-let internal executePdf dispatch (token : CancellationToken) =
-
-    async
-        {
-            try
-                use cts = CancellationTokenSource.CreateLinkedTokenSource token
-
-                let token2 = cts.Token
-
-                let inline reportProgress (progressValue : float, totalProgress : float) =
-                    match token2.IsCancellationRequested with
-                    | true  -> dispatch (Progress (0.0, 1.0))
-                    | false -> dispatch (Progress (progressValue, totalProgress))
-
-                match token2.IsCancellationRequested with
-                | true 
-                    ->
-                    return dispatch NavigateHome
-                | false 
-                    ->
-                    match Helpers.ConnectivityWithDebouncing.isNowConnected () with
-                    | false 
-                        ->
-                        return dispatch NoInternet
-                    | true 
-                        ->
-                        do! Async.SwitchToThreadPool() 
-                        umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs                                           
-
-                        let! result = 
-                            async
-                                { 
-                                    return
-                                        stateReducerCmd2
-                                            <| token2
-                                            <| kodisPathTemp
-                                            <| fun _   -> ()
-                                            <| fun msg -> IterationMsg >> dispatch <| msg
-                                            <| reportProgress
-                                        |> runIO
-                                }
+                                let! result = 
+                                    async
+                                        { 
+                                            return
+                                                stateReducerCmd2
+                                                    <| token2
+                                                    <| kodisPathTemp
+                                                    <| fun _   -> ()
+                                                    <| fun msg -> IterationMsg >> dispatch <| msg
+                                                    <| reportProgress
+                                                |> runIO
+                                        }
                         
-                        match token2.IsCancellationRequested with
-                        | true  -> return dispatch NavigateHome
-                        | false -> return Completed >> dispatch <| result
-            with
-            | ex ->
-                use cts = CancellationTokenSource.CreateLinkedTokenSource token
+                                match token2.IsCancellationRequested with
+                                | true  -> return dispatch NavigateHome
+                                | false -> return Completed >> dispatch <| result
+                    with
+                    | ex ->
+                        use cts = CancellationTokenSource.CreateLinkedTokenSource token
 
-                match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
-                | err 
-                    when err = StopDownloading 
-                    ->                    
-                    match Helpers.ConnectivityWithDebouncing.isNowConnected () with
-                    | false -> return dispatch NoInternet
-                    | true  -> return dispatch NavigateHome
-                | _ ->
-                    runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
-                    return dispatch NoInternet
-        }
+                        match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
+                        | err 
+                            when err = StopDownloading 
+                            ->                    
+                            match Helpers.ConnectivityWithDebouncing.isNowConnected () with
+                            | false -> return dispatch NoInternet
+                            | true  -> return dispatch NavigateHome
+                        | _ ->
+                            runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis_Critical_Error")
+                            return dispatch NoInternet
+                }
+    )

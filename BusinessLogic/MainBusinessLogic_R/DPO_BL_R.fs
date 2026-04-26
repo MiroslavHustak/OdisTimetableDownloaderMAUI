@@ -141,7 +141,7 @@ module DPO_BL =
     
         IO (fun () 
                 ->    
-                let inline checkCancel (token : CancellationToken) =
+                let checkCancel (token : CancellationToken) =
                     token.ThrowIfCancellationRequested()
                     ()
 

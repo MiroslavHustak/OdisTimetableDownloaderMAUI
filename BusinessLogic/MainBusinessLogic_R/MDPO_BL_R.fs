@@ -139,7 +139,7 @@ module MDPO_BL = //FsHttp
         
         IO (fun () 
                 ->     
-                let inline checkCancel (token : CancellationToken) =
+                let checkCancel (token : CancellationToken) =
                     token.ThrowIfCancellationRequested()
                     ()
 

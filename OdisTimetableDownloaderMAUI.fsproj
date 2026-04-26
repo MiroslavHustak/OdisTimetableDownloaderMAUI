@@ -188,8 +188,8 @@
     <Compile Include="XElmish\Infrastructure\AndroidSpecificCode.fs" />
     <Compile Include="XElmish\Infrastructure\Counters.fs" />
     <Compile Include="XElmish\Infrastructure\ActorModels.fs" />
-    <Compile Include="XElmish\ViewHelpers\ProgressCircleUI.fs" />
     <Compile Include="XElmish\ViewHelpers\ScreenHelpers.fs" />
+    <Compile Include="XElmish\ViewHelpers\ProgressCircleUI.fs" />
     <Compile Include="XElmish\Engines\KodisTP.fs" />
     <Compile Include="XElmish\Engines\KodisCanopy.fs" />
     <Compile Include="XElmish\Engines\Dpo.fs" />

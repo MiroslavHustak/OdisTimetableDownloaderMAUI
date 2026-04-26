@@ -33,7 +33,7 @@ module ParseJsonData =
               //FSharp.Control.Lazy.Create  // Use FSharp.Control.Lazy.Create to explicitly reference the F# Lazy type and avoid conflicts with System.Lazy<'T> from .NET.
                  // (fun () 
                      // ->
-                        let inline checkCancel (token : CancellationToken) =
+                        let checkCancel (token : CancellationToken) =
                             token.ThrowIfCancellationRequested()
                             ()
                             
