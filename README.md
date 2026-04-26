@@ -129,8 +129,8 @@ OdisTimetableDownloaderMAUI (Solution)
 │   │   ├── Counters.fs
 │   │   └── ActorModels.fs
 │   ├── ViewHelpers/
-│   │   ├── ProgressCircleUI.fs
-│   │   └── ScreenHelpers.fs
+│   │   ├── ScreenHelpers.fs
+│   │   └── ProgressCircleUI.fs
 │   ├── Engines/
 │   │   ├── KodisTP.fs
 │   │   ├── KodisCanopy.fs
