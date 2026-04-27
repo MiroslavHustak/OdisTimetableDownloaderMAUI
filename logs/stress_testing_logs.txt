@@ -928,3 +928,6 @@
 04/25/2026 02:00:26 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
 04/25/2026 22:07:45 +02:00 Access to the path '013_2026-04-15.pdf' is denied. Error#0010-IO
 04/27/2026 23:50:20 +02:00 The requested name is valid, but no data of the requested type was found. (www.n.dpo.cz:443) Error#0004-DPO
+04/28/2026 00:50:39 +02:00 An index satisfying the predicate was not found in the collection. Error#0004-DPO
+04/28/2026 00:51:18 +02:00 An index satisfying the predicate was not found in the collection. Error#0004-DPO
+04/28/2026 01:43:33 +02:00 Invalid URI: The format of the URI could not be determined. Error#0004-DPO

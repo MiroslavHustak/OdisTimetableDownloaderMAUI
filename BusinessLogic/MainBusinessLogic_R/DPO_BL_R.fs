@@ -3,6 +3,7 @@
 open System
 open System.IO
 open System.Net
+open System.Net.Http
 open System.Threading
 
 //******************************************
@@ -29,6 +30,24 @@ open Types.ErrorTypes
 open Types.Haskell_IO_Monad_Simulation
 
 module DPO_BL =
+   
+    let private resolveBaseUrl () =
+    
+        let candidates = [ pathDpoWeb2; pathDpoWeb1 ]
+    
+        let probeUrl (base' : string) =
+            try
+                // TODO zjisti, zdali v FsHttp toto neni -> AllowAutoRedirect
+                use handler = new HttpClientHandler(AllowAutoRedirect = false)  //do not follow redirects
+                use client = new HttpClient(handler)
+                let response = client.GetAsync(sprintf "%s%s" base' pathDpoWebTimetablesBus).Result
+                response.IsSuccessStatusCode //pouze kdyz 200-299, redirekce se nebere v potaz diky AllowAutoRedirect = false                
+            with
+            | _ -> false
+    
+        candidates
+        |> List.tryFind (fun base' -> probeUrl base')
+        |> Option.defaultValue String.Empty //(List.head candidates)
      
     let internal filterTimetables pathToDir =    
 
@@ -43,12 +62,14 @@ module DPO_BL =
                     match String.length input <= 4 with
                     | true  -> String.Empty
                     | false -> input.[..(input.Length - 5)]                    
+
+                let pathDpoWeb = resolveBaseUrl ()
     
                 let urlList = 
                     [
-                        pathDpoWebTimetablesBus      
-                        pathDpoWebTimetablesTrBus
-                        pathDpoWebTimetablesTram
+                        sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesBus
+                        sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesTrBus
+                        sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesTram   
                     ]
     
                 urlList
@@ -85,7 +106,7 @@ module DPO_BL =
                             |> Seq.map 
                                 (fun (_ , item2) 
                                     ->  
-                                    let linkToPdf = sprintf"%s%s" pathDpoWeb item2  //https://www.dpo.cz // /jr/2023-04-01/024.pdf 
+                                    let linkToPdf = sprintf"%s%s" pathDpoWeb item2  //https://dpo.cz // /jr/2023-04-01/024.pdf 
                                     //chybne odkazy jsou pozdeji tise eliminovany
 
                                     let linkToPdf = 
