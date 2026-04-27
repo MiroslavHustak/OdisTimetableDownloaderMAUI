@@ -40,7 +40,7 @@ module DPO_BL =
                 // TODO zjisti, zdali v FsHttp toto neni -> AllowAutoRedirect
                 use handler = new HttpClientHandler(AllowAutoRedirect = false)  //do not follow redirects
                 use client = new HttpClient(handler)
-                let response = client.GetAsync(sprintf "%s%s" base' pathDpoWebTimetablesBus).Result
+                use response = client.GetAsync(sprintf "%s%s" base' pathDpoWebTimetablesBus).Result
                 response.IsSuccessStatusCode //pouze kdyz 200-299, redirekce se nebere v potaz diky AllowAutoRedirect = false                
             with
             | _ -> false
