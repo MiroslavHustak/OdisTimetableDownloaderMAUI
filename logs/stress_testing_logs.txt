@@ -927,3 +927,4 @@
 04/24/2026 22:46:17 +02:00 The operation was canceled. Error#0001-K
 04/25/2026 02:00:26 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO
 04/25/2026 22:07:45 +02:00 Access to the path '013_2026-04-15.pdf' is denied. Error#0010-IO
+04/27/2026 23:50:20 +02:00 The requested name is valid, but no data of the requested type was found. (www.n.dpo.cz:443) Error#0004-DPO
