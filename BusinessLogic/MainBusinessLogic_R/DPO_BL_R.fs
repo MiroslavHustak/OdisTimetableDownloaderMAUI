@@ -81,85 +81,85 @@ module DPO_BL =
                         -> 
                         //failwith "testing FSharp.Data.HtmlDocument.Load url"  //chytat tady exn je extremne pracne, zachyti to try-with blok v DPO.fs 
                         let document = FSharp.Data.HtmlDocument.Load url                 
-                            in                
-                            document.Descendants "a"
-                            |> Seq.choose 
-                                (fun htmlNode
-                                    ->
-                                    htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
-                                    |> Option.bind
-                                        (fun attr
-                                            -> 
-                                            option //moje paranoia na null nebo prazdne retezce
-                                                {
-                                                    let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
-                                                    let nodes : string = nodes
-                                                    let! attr = attr.Value () |> Option.ofNullEmpty
-                                                    let attr : string = attr
+                                          
+                        document.Descendants "a"
+                        |> Seq.choose 
+                            (fun htmlNode
+                                ->
+                                htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
+                                |> Option.bind
+                                    (fun attr
+                                        -> 
+                                        option //moje paranoia na null nebo prazdne retezce
+                                            {
+                                                let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                                                let nodes : string = nodes
+                                                let! attr = attr.Value () |> Option.ofNullEmpty
+                                                let attr : string = attr
                                                                
-                                                    return (nodes, attr)
-                                                }                                                          
-                                        )            
-                                )  
-                            |> Seq.filter
-                                (fun (_ , item2)
-                                    ->
-                                    item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en") && not (item2.Contains "eng")
-                                )
-                            |> Seq.map 
-                                (fun (_ , item2) 
-                                    ->
-                                    let linkToPdf =   //https://dpo.cz // /jr/2023-04-01/024.pdf 
-                                        let raw =
-                                            match Uri.IsWellFormedUriString(item2, UriKind.Absolute) with
-                                            | true  -> item2
-                                            | false -> sprintf "%s%s" pathDpoWeb item2
+                                                return (nodes, attr)
+                                            }                                                          
+                                    )            
+                            )  
+                        |> Seq.filter
+                            (fun (_ , item2)
+                                ->
+                                item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en") && not (item2.Contains "eng")
+                            )
+                        |> Seq.map 
+                            (fun (_ , item2) 
+                                ->
+                                let linkToPdf =   //https://dpo.cz // /jr/2023-04-01/024.pdf 
+                                    let raw =
+                                        match Uri.IsWellFormedUriString(item2, UriKind.Absolute) with
+                                        | true  -> item2
+                                        | false -> sprintf "%s%s" pathDpoWeb item2
                                     
-                                        isValidHttpsOption raw
-                                        |> Option.defaultValue String.Empty
+                                    isValidHttpsOption raw
+                                    |> Option.defaultValue String.Empty
 
-                                    let adaptedLineName =
-                                        let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
+                                let adaptedLineName =
+                                    let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
                                         
-                                        let rec x s =                                                                            
+                                    let rec x s =                                                                            
+                                        match (getLastThreeCharacters s).Contains("?") with
+                                        | true  -> x (sprintf "%s%s" s "_")                                                                             
+                                        | false -> s
+
+                                    let xTail s =
+                                        let rec loop s =
                                             match (getLastThreeCharacters s).Contains("?") with
-                                            | true  -> x (sprintf "%s%s" s "_")                                                                             
+                                            | true  -> loop (sprintf "%s%s" s "_")
                                             | false -> s
+                                        loop s
 
-                                        let xTail s =
-                                            let rec loop s =
-                                                match (getLastThreeCharacters s).Contains("?") with
-                                                | true  -> loop (sprintf "%s%s" s "_")
-                                                | false -> s
-                                            loop s
-
-                                        let rec xCPS s cont =
-                                            match (getLastThreeCharacters s).Contains("?") with
-                                            | true  -> xCPS (sprintf "%s%s" s "_") cont
-                                            | false -> cont s 
+                                    let rec xCPS s cont =
+                                        match (getLastThreeCharacters s).Contains("?") with
+                                        | true  -> xCPS (sprintf "%s%s" s "_") cont
+                                        | false -> cont s 
                                         
-                                        // (x << s) item2
-                                        // xCPS (s item2) id                                        
-                                        (xTail << s) item2 
+                                    // (x << s) item2
+                                    // xCPS (s item2) id                                        
+                                    (xTail << s) item2 
 
-                                    let lineName = 
-                                        let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
-                                        let s1 s = removeLastFourCharacters s 
-                                        sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
+                                let lineName = 
+                                    let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
+                                    let s1 s = removeLastFourCharacters s 
+                                    sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
                                                     
-                                    let pathToFile = 
-                                        let item2 = item2.Replace("?", String.Empty)                                            
-                                        sprintf "%s/%s" pathToDir lineName
+                                let pathToFile = 
+                                    let item2 = item2.Replace("?", String.Empty)                                            
+                                    sprintf "%s/%s" pathToDir lineName
 
-                                    linkToPdf, pathToFile
-                                )
-                            |> Seq.distinct
-                            |> Seq.filter 
-                                (fun (item1, item2)
-                                    -> 
-                                    not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2)//just in case                                         
-                                )  
-                            |> Seq.toList                                
+                                linkToPdf, pathToFile
+                            )
+                        |> Seq.distinct
+                        |> Seq.filter 
+                            (fun (item1, item2)
+                                -> 
+                                not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2)//just in case                                         
+                            )  
+                        |> Seq.toList                                
                     ) 
         )
     
