@@ -32,22 +32,25 @@ open Types.Haskell_IO_Monad_Simulation
 module DPO_BL =
    
     let private resolveBaseUrl () =
+
+        IO (fun () 
+                ->   
+                let candidates = [ pathDpoWeb2; pathDpoWeb1 ]
     
-        let candidates = [ pathDpoWeb2; pathDpoWeb1 ]
+                let probeUrl (base' : string) =
+                    try
+                        // TODO zjisti, zdali v FsHttp toto neni -> AllowAutoRedirect
+                        use handler = new HttpClientHandler(AllowAutoRedirect = false)  //do not follow redirects
+                        use client = new HttpClient(handler)
+                        use response = client.GetAsync(sprintf "%s%s" base' pathDpoWebTimetablesBus).Result
+                        response.IsSuccessStatusCode //pouze kdyz 200-299, redirekce se nebere v potaz diky AllowAutoRedirect = false                
+                    with
+                    | _ -> false
     
-        let probeUrl (base' : string) =
-            try
-                // TODO zjisti, zdali v FsHttp toto neni -> AllowAutoRedirect
-                use handler = new HttpClientHandler(AllowAutoRedirect = false)  //do not follow redirects
-                use client = new HttpClient(handler)
-                use response = client.GetAsync(sprintf "%s%s" base' pathDpoWebTimetablesBus).Result
-                response.IsSuccessStatusCode //pouze kdyz 200-299, redirekce se nebere v potaz diky AllowAutoRedirect = false                
-            with
-            | _ -> false
-    
-        candidates
-        |> List.tryFind (fun base' -> probeUrl base')
-        |> Option.defaultValue String.Empty //(List.head candidates)
+                candidates
+                |> List.tryFind (fun base' -> probeUrl base')
+                |> Option.defaultValue String.Empty //(List.head candidates)
+        )
      
     let internal filterTimetables pathToDir =    
 
@@ -63,7 +66,7 @@ module DPO_BL =
                     | true  -> String.Empty
                     | false -> input.[..(input.Length - 5)]                    
 
-                let pathDpoWeb = resolveBaseUrl ()
+                let pathDpoWeb = resolveBaseUrl >> runIO <| ()
     
                 let urlList = 
                     [
