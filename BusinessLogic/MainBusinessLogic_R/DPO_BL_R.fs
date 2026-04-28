@@ -109,13 +109,14 @@ module DPO_BL =
                         |> Seq.map 
                             (fun (_ , item2) 
                                 ->
-                                let linkToPdf =   //https://dpo.cz // /jr/2023-04-01/024.pdf 
-                                    let raw =
-                                        match Uri.IsWellFormedUriString(item2, UriKind.Absolute) with
-                                        | true  -> item2
-                                        | false -> sprintf "%s%s" pathDpoWeb item2
-                                    
-                                    isValidHttpsOption raw
+                                let linkToPdf =   //https://dpo.cz // /jr/2023-04-01/024.pdf //zatim to ponech takto, nez DPO zvladne vyresit sve problemy                                    
+                                    match Uri.IsWellFormedUriString(item2, UriKind.Absolute) with
+                                    | true  -> item2
+                                    | false -> sprintf "%s%s" pathDpoWeb item2
+
+                                    |> Option.ofNullEmptySpace
+                                    |> Option.defaultValue String.Empty
+                                    |> isValidHttpsOption 
                                     |> Option.defaultValue String.Empty
 
                                 let adaptedLineName =
