@@ -35,7 +35,7 @@ module DPO_BL =
 
         IO (fun () 
                 ->   
-                let candidates = [ pathDpoWeb2; pathDpoWeb1 ]
+                let candidates = [ pathDpoWeb3; pathDpoWeb1; pathDpoWeb4; pathDpoWeb2 ]
     
                 let probeUrl (base' : string) =
                     try
@@ -51,7 +51,7 @@ module DPO_BL =
                 |> List.tryFind probeUrl
                 |> Option.defaultValue String.Empty //(List.head candidates)
         )
-     
+
     let internal filterTimetables pathToDir =    
 
         IO (fun () 
@@ -121,28 +121,21 @@ module DPO_BL =
                                     |> Option.defaultValue String.Empty
 
                                 let adaptedLineName =
-                                    let s (item2 : string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
+                                    let s (item2 : string) = 
+                                        item2
+                                            .Replace(@"/jr/", String.Empty)
+                                            .Replace(@"/", "?")
+                                            |> fun s -> System.Text.RegularExpressions.Regex.Replace(s, @"_\d{4}-\d{2}-\d{2}(?=\.pdf)", String.Empty)
+                                            |> fun s -> s.Replace(".pdf", String.Empty)
                                         
-                                    let rec x s =                                                                            
-                                        match (getLastThreeCharacters s).Contains("?") with
-                                        | true  -> x (sprintf "%s%s" s "_")                                                                             
-                                        | false -> s
-
                                     let xTail s =
                                         let rec loop s =
                                             match (getLastThreeCharacters s).Contains("?") with
                                             | true  -> loop (sprintf "%s%s" s "_")
                                             | false -> s
                                         loop s
-
-                                    let rec xCPS s cont =
-                                        match (getLastThreeCharacters s).Contains("?") with
-                                        | true  -> xCPS (sprintf "%s%s" s "_") cont
-                                        | false -> cont s 
-                                        
-                                    // (x << s) item2
-                                    // xCPS (s item2) id                                        
-                                    (xTail << s) item2 
+                                
+                                    (xTail << s) item2
 
                                 let lineName = 
                                     let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
@@ -262,7 +255,8 @@ module DPO_BL =
                                             | _, _ 
                                                 ->
                                                 runIO (postToLog2 (string response.statusCode) "#0002-DPOBL")
-                                                return Error FileDownloadErrorMHD
+                                                runIO (postToLog2 uri "#0002-2-DPOBL")
+                                                return Ok ()//Error FileDownloadErrorMHD
                                             
                                         | Choice2Of2 ex 
                                             ->

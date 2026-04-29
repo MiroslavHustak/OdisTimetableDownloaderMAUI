@@ -932,3 +932,365 @@
 04/28/2026 00:51:18 +02:00 An index satisfying the predicate was not found in the collection. Error#0004-DPO
 04/28/2026 01:43:33 +02:00 Invalid URI: The format of the URI could not be determined. Error#0004-DPO
 04/28/2026 16:39:10 +02:00 Invalid URI: The format of the URI could not be determined. Error#0004-DPO
+04/29/2026 12:16:04 +02:00 Invalid URI: The format of the URI could not be determined. Error#0004-DPO
+04/29/2026 12:19:35 +02:00 Invalid URI: The format of the URI could not be determined. Error#0004-DPO
+04/29/2026 12:24:39 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-01_2026-03-01?024_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:40 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-07_2026-04-07?105_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:40 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-07_2026-04-07?105_2026-0.pdf' Error#0041-ExceptionHandlers
+04/29/2026 12:24:40 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-24_2026-04-24?104_2026-0.pdf' Error#0041-ExceptionHandlers
+04/29/2026 12:24:40 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-07_2026-04-07?103_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:40 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 12:24:40 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-01_2026-04-01?039_2026-0.pdf' Error#0041-ExceptionHandlers
+04/29/2026 12:24:41 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-24_2026-04-24?107_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:41 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-01_2026-04-01?035_2026-0.pdf' Error#0041-ExceptionHandlers
+04/29/2026 12:24:41 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-01_2026-03-01?034_2026-0.pdf' Error#0041-ExceptionHandlers
+04/29/2026 12:24:41 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-07_2026-04-07?108_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:42 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-07_2026-04-07?106_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:42 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 12:24:42 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-15_2026-04-15?011_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:43 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-15_2026-04-15?014_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:43 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-15_2026-04-15?004_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:43 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 12:24:44 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-15_2026-04-15?019_2026-0.pdf' Error#0041-ExceptionHandlers
+04/29/2026 12:24:44 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\-15_2026-04-15?ND1_2026-0.pdf' Error#0001-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:24:44 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:34:54 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 12:34:55 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:40:51 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 12:40:51 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:42:47 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 12:42:47 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:47:27 +02:00 https://www.dpo.cz/jr/2026-03-01/021_2026-03-01.pdf Error#747474747-DPOBL
+04/29/2026 12:47:27 +02:00 https://www.dpo.cz/jr/2026-03-01/030_2026-03-01.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-03-01/033_2026-03-01.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-03-01/034_2026-03-01.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-04-01/035_2026-04-01.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-01-03_037.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-03-01/041_2026-03-01.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-04-07/101_2026-04-07.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-04-07/103_2026-04-07.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-04-07/105_2026-04-07.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-04-07/106_2026-04-07.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-04-24/107_2026-04-24.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-04-07/108_2026-04-07.pdf Error#747474747-DPOBL
+04/29/2026 12:47:28 +02:00 https://www.dpo.cz/jr/2026-04-07/111_2026-04-07.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-07/113_2026-04-07.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/003_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/007_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/008_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/011_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/012_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/015_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/018_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/019_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:29 +02:00 https://www.dpo.cz/jr/2026-04-15/ND2_2026-04-15.pdf Error#747474747-DPOBL
+04/29/2026 12:47:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 12:51:32 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 12:52:59 +02:00 https://www.dpo.cz/jr/2026-01-03_037.pdf Error#0002-2-DPOBL
+04/29/2026 12:56:10 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 12:56:48 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 13:44:39 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 13:55:22 +02:00 The requested name is valid, but no data of the requested type was found. (www.dpo.czindex.php:443) Error#0004-DPO
+04/29/2026 13:57:56 +02:00 The requested name is valid, but no data of the requested type was found. (www.dpo.czindex.php:443) Error#0004-DPO
+04/29/2026 13:59:46 +02:00 The requested name is valid, but no data of the requested type was found. (www.dpo.czindex.php:443) Error#0004-DPO
+04/29/2026 14:03:19 +02:00 The requested name is valid, but no data of the requested type was found. (www.dpo.czindex.php:443) Error#0000NEW-DPOBL
+04/29/2026 14:07:07 +02:00 Didn't find property 'data' in {"status":false,"message":"Doba vašeho sezení vypršela. Přihlaste se prosím znovu."} Error#0000NEW-DPOBL
+04/29/2026 14:11:14 +02:00 Doba vašeho sezení vypršela. Přihlaste se prosím znovu. Error#0000NEW-DPOBL
+04/29/2026 14:18:45 +02:00 Doba vašeho sezení vypršela. Přihlaste se prosím znovu. Error#0000NEW-DPOBL
+04/29/2026 14:27:25 +02:00 Session refreshed Error#SESSION
+04/29/2026 14:27:26 +02:00 Invalid JSON starting at character 0, snippet = 
+----
+<br />
+<b>W
+-----
+json = 
+------
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>340</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>148</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b>
+------- Error#0000NEW-DPOBL
+04/29/2026 14:32:02 +02:00 Session refreshed Error#SESSION
+04/29/2026 14:32:02 +02:00 <br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>340</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>148</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+<br />
+<b>Warning</b>:  Attempt to read property "child_nodes" on null in <b>/www/doc/www.dpo.cz/www/components/com_sppagebuilder/controllers/dynamic_content.php</b> on line <b>445</b><br />
+<br />
+<b>Warning</b>:  foreach() argument must be of type array|object, null given in <b>/www/doc/www.dpo.cz/www/administrator/components/com_sppagebuilder/dynamic-content/Site/CollectionRenderer.php</b> on line <b>615</b><br />
+{"success":true,"message":null,"messages":null,"data":"<div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div><div class=\"sppb-dynamic-content-collection__item\"><\/div>"} Error#DPO-HTML-ERROR
+04/29/2026 14:45:01 +02:00 Session refreshed Error#SESSION
+04/29/2026 14:45:02 +02:00 Non-JSON response (server warning) Error#DPO-SERVER
+04/29/2026 14:49:15 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 15:00:58 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 15:06:03 +02:00 https://www.dpo.cz/jr/2026-01-03_037.pdf Error#0002-2-DPOBL
+04/29/2026 15:09:36 +02:00 The remote server returned an error: (500) Internal Server Error.
+Response from https://www.dpo.cz/index.php?option=com_sppagebuilder&task=dynamic_content.loadMoreCollectionData:
+
+<!doctype html>
+<html class="error-page" lang="cs-cz" dir="ltr">
+	<head>
+		<title>Chyba: 0 Attribute [title] does not exist on this model: JoomShaper\SPPageBuilder\DynamicContent\Models\Collection</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+					<link rel="icon" href="/images/favicon.png" />
+		
+					<link href="/templates/artolio/css/bootstrap.min.css" rel="stylesheet">
+		
+					<link href="/templates/artolio/css/custom.css" rel="stylesheet">
+		
+		<link href="/templates/artolio/css/font-awesome.min.css" rel="stylesheet">
+		<link href="/templates/artolio/css/template.css" rel="stylesheet">
+		
+		<link href="/templates/artolio/css/presets/{"footer_link_hover_color":"#FFFFFF","footer_link_color":"#A2A2A2","footer_text_color":"#FFFFFF","footer_bg_color":"#171717","menu_dropdown_text_active_color":"#00aeef","menu_dropdown_text_hover_color":"#00aeef","menu_dropdown_text_color":"#252525","menu_dropdown_bg_color":"#FFFFFF","menu_text_active_color":"#00aeef","menu_text_hover_color":"#00aeef","menu_text_color":"#252525","logo_text_color":"#00aeef","topbar_text_color":"#AAAAAA","topbar_bg_color":"#333333","header_bg_color":"#FFFFFF","link_hover_color":"#044CD0","link_color":"#00aeef","bg_color":"#FFFFFF","text_color":"#252525","preset":"preset5"}.css" rel="stylesheet">
+		
+			</head>
+	<body>
+		<div class="container">
+			
+			<h1 class="error-code">0</h1>
+			<h2 class="error-message">Attribute [title] does not exist on this model: JoomShaper\SPPageBuilder\DynamicContent\Models\Collection</h2>
+
+			
+
+			<a href="/index.php" class="btn btn-secondary"><span class="fas fa-home" aria-hidden="true"></span> Domovská stránka</a>
+
+					</div>
+
+			</body>
+
+</html>
+ Error#0004-DPO
+04/29/2026 15:16:04 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 15:27:36 +02:00 One or more errors occurred. (Executable doesn't exist at C:\Users\User\AppData\Local\ms-playwright\chromium_headless_shell-1217\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     pwsh bin/Debug/netX/playwright.ps1 install             ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝) Error#0004-DPO
+04/29/2026 15:34:18 +02:00 Session refreshed Error#SESSION
+04/29/2026 15:34:18 +02:00 Non-JSON response (server error HTML) Error#DPO-HTML
+04/29/2026 15:34:24 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\033_2026-03-01?033.pdf' Error#0001-DPOBL
+04/29/2026 15:34:25 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\024_2026-03-01?024.pdf' Error#0001-DPOBL
+04/29/2026 15:34:25 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\021_2026-03-01?021.pdf' Error#0041-ExceptionHandlers
+04/29/2026 15:34:25 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 15:34:25 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 15:34:25 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\027_2026-03-01?027.pdf' Error#0001-DPOBL
+04/29/2026 15:34:25 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\023_2026-03-01?023.pdf' Error#0041-ExceptionHandlers
+04/29/2026 15:34:25 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\032_2026-03-01?032.pdf' Error#0001-DPOBL
+04/29/2026 15:34:26 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\041_2026-03-01?041.pdf' Error#0001-DPOBL
+04/29/2026 15:34:26 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\102_2026-04-07?102.pdf' Error#0041-ExceptionHandlers
+04/29/2026 15:34:26 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\101_2026-04-07?101.pdf' Error#0001-DPOBL
+04/29/2026 15:34:27 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\034_2026-03-01?034.pdf' Error#0001-DPOBL
+04/29/2026 15:34:27 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\039_2026-04-01?039.pdf' Error#0041-ExceptionHandlers
+04/29/2026 15:34:27 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 15:34:28 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\001_2026-04-15?001.pdf' Error#0001-DPOBL
+04/29/2026 15:34:28 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 15:34:28 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\003_2026-04-15?003.pdf' Error#0041-ExceptionHandlers
+04/29/2026 15:34:29 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\007_2026-04-15?007.pdf' Error#0001-DPOBL
+04/29/2026 15:34:29 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\012_2026-04-15?012.pdf' Error#0001-DPOBL
+04/29/2026 15:34:29 +02:00 The filename, directory name, or volume label syntax is incorrect. : 'g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO\015_2026-04-15?015.pdf' Error#0001-DPOBL
+04/29/2026 15:34:29 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 15:34:29 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 15:34:30 +02:00 Microsoft.FSharp.Core.FSharpResult`2[Microsoft.FSharp.Core.Unit,Types.ErrorTypes+MHDErrors] Error#7777-ExceptionHandlers
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:34:30 +02:00 FileDownloadErrorMHD Error#0006-DPOBL
+04/29/2026 15:38:57 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 15:50:33 +02:00 Session refreshed Error#SESSION
+04/29/2026 15:50:34 +02:00 Non-JSON response (HTML error) Error#DPO
+04/29/2026 15:50:40 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 15:50:40 +02:00 https://www.dpo.cz/jr/2026-01-03_037.pdf Error#0002-2-DPOBL
+04/29/2026 16:00:27 +02:00 The process cannot access the file because it is being used by another process. Error#0010-IO
+04/29/2026 16:00:57 +02:00 The process cannot access the file because it is being used by another process. Error#0010-IO
+04/29/2026 16:01:07 +02:00 The process cannot access the file because it is being used by another process. Error#0010-IO
+04/29/2026 16:01:07 +02:00 The process cannot access the file '\\?\g:\Users\User\Data4\JR_ODIS_pouze_linky_dopravce_DPO' because it is being used by another process. Error#0003-IO
+04/29/2026 16:02:07 +02:00 Session refreshed Error#SESSION
+04/29/2026 16:02:07 +02:00 HTML instead of JSON (blocked or session issue) Error#DPO
+04/29/2026 16:02:13 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 16:07:48 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 16:12:12 +02:00 NotFound Error#0002-DPOBL
+04/29/2026 16:22:19 +02:00 Session refreshed Error#SESSION
+04/29/2026 16:22:19 +02:00 HTML response instead of JSON (session or block) Error#DPO
+04/29/2026 16:22:21 +02:00 Session refreshed Error#SESSION
+04/29/2026 16:22:21 +02:00 HTML response instead of JSON (session or block) Error#DPO
+04/29/2026 16:22:21 +02:00 Stopping pagination at page 1 Error#DPO
+04/29/2026 16:22:26 +02:00 NotFound Error#0002-DPOBL
