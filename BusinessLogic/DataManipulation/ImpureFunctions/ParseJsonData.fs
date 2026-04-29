@@ -67,7 +67,7 @@ module ParseJsonData =
                                                         | _ -> return JsonProvider2.Parse tempJson2 //silently swallowing exn 
                                                     }
                                             )
-                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                                        |> fun a -> Async.RunSynchronously(a, cancellationToken = token)                                           
                                         |> List.filter (not << isNull)  //just in case
 
                                     counterAndProgressBar.PostAndReply(fun reply -> StopAndReply reply)

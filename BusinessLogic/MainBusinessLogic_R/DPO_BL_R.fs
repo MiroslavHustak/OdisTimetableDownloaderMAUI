@@ -48,7 +48,7 @@ module DPO_BL =
                     | _ -> false
     
                 candidates
-                |> List.tryFind (fun base' -> probeUrl base')
+                |> List.tryFind probeUrl
                 |> Option.defaultValue String.Empty //(List.head candidates)
         )
      

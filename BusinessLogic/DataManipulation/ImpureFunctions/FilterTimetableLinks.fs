@@ -314,7 +314,7 @@ module FilterTimetableLinks =
                                     let cond2 = item |> Option.ofNullEmpty |> Option.toBool //for learning purposes - compare with (not String.IsNullOrEmpty(item))
                                     cond1 && cond2 
                                 )         
-                            |> List.Parallel.map_CPU_PT (fun item -> splitKodisLink item) 
+                            |> List.Parallel.map_CPU_PT splitKodisLink 
                         )          
                            
                 //**********************Cesty pro soubory pro aktualni a dlouhodobe platne a pro ostatni********************************************************
