@@ -162,7 +162,7 @@ module MDPO_BL = //FsHttp
                                         checkCancel token
                         
                                         let existingFileLength =
-                                            runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
+                                            runIO <| checkFileCondition pathToFile _.Exists
                                             |> Option.map (fun _ -> (FileInfo pathToFile).Length)
                                             |> Option.defaultValue 0L
                         

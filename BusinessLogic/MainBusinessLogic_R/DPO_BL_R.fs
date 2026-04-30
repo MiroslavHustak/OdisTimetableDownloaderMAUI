@@ -86,9 +86,9 @@ module DPO_BL =
                                         -> 
                                         option //moje paranoia na null nebo prazdne retezce
                                             {
-                                                let! nodes = htmlNode.InnerText () |> Option.ofNullEmpty
+                                                let! nodes = htmlNode.InnerText () |> Option.ofNullEmptySpace
                                                 let nodes : string = nodes
-                                                let! attr = attr.Value () |> Option.ofNullEmpty
+                                                let! attr = attr.Value () |> Option.ofNullEmptySpace
                                                 let attr : string = attr
                                                                
                                                 return (nodes, attr)
@@ -175,7 +175,7 @@ module DPO_BL =
                                         checkCancel token
     
                                         let existingFileLength =
-                                            runIO <| checkFileCondition pathToFile (fun fi -> fi.Exists)
+                                            runIO <| checkFileCondition pathToFile _.Exists
                                             |> Option.map (fun _ -> FileInfo(pathToFile).Length)
                                             |> Option.defaultValue 0L
     
