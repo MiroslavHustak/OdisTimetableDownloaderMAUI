@@ -198,9 +198,9 @@ module ConnectivityWithDebouncing =
 
         OS connectivity events (raw, noisy)
         Wi-Fi ───┐    ┌─── none ──┐ ┌── Wi-Fi
-                 │    │            │ │
-                 │    │            │ │
-        Time →   ─────┼────────────┼──────────────
+                 │    │           │ │
+                 │    │           │ │
+        Time →   ─────┼───────────┼──────────────
 
         OS event ──► startConnectivityMonitoring ──(200 ms debounce)─► stable events
         Wi-Fi ───┐
