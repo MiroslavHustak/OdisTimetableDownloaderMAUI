@@ -15,7 +15,7 @@ Licensed under the Apache License, Version 2.0 (the "License")
 //dotnet fsi OdisDownloaderMAUI_build_release.fsx
 //dotnet fsi OdisDownloaderMAUI_build_release_publish_apk.fsx
 
-namespace OdisTimetableDownloaderMAUI
+namespace OdisTimetableDownloaderMAUI 
 
 open System.Net
 
