@@ -1,0 +1,10 @@
+04/30/2026 13:35:04 +02:00 The operation was canceled. Error#0004-DPO
+04/30/2026 13:35:20 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/30/2026 13:35:20 +02:00 The operation was canceled. Error#0004-DPO
+04/30/2026 13:35:34 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/30/2026 13:35:34 +02:00 The operation was canceled. Error#0004-DPO
+04/30/2026 14:27:22 +02:00 One or more errors occurred. (A task was canceled.) Error#0003-DPOBL
+04/30/2026 18:05:13 +02:00 Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ... Error#DPO-filter-start
+04/30/2026 18:05:13 +02:00 Pouze aktuální JŘ DPO Error#DPO-download-start
+04/30/2026 23:15:02 +02:00 The operation was canceled. Error#0005-DPO
+05/01/2026 00:04:24 +02:00 Invalid URI: The format of the URI could not be determined. Error#0005-DPO

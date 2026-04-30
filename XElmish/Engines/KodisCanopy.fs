@@ -70,18 +70,20 @@ let internal execute dispatch (token : CancellationToken) =
                                 | false -> return Completed >> dispatch <| result
                            
                     with
-                    | ex ->
+                    | ex 
+                        ->
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
 
                         match runIO <| isCancellationGeneric LetItBe StopDownloading TimeoutError FileDownloadError cts.Token ex with
                         | err 
                             when err = StopDownloading
-                             ->
+                            ->
                             runIO (postToLog2 <| string ex.Message <| " StopDownloading #9999 Kodis Canopy")
                             match Helpers.ConnectivityWithDebouncing.isNowConnected () with
                             | false -> return dispatch NoInternet
                             | true  -> return dispatch NavigateHome
-                        | _ ->
+                        | _ 
+                            ->
                             runIO (postToLog2 <| string ex.Message <| " #XElmish_Kodis4_Critical_Error")
                             return dispatch NoInternet
                 }

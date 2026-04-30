@@ -1,4 +1,6 @@
-﻿(*
+﻿namespace OdisTimetableDownloaderMAUI
+
+(*
 Code in this file uses Fabulous, a functional-first UI framework.
 
 https://fabulous.dev
@@ -16,6 +18,7 @@ Licensed under the Apache License, Version 2.0 (the "License")
 // NOTE:
 // Hints for UX/UI/FE professionals not familiar with Elmish (or Elm) are at the foot of this code.
 
+(*
 namespace OdisTimetableDownloaderMAUI
 
 open System
@@ -1085,7 +1088,7 @@ module App_R =
                                                     | false -> UpdateStatus >> dispatch <| (progressValue, totalProgress, true) 
                                                     | true  -> UpdateStatus >> dispatch <| (0.0, 1.0, false)    
 
-                                                match runIO <| webscraping_DPO reportProgress token2 dpoPathTemp with  
+                                                match runIO <| webscraping_DPO (fun _ -> ()) (fun _ -> ()) reportProgress token2 dpoPathTemp with  
                                                 | Ok _     
                                                     -> 
                                                     return mauiDpoMsg
@@ -1483,3 +1486,5 @@ module App_R =
         Program.statefulWithCmd init update view 
         |> Program.withSubscription (connectivityDebouncerSubscription)
         |> Program.withSubscription captureDispatchSub
+
+*)

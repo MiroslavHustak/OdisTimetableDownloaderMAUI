@@ -73,7 +73,7 @@ module Messages =
     let [<Literal>] internal progressMsgKodis = "Stahování JSON souborů potřebných pro stahování JŘ ODIS" 
     let [<Literal>] internal progressMsgKodis1 = "Varianta bez stahování JSON souborů a s použitím web API. Vyčkej na zahájení ..." 
     let [<Literal>] internal progressMsgDpo = "Zálohují se staré JŘ DPO a stahují se nové ..." 
-    let [<Literal>] internal progressMsgMdpo = "Zálohují se staré zastávkové JŘ MDPO a stahují se nové ..."
+    let [<Literal>] internal progressMsgMdpo = "Zálohují se staré JŘ MDPO a stahují se nové ..."
 
     let [<Literal>] internal mauiDpoMsg = "JŘ DPO úspěšně staženy."
     let [<Literal>] internal mauiMdpoMsg = "Zastávkové JŘ MDPO úspěšně staženy."
@@ -109,7 +109,6 @@ module Messages =
     let [<Literal>] internal hintOdis = "JŘ všech dopravců ODIS"
     let [<Literal>] internal buttonDpo = "JŘ dopravce DPO"
     let [<Literal>] internal hintDpo = "Pouze aktuální JŘ DPO"
-    let [<Literal>] internal hintDpo2 = "Pouze aktuální JŘ DPO (chvíli strpení, než se to rozběhne)"
     let [<Literal>] internal buttonMdpo = "JŘ dopravce MDPO"
     let [<Literal>] internal hintMdpo = "Pouze zastávkové JŘ MDPO"
     let [<Literal>] internal hintCancel = "Zrušení práce aplikace"

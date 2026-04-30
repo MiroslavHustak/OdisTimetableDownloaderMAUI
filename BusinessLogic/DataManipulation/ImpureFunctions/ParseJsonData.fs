@@ -50,8 +50,9 @@ module ParseJsonData =
                                     let tempJson1, tempJson2 = jsonEmpty, readAllText >> runIO <| pathkodisMHDTotal 
 
                                     let kodisJsonSamples = //The biggest performance drag is the JsonProvider parsing => parallel computing done separatelly
-                                        (token, pathToJsonList3 |> List.filter (not << isNull)) //just in case
-                                        ||> List.Parallel.map_CPU_AW_Token_Async 
+                                        pathToJsonList3
+                                        |> List.filter (not << isNull) //just in case
+                                        |> List.Parallel.map_CPU_AW_Token_Async token
                                             (fun pathToJson 
                                                 ->   
                                                 async

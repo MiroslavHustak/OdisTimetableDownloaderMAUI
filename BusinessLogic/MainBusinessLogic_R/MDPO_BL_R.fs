@@ -34,6 +34,9 @@ module MDPO_BL = //FsHttp
     
         IO (fun () 
                 ->
+                // full verze s FsHttp pro loading HtmlDocument jen v pripade low-level control
+                // jako napr. custom headers, cookies, auth,  cancellation tokens, timeout, size limits, logging, retry logic, problemy s mdpo.cz,
+                // jinak staci FSharp.Data.HtmlDocument.Load
                 let fetchHtmlWithFsHttp (url : string) =
                     IO (fun ()
                             ->

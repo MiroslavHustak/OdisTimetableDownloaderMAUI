@@ -52,10 +52,31 @@ module DPO_BL =
                 |> Option.defaultValue String.Empty //(List.head candidates)
         )
 
-    let internal filterTimetables pathToDir =    
+    let private loadHtmlDocument pathDpoWeb =
 
         IO (fun () 
                 -> 
+                try
+                    //resolveBaseUrl >> runIO >> urlList <| ()  
+                    urlList pathDpoWeb
+                    |> List.Parallel.map_IO_AW 
+                        (fun url -> FSharp.Data.HtmlDocument.AsyncLoad url)
+                    |> Ok
+                with
+                | ex
+                    ->
+                    runIO (postToLog2 <| string ex.Message <| "#6600-DPOBL") 
+                    Error FileDownloadErrorMHD
+        )
+
+    let internal filterTimetables reportProgress pathToDir token =    
+
+        IO (fun () 
+                -> 
+                let checkCancel (token : CancellationToken) =
+                    token.ThrowIfCancellationRequested()
+                    ()
+
                 let getLastThreeCharacters input =
                     match String.length input <= 3 with
                     | true  -> input 
@@ -64,96 +85,125 @@ module DPO_BL =
                 let removeLastFourCharacters input =
                     match String.length input <= 4 with
                     | true  -> String.Empty
-                    | false -> input.[..(input.Length - 5)]                    
+                    | false -> input.[..(input.Length - 5)]    
 
                 let pathDpoWeb = resolveBaseUrl >> runIO <| ()  
 
-                //resolveBaseUrl >> runIO >> urlList <| ()  
-                urlList pathDpoWeb
-                |> List.collect 
-                    (fun url 
-                        -> 
-                        //failwith "testing FSharp.Data.HtmlDocument.Load url"  //chytat tady exn je extremne pracne, zachyti to try-with blok v DPO.fs 
-                        let document = FSharp.Data.HtmlDocument.Load url                 
-                                          
-                        document.Descendants "a"
-                        |> Seq.choose 
-                            (fun htmlNode
-                                ->
-                                htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
-                                |> Option.bind
-                                    (fun attr
-                                        -> 
-                                        option //moje paranoia na null nebo prazdne retezce
-                                            {
-                                                let! nodes = htmlNode.InnerText () |> Option.ofNullEmptySpace
-                                                let nodes : string = nodes
-                                                let! attr = attr.Value () |> Option.ofNullEmptySpace
-                                                let attr : string = attr
-                                                               
-                                                return (nodes, attr)
-                                            }                                                          
-                                    )            
-                            )  
-                        |> Seq.filter
-                            (fun (_ , item2)
-                                ->
-                                item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en") && not (item2.Contains "eng")
-                            )
-                        |> Seq.map 
-                            (fun (_ , item2) 
-                                ->
-                                let linkToPdf =   //https://dpo.cz // /jr/2023-04-01/024.pdf 
-                                  
-                                    match Uri.IsWellFormedUriString(item2, UriKind.Absolute) with
-                                    | true  -> item2
-                                    | false -> sprintf "%s%s" pathDpoWeb item2
+                let htmlDocList = 
+                    loadHtmlDocument >> runIO <| pathDpoWeb
+                
+                match htmlDocList with
+                | Error err
+                    -> 
+                    runIO (postToLog2 <| string err <| "#6601-DPOBL") 
+                    Error err
 
-                                    //zatim to ponech takto, nez DPO zvladne vyresit sve problemy
-                                    |> Option.ofNullEmptySpace
-                                    |> Option.bind isValidHttpsOption
-                                    |> Option.defaultValue String.Empty
+                | Ok htmlDocList
+                    ->
+                    let counterAndProgressBar =
+                        counterAndProgressBar (htmlDocList |> List.length) token checkCancel reportProgress
 
-                                let adaptedLineName =
-                                    let s (item2 : string) = 
-                                        item2
-                                            .Replace(@"/jr/", String.Empty)
-                                            .Replace(@"/", "?")
-                                            |> fun s -> s.Replace("AE", "_AE")
-                                            |> fun s -> System.Text.RegularExpressions.Regex.Replace(s, @"_\d{4}-\d{2}-\d{2}(?=\.pdf)", String.Empty)
-                                            |> fun s -> s.Replace(".pdf", String.Empty)
-                                        
-                                    let xTail s =
-                                        let rec loop s =
-                                            match (getLastThreeCharacters s).Contains("?") with
-                                            | true  -> loop (sprintf "%s%s" s "_")
-                                            | false -> s
-                                        loop s
-                                
-                                    (xTail << s) item2
-
-                                let lineName =     
-                                    let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
-                                    let s1 s = removeLastFourCharacters s 
-                                    sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"   
-                                                    
-                                let pathToFile = 
-                                    let _ = item2.Replace("?", String.Empty)                                            
-                                    sprintf "%s/%s" pathToDir lineName
-
-                                linkToPdf, pathToFile
-                            )
-                        |> Seq.distinct
-                        |> Seq.filter 
-                            (fun (item1, item2)
+                    let result = 
+                        htmlDocList
+                        |> List.Parallel.map_CPU_AW_Token token
+                            (fun document 
                                 -> 
-                                not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2)//just in case                                         
-                            )  
-                        |> Seq.toList                                
-                    ) 
+                                async
+                                    {
+                                        checkCancel token
+                                
+                                        //chytat tady exn je extremne pracne, zachyti to try-with blok v DPO.fs
+                                        let! document = document
+
+                                        counterAndProgressBar.Post <| Inc 1 
+
+                                        return
+                                            document.Descendants "a"
+                                            |> Seq.choose 
+                                                (fun htmlNode
+                                                    ->
+                                                    htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
+                                                    |> Option.bind
+                                                        (fun attr
+                                                            -> 
+                                                            option //moje paranoia na null nebo prazdne retezce
+                                                                {
+                                                                    let! nodes = htmlNode.InnerText () |> Option.ofNullEmptySpace
+                                                                    let nodes : string = nodes
+                                                                    let! attr = attr.Value () |> Option.ofNullEmptySpace
+                                                                    let attr : string = attr
+                                                               
+                                                                    return (nodes, attr)
+                                                                }                                                          
+                                                        )            
+                                                )  
+                                            |> Seq.filter
+                                                (fun (_ , item2)
+                                                    ->
+                                                    item2.Contains @"/jr/" && item2.Contains ".pdf" && not (item2.Contains "AE-en") && not (item2.Contains "eng")
+                                                )
+                                            |> Seq.map 
+                                                (fun (_ , item2) 
+                                                    ->
+                                                    let linkToPdf =   //https://dpo.cz // /jr/2023-04-01/024.pdf 
+                                  
+                                                        match Uri.IsWellFormedUriString(item2, UriKind.Absolute) with
+                                                        | true  -> item2
+                                                        | false -> sprintf "%s%s" pathDpoWeb item2
+
+                                                        //zatim to ponech takto, nez DPO zvladne vyresit sve problemy
+                                                        |> Option.ofNullEmptySpace
+                                                        |> Option.bind isValidHttpsOption
+                                                        |> Option.defaultValue String.Empty
+
+                                                    let adaptedLineName =
+                                                        let s (item2 : string) = 
+                                                            item2
+                                                                .Replace(@"/jr/", String.Empty)
+                                                                .Replace(@"/", "?")
+                                                                |> fun s -> s.Replace("AE", "_AE")
+                                                                |> fun s -> System.Text.RegularExpressions.Regex.Replace(s, @"_\d{4}-\d{2}-\d{2}(?=\.pdf)", String.Empty)
+                                                                |> fun s -> s.Replace(".pdf", String.Empty)
+                                        
+                                                        let xTail s =
+                                                            let rec loop s =
+                                                                match (getLastThreeCharacters s).Contains("?") with
+                                                                | true  -> loop (sprintf "%s%s" s "_")
+                                                                | false -> s
+                                                            loop s
+                                
+                                                        (xTail << s) item2
+
+                                                    let lineName =     
+                                                        let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
+                                                        let s1 s = removeLastFourCharacters s 
+                                                        sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"   
+                                                    
+                                                    let pathToFile = 
+                                                        let _ = item2.Replace("?", String.Empty)                                            
+                                                        sprintf "%s/%s" pathToDir lineName
+
+                                                    linkToPdf, pathToFile
+                                                )
+                                            |> Seq.distinct
+                                            |> Seq.filter 
+                                                (fun (item1, item2)
+                                                    -> 
+                                                    not (String.IsNullOrWhiteSpace item1) && not (String.IsNullOrWhiteSpace item2)//just in case                                         
+                                                )  
+                                            |> Seq.toList   
+                                    }
+                                |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
+                            ) 
+
+                    counterAndProgressBar.PostAndReply(fun reply -> StopAndReply reply) 
+                    
+                    result
+                    |> List.concat
+                    |> Ok
         )
     
-    let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) (filteredTimetables : IO<(string * string) list>) : IO<Result<unit, MHDErrors>> =
+    let internal downloadAndSaveTimetables reportProgress (token : CancellationToken) filteredTimetables : IO<Result<unit, MHDErrors>> =
     
         IO (fun () 
                 ->    
@@ -251,6 +301,7 @@ module DPO_BL =
                                                 ->
                                                 //runIO (postToLog2 (string response.statusCode) "#0002-DPOBL")
                                                 //runIO (postToLog2 uri "#0002-2-DPOBL")
+                                                //tise ignorujeme vadne retezce na dpo.cz
                                                 return Ok ()//Error FileDownloadErrorMHD
                                             
                                         | Choice2Of2 ex 
@@ -276,7 +327,7 @@ module DPO_BL =
                         }
     
                 let filteredTimetables =
-                    runIO filteredTimetables
+                    filteredTimetables
                     |> List.distinct
     
                 match filteredTimetables with

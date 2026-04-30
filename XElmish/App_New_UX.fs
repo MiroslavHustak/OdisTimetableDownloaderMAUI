@@ -82,7 +82,8 @@ module App =
         | KodisJsonTP
         | KodisPdfTP
         | KodisCanopy4 
-        | Dpo 
+        | DpoFilter    
+        | DpoDownload 
         | Mdpo
 
     type ProgressState =
@@ -108,12 +109,13 @@ module App =
        
     type Model =
         {
-            Permission   : PermissionState
-            Connectivity : Connectivity
-            Screen       : Screen
-            Status       : string
-            ActiveButton : ButtonType option
-            IsClearing   : bool 
+            Permission       : PermissionState
+            Connectivity    : Connectivity
+            Screen           : Screen
+            Status          : string
+            ActiveButton    : ButtonType option
+            IsClearing      : bool 
+            DpoFilterResult : (string * string) list option
         }
 
     type Msg =
@@ -149,7 +151,8 @@ module App =
     let private kodisJsonActor   = localCancellationActor()
     let private kodisPdfActor    = localCancellationActor()
     let private kodisCanopyActor = localCancellationActor()         
-    let private dpoActor         = localCancellationActor()
+    let private dpoFilterActor   = localCancellationActor()        
+    let private dpoDownloadActor = localCancellationActor()        
     let private mdpoActor        = localCancellationActor()
 
     let private connectivity msg = 
@@ -183,9 +186,6 @@ module App =
     
         let baseModel =
             {
-                Permission   = permission
-                Connectivity = connectivity
-                Screen       = initialScreen
                 Status = 
                     match permission with
                     | Granted   
@@ -196,8 +196,13 @@ module App =
                     | NotGranted 
                         -> 
                         appInfoInvoker   
-                ActiveButton = None
-                IsClearing   = false
+
+                Permission      = permission
+                Connectivity    = connectivity
+                Screen          = initialScreen               
+                ActiveButton    = None
+                IsClearing      = false
+                DpoFilterResult = None               
             }
     
         match permission with
@@ -319,8 +324,9 @@ module App =
                 kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
                 kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
+                dpoFilterActor.PostAndReply(fun reply -> StopLocal reply)
+                dpoDownloadActor.PostAndReply(fun reply -> StopLocal reply)
                 mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
             | _ 
                 -> 
                 ()
@@ -338,8 +344,9 @@ module App =
                 kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
                 kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
+                dpoFilterActor.PostAndReply(fun reply -> StopLocal reply)
+                dpoDownloadActor.PostAndReply(fun reply -> StopLocal reply)
                 mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
             | _ 
                 -> 
                 ()
@@ -355,8 +362,10 @@ module App =
             [
                 kodisJsonActor
                 kodisPdfActor
+                dpoFilterActor
+                dpoDownloadActor
                 mdpoActor
-                dpoActor
+               
             ]
             |> List.iter cancelLocalActor
             *)
@@ -372,7 +381,8 @@ module App =
                                 | KodisJsonTP  -> cancelLocalActor2 kodisJsonActor
                                 | KodisPdfTP   -> cancelLocalActor2 kodisPdfActor
                                 | KodisCanopy4 -> cancelLocalActor2 kodisCanopyActor
-                                | Dpo          -> cancelLocalActor2 dpoActor
+                                | DpoFilter    -> cancelLocalActor2 dpoFilterActor
+                                | DpoDownload  -> cancelLocalActor2 dpoDownloadActor    
                                 | Mdpo         -> cancelLocalActor2 mdpoActor
 
                                 System.GC.Collect(2, System.GCCollectionMode.Forced, blocking = false, compacting = false)
@@ -571,35 +581,66 @@ module App =
                     ->
                     m, Cmd.none 
        
-        | StartDownload Dpo
-            -> 
-            dpoActor.PostAndReply(fun reply -> GetToken reply) 
+        | StartDownload DpoFilter
+            ->
+            dpoFilterActor.PostAndReply(fun reply -> GetToken reply)
             |> function
                 | Some token 
                     ->
-                    let cmd =
-                        Cmd.ofSub 
+                    let cmd = 
+                        Cmd.ofSub
                             (fun dispatch
                                 ->
                                 runIO
                                     (
-                                        Engines.Dpo.executeDpo
+                                        Engines.Dpo.executeFilter
                                             <| fun m -> DpoMsg >> dispatch <| m
                                             <| token
-                                    )
-                                |> Async.Start  
-                            )   
-                    { 
+                                    )                                
+                                |> Async.Start
+                            )
+                      
+                    {
                         m with
-                            Screen       = Downloading (Dpo, Idle)
-                            Status       = hintDpo2
-                            Connectivity = connectivity 
-                    }, cmd 
-
+                            Screen       = Downloading (DpoFilter, Idle)
+                            Status       = dispatchMsg2         
+                            Connectivity = connectivity
+                    }, cmd
                 | None 
-                    -> 
-                    m, Cmd.none 
-         
+                    ->
+                    m, Cmd.none
+
+        | StartDownload DpoDownload
+            ->
+            match m.DpoFilterResult with
+            | None
+                -> 
+                m, Cmd.none
+
+            | Some filterResult
+                ->        
+                dpoDownloadActor.PostAndReply(fun reply -> GetToken reply)
+                |> function
+                    | Some token
+                        ->
+                        let cmd =
+                            Cmd.ofSub 
+                                (fun dispatch 
+                                    ->
+                                    runIO
+                                        (
+                                            Engines.Dpo.executeDownload
+                                                <| fun m -> DpoMsg >> dispatch <| m
+                                                <| token
+                                                <| filterResult   
+                                        )
+                                    |> Async.Start
+                                )
+        
+                        { m with Screen = Downloading (DpoDownload, Idle) }, cmd
+        
+                    | None -> m, Cmd.none
+
         | StartDownload Mdpo
             -> 
             mdpoActor.PostAndReply(fun reply -> GetToken reply) 
@@ -621,7 +662,7 @@ module App =
                     { 
                         m with
                             Screen       = Downloading (Mdpo, Idle)
-                            Status       = hintMdpo  
+                            Status       = progressMsgMdpo  
                             Connectivity = connectivity 
                     }, cmd 
 
@@ -696,6 +737,7 @@ module App =
                         | 0.0, 1.0 -> Idle 
                         | _        -> InProgress (c, t)
                     { m with Screen = Downloading (dt, ps) }, Cmd.none
+
                 | _ -> 
                     m, Cmd.none
                    
@@ -728,46 +770,67 @@ module App =
                 ->
                 kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
                 { m with Screen = NoConnection; Status = noNetConn }, Cmd.none   
-                
-        | DpoMsg msg
+
+        | DpoMsg msg 
             ->
             match msg with
+            | Engines.Dpo.CompletedFilter result 
+                ->
+                match m.Screen with
+                | Downloading (DpoFilter, _)
+                    ->
+                    dpoFilterActor.PostAndReply(fun reply -> StopLocal reply)        
+                    { m with DpoFilterResult = Some result; Status = progressMsgDpo },
+                        Cmd.ofMsg (StartDownload DpoDownload)
+        
+                | _ 
+                    -> m, Cmd.none     
+
+            | Engines.Dpo.CompletedDownload msg 
+                ->
+                match m.Screen with 
+                | Downloading (DpoDownload, _)
+                    ->
+                    dpoDownloadActor.PostAndReply(fun reply -> StopLocal reply)
+                    { m with Screen = Completed msg; Status = String.Empty }, Cmd.none  
+
+                | _ 
+                    -> m, Cmd.none     
+                    
             | Engines.Dpo.Progress (c, t)
                 ->
                 match m.Screen with
-                | Downloading (dt, _) 
-                    -> { m with Screen = Downloading (dt, InProgress (c, t)) }, Cmd.none
-                | _ -> m, Cmd.none       
+                | Downloading (dt, _)
+                    ->
+                    let ps =
+                        match c, t with
+                        | 0.0, 1.0 -> Idle
+                        | _ -> InProgress (c, t)
+                    { m with Screen = Downloading (dt, ps) }, Cmd.none
+                | _ 
+                    -> m, Cmd.none
         
-            | Engines.Dpo.IterationMsg text 
+            | Engines.Dpo.IterationMsg text
                 ->
                 { m with Status = text }, Cmd.none
         
-            | Engines.Dpo.Completed result
-                ->            
-                match m.Screen with               
-                | Downloading (Dpo, _) 
-                    ->    
-                    dpoActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = hintDpo2 }, Cmd.none
-        
-                | _ ->
-                    m, Cmd.none
-        
-            | Engines.Dpo.ErrorDpo err
-                -> 
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
+            | ErrorDpo err 
+                ->
+                dpoFilterActor.PostAndReply(fun reply -> StopLocal reply)
+                dpoDownloadActor.PostAndReply(fun reply -> StopLocal reply)
                 { m with Screen = ErrorScreen err }, Cmd.none
         
-            | Engines.Dpo.NavigateHome 
+            | Engines.Dpo.NavigateHome
                 ->
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = Home }, Cmd.none  
-
+                dpoFilterActor.PostAndReply(fun reply -> StopLocal reply)
+                dpoDownloadActor.PostAndReply(fun reply -> StopLocal reply)
+                { m with Screen = Home }, Cmd.none
+        
             | Engines.Dpo.NoInternet 
                 ->
-                dpoActor.PostAndReply(fun reply -> StopLocal reply)
-                { m with Screen = NoConnection; Status = noNetConn }, Cmd.none
+                dpoFilterActor.PostAndReply(fun reply -> StopLocal reply)
+                dpoDownloadActor.PostAndReply(fun reply -> StopLocal reply)
+                { m with Screen = NoConnection; Status = noNetConn }, Cmd.none              
                 
         | MdpoMsg msg
             ->
@@ -789,7 +852,7 @@ module App =
                 | Downloading (Mdpo, _) 
                     ->    
                     mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = hintMdpo }, Cmd.none
+                    { m with Screen = Completed result; Status = progressMsgMdpo }, Cmd.none
                
                 | _ ->
                     m, Cmd.none
@@ -889,7 +952,7 @@ module App =
             let dpoCard =
                 actionCard
                     (iconBadge blue050 blue800 "🚋")
-                    (StartDownload Dpo)
+                    (StartDownload DpoFilter)
                     buttonDpo
                     hintDpo
                 |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 0.))
@@ -971,7 +1034,8 @@ module App =
                 | KodisJsonTP  -> downloadingVariantTP
                 | KodisPdfTP   -> downloadingVariantTP
                 | KodisCanopy4 -> downloadingVariantCanopy
-                | Dpo          -> downloadingVariantDpo
+                | DpoFilter    -> downloadingVariantDpo
+                | DpoDownload  -> downloadingVariantDpo
                 | Mdpo         -> downloadingVariantMdpo      
 
             let progressValue =

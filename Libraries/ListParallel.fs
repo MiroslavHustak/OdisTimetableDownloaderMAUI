@@ -154,7 +154,7 @@ let iter_CPU_AW (action : 'a -> unit) (list : 'a list) : unit =
         |> Async.RunSynchronously
         ()
 
-let iter_CPU_AW_Token (action : 'a -> unit) (token : CancellationToken) (list : 'a list) =
+let iter_CPU_AW_Token (token : CancellationToken) (action : 'a -> unit) (list : 'a list) =
         
     match list with
     | [] -> ()
@@ -191,7 +191,7 @@ let iter_CPU_AW_Async (action : 'a -> unit) (list : 'a list) : Async<unit> =
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegree)
         |> Async.Ignore<unit array> 
 
-let iter_CPU_AW_Token_Async (action : 'a -> unit) (token : CancellationToken) (list : 'a list) : Async<unit> =
+let iter_CPU_AW_Token_Async (token : CancellationToken) (action : 'a -> unit) (list : 'a list) : Async<unit> =
 
     match list with
     | [] ->
@@ -233,7 +233,7 @@ let iter_IO_AW (action : 'a -> unit) (list : 'a list) =
         |> Async.RunSynchronously 
         ()
 
-let iter_IO_AW_Token (action : 'a -> unit) (token : CancellationToken) (list : 'a list) : unit =
+let iter_IO_AW_Token (token : CancellationToken) (action : 'a -> unit) (list : 'a list) : unit =
 
     match list with
     | [] -> ()
@@ -273,7 +273,7 @@ let iter_IO_AW_Async (action : 'a -> unit) (list : 'a list) : Async<unit> =
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
         |> Async.Ignore<unit array> 
 
-let iter_IO_AW_Token_Async (action : 'a -> unit) (token : CancellationToken) (list : 'a list) : Async<unit> =
+let iter_IO_AW_Token_Async (token : CancellationToken) (action : 'a -> unit) (list : 'a list) : Async<unit> =
 
     match list with
     | [] ->
@@ -487,7 +487,7 @@ let map_CPU_AW_Async (action : 'a -> Async<'b>) (list : 'a list) : Async<'b list
                 return result |> Array.toList
             }
 
-let map_CPU_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a list) : 'b list =
+let map_CPU_AW_Token (token : CancellationToken) (action : 'a -> 'b) (list : 'a list) : 'b list =
 
     match list with
     | [] -> []
@@ -509,7 +509,7 @@ let map_CPU_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a 
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> Array.toList
 
-let map_CPU_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken) (list : 'a list) : Async<'b list> =
+let map_CPU_AW_Token_Async (token : CancellationToken) (action : 'a -> Async<'b>) (list : 'a list) : Async<'b list> =
 
     match list with
     | [] ->  
@@ -569,7 +569,7 @@ let map_IO_AW_Async (action : 'a -> Async<'b>) (list : 'a list) =
                 return result |> List.ofArray 
             }
             
-let map_IO_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a list) : 'b list =
+let map_IO_AW_Token (token : CancellationToken) (action : 'a -> 'b) (list : 'a list) : 'b list =
 
     match list with
     | [] -> []
@@ -592,7 +592,7 @@ let map_IO_AW_Token (action : 'a -> 'b) (token : CancellationToken) (list : 'a l
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> Array.toList
             
-let map_IO_AW_Token_Async (action : 'a -> Async<'b>) (token : CancellationToken) (list : 'a list) =
+let map_IO_AW_Token_Async (token : CancellationToken) (action : 'a -> Async<'b>) (list : 'a list) =
      
     match list with
     | [] -> 
