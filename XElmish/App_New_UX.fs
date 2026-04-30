@@ -1169,7 +1169,7 @@ module App =
      
             (VStack(spacing = 0.) {                
      
-                topBar connText labelOdis m.Status
+                topBar connText labelOdis String.Empty
                 
                 (VStack(spacing = 18.) {
                     result
@@ -1213,7 +1213,7 @@ module App =
              
             (VStack(spacing = 0.) {                
              
-                topBar connText labelOdis m.Status
+                topBar connText labelOdis String.Empty
                         
                 (VStack(spacing = 18.) {
                     result
@@ -1240,7 +1240,7 @@ module App =
                     | Connected msg    -> msg
                     | Disconnected msg -> msg
      
-                topBar connText labelUtilities m.Status
+                topBar connText labelUtilities String.Empty
                 
                 let sectionLabel1 = 
                     (sectionLabel labelKodisMismatch)
@@ -1505,7 +1505,7 @@ module App =
                     | Connected msg    -> msg
                     | Disconnected msg -> msg
 
-                topBar connText labelOdis m.Status
+                topBar connText labelOdis String.Empty
                 innerStack
             })
                 .centerVertical()

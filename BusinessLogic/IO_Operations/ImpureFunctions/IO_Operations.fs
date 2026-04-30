@@ -307,15 +307,20 @@ module IO_Operations =
         IO (fun () 
                 ->
                 let ensureSource () =
-                    try
-                        // safest existence check is to *touch* the directory
-                        Directory.EnumerateFileSystemEntries source |> ignore<IEnumerable>
-                        Ok ()
-                    with 
-                    | ex
+
+                    match Directory.Exists source with
+                    | true 
                         ->
-                        runIO (postToLog2 <| string ex.Message <| "#0010-IO") 
-                        Error err1 //LetItBe...
+                        try
+                            Directory.EnumerateFileSystemEntries source |> ignore
+                            Ok ()
+                        with
+                        | _ -> Ok ()
+
+                    | false 
+                        ->
+                        runIO (postToLog2 <| String.Empty <| "#0010-IO")
+                        Error err1  
     
                 let ensureDestination () =
                     try
