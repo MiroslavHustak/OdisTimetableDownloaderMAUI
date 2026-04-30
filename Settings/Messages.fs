@@ -109,6 +109,7 @@ module Messages =
     let [<Literal>] internal hintOdis = "JŘ všech dopravců ODIS"
     let [<Literal>] internal buttonDpo = "JŘ dopravce DPO"
     let [<Literal>] internal hintDpo = "Pouze aktuální JŘ DPO"
+    let [<Literal>] internal hintDpo2 = "Pouze aktuální JŘ DPO (chvíli strpení, než se to rozběhne)"
     let [<Literal>] internal buttonMdpo = "JŘ dopravce MDPO"
     let [<Literal>] internal hintMdpo = "Pouze zastávkové JŘ MDPO"
     let [<Literal>] internal hintCancel = "Zrušení práce aplikace"

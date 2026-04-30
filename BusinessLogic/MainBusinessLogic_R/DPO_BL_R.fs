@@ -66,16 +66,10 @@ module DPO_BL =
                     | true  -> String.Empty
                     | false -> input.[..(input.Length - 5)]                    
 
-                let pathDpoWeb = resolveBaseUrl >> runIO <| ()
-    
-                let urlList = 
-                    [
-                        sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesBus
-                        sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesTrBus
-                        sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesTram   
-                    ]
-    
-                urlList
+                let pathDpoWeb = resolveBaseUrl >> runIO <| ()  
+
+                //resolveBaseUrl >> runIO >> urlList <| ()  
+                urlList pathDpoWeb
                 |> List.collect 
                     (fun url 
                         -> 
@@ -110,7 +104,7 @@ module DPO_BL =
                             (fun (_ , item2) 
                                 ->
                                 let linkToPdf =   //https://dpo.cz // /jr/2023-04-01/024.pdf 
-                                    //zatim to ponech takto, nez DPO zvladne vyresit sve problemy                                    
+                                  
                                     match Uri.IsWellFormedUriString(item2, UriKind.Absolute) with
                                     | true  -> item2
                                     | false -> sprintf "%s%s" pathDpoWeb item2
@@ -125,6 +119,7 @@ module DPO_BL =
                                         item2
                                             .Replace(@"/jr/", String.Empty)
                                             .Replace(@"/", "?")
+                                            |> fun s -> s.Replace("AE", "_AE")
                                             |> fun s -> System.Text.RegularExpressions.Regex.Replace(s, @"_\d{4}-\d{2}-\d{2}(?=\.pdf)", String.Empty)
                                             |> fun s -> s.Replace(".pdf", String.Empty)
                                         
@@ -137,13 +132,13 @@ module DPO_BL =
                                 
                                     (xTail << s) item2
 
-                                let lineName = 
+                                let lineName =     
                                     let s adaptedLineName = sprintf "%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
                                     let s1 s = removeLastFourCharacters s 
-                                    sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
+                                    sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"   
                                                     
                                 let pathToFile = 
-                                    let item2 = item2.Replace("?", String.Empty)                                            
+                                    let _ = item2.Replace("?", String.Empty)                                            
                                     sprintf "%s/%s" pathToDir lineName
 
                                 linkToPdf, pathToFile
@@ -254,8 +249,8 @@ module DPO_BL =
                                                             FileDownloadErrorMHD TlsHandshakeErrorMHD token ex
                                             | _, _ 
                                                 ->
-                                                runIO (postToLog2 (string response.statusCode) "#0002-DPOBL")
-                                                runIO (postToLog2 uri "#0002-2-DPOBL")
+                                                //runIO (postToLog2 (string response.statusCode) "#0002-DPOBL")
+                                                //runIO (postToLog2 uri "#0002-2-DPOBL")
                                                 return Ok ()//Error FileDownloadErrorMHD
                                             
                                         | Choice2Of2 ex 

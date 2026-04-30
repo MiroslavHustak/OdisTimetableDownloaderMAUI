@@ -592,7 +592,7 @@ module App =
                     { 
                         m with
                             Screen       = Downloading (Dpo, Idle)
-                            Status       = hintDpo
+                            Status       = hintDpo2
                             Connectivity = connectivity 
                     }, cmd 
 
@@ -749,7 +749,7 @@ module App =
                 | Downloading (Dpo, _) 
                     ->    
                     dpoActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = hintDpo }, Cmd.none
+                    { m with Screen = Completed result; Status = hintDpo2 }, Cmd.none
         
                 | _ ->
                     m, Cmd.none
