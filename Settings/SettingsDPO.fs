@@ -14,9 +14,9 @@ module SettingsDPO =
 
     let internal urlList pathDpoWeb = 
         [
-            //sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesBus
-            //sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesTrBus                        
-            //sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesTram 
+            sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesBus
+            sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesTrBus                        
+            sprintf "%s%s" pathDpoWeb pathDpoWebTimetablesTram 
             sprintf "%s%s%s" pathDpoWeb pathDpoWebTimetablesBus "?dc_filter_80=20%2C21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29"
             sprintf "%s%s%s" pathDpoWeb pathDpoWebTimetablesBus "?dc_filter_80=30%2C31%2C32%2C33%2C34%2C35%2C36%2C37%2C38%2C39"
             sprintf "%s%s%s" pathDpoWeb pathDpoWebTimetablesBus "?dc_filter_80=40%2C41%2C42%2C43%2C44%2C45%2C46%2C47%2C48%2C49"

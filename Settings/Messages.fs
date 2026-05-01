@@ -52,6 +52,7 @@ module Messages =
 
     let [<Literal>] internal dispatchMsg1_1 = "Dokončeny pomocné operace."
     let [<Literal>] internal dispatchMsg2 = "Chvíli strpení, usilovně třídím, filtruji či provádím další pomocné operace, které nikoho nezajímají ..."
+    let [<Literal>] internal dispatchMsg2Dpo = "Chvíli strpení, usilovně stahuji pomocná data, třídím a filtruji, což samozřejmě uživatele vůbec nezajímá ..."
     let [<Literal>] internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
     let [<Literal>] internal dispatchMsg2_1 = "Chvíli strpení, provádím přípravu na stahování ..."
     
@@ -79,7 +80,7 @@ module Messages =
     let [<Literal>] internal mauiMdpoMsg = "Zastávkové JŘ MDPO úspěšně staženy."
 
     let [<Literal>] internal labelOdis = "Stahování JŘ ODIS"
-    let [<Literal>] internal labelOdisExpl ="ODIS -> integrovaný dopravní systém MSK"
+    let [<Literal>] internal labelOdisExpl ="ODIS (integrovaný dopravní systém MSK)"
     let [<Literal>] internal labelOdis2 = "Kompletní JŘ ODIS"
     let [<Literal>] internal labelOdis3 = "Vybraní dopravci"
     let [<Literal>] internal labelOdis4 = "Ostatní"
@@ -187,3 +188,27 @@ module Messages =
 
     let internal continueDownload = String.Empty
     #endif
+
+    let [<Literal>] internal popUpWindowText = 
+        "
+        Tato aplikace slouží k hromadnému stahování aktuálních, budoucích a dlouhodobě platných jízdních řádů IDS MSK (ODIS) z oficiálních zdrojů (kodis.cz, dpo.cz a mdpo.cz).
+        
+        Proč vznikla?
+        Cílem je navrátit kouzlo klasických tištěných jízdních řádů všem, kteří na ně nostalgicky vzpomínají a chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv – i bez internetu.
+        
+        Podmínky užití: 
+        Jízdní řády jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODISu. Tato aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán. 
+        
+        Autor:
+        Miroslav Husťák (hustak.somee.com)
+        Kódováno s radostí v F# (fsharp.org) a Fabulous (fabulous.dev).
+        
+        Zdrojový kód: 
+        https://github.com/MiroslavHustak
+        
+        Připoj se !
+        Hledám nadšence pro testování a/nebo odborníka na UX/UI design, který by mi pomohl aplikaci posunout k profesionálnímu UX/UI. 
+        "
+    let [<Literal>] internal labelAbout = "Zde se dozvíš další informace o aplikaci"                      
+    let [<Literal>] internal hintAbout = "Co jsi chtěl vědět o aplikaci a bál jsi se zeptat"
+    let [<Literal>] internal buttonAbout = "O aplikaci ..."   

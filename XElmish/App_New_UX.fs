@@ -116,6 +116,7 @@ module App =
             ActiveButton    : ButtonType option
             IsClearing      : bool 
             DpoFilterResult : (string * string) list option
+            IsAboutVisible  : bool
         }
 
     type Msg =
@@ -132,6 +133,8 @@ module App =
         | RequestPermission
         | OpenStorageViewer of string
         | RunFileLauncher
+        | ShowAbout
+        | HideAbout
         | Dummy
         | Quit
 
@@ -154,6 +157,9 @@ module App =
     let private dpoFilterActor   = localCancellationActor()        
     let private dpoDownloadActor = localCancellationActor()        
     let private mdpoActor        = localCancellationActor()
+
+    
+
 
     let private connectivity msg = 
         match isNowConnected () with    
@@ -202,7 +208,8 @@ module App =
                 Screen          = initialScreen               
                 ActiveButton    = None
                 IsClearing      = false
-                DpoFilterResult = None               
+                DpoFilterResult = None 
+                IsAboutVisible = false
             }    
         
         match permission with
@@ -306,6 +313,28 @@ module App =
             ->
             { m with ActiveButton = Some Restart },
             Cmd.ofMsg (Navigate Home)
+
+        | ShowAbout 
+            ->         
+            let cmd =
+                Cmd.ofAsyncMsg
+                    (
+                        async
+                            {
+                                let! _ = 
+                                    Application.Current.MainPage.DisplayAlert(
+                                        "O aplikaci", 
+                                        popUpWindowText, 
+                                        "Zavřít")
+                                    |> Async.AwaitTask
+                                return Dummy
+                            }
+                    )
+            m, cmd
+        
+        | HideAbout 
+            ->
+            { m with IsAboutVisible = false }, Cmd.none
 
         | Quit  
             ->              
@@ -971,6 +1000,14 @@ module App =
                     hintDpo
                 |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 0.))
         
+            let mdpoCardTestingVariant =               
+                actionCard
+                    (iconBadge blue050 blue800 "🚎")
+                    (StartDownload Mdpo)
+                    buttonMdpo
+                    hintMdpo
+                |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 0.))
+
             let mdpoCard =
                 #if ANDROID
                 disabledCard
@@ -1019,7 +1056,7 @@ module App =
                     divider1
                     sectionCarriers
                     dpoCard
-                    mdpoCard
+                    mdpoCardTestingVariant //mdpoCard
                     divider2
                     sectionMiscellaneous
                     utilitiesCard
@@ -1247,6 +1284,8 @@ module App =
      
         let utilitiesView (m : Model) =
 
+            //Thickness(left, top, right, bottom)
+
             (VStack(spacing = 0.) {
 
                 let connText =
@@ -1270,7 +1309,7 @@ module App =
 
                 let divider =       
                     divider ()
-                    |> fun v -> v.margin(Thickness(18., 8., 18., 0.))
+                    |> fun v -> v.margin(Thickness(18., 0., 18., 0.))
                                     
                 let sectionLabel2 = 
                     (sectionLabel labelAccessDirectories)
@@ -1294,7 +1333,20 @@ module App =
                         (Click Clear)
                         buttonClearing
                         hintClearing
-                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))                   
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))  
+                        
+                let sectionLabel4 = 
+                    (sectionLabel labelAbout)
+                        .margin(Thickness(18., 4., 0., 0.))     
+
+                //***************************************************
+                let actionCardAbout = 
+                    actionCard
+                        (iconBadge amber050 amber400 "📄")
+                        ShowAbout
+                        buttonAbout
+                        hintAbout
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))
 
                 ScrollView(
                     (VStack(spacing = 0.) {  
@@ -1307,6 +1359,9 @@ module App =
                         divider 
                         sectionLabel3
                         actionCardClearing    
+                        divider 
+                        sectionLabel4
+                        actionCardAbout  
                     })
                          .centerVertical()
                          .padding(Thickness(20., 32., 20., 20.))

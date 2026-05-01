@@ -11,3 +11,7 @@
 05/01/2026 01:11:04 +02:00 The operation was canceled. Error#0005-DPO
 05/01/2026 02:49:30 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
 05/01/2026 02:53:40 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL
+05/01/2026 17:45:10 +02:00 HtmlDocument Error Error#0002-MDPOBL
+05/01/2026 17:45:32 +02:00 A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.mdpo.cz:443) Error#0003-MDPO
+05/01/2026 17:46:00 +02:00 One or more errors occurred. (One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.mdpo.cz:443))) Error#0001-MDPOBL
+05/01/2026 17:46:22 +02:00 A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.mdpo.cz:443) Error#0003-MDPO
