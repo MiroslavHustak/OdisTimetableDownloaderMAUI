@@ -120,7 +120,7 @@ module Messages =
     let [<Literal>] internal buttonRequestPermission = "Spustit AppInfo"  
     let [<Literal>] internal buttonLauncher = "Diskrepance" 
     let [<Literal>] internal hintLauncher = "Náhled na diskrepance v JŘ"
-    let [<Literal>] internal launchErrorMsg = "Soubor s diskrepancemi JŘ se neotevřel. Je s ním nějaký problém."
+    let [<Literal>] internal launchErrorMsg = "Soubor nebo adresář s diskrepancemi JŘ buď ještě neexistuje, neb nebylo do něj co dát, anebo jej někdo smazal."
     let [<Literal>] internal buttonUtilities = "Nástroje"
     let [<Literal>] internal hintUtilities = "Nástroje aplikace"    
 
