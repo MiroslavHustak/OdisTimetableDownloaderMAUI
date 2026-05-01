@@ -192,13 +192,12 @@ module Messages =
 
     let [<Literal>] internal popUpWindowText = 
         "
-        Tato aplikace slouží k hromadnému stahování aktuálních, budoucích a dlouhodobě platných jízdních řádů IDS MSK (ODIS) z oficiálních zdrojů (kodis.cz, dpo.cz a mdpo.cz).
-        
-        Proč vznikla?
-        Cílem je navrátit kouzlo klasických tištěných jízdních řádů všem, kteří na ně nostalgicky vzpomínají a chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv – i bez internetu.
+        Tato aplikace slouží k hromadnému stahování aktuálních, budoucích a dlouhodobě platných jízdních řádů (JŘ) IDS MSK (ODIS) z oficiálních zdrojů (kodis.cz, dpo.cz a mdpo.cz). Provozovatelé mohou kdykoliv změnit strukturu svých stránek tak, že stahování nebude možné (pokud k tomu dojde, požádej mne o update aplikace), nebo umožnit hromadné stahování. JŘ se nestáhne v případě chybného odkazu.
+       
+        Cílem aplikaceje navrátit kouzlo klasických tištěných JŘ všem, kteří na ně nostalgicky vzpomínají a chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv – i bez internetu.
         
         Podmínky užití: 
-        Jízdní řády jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODIS. Tato aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán. 
+        JŘ jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODIS. Tato aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán.  
         
         Autor:
         Miroslav Husťák (hustak.somee.com)
@@ -211,6 +210,6 @@ module Messages =
         Hledám nadšence pro testování a/nebo odborníka na UX/UI design, který by mi pomohl aplikaci posunout k profesionálnímu UX/UI. 
         "
 
-    let [<Literal>] internal hintAbout = "Zde se dozvíš další informace o aplikaci"                      
-    let [<Literal>] internal labelAbout = "Co jsi chtěl vědět o aplikaci a bál jsi se zeptat"
+    let [<Literal>] internal hintAbout = "Zde se dozvíš informace o aplikaci"                      
+    let [<Literal>] internal labelAbout = "Co jsi chtěl vědět o aplikaci a bál jsi se zeptat ..."
     let [<Literal>] internal buttonAbout = "O aplikaci ..."   
