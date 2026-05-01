@@ -54,26 +54,26 @@ module ScreenHelpers =
     open Theme
 
     let internal brush (c : Color) = SolidColorBrush(c)   
-                                    
-    let internal topBarBrush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush teal400
-    let internal cardBgBrush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush cardBg 
+                                     
+    let internal topBarBrush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>     = brush teal400
+    let internal cardBgBrush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>     = brush cardBg 
 
-    let internal pageBgBrush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush pageBg
+    let internal pageBgBrush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>     = brush pageBg
 
-    let internal teal050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush teal050
-    let internal teal100Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush teal100
-    let internal teal400Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush teal400
-    let internal teal600Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush teal600
+    let internal teal050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>    = brush teal050
+    let internal teal100Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>    = brush teal100
+    let internal teal400Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>    = brush teal400
+    let internal teal600Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>    = brush teal600
 
-    let internal gray050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>  = brush gray050
-    let internal gray100Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>  = brush gray100
-    let internal red050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>   = brush red050
-    let internal red100Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>   = brush red100
-    let internal red400Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>   = brush red400
-    let internal red600Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>   = brush red600
-    let internal amber050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush amber050
+    let internal gray050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>    = brush gray050
+    let internal gray100Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>    = brush gray100
+    let internal red050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>     = brush red050
+    let internal red100Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>     = brush red100
+    let internal red400Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>     = brush red400
+    let internal red600Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>     = brush red600
+    let internal amber050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>   = brush amber050
 
-    let internal blue050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>  = brush blue050
+    let internal blue050Brush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush>    = brush blue050
     let internal cardBorderBrush<'a>() : WidgetBuilder<'a, IFabSolidColorBrush> = brush cardBorder
 
     // =============================================
@@ -227,7 +227,6 @@ module ScreenHelpers =
                 HStack(spacing = 6.) {
                     dot
                     connLabel
-
                 }
             )
                 .background(brush (Color.FromArgb("#30FFFFFF")))

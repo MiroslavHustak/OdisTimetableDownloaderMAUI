@@ -14,5 +14,3 @@ module Grid3Algebra =
         {
             board = fun _ _ -> defaultValue
         } 
-
-    // Use [<Struct>] for algebraic data, not for behavioural data.

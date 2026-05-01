@@ -194,7 +194,7 @@ module Messages =
         "
         Aplikace slouží k hromadnému stahování aktuálních, budoucích a dlouhodobě platných jízdních řádů (JŘ) IDS MSK (ODIS) z veřejně dostupných zdrojů (kodis.cz, dpo.cz a mdpo.cz). Provozovatelé mohou změnit strukturu svých stránek tak, že stahování nebude možné (pokud k tomu dojde, požádej mne o update aplikace, já už něco vymyslím, nebylo by to poprvé). JŘ se nestáhnou v případě chybných odkazů.
        
-        Cílem aplikace je navrátit kouzlo klasických JŘ všem, kteří na ně nostalgicky vzpomínají a chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv.
+        Cílem aplikace je navrátit kouzlo klasických JŘ všem, kteří na ně nostalgicky vzpomínají, chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv, a nechtějí trávit 6 hodin denně jejich stahováním po jednom.
 
         Tato varianta aplikace slouží pouze k testování. Chyby a údaje o verzi a OS mobilu jsou automaticky odesílány na endpoint.
         
@@ -209,7 +209,7 @@ module Messages =
         https://github.com/MiroslavHustak
         
         Připoj se !
-        Hledám: 1) nadšence pro testování a 2) odborníka na UX/UI, který by pomohl aplikaci posunout k profesionálnímu UX/UI. 
+        Hledám 1) nadšence pro testování a 2) odborníka na UX/UI, který by pomohl aplikaci posunout k profesionálnímu UX/UI. 
         "
 
     let [<Literal>] internal hintAbout = "Zde se dozvíš informace o aplikaci"                      
