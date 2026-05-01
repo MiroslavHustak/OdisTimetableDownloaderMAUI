@@ -395,52 +395,60 @@ module App =
    
         | RequestPermission
             ->
-            #if ANDROID
-            let cmd =
-                Cmd.ofAsyncMsg
-                    (
-                        async 
-                            {
-                                try
-                                    let! currentStatus = 
-                                        Permissions.CheckStatusAsync<Permissions.StorageRead>() 
-                                        |> Async.AwaitTask
-
-                                    let needsRequest = 
-                                        match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
-                                        | true  -> not Android.OS.Environment.IsExternalStorageManager
-                                        | false -> currentStatus <> PermissionStatus.Granted
-
-                                    match needsRequest with
-                                    | false 
-                                        -> 
-                                        return Navigate Home
-                                    | true  
-                                        ->
-                                        do openAppSettings >> runIO <| ()
-                                        do! Async.Sleep 1000
-
-                                        let! newStatus = 
+            match m.Screen with
+            | NoPermission 
+                ->
+                #if ANDROID
+                let cmd =
+                    Cmd.ofAsyncMsg
+                        (
+                            async 
+                                {
+                                    try
+                                        let! currentStatus = 
                                             Permissions.CheckStatusAsync<Permissions.StorageRead>() 
                                             |> Async.AwaitTask
 
-                                        match newStatus = PermissionStatus.Granted with
-                                        | true 
+                                        let needsRequest = 
+                                            match Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R with
+                                            | true  -> not Android.OS.Environment.IsExternalStorageManager
+                                            | false -> currentStatus <> PermissionStatus.Granted
+
+                                        match needsRequest with
+                                        | false 
                                             -> 
                                             match runIO <| ensureMainDirectoriesExist true with
-                                            | Ok _    -> return SetScreen Home
-                                            | Error _ -> return SetScreen (ErrorScreen ctsMsg2)
-                                        | false 
+                                            | Ok _    -> return Navigate Home
+                                            | Error _ -> return SetScreen (ErrorScreen ctsMsg2) 
+                                        | true  
                                             ->
-                                            return Dummy
-                                with 
-                                | _ -> return Dummy
-                            }
-                    )
-            m, cmd
-            #else
-            m, Cmd.none
-            #endif
+                                            do openAppSettings >> runIO <| ()
+                                            do! Async.Sleep 1000
+
+                                            let! newStatus = 
+                                                Permissions.CheckStatusAsync<Permissions.StorageRead>() 
+                                                |> Async.AwaitTask
+
+                                            match newStatus = PermissionStatus.Granted with
+                                            | true 
+                                                -> 
+                                                match runIO <| ensureMainDirectoriesExist true with
+                                                | Ok _    -> return Navigate Home
+                                                | Error _ -> return SetScreen (ErrorScreen ctsMsg2)
+                                            | false 
+                                                ->
+                                                return Dummy
+                                    with 
+                                    | _ -> return Dummy
+                                }
+                        )
+                m, cmd
+                #else
+                m, Cmd.none
+                #endif
+            | _ 
+                ->
+                m, Cmd.none
 
         | OpenStorageViewer fabulousTimetablesFolder
             ->

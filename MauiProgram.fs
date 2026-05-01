@@ -107,8 +107,13 @@ type MauiProgram =
                                                                   }
         
                                                         match granted with
-                                                        | true  -> (dispatch : Dispatch<App.Msg>) <| App.SetScreen App.Home
-                                                        | false -> ()
+                                                        | true
+                                                            -> 
+                                                            (dispatch : Dispatch<App.Msg>) <| App.RequestPermission
+                                                            (dispatch : Dispatch<App.Msg>) <| App.SetScreen App.Home
+                                                        | false
+                                                            ->
+                                                            ()
                                                     with
                                                     | ex -> runIO <| postToLog2 (string ex.Message) "#3002"
 
