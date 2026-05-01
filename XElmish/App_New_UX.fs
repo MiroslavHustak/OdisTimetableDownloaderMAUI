@@ -216,13 +216,23 @@ module App =
         | Granted 
             ->
             #if ANDROID
-            let model = Microsoft.Maui.Devices.DeviceInfo.Current.Model
-            let osVersion = Microsoft.Maui.Devices.DeviceInfo.Current.VersionString
-            let platform = string Microsoft.Maui.Devices.DeviceInfo.Current.Platform
-            let manufacturer = Microsoft.Maui.Devices.DeviceInfo.Current.Manufacturer
-            let name = Microsoft.Maui.Devices.DeviceInfo.Current.Name
-            let str = sprintf "Model: %s, OS Version: %s, Platform: %s, Manufacturer: %s, Name: %s" model osVersion platform manufacturer name
-            postToLogTestingApp >> runIO <| str          
+            // For stress testing only, not to be used in production
+            try
+                match connectivity with
+                | Connected _   
+                    -> 
+                    let model = string Microsoft.Maui.Devices.DeviceInfo.Current.Model
+                    let osVersion = string Microsoft.Maui.Devices.DeviceInfo.Current.VersionString
+                    let platform = string Microsoft.Maui.Devices.DeviceInfo.Current.Platform
+                    let manufacturer = string Microsoft.Maui.Devices.DeviceInfo.Current.Manufacturer
+                    let name = string Microsoft.Maui.Devices.DeviceInfo.Current.Name
+                    let str = sprintf "Model: %s, OS Version: %s, Platform: %s, Manufacturer: %s, Name: %s" model osVersion platform manufacturer name
+                    postToLogTestingApp >> runIO <| str          
+                | Disconnected _ 
+                    -> 
+                    ()
+            with
+            | _ -> () 
             #endif
 
             match runIO <| ensureMainDirectoriesExist permissionGranted with
