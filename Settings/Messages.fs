@@ -61,7 +61,8 @@ module Messages =
 
     let [<Literal>] internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
     let [<Literal>] internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."
-    let [<Literal>] internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu." 
+    //let [<Literal>] internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."
+    let [<Literal>] internal mdpoMsg2 = "JŘ MDPO se nepodařilo stáhnout. OS Android blokuje pokus o navázání spojení se serverem mdpo.cz. Chyba není na straně této aplikace." 
     let [<Literal>] internal mdpoCancelMsg = "Stahování JŘ MDPO předčasně ukončeno."
     let [<Literal>] internal mdpoCancelMsg1 = "Stahování JŘ MDPO předčasně ukončeno, úklid se nepodařil."
 
@@ -197,7 +198,7 @@ module Messages =
         Cílem je navrátit kouzlo klasických tištěných jízdních řádů všem, kteří na ně nostalgicky vzpomínají a chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv – i bez internetu.
         
         Podmínky užití: 
-        Jízdní řády jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODISu. Tato aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán. 
+        Jízdní řády jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODIS. Tato aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán. 
         
         Autor:
         Miroslav Husťák (hustak.somee.com)
@@ -209,6 +210,7 @@ module Messages =
         Připoj se !
         Hledám nadšence pro testování a/nebo odborníka na UX/UI design, který by mi pomohl aplikaci posunout k profesionálnímu UX/UI. 
         "
-    let [<Literal>] internal labelAbout = "Zde se dozvíš další informace o aplikaci"                      
-    let [<Literal>] internal hintAbout = "Co jsi chtěl vědět o aplikaci a bál jsi se zeptat"
+
+    let [<Literal>] internal hintAbout = "Zde se dozvíš další informace o aplikaci"                      
+    let [<Literal>] internal labelAbout = "Co jsi chtěl vědět o aplikaci a bál jsi se zeptat"
     let [<Literal>] internal buttonAbout = "O aplikaci ..."   

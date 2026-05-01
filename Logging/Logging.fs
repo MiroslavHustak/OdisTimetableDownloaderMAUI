@@ -157,6 +157,9 @@ module Logging =
                         #else
                         let logFilePath = logFileNameAndroid2
                         #endif
+
+                        runIO <| postToLog msg err //to endpoint
+
                         let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath 
                                                         
                         use fs =
@@ -240,6 +243,7 @@ module Logging =
                                 (fun item 
                                     -> 
                                     let s = sprintf "%s %A Error%s" <| string DateTimeOffset.Now <| item <| err2 
+                                    runIO <| postToLog s String.Empty  //to endpoint
                                     writer.WriteLineAsync(s) |> Async.AwaitTask  
                                 ) 
                             |> Async.map Ok //see my Excel -> DB templates for explanation    
