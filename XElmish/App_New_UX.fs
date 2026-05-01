@@ -205,14 +205,20 @@ module App =
                 DpoFilterResult = None               
             }    
         
-        match ensureMainDirectoriesExist >> runIO <| () with
-        | Ok _ 
+        match permission with
+        | NotGranted 
             ->
             baseModel, Cmd.none
-        | Error _ 
+        | Granted 
             ->
-            let errMsg = ctsMsg2
-            { baseModel with Screen = ErrorScreen errMsg; Status = errMsg }, Cmd.none
+            match runIO <| ensureMainDirectoriesExist permissionGranted with
+            | Ok _ 
+                ->
+                baseModel, Cmd.none
+            | Error _ 
+                ->
+                let errMsg = ctsMsg2
+                { baseModel with Screen = ErrorScreen errMsg }, Cmd.none
 
     // =============================================
     // UPDATE
@@ -419,8 +425,14 @@ module App =
                                             |> Async.AwaitTask
 
                                         match newStatus = PermissionStatus.Granted with
-                                        | true  -> return SetScreen Home
-                                        | false -> return Dummy
+                                        | true 
+                                            -> 
+                                            match runIO <| ensureMainDirectoriesExist true with
+                                            | Ok _    -> return SetScreen Home
+                                            | Error _ -> return SetScreen (ErrorScreen ctsMsg2)
+                                        | false 
+                                            ->
+                                            return Dummy
                                 with 
                                 | _ -> return Dummy
                             }

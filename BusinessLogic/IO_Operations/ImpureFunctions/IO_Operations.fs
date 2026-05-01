@@ -252,33 +252,40 @@ module IO_Operations =
                     Error <| PdfDownloadError2 CreateFolderError4   
         )
         
-    let internal ensureMainDirectoriesExist () =
-
+    let internal ensureMainDirectoriesExist permissionGranted =
+    
         IO (fun () 
-                ->                
-                try
-                    [
-                        partialPathJsonTemp 
-                        kodisPathTemp 
-                        kodisPathTemp4 
-                        dpoPathTemp 
-                        mdpoPathTemp
-                        oldTimetablesPath
-                        oldTimetablesPath4
-                    ]        
-                    |> List.iter
-                        (fun pathDir 
-                            -> 
-                            // If the directory already exists, nothing happens — no exception, no overwrite, no change.
-                            Directory.CreateDirectory pathDir |> ignore<DirectoryInfo>
-                        )
-                    |> Ok  
-                with 
-                | ex
+                ->  
+                match permissionGranted with
+                | true 
                     ->
-                    runIO (postToLog2 <| string ex.Message <| "#0008-IO") 
-                    Error <| PdfDownloadError2 CreateFolderError4   
+                    try
+                        [
+                            partialPathJsonTemp 
+                            kodisPathTemp 
+                            kodisPathTemp4 
+                            dpoPathTemp 
+                            mdpoPathTemp
+                            oldTimetablesPath
+                            oldTimetablesPath4
+                        ]        
+                        |> List.iter
+                            (fun pathDir 
+                                -> 
+                                // If the directory already exists, nothing happens — no exception, no overwrite, no change.
+                                Directory.CreateDirectory pathDir |> ignore<DirectoryInfo>
+                            )
+                        |> Ok  
+                    with 
+                    | ex
+                        ->
+                        runIO (postToLog2 <| string ex.Message <| "#0008-IO") 
+                        Error <| PdfDownloadError2 CreateFolderError4   
+                | false 
+                    -> 
+                    Error <| PdfDownloadError2 NoPermissionError //jen quli dodrzeni typu, neni tra robit vubec nic
         )
+    
 
     let internal createTP_Canopy_Folder pathDir = 
 
