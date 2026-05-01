@@ -131,8 +131,9 @@ module WebScraping_MDPO =
 
                         // Kdyz se move nepovede, tak se vubec nic nedeje, proste nebudou starsi soubory,
                         // nicmene priprava na zpracovani err je provedena
-                        stateReducer token stateDefault CopyOldTimetables |> ignore<Result<unit, MHDErrors>> //silently ignoring failed move operations
 
+                        let! _ =  stateReducer token stateDefault CreateFolders, fun err -> Error <| errFn err
+                        stateReducer token stateDefault CopyOldTimetables |> ignore<Result<unit, MHDErrors>> //silently ignoring failed move operations
                         let! _ = stateReducer token stateDefault DeleteOneODISDirectory, fun err -> Error <| errFn err
                         let! _ =  stateReducer token stateDefault CreateFolders, fun err -> Error <| errFn err
                         let! _ = stateReducer token stateDefault FilterDownloadSave, fun err -> Error <| errFn err

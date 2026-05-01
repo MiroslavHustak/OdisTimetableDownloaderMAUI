@@ -9,3 +9,5 @@
 04/30/2026 23:15:02 +02:00 The operation was canceled. Error#0005-DPO
 05/01/2026 00:04:24 +02:00 Invalid URI: The format of the URI could not be determined. Error#0005-DPO
 05/01/2026 01:11:04 +02:00 The operation was canceled. Error#0005-DPO
+05/01/2026 02:49:30 +02:00 One or more errors occurred. (A task was canceled.) Error#0005-KBLJson
+05/01/2026 02:53:40 +02:00 One or more errors occurred. (A task was canceled.) Error#0011-KBL

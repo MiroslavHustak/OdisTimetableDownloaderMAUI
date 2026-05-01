@@ -109,7 +109,8 @@ module WebScraping_DPO =
 
                 pyramidOfInferno
                     {        
-                        let! _ = stateReducer token stateDefault CopyOldTimetables, fun err -> Error err       
+                        let! _ = stateReducer token stateDefault CreateFolders, fun err -> Error err
+                        stateReducer token stateDefault CopyOldTimetables |> ignore<Result<(string * string) list, MHDErrors>> //silently ignoring failed move operations
                         let! _ = stateReducer token stateDefault DeleteOneODISDirectory, fun err -> Error err
                         let! _ = stateReducer token stateDefault CreateFolders, fun err -> Error err
                         let! result = stateReducer token stateDefault FilterOnly, fun err -> Error err  
