@@ -232,16 +232,18 @@ module IO_Operations =
                         (fun (dir : string) 
                             ->                
                             match dir.Contains currentValidity || dir.Contains longTermValidity with 
-                            | true  ->    
-                                    sortedLines 
-                                    |> List.iter
-                                        (fun item
-                                            -> 
-                                            let dir = dir.Replace("_vyluk", sprintf "%s/%s" "_vyluk" item)
-                                            Directory.CreateDirectory dir |> ignore<DirectoryInfo>
-                                        )           
-                            | false -> 
-                                    Directory.CreateDirectory dir |> ignore<DirectoryInfo>           
+                            | true  
+                                ->    
+                                sortedLines 
+                                |> List.iter
+                                    (fun item
+                                        -> 
+                                        let dir = dir.Replace("_vyluk", sprintf "%s/%s" "_vyluk" item)
+                                        Directory.CreateDirectory dir |> ignore<DirectoryInfo>
+                                    )           
+                            | false 
+                                -> 
+                                Directory.CreateDirectory dir |> ignore<DirectoryInfo>           
                         ) 
                     |> Ok
     
@@ -284,8 +286,7 @@ module IO_Operations =
                 | false 
                     -> 
                     Error <| PdfDownloadError2 NoPermissionError //jen quli dodrzeni typu, neni tra robit vubec nic
-        )
-    
+        )    
 
     let internal createTP_Canopy_Folder pathDir = 
 
