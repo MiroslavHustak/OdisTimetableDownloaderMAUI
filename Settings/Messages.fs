@@ -192,12 +192,12 @@ module Messages =
 
     let [<Literal>] internal popUpWindowText = 
         "
-        Tato aplikace slouží k hromadnému stahování aktuálních, budoucích a dlouhodobě platných jízdních řádů (JŘ) IDS MSK (ODIS) z oficiálních zdrojů (kodis.cz, dpo.cz a mdpo.cz). Provozovatelé mohou kdykoliv změnit strukturu svých stránek tak, že stahování nebude možné (pokud k tomu dojde, požádej mne o update aplikace), nebo umožnit hromadné stahování. JŘ se nestáhne v případě chybného odkazu.
+        Aplikace slouží k hromadnému stahování aktuálních, budoucích a dlouhodobě platných jízdních řádů (JŘ) IDS MSK (ODIS) z oficiálních zdrojů (kodis.cz, dpo.cz a mdpo.cz). Provozovatelé mohou změnit strukturu svých stránek tak, že stahování nebude možné (pokud k tomu dojde, požádej mne o update aplikace, já už něco vymyslím, nebylo by to poprvé). JŘ se nestáhnou v případě chybných odkazů.
        
-        Cílem aplikaceje navrátit kouzlo klasických tištěných JŘ všem, kteří na ně nostalgicky vzpomínají a chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv – i bez internetu.
+        Cílem aplikace je navrátit kouzlo klasických JŘ všem, kteří na ně nostalgicky vzpomínají a chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv.
         
         Podmínky užití: 
-        JŘ jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODIS. Tato aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán.  
+        JŘ jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODIS. Aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán.  
         
         Autor:
         Miroslav Husťák (hustak.somee.com)
@@ -207,7 +207,7 @@ module Messages =
         https://github.com/MiroslavHustak
         
         Připoj se !
-        Hledám nadšence pro testování a/nebo odborníka na UX/UI design, který by mi pomohl aplikaci posunout k profesionálnímu UX/UI. 
+        Hledám: 1) nadšence pro testování a 2) odborníka na UX/UI, který by pomohl aplikaci posunout k profesionálnímu UX/UI. 
         "
 
     let [<Literal>] internal hintAbout = "Zde se dozvíš informace o aplikaci"                      
