@@ -196,14 +196,14 @@ module Messages =
        
         Cílem aplikace je navrátit kouzlo klasických JŘ všem, kteří na ně nostalgicky vzpomínají a chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv.
 
-        Tato varianta aplikace slouží pouze k testování. Chyby jsou automaticky odesílány na endpoint.
+        Tato varianta aplikace slouží pouze k testování. Chyby a údaje o verzi a OS mobilu jsou automaticky odesílány na endpoint.
         
         Podmínky užití: 
         JŘ jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODIS. Aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán.  
         
         Autor:
         Miroslav Husťák (hustak.somee.com)
-        Kódováno s radostí v F# (fsharp.org) a Fabulous (fabulous.dev).
+        Kódováno s radostí v F# (fsharp.org) a Fabulous (fabulous.dev). Zatím testováno pro OS Android 7.1, 11 a 12.
         
         Zdrojový kód: 
         https://github.com/MiroslavHustak
