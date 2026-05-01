@@ -215,6 +215,16 @@ module App =
             baseModel, Cmd.none
         | Granted 
             ->
+            #if ANDROID
+            let model = Microsoft.Maui.Devices.DeviceInfo.Current.Model
+            let osVersion = Microsoft.Maui.Devices.DeviceInfo.Current.VersionString
+            let platform = string Microsoft.Maui.Devices.DeviceInfo.Current.Platform
+            let manufacturer = Microsoft.Maui.Devices.DeviceInfo.Current.Manufacturer
+            let name = Microsoft.Maui.Devices.DeviceInfo.Current.Name
+            let str = sprintf "Model: %s, OS Version: %s, Platform: %s, Manufacturer: %s, Name: %s" model osVersion platform manufacturer name
+            postToLogTestingApp >> runIO <| str          
+            #endif
+
             match runIO <| ensureMainDirectoriesExist permissionGranted with
             | Ok _ 
                 ->
@@ -229,21 +239,7 @@ module App =
     // =============================================
 
     let update (msg : Msg) (m : Model) : Model * Cmd<Msg> =
-        
-        #if ANDROID
-        let model = Microsoft.Maui.Devices.DeviceInfo.Current.Model
-        let osVersion = Microsoft.Maui.Devices.DeviceInfo.Current.VersionString
-        let platform = string Microsoft.Maui.Devices.DeviceInfo.Current.Platform
-        let manufacturer = Microsoft.Maui.Devices.DeviceInfo.Current.Manufacturer
-        let name = Microsoft.Maui.Devices.DeviceInfo.Current.Name
-
-        postToLogTestingApp >> runIO <| model
-        postToLogTestingApp >> runIO <| osVersion
-        postToLogTestingApp >> runIO <| platform
-        postToLogTestingApp >> runIO <| manufacturer
-        postToLogTestingApp >> runIO <| name
-        #endif
-
+                
         let connectivity = connectivity noNetConn
          
         match msg with   
