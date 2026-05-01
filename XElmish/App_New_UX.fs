@@ -203,22 +203,16 @@ module App =
                 ActiveButton    = None
                 IsClearing      = false
                 DpoFilterResult = None               
-            }
-    
-        match permission with
-        | NotGranted 
+            }    
+        
+        match ensureMainDirectoriesExist >> runIO <| () with
+        | Ok _ 
             ->
             baseModel, Cmd.none
-        | Granted 
+        | Error _ 
             ->
-            match runIO <| ensureMainDirectoriesExist permissionGranted with
-            | Ok _ 
-                ->
-                baseModel, Cmd.none
-            | Error _ 
-                ->
-                let errMsg = ctsMsg2
-                { baseModel with Screen = ErrorScreen errMsg; Status = errMsg }, Cmd.none
+            let errMsg = ctsMsg2
+            { baseModel with Screen = ErrorScreen errMsg; Status = errMsg }, Cmd.none
 
     // =============================================
     // UPDATE
