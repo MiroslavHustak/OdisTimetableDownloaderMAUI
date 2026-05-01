@@ -60,9 +60,9 @@ module Messages =
     let [<Literal>] internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
 
     let [<Literal>] internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
-    let [<Literal>] internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."
+    //let [<Literal>] internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."
     //let [<Literal>] internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."
-    let [<Literal>] internal mdpoMsg2 = "JŘ MDPO se nepodařilo stáhnout. OS Android blokuje pokus o navázání spojení se serverem mdpo.cz. Chyba není na straně této aplikace." 
+    let [<Literal>] internal mdpoMsg1 = "JŘ MDPO se nepodařilo stáhnout. OS Android blokuje pokus o navázání spojení se serverem mdpo.cz. Chyba není na straně této aplikace." 
     let [<Literal>] internal mdpoCancelMsg = "Stahování JŘ MDPO předčasně ukončeno."
     let [<Literal>] internal mdpoCancelMsg1 = "Stahování JŘ MDPO předčasně ukončeno, úklid se nepodařil."
 
