@@ -102,6 +102,18 @@ module Logging =
                 |_ -> () //kdyz nefunguje KODIS API, zhavaruje aji logfile, ktery z endpoints bere / uklada na nej message
         )
 
+    let internal postToLogTestingApp mobilePhoneInfo =   //odesle na endpoint
+
+        IO (fun () 
+                ->    
+                try
+                    runIO <| postToLogFile () mobilePhoneInfo 
+                    |> Async.Ignore<ResponsePost>
+                    |> Async.Start   
+                with
+                |_ -> () //kdyz nefunguje KODIS API, zhavaruje aji logfile, ktery z endpoints bere / uklada na nej message
+        )
+
     //*************************************************************************** 
     #if WINDOWS  
     let internal saveJsonToFileAsync () =

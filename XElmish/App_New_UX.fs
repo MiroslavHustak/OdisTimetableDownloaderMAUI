@@ -158,9 +158,6 @@ module App =
     let private dpoDownloadActor = localCancellationActor()        
     let private mdpoActor        = localCancellationActor()
 
-    
-
-
     let private connectivity msg = 
         match isNowConnected () with    
         | true  -> Connected yesNetConn
@@ -232,6 +229,20 @@ module App =
     // =============================================
 
     let update (msg : Msg) (m : Model) : Model * Cmd<Msg> =
+        
+        #if ANDROID
+        let model = Microsoft.Maui.Devices.DeviceInfo.Current.Model
+        let osVersion = Microsoft.Maui.Devices.DeviceInfo.Current.VersionString
+        let platform = string Microsoft.Maui.Devices.DeviceInfo.Current.Platform
+        let manufacturer = Microsoft.Maui.Devices.DeviceInfo.Current.Manufacturer
+        let name = Microsoft.Maui.Devices.DeviceInfo.Current.Name
+
+        postToLogTestingApp >> runIO <| model
+        postToLogTestingApp >> runIO <| osVersion
+        postToLogTestingApp >> runIO <| platform
+        postToLogTestingApp >> runIO <| manufacturer
+        postToLogTestingApp >> runIO <| name
+        #endif
 
         let connectivity = connectivity noNetConn
          
