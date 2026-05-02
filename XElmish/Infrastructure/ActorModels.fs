@@ -10,55 +10,49 @@ module ActorModels =
 
 //********************** resumable App_New **************************************
 
+  
+
+    let (|ClassifyConn|) isFirst last stableEnough current =
+        match isFirst, current, last, stableEnough with
+        | true, _, _, _          -> FirstMessage current
+        | _, false, true,  _     -> LostConn
+        | _, true, false, true   -> GainedConn
+        | _, _, _, false
+            when current <> last -> StateFlapping
+        | _                      -> StillWaiting
+
     let internal debounceActor netConnMessage dispatch =
-    
-        MailboxProcessor.StartImmediate
-            (fun inbox
-                ->
-                let rec loop lastState (lastChangeTime : DateTime) isFirstMessage =
-                           
-                    let NetConnMessage = netConnMessage
-    
-                    async
-                        {
-                            let! isConnected = inbox.Receive()
-                            let now = DateTime.Now
-                            let timeDiff = (now - lastChangeTime).TotalSeconds
-                                           
-                            match isFirstMessage, isConnected, lastState, timeDiff > 0.5 with
-                            | true, false, _, _
-                                ->
-                                // First message: lost connection → dispatch immediately
-                                NetConnMessage >> dispatch <| noNetConn
-                                return! loop isConnected now false
-                            | true, true, _, _
-                                ->
-                                // First message: have connection → dispatch immediately
-                                dispatch (NetConnMessage yesNetConn)
-                                return! loop isConnected now false
-                            | false, false, true, _
-                                ->
-                                // Lost connection: react immediately (no debouncing)
-                                NetConnMessage >> dispatch <| noNetConn
-                                return! loop isConnected now false
-                            | false, true, false, true
-                                ->
-                                // Gained connection: debounced (state stable for 0.5s)
-                                dispatch (NetConnMessage yesNetConn)
-                                return! loop isConnected now false
-                            | false, _, _, _ when isConnected <> lastState
-                                ->
-                                // State changed but not ready to dispatch yet
-                                dispatch (NetConnMessage "Čekám ...")
-                                return! loop isConnected now false
-                            | _
-                                ->
-                                // No state change or still waiting
-                                dispatch (NetConnMessage "Stále čekám ...")
-                                return! loop lastState lastChangeTime false
-                        }
-                loop true DateTime.MinValue true
-            )
+
+        MailboxProcessor<bool>
+            .StartImmediate
+                (fun inbox 
+                    ->
+                    let send = netConnMessage >> dispatch
+
+                    let rec loop lastConn (lastChange : DateTime) isFirst =
+                        async
+                            {
+                                let! current = inbox.Receive()
+                                let now = DateTime.Now
+                                let stableEnough = (now - lastChange).TotalSeconds > 0.5
+
+                                match (|ClassifyConn|) isFirst lastConn stableEnough current with
+                                | FirstMessage true  -> send yesNetConn
+                                                        return! loop current now false
+                                | FirstMessage false -> send noNetConn
+                                                        return! loop current now false
+                                | LostConn           -> send noNetConn
+                                                        return! loop current now false
+                                | GainedConn         -> send yesNetConn
+                                                        return! loop current now false
+                                | StateFlapping      -> send "Čekám ..."
+                                                        return! loop current now false
+                                | StillWaiting       -> send "Stále čekám ..."
+                                                        return! loop lastConn lastChange false
+                            }
+
+                    loop true DateTime.MinValue true
+                )
 
     let internal localCancellationActor () =
     
@@ -185,3 +179,55 @@ module ActorModels =
                             }
 
                     loop false (new CancellationTokenSource())  
+
+(*
+let internal debounceActor netConnMessage dispatch =
+   
+       MailboxProcessor.StartImmediate
+           (fun inbox
+               ->
+               let rec loop lastState (lastChangeTime : DateTime) isFirstMessage =
+                          
+                   let NetConnMessage = netConnMessage
+   
+                   async
+                       {
+                           let! isConnected = inbox.Receive()
+                           let now = DateTime.Now
+                           let timeDiff = (now - lastChangeTime).TotalSeconds
+                                          
+                           match isFirstMessage, isConnected, lastState, timeDiff > 0.5 with
+                           | true, false, _, _
+                               ->
+                               // First message: lost connection → dispatch immediately
+                               NetConnMessage >> dispatch <| noNetConn
+                               return! loop isConnected now false
+                           | true, true, _, _
+                               ->
+                               // First message: have connection → dispatch immediately
+                               dispatch (NetConnMessage yesNetConn)
+                               return! loop isConnected now false
+                           | false, false, true, _
+                               ->
+                               // Lost connection: react immediately (no debouncing)
+                               NetConnMessage >> dispatch <| noNetConn
+                               return! loop isConnected now false
+                           | false, true, false, true
+                               ->
+                               // Gained connection: debounced (state stable for 0.5s)
+                               dispatch (NetConnMessage yesNetConn)
+                               return! loop isConnected now false
+                           | false, _, _, _ when isConnected <> lastState
+                               ->
+                               // State changed but not ready to dispatch yet
+                               dispatch (NetConnMessage "Čekám ...")
+                               return! loop isConnected now false
+                           | _
+                               ->
+                               // No state change or still waiting
+                               dispatch (NetConnMessage "Stále čekám ...")
+                               return! loop lastState lastChangeTime false
+                       }
+               loop true DateTime.MinValue true
+           )
+*)

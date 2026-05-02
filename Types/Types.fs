@@ -75,6 +75,13 @@ module Types =
     let internal umMiliSecondsToInt64 (x : int<ms>) : int64 = int64 (x / 1<ms>)    
     let internal umMiliSecondsToInt32 (x : int<ms>) : int = int (x / 1<ms>)
 
+    type [<Struct>] internal ConnEvent =
+        | FirstMessage of isConnected : bool
+        | LostConn
+        | GainedConn
+        | StateFlapping
+        | StillWaiting
+
     type internal ConnectivityMonitorMsg =
         | StateChanged of bool
         | StopConnectivityMonitoring
