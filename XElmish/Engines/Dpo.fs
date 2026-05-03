@@ -1,12 +1,8 @@
 ﻿module OdisTimetableDownloaderMAUI.Engines.Dpo
 
-open System
 open System.Threading
 
-open FsToolkit.ErrorHandling
-
 open Types.Types
-open Types.Grid3Algebra
 open Types.Haskell_IO_Monad_Simulation
 
 open Api.Logging
@@ -17,8 +13,6 @@ open Settings.Messages
 open Settings.SettingsGeneral
 
 open Helpers.ExceptionHelpers
-open IO_Operations.IO_Operations
-
 
 type DpoMsg =
     | Progress of float * float
