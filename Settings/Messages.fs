@@ -96,7 +96,7 @@ module Messages =
     let [<Literal>] internal labelDesperateness = "O jéje ..."
     let [<Literal>] internal labelClearingWarning = "Trvale odstranění všech záloh předchozích JŘ. Ujisti se, že nemáš otevřen předchozí JŘ."
 
-    let [<Literal>] internal labelKodisMismatch = "Nesoulad v JŘ vydaných KODISem"
+    let [<Literal>] internal labelKodisMismatch = "Nesoulad v JŘ na stránkách KODISu"
     let [<Literal>] internal labelAccessDirectories = "Přístup k adresářům s JŘ ODIS, DPO, MDPO"   
     let [<Literal>] internal labelFileManager = "Spustit file manager"
     let [<Literal>] internal labelTimetableAccess = "Umožnění přístupu k JŘ"      

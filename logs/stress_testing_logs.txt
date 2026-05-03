@@ -16,3 +16,4 @@
 05/01/2026 17:46:00 +02:00 One or more errors occurred. (One or more errors occurred. (A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.mdpo.cz:443))) Error#0001-MDPOBL
 05/01/2026 17:46:22 +02:00 A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.mdpo.cz:443) Error#0003-MDPO
 05/03/2026 01:40:28 +02:00 A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (www.dpo.cz:443) Error#0005-DPO
+05/03/2026 23:23:39 +02:00 Cannot create 'g:\Users\User\DataOld4\' because a file or directory with the same name already exists. Error#0010-IO

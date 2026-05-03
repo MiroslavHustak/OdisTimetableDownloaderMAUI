@@ -5,8 +5,8 @@
 	<!-- ^(?!\s*$)(?!\s*//)(?!\s*\(\*) -->  
 	<TargetFrameworks>net8.0-android</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
-	
-    <OutputType>Exe</OutputType>
+	<WindowsAppSdkUndockedRegFreeWinRTInitializerDisabled>true</WindowsAppSdkUndockedRegFreeWinRTInitializerDisabled>
+	<OutputType>Exe</OutputType>
     <RootNamespace>OdisTimetableDownloaderMAUI</RootNamespace>
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
