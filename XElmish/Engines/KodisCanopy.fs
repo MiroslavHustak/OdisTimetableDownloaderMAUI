@@ -39,7 +39,7 @@ let internal execute dispatch (token : CancellationToken) =
                         match token2.IsCancellationRequested with
                         | true 
                             ->
-                            dispatch NavigateHome
+                            return dispatch NavigateHome
 
                         | false
                             ->
