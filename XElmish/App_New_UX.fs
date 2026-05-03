@@ -134,7 +134,6 @@ module App =
         | OpenStorageViewer of string
         | RunFileLauncher
         | ShowAbout
-        | HideAbout
         | Dummy
         | Quit
 
@@ -348,11 +347,7 @@ module App =
                             }
                     )
             m, cmd
-        
-        | HideAbout 
-            ->
-            { m with IsAboutVisible = false }, Cmd.none
-
+              
         | Quit  
             ->              
             #if WINDOWS           
