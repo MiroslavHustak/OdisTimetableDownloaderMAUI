@@ -8,11 +8,10 @@ open Settings.Messages
 
 module ActorModels =  
 
-//********************** resumable App_New **************************************
+//********************** resumable App_New **************************************  
 
-  
+    let private (|ClassifyConn|) isFirst last stableEnough current =
 
-    let (|ClassifyConn|) isFirst last stableEnough current =
         match isFirst, current, last, stableEnough with
         | true, _, _, _          -> FirstMessage current
         | _, false, true,  _     -> LostConn
@@ -27,7 +26,7 @@ module ActorModels =
             .StartImmediate
                 (fun inbox 
                     ->
-                    let send = netConnMessage >> dispatch
+                    let send = dispatch << netConnMessage 
 
                     let rec loop lastConn (lastChange : DateTime) isFirst =
                         async
