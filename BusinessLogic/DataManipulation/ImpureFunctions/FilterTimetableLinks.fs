@@ -23,6 +23,17 @@ open Settings.SettingsGeneral
 open Api.Logging
 open DataModelling.DataModel
 
+type LinePrefixKind =
+    | AePrefix      // "AE", length 3  
+    | ShortSPrefix  // "S",  length 3  
+    | ShortRPrefix  // "R",  length 3  
+    | LongSPrefix   // "S",  length 4  
+    | LongRPrefix   // "R",  length 4  
+    | NadPrefix     // "NAD"           
+    | XPrefix       // "X"             
+    | PPrefix       // "P"             
+    | UnknownPrefix   
+
 module FilterTimetableLinks =      
    
     let internal filterTimetableLinks param (pathToDir : string) (parsedLinksResult : Result<string list, ParsingAndDownloadingErrors>) = 
@@ -202,60 +213,59 @@ module FilterTimetableLinks =
                         | false when vIndex <> -1 -> partAfter.Substring(vIndex + 2)
                         | false when tIndex <> -1 -> partAfter.Substring(tIndex + 2)
                         | _                       -> partAfter
+
+                    let classifyPrefix (oldPrefix : string) =
+                        match oldPrefix with
+                        | p when p.Contains("AE") && p.Length = 3 -> AePrefix
+                        | p when p.Contains("S")  && p.Length = 3 -> ShortSPrefix
+                        | p when p.Contains("S")  && p.Length = 4 -> LongSPrefix
+                        | p when p.Contains("R")  && p.Length = 3 -> ShortRPrefix
+                        | p when p.Contains("R")  && p.Length = 4 -> LongRPrefix
+                        | p when p.Contains("NAD")                -> NadPrefix
+                        | p when p.Contains("X")                  -> XPrefix
+                        | p when p.Contains("P")                  -> PPrefix
+                        | _                                       -> UnknownPrefix
         
                     let newPrefix (oldPrefix : string) =
 
-                        let conditions =
-                            [
-                                fun () -> oldPrefix.Contains("AE") && oldPrefix.Length = 3
-                                fun () -> oldPrefix.Contains("S") && oldPrefix.Length = 3
-                                fun () -> oldPrefix.Contains("S") && oldPrefix.Length = 4
-                                fun () -> oldPrefix.Contains("R") && oldPrefix.Length = 3
-                                fun () -> oldPrefix.Contains("R") && oldPrefix.Length = 4
-                                fun () -> oldPrefix.Contains("NAD")
-                                fun () -> oldPrefix.Contains("X")
-                                fun () -> oldPrefix.Contains("P")
-                            ]
+                        match classifyPrefix oldPrefix with
+                        | AePrefix
+                        | ShortSPrefix
+                        | ShortRPrefix
+                            ->
+                            sprintf "_%s" oldPrefix
 
-                        match List.filter (fun condition -> condition()) conditions with
-                        | [ _ ] 
-                            -> 
-                            let index = conditions |> List.findIndex (fun item -> item () = true) //neni treba tryFind, bo v [ _ ] je vzdy neco
-                     
-                            match index with
-                            | 0 | 1 | 3  
-                                -> 
-                                sprintf "_%s" oldPrefix                    
+                        | NadPrefix
+                            ->
+                            let newPrefix =                                 
+                                match oldPrefix |> extractSubstring2 with
+                                | (Some value, length)
+                                    when length <= lineNumberLength 
+                                    -> sprintf "NAD%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
+                                | _                                 
+                                    -> oldPrefix        
+                                    
+                            oldPrefix.Replace(oldPrefix, newPrefix) 
+                    
+                        | XPrefix
+                            ->
+                            let newPrefix = //ponechat podobny kod jako vyse, nerobit refactoring, KODIS moze vse nekdy zmenit                                
+                                match oldPrefix |> extractSubstring3 with
+                                | (Some value, length)
+                                    when length <= lineNumberLength 
+                                    -> sprintf "X%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
+                                | _                               
+                                    -> oldPrefix
+                                    
+                            oldPrefix.Replace(oldPrefix, newPrefix)
 
-                            | 5 
-                                -> 
-                                let newPrefix =                                 
-                                    match oldPrefix |> extractSubstring2 with
-                                    | (Some value, length)
-                                        when length <= lineNumberLength 
-                                        -> sprintf "NAD%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
-                                    | _                                 
-                                        -> oldPrefix        
-                                        
-                                oldPrefix.Replace(oldPrefix, newPrefix) 
-                        
-                            | 6  
-                                -> 
-                                let newPrefix = //ponechat podobny kod jako vyse, nerobit refactoring, KODIS moze vse nekdy zmenit                                
-                                    match oldPrefix |> extractSubstring3 with
-                                    | (Some value, length)
-                                        when length <= lineNumberLength 
-                                        -> sprintf "X%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
-                                    | _                               
-                                        -> oldPrefix
-                                        
-                                oldPrefix.Replace(oldPrefix, newPrefix)
+                        | LongSPrefix
+                        | LongRPrefix
+                        | PPrefix
+                            ->
+                            sprintf "%s" oldPrefix
 
-                            | 2 | 4 | _
-                                ->
-                                sprintf "%s" oldPrefix
-
-                        | _     
+                        | UnknownPrefix
                             ->
                             match oldPrefix.Length with                    
                             | 2  -> sprintf "%s%s" <| createStringSeqFold(2, "0") <| oldPrefix   //sprintf "00%s" oldPrefix

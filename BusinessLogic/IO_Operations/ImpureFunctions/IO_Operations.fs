@@ -421,31 +421,7 @@ module IO_Operations =
                         return Ok ()
                     } 
         )
-
-    let private moveFoldersWindows source destination err1 err2 =
-
-        IO (fun () 
-                ->
-                try
-                    //TOCTOU
-                    match Directory.Exists source, Directory.Exists destination with
-                    | false, _    
-                        -> Ok ()
-                    | true, true  
-                        ->
-                        Directory.Delete(destination, true)
-                        Directory.Move(source, destination)
-                        Ok ()
-                    | true, false  
-                        ->
-                        Directory.Move(source, destination)
-                        Ok ()
-                with
-                | ex ->
-                    runIO (postToLog2 <| string ex.Message <| "#0010-IO")
-                    Error err2
-        )
-
+         
     let internal moveFolders source destination err1 err2 : IO<Result<unit, 'a>> = 
 
         try
@@ -455,7 +431,7 @@ module IO_Operations =
             | true  -> moveFoldersAndroid11Plus source destination err1 err2
             | false -> moveFoldersAndroid7_1 source destination err1 err2
             #else
-            moveFoldersWindows source destination err1 err2
+            moveFoldersAndroid11Plus source destination err1 err2  //funguje aji pro Windows
             #endif
         with
         | ex 
