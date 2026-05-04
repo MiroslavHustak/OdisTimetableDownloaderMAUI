@@ -107,16 +107,14 @@ module WebScraping_DPO =
                         -> 
                         Ok [] //not used in this function, satisfies compiler
 
-                pyramidOfInferno
+                result
                     {        
-                        let! _ = stateReducer token stateDefault CreateFolders, fun err -> Error err
+                        let! _ = stateReducer token stateDefault CreateFolders
                         stateReducer token stateDefault CopyOldTimetables |> ignore<Result<(string * string) list, MHDErrors>> //silently ignoring failed move operations
-                        let! _ = stateReducer token stateDefault DeleteOneODISDirectory, fun err -> Error err
-                        let! _ = stateReducer token stateDefault CreateFolders, fun err -> Error err
-                        let! result = stateReducer token stateDefault FilterOnly, fun err -> Error err  
-        
-                        return Ok result
-                    }
+                        let! _ = stateReducer token stateDefault DeleteOneODISDirectory
+                        let! _ = stateReducer token stateDefault CreateFolders
+                        return! stateReducer token stateDefault FilterOnly  
+                    } 
         )
 
     let internal webscraping_DPO_Download reportProgress token filterResult = //pro jednotnost s ostatnimi download cases
