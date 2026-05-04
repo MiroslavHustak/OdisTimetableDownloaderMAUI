@@ -8,7 +8,8 @@ module ProgressValues =
     let internal counterAndProgressBar l token checkCancel reportProgress =
 
         MailboxProcessor<MsgIncrement>.StartImmediate
-            (fun inbox 
+            <|
+            fun inbox 
                 ->
                 let rec loop n =
                     async 
@@ -33,7 +34,6 @@ module ProgressValues =
                             | ex -> () //runIO (postToLog2 <| string ex.Message <| "#0001-KBLJson")
                         }
                 loop 0
-            )
                 
     let internal counterAndProgressBar2 l token checkCancel reportProgress =
 

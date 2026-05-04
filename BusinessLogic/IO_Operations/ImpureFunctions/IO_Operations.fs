@@ -513,7 +513,7 @@ module IO_Operations =
                 async
                     {
 
-                        let! results = 
+                        let! (results : Result<unit list, PdfDownloadErrors list> array) = 
                             [| 
                                 
                                 normaliseAsyncResult token (moveTask1())
@@ -522,16 +522,16 @@ module IO_Operations =
                             |]
                             |> Async.Parallel
 
-                        let result1 = Array.head results
-                        let result2 = Array.item 1 results               
-                        let result3 = Array.last results
-    
+                        let result1 : Result<unit list, PdfDownloadErrors list> = Array.head results
+                        let result2 : Result<unit list, PdfDownloadErrors list> = Array.item 1 results               
+                        let result3 : Result<unit list, PdfDownloadErrors list> = Array.last results
+                                                  
                         return
                             validation
                                 {
-                                    let! links1 = result1
-                                    and! links2 = result2
-                                    and! links3 = result3
+                                    let! (links1 : unit list) = result1
+                                    and! (links2 : unit list) = result2
+                                    and! (links3 : unit list) = result3
 
                                     return links1 @ links2 @ links3 |> List.distinct 
                                 }

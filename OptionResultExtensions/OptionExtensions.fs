@@ -19,7 +19,7 @@ module Option =
         | Some _ -> true
         | None   -> false
 
-    let inline internal fromBool value =                               
+    let internal fromBool value =                               
         function   
         | true  -> Some value  
         | false -> None
@@ -75,7 +75,7 @@ module Option =
                 return Some value
             }
 
-    let inline internal toResult err = 
+    let internal toResult err = 
         function   
         | Some value -> Ok value 
         | None       -> Error err  

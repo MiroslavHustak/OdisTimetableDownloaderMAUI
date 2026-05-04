@@ -149,11 +149,11 @@
     <Compile Include="OptionResultExtensions\ResultExtensions.fs" />
     <Compile Include="OptionResultExtensions\OptionExtensions.fs" />
     <Compile Include="Helpers\IO_Monad_Experiments\IO_Monad.fs" />
-    <Compile Include="Helpers\CopyOrMoveDir.fs" />
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\Serialization.fs" />
     <Compile Include="Helpers\Parsers.fs" />
     <Compile Include="ProgressTrackers\ProgressTrackers.fs" />
+    <Compile Include="Libraries\CopyOrMoveDir.fs" />
     <Compile Include="Libraries\ListParallel.fs" />
     <Compile Include="Monads\FreeMonads\CmdLineWorkflows.fs" />
     <Compile Include="Monads\FreeMonads\FreeMonad.fs" />

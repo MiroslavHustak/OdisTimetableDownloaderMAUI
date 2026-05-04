@@ -234,7 +234,9 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                                         | ex
                                             -> 
                                             checkCancel token
+
                                             runIO (postToLog2 <| string ex.Message <| "#0011-K4BL")  
+
                                             return 
                                                 runIO <| comprehensiveTryWith
                                                     (PdfDownloadError2 LetItBe)
@@ -249,6 +251,7 @@ module KODIS_BL_Record4 =   // Docasne reseni do doby, nez v KODISu odstrani nap
                     | ex 
                         -> 
                         runIO (postToLog2 <| string ex.Message <| "#0012-K4BL")  
+
                         async
                             {
                                 checkCancel token
