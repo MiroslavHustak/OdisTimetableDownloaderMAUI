@@ -64,14 +64,14 @@ OdisTimetableDownloaderMAUI (Solution)
 │   └── OptionExtensions.fs
 ├── Helpers/
 │   ├── IO_Monad_Experiments/
-│   │   └── IO_Monad.fs
-│   ├── CopyOrMoveDir.fs
+│   │   └── IO_Monad.fs 
 │   ├── Helpers.fs
 │   ├── Serialization.fs
 │   └── Parsers.fs
 ├── ProgressTrackers/
 │   └── ProgressTrackers.fs
 ├── Libraries/
+│   ├── CopyOrMoveDir.fs
 │   └── ListParallel.fs
 ├── Monads/
 │   ├── FreeMonads/
