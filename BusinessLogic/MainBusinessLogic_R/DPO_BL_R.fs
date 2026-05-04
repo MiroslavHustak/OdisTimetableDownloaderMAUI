@@ -39,7 +39,6 @@ module DPO_BL =
     
                 let probeUrl (base' : string) =
                     try
-                        // TODO zjisti, zdali v FsHttp toto neni -> AllowAutoRedirect
                         use handler = new HttpClientHandler(AllowAutoRedirect = false)  //do not follow redirects
                         use client = new HttpClient(handler)
                         use response = client.GetAsync(sprintf "%s%s" base' pathDpoWebTimetablesBus).Result
@@ -49,7 +48,7 @@ module DPO_BL =
     
                 candidates
                 |> List.tryFind probeUrl
-                |> Option.defaultValue String.Empty //(List.head candidates)
+                |> Option.defaultValue String.Empty 
         )
 
     let private loadHtmlDocument pathDpoWeb =
