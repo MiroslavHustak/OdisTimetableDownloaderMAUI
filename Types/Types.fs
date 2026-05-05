@@ -123,6 +123,17 @@ module Types =
         | FutureValidity 
         | LongTermValidity  
 
+    type [<Struct>] internal LinePrefixKind =
+        | AePrefix      // "AE", length 3  
+        | ShortSPrefix  // "S",  length 3  
+        | ShortRPrefix  // "R",  length 3  
+        | LongSPrefix   // "S",  length 4  
+        | LongRPrefix   // "R",  length 4  
+        | NadPrefix     // "NAD"           
+        | XPrefix       // "X"             
+        | PPrefix       // "P"             
+        | UnknownPrefix   
+
     type internal ConfigMHD = 
         {
             source : string

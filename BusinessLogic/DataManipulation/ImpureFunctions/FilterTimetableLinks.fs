@@ -23,17 +23,6 @@ open Settings.SettingsGeneral
 open Api.Logging
 open DataModelling.DataModel
 
-type LinePrefixKind =
-    | AePrefix      // "AE", length 3  
-    | ShortSPrefix  // "S",  length 3  
-    | ShortRPrefix  // "R",  length 3  
-    | LongSPrefix   // "S",  length 4  
-    | LongRPrefix   // "R",  length 4  
-    | NadPrefix     // "NAD"           
-    | XPrefix       // "X"             
-    | PPrefix       // "P"             
-    | UnknownPrefix   
-
 module FilterTimetableLinks =      
    
     let internal filterTimetableLinks param (pathToDir : string) (parsedLinksResult : Result<string list, ParsingAndDownloadingErrors>) = 
@@ -280,15 +269,15 @@ module FilterTimetableLinks =
                     let fileToBeSaved = sprintf "%s%s%s.pdf" (newPrefix oldPrefix) totalDateInterval suffix
 
                     {
-                        OldPrefixRc = OldPrefix oldPrefix
-                        NewPrefixRc = NewPrefix (newPrefix oldPrefix)
-                        StartDateRc = StartDateRcOpt (TryParserDate.parseDate <| extractStartDate totalDateInterval)
-                        EndDateRc = EndDateRcOpt (TryParserDate.parseDate <| extractEndDate totalDateInterval)
+                        OldPrefixRc         = OldPrefix oldPrefix
+                        NewPrefixRc         = NewPrefix (newPrefix oldPrefix)
+                        StartDateRc         = StartDateRcOpt (TryParserDate.parseDate <| extractStartDate totalDateInterval)
+                        EndDateRc           = EndDateRcOpt (TryParserDate.parseDate <| extractEndDate totalDateInterval)
                         TotalDateIntervalRc = TotalDateInterval totalDateInterval
-                        SuffixRc = Suffix suffix
+                        SuffixRc            = Suffix suffix
                         JsGeneratedStringRc = JsGeneratedString jsGeneratedString
-                        CompleteLinkRc = CompleteLink input
-                        FileToBeSavedRc = FileToBeSaved fileToBeSaved
+                        CompleteLinkRc      = CompleteLink input
+                        FileToBeSavedRc     = FileToBeSaved fileToBeSaved
                         PartialLinkRc = 
                             let pattern = Regex.Escape jsGeneratedString
                             PartialLink <| Regex.Replace(input, pattern, String.Empty)
@@ -349,27 +338,29 @@ module FilterTimetableLinks =
                                 let pathToDir = sprintf "%s/%s" pathToDir file //pro ostatni
 
                                 match pathToDir.Contains currentValidity || pathToDir.Contains longTermValidity with 
-                                | true  ->   
-                                        true //pro aktualni a dlouhodobe platne
-                                        |> function
-                                            | true when file.Substring(0, 1) = "0"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
-                                            | true when file.Substring(0, 1) = "1"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
-                                            | true when file.Substring(0, 1) = "2"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 1 sortedLines)
-                                            | true when file.Substring(0, 1) = "3"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 2 sortedLines)
-                                            | true when file.Substring(0, 1) = "4"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 3 sortedLines)
-                                            | true when file.Substring(0, 1) = "5"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 4 sortedLines)
-                                            | true when file.Substring(0, 1) = "6"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 5 sortedLines)
-                                            | true when file.Substring(0, 1) = "7"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 6 sortedLines)
-                                            | true when file.Substring(0, 1) = "8"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 7 sortedLines)
-                                            | true when file.Substring(0, 1) = "9"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 8 sortedLines)
-                                            | true when file.Substring(0, 1) = "S"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
-                                            | true when file.Substring(0, 1) = "R"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
-                                            | true when file.Substring(0, 2) = "_S" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
-                                            | true when file.Substring(0, 2) = "_R" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
-                                            | _                                     -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)  
+                                | true 
+                                    ->   
+                                    true //pro aktualni a dlouhodobe platne
+                                    |> function
+                                        | true when file.Substring(0, 1) = "0"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
+                                        | true when file.Substring(0, 1) = "1"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 0 sortedLines)
+                                        | true when file.Substring(0, 1) = "2"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 1 sortedLines)
+                                        | true when file.Substring(0, 1) = "3"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 2 sortedLines)
+                                        | true when file.Substring(0, 1) = "4"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 3 sortedLines)
+                                        | true when file.Substring(0, 1) = "5"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 4 sortedLines)
+                                        | true when file.Substring(0, 1) = "6"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 5 sortedLines)
+                                        | true when file.Substring(0, 1) = "7"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 6 sortedLines)
+                                        | true when file.Substring(0, 1) = "8"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 7 sortedLines)
+                                        | true when file.Substring(0, 1) = "9"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 8 sortedLines)
+                                        | true when file.Substring(0, 1) = "S"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
+                                        | true when file.Substring(0, 1) = "R"  -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
+                                        | true when file.Substring(0, 2) = "_S" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 9 sortedLines)
+                                        | true when file.Substring(0, 2) = "_R" -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 10 sortedLines)
+                                        | _                                     -> pathToDir.Replace("_vyluk", sprintf "%s/%s/" <| "_vyluk" <| List.item 11 sortedLines)  
                                 
-                                | false -> 
-                                        pathToDir 
+                                | false 
+                                    -> 
+                                    pathToDir 
                             
                             link, path 
                         ) 
