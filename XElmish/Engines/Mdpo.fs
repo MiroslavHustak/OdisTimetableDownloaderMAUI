@@ -34,8 +34,8 @@ let internal executeMdpo dispatch (token : CancellationToken) =
     
                         let reportProgress (progressValue : float, totalProgress : float) =
                             match token2.IsCancellationRequested with
-                            | true  -> dispatch (Progress (0.0, 1.0))
-                            | false -> dispatch (Progress (progressValue, totalProgress))
+                            | true  -> dispatch <| Progress (0.0, 1.0)
+                            | false -> dispatch <| Progress (progressValue, totalProgress)
 
                         match token2.IsCancellationRequested with
                         | true 
@@ -61,8 +61,8 @@ let internal executeMdpo dispatch (token : CancellationToken) =
                                 | false
                                     ->
                                     match result with
-                                    | Ok _    -> return dispatch (Completed mauiMdpoMsg)
-                                    | Error e -> return dispatch (ErrorMdpo e)
+                                    | Ok _    -> return Completed >> dispatch <| mauiMdpoMsg
+                                    | Error e -> return ErrorMdpo >> dispatch <| e
                     with
                     | ex ->
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token

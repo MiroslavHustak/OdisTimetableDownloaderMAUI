@@ -116,7 +116,6 @@ module App =
             ActiveButton    : ButtonType option
             IsClearing      : bool 
             DpoFilterResult : (string * string) list option
-            IsAboutVisible  : bool
         }
 
     type Msg =
@@ -205,7 +204,6 @@ module App =
                 ActiveButton    = None
                 IsClearing      = false
                 DpoFilterResult = None 
-                IsAboutVisible = false
             }    
         
         match permission with
@@ -694,7 +692,8 @@ module App =
         
                         { m with Screen = Downloading (DpoDownload, Idle) }, cmd
         
-                    | None -> m, Cmd.none
+                    | None 
+                        -> m, Cmd.none
 
         | StartDownload Mdpo
             -> 
@@ -839,7 +838,8 @@ module App =
                         Cmd.ofMsg (StartDownload DpoDownload)
         
                 | _ 
-                    -> m, Cmd.none     
+                    -> 
+                    m, Cmd.none     
 
             | Engines.Dpo.CompletedDownload msg 
                 ->
@@ -850,7 +850,8 @@ module App =
                     { m with Screen = Completed msg; Status = String.Empty }, Cmd.none  
 
                 | _ 
-                    -> m, Cmd.none     
+                    -> 
+                    m, Cmd.none     
                     
             | Engines.Dpo.Progress (c, t)
                 ->
@@ -863,7 +864,8 @@ module App =
                         | _ -> InProgress (c, t)
                     { m with Screen = Downloading (dt, ps) }, Cmd.none
                 | _ 
-                    -> m, Cmd.none
+                    ->
+                    m, Cmd.none
         
             | Engines.Dpo.IterationMsg text
                 ->

@@ -36,8 +36,8 @@ let internal executeFilter dispatch (token : CancellationToken) =
 
                         let reportProgress (progressValue : float, totalProgress : float) =
                             match token2.IsCancellationRequested with
-                            | true  -> dispatch (Progress (0.0, 1.0))
-                            | false -> dispatch (Progress (progressValue, totalProgress))
+                            | true  -> dispatch <| Progress (0.0, 1.0)
+                            | false -> dispatch <| Progress (progressValue, totalProgress)
 
                         match token2.IsCancellationRequested with
                         | true 
@@ -76,7 +76,7 @@ let internal executeFilter dispatch (token : CancellationToken) =
                                     match result with
                                     | Ok result 
                                         ->
-                                        return dispatch (CompletedFilter result)  // chains to DpoDownload
+                                        return CompletedFilter >> dispatch <| result  // chains to DpoDownload
                                     | Error err
                                         ->
                                         return errMsg >> ErrorDpo >> dispatch <| err
@@ -110,8 +110,8 @@ let internal executeDownload dispatch (token : CancellationToken) filterResult =
 
                         let reportProgress (progressValue : float, totalProgress : float) =
                             match token2.IsCancellationRequested with
-                            | true  -> dispatch (Progress (0.0, 1.0))
-                            | false -> dispatch (Progress (progressValue, totalProgress))
+                            | true  -> dispatch <| Progress (0.0, 1.0)
+                            | false -> dispatch <| Progress (progressValue, totalProgress)
 
                         match token2.IsCancellationRequested with
                         | true  
@@ -150,7 +150,7 @@ let internal executeDownload dispatch (token : CancellationToken) filterResult =
                                     match result with
                                     | Ok _    
                                         -> 
-                                        return dispatch (CompletedDownload mauiDpoMsg)
+                                        return CompletedDownload >> dispatch <| mauiDpoMsg
                                     | Error err 
                                         ->                                         
                                         return errMsg >> ErrorDpo >> dispatch <| err

@@ -137,13 +137,15 @@ module TP_Canopy_Difference =
                     <***> canopy1Result
                     <***> canopy2Result
         
-                    |> Result.map (fun (tp, c1, c2) ->
-                        // All three are guaranteed to be Ok here
-                        let onlyInTP      = Set.difference tp c1 |> Set.difference <| c2 |> Set.toList
-                        let onlyInCanopy1 = Set.difference c1 tp |> Set.difference <| c2 |> Set.toList
-                        let onlyInCanopy2 = Set.difference c2 tp |> Set.difference <| c1 |> Set.toList
+                    |> Result.map 
+                        (fun (tp, c1, c2)
+                            ->
+                            // All three are guaranteed to be Ok here
+                            let onlyInTP      = Set.difference tp c1 |> Set.difference <| c2 |> Set.toList
+                            let onlyInCanopy1 = Set.difference c1 tp |> Set.difference <| c2 |> Set.toList
+                            let onlyInCanopy2 = Set.difference c2 tp |> Set.difference <| c1 |> Set.toList
         
-                        onlyInTP, onlyInCanopy1, onlyInCanopy2
+                            onlyInTP, onlyInCanopy1, onlyInCanopy2
                     )
                     // |> Result.defaultValue ([], [], [])  // optional for testing
             )

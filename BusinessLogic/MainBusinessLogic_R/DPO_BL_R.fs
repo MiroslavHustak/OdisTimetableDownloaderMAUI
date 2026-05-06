@@ -56,7 +56,6 @@ module DPO_BL =
         IO (fun () 
                 -> 
                 try
-                    //resolveBaseUrl >> runIO >> urlList <| ()  
                     urlList pathDpoWeb
                     |> List.Parallel.map_IO_AW 
                         (fun url -> FSharp.Data.HtmlDocument.AsyncLoad url)
@@ -86,10 +85,8 @@ module DPO_BL =
                     | true  -> String.Empty
                     | false -> input.[..(input.Length - 5)]    
 
-                let pathDpoWeb = resolveBaseUrl >> runIO <| ()  
-
-                let htmlDocList = 
-                    loadHtmlDocument >> runIO <| pathDpoWeb
+                let pathDpoWeb = resolveBaseUrl >> runIO <| () 
+                let htmlDocList = loadHtmlDocument >> runIO <| pathDpoWeb
                 
                 match htmlDocList with
                 | Error err
@@ -324,9 +321,7 @@ module DPO_BL =
                             return! attempt 0 (umMiliSecondsToInt32 initialBackoffMs)
                         }
     
-                let filteredTimetables =
-                    filteredTimetables
-                    |> List.distinct
+                let filteredTimetables = filteredTimetables |> List.distinct
     
                 match filteredTimetables with
                 | [] 
