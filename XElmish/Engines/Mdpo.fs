@@ -2,6 +2,8 @@
 
 open System.Threading
 
+open Microsoft.Maui.ApplicationModel
+
 open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 

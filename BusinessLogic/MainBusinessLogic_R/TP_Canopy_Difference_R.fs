@@ -3,6 +3,8 @@
 open System
 open System.IO
 
+open Microsoft.Maui.ApplicationModel
+
 //*******************
 
 open Thoth.Json.Net
