@@ -147,5 +147,6 @@ OdisTimetableDownloaderMAUI (Solution)
 │           │   └── network_security_config.xml
 │           └── values/
 │               └── colors.xml
+├── MainApplication.fs
 └── MauiProgram.fs
 ``` </pre>
