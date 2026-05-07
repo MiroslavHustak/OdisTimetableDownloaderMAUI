@@ -170,8 +170,8 @@ module App =
     let init () : Model * Cmd<Msg> =
 
         #if ANDROID
-        let permissionGranted = 
-            permissionCheck >> runIO >> Async.RunSynchronously <| ()
+        let permissionGranted = true 
+            //permissionCheck >> runIO >> Async.RunSynchronously <| ()
         #else
         let permissionGranted = true
         #endif
@@ -581,14 +581,13 @@ module App =
    
         | StartDownload KodisJsonTP 
             ->    
-            #if ANDROID
-            DownloadServiceController.startService >> runIO <| Platform.AppContext
-            #endif 
-
             kodisJsonActor.PostAndReply(fun reply -> GetToken reply) 
             |> function
                 | Some token 
                     ->  
+                    #if ANDROID
+                    DownloadServiceController.startService >> runIO <| Platform.AppContext
+                    #endif 
                     let cmd =
                         Cmd.ofSub
                             (fun dispatch
@@ -642,15 +641,14 @@ module App =
                     m, Cmd.none 
 
         | StartDownload KodisCanopy4 
-            ->
-            #if ANDROID
-            DownloadServiceController.startService >> runIO <| Platform.AppContext
-            #endif 
-
+            ->           
             kodisCanopyActor.PostAndReply(fun reply -> GetToken reply)            
             |> function
                 | Some token 
                     ->   
+                    #if ANDROID
+                    DownloadServiceController.startService >> runIO <| Platform.AppContext
+                    #endif 
                     let cmd = 
                         Cmd.ofSub
                             (fun dispatch
@@ -675,15 +673,14 @@ module App =
                     m, Cmd.none 
        
         | StartDownload DpoFilter
-            ->
-            #if ANDROID
-            DownloadServiceController.startService >> runIO <| Platform.AppContext
-            #endif 
-
+            ->          
             dpoFilterActor.PostAndReply(fun reply -> GetToken reply)
             |> function
                 | Some token 
                     ->
+                    #if ANDROID
+                    DownloadServiceController.startService >> runIO <| Platform.AppContext
+                    #endif 
                     let cmd = 
                         Cmd.ofSub
                             (fun dispatch
@@ -740,15 +737,14 @@ module App =
                         -> m, Cmd.none
 
         | StartDownload Mdpo
-            -> 
-            #if ANDROID
-            DownloadServiceController.startService >> runIO <| Platform.AppContext
-            #endif 
-
+            ->            
             mdpoActor.PostAndReply(fun reply -> GetToken reply) 
             |> function
                 | Some token 
-                    ->         
+                    ->     
+                    #if ANDROID
+                    DownloadServiceController.startService >> runIO <| Platform.AppContext
+                    #endif 
                     let cmd =
                         Cmd.ofSub 
                             (fun dispatch

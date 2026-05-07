@@ -202,8 +202,8 @@
 		<AndroidResource Include="$(AndroidProjectFolder)Resources/values/colors.xml" />
 		<AndroidAsset Include="$(AndroidProjectFolder)Assets/**/*" Exclude="$(AndroidProjectFolder)Assets/**/.*/**" />
 		<AndroidManifest Include="$(AndroidProjectFolder)AndroidManifest.xml" />
+		<Compile Include="$(AndroidProjectFolder)MainApplication.fs" />  <!-- ← before MainActivity -->	
 		<Compile Include="$(AndroidProjectFolder)MainActivity.fs" />
-		<Compile Include="$(AndroidProjectFolder)MainApplication.fs" />
 	</ItemGroup>
 
   <ItemGroup Condition="$(TargetPlatformIdentifier) == 'windows'">

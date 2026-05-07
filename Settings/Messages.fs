@@ -213,20 +213,24 @@ module Messages =
     let [<Literal>] internal popUpWindow2Text = 
         "
         Kodis Json TP (základní varianta)        
-        Tato varianta stahuje kompletní JŘ ODIS na základě odkazů získaných z veřejně dostupných JSON souborů (odkazy na JŘ na kodis.cz jsou dynamicky generované, proto nelze použít klasický web scraping). Tyto odkazy by měly být teoreticky stejné jako odkazy, které naleznete na kodis.cz, realita může ale být všelijaká. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři FabulousTimetables (/storage/emulated/0/FabulousTimetables/). 
+        Tato varianta stahuje kompletní JŘ ODIS na základě odkazů získaných z veřejně dostupných JSON souborů (odkazy na JŘ na kodis.cz jsou dynamicky generované, proto nelze použít klasický web scraping). Tyto odkazy by měly být teoreticky stejné jako odkazy, které naleznete na kodis.cz, realita může ale být všelijaká. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři FabulousTimetables (/storage/emulated/0/Download/FabulousTimetables/). 
         
         Kodis Canopy (ověřovací varianta)
         I když nelze použít klasický web scraping, lze použít testovací nástroj Canopy (který ale není určen pro běžného uživatele). Čas od času se pomocí speciálního programu využívajícího tento testovací nástroj odešlou odkazy na JŘ na IIS server, odkud je tato aplikace stáhne, a poté se JŘ mohou stahovat obvyklým způsobem.
-        Vzhledem k tomu, že tato aplikace využívá webhosting zdarma a free plan omezuje traffic na minimum, není možné stahovat JŘ ODIS z IIS serveru neustále, ale pouze čas od času. Proto se tato varianta používá pouze pro ověřování diskrepancí v JŘ. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři FabulousTimetables4 (/storage/emulated/0/FabulousTimetables4/). 
+        Vzhledem k tomu, že tato aplikace využívá webhosting zdarma a free plan omezuje traffic na minimum, není možné stahovat JŘ ODIS z IIS serveru neustále, ale pouze čas od času. Proto se tato varianta používá pouze pro ověřování diskrepancí v JŘ. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři FabulousTimetables4 (/storage/emulated/0/Download/FabulousTimetables4/). 
         
         JŘ DPO
-        Tato varianta stahuje JŘ DPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ DPO nejsou nijak tříděny (na rozdíl od výše uvedených variant), ani zde nejsou JŘ s budoucí platností. Doporučuji využívat JŘ DPO z kompletního balíku a JŘ DPO z této varianty pouze pro ověření či v případě chybějícího JŘ. JŘ DPO jsou k nalezení v adresáři FabulousTimetables4 (/storage/emulated/0/FabulousTimetables4/). 
+        Tato varianta stahuje JŘ DPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ DPO nejsou nijak tříděny (na rozdíl od výše uvedených variant), ani zde nejsou JŘ s budoucí platností. Doporučuji využívat JŘ DPO z kompletního balíku a JŘ DPO z této varianty pouze pro ověření či v případě chybějícího JŘ. JŘ DPO jsou k nalezení v adresáři FabulousTimetables4 (/storage/emulated/0/Download/FabulousTimetables4/). 
     
         JŘ MDPO
-        Tato varianta stahuje zastávkové JŘ MDPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ MDPO v kompletním balíku nejsou zastávkové (na rozdíl od této varianty). Je velká pravděpodobnost, že kvůli problémům s mdpo.cz (na které jsem MDPO již dávno upozornil) nebude OS Android s touto stránkou komunikovat. Pokud náhodou bude, zastávkové JŘ MDPO najdeš v adresáři FabulousTimetables4 (/storage/emulated/0/FabulousTimetables4/). 
+        Tato varianta stahuje zastávkové JŘ MDPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ MDPO v kompletním balíku nejsou zastávkové (na rozdíl od této varianty). Je velká pravděpodobnost, že kvůli problémům s mdpo.cz (na které jsem MDPO již dávno upozornil) nebude OS Android s touto stránkou komunikovat. Pokud náhodou bude, zastávkové JŘ MDPO najdeš v adresáři FabulousTimetables4 (/storage/emulated/0/Download/FabulousTimetables4/). 
         
-        U všech variant se probíhající stahovací proces pokusí automaticky obnovit, pokud se přeruší připojení k internetu, nicméně obnovovací proces může trvat od několika vteřin až po několik minut."
-
+        Cesta /storage/emulated/0/ odkazuje na \"shared storage\", v české mutaci Androidu to bude pravděpodobně \"interní úložiště\".
+        
+        U všech variant se probíhající stahovací proces pokusí automaticky obnovit, pokud se přeruší připojení k internetu, nicméně obnovovací proces může trvat od několika vteřin až po několik minut.
+       
+        "
+        
     let [<Literal>] internal buttonUserGuide = "Jak používat aplikaci ..."
     let [<Literal>] internal labelUserGuide = "Přečti si uživatelského průvodce, nebudeš litovat ..."
     let [<Literal>] internal hintUserGuide = "Více o používání aplikace"
