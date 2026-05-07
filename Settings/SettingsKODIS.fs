@@ -1,6 +1,7 @@
 ﻿namespace Settings
 
 open System
+open Microsoft.Maui.ApplicationModel
 
 //************************
 
@@ -84,7 +85,40 @@ module SettingsKODIS =
 
     let internal jsonLinkList3 = codes |> List.collect jsonLinkListPartial // (fun code -> jsonLinkListPartial code)
           
-    let private pathToJsonListPartial code =     
+    let private pathToJsonListPartial code =    
+        #if ANDROID
+        [         
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDTotal2_" code ".json"          
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegionTotal2_" code ".json"            
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisTrainTotal2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDBruntal2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDCT2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDFM2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDHavirov2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDKarvina2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDBKrnov2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDNJ2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDOpava2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDOrlova2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDOstrava2_" code ".json"           
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDStudenka2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDTrinec2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDNAD2_" code ".json"            
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion752_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion2002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion3002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion4002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion5002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion6002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion7002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion8002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion9002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisTrainPomaliky2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisTrainRychliky2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisNAD2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisBoat_" code ".json"
+        ] 
+        #else
         [         
             sprintf "%s%s%s%s" partialPathJson @"kodisMHDTotal2_" code ".json"          
             sprintf "%s%s%s%s" partialPathJson @"kodisRegionTotal2_" code ".json"            
@@ -116,5 +150,6 @@ module SettingsKODIS =
             sprintf "%s%s%s%s" partialPathJson @"kodisNAD2_" code ".json"
             sprintf "%s%s%s%s" partialPathJson @"kodisBoat_" code ".json"
         ] 
+        #endif
 
     let internal pathToJsonList3 = codes |> List.collect pathToJsonListPartial //(fun code -> pathToJsonListPartial code) 

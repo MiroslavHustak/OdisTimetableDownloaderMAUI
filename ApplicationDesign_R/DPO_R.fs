@@ -1,6 +1,7 @@
 ﻿namespace ApplicationDesign_R
         
 open System.IO
+open Microsoft.Maui.ApplicationModel
         
 //**********************************
         
@@ -53,7 +54,11 @@ module WebScraping_DPO =
                     let configMHD =
                         {
                             source = dirList pathToDir |> List.head 
-                            destination = oldTimetablesPath4
+                            #if ANDROID
+                            destination = oldTimetablesPath4 Platform.AppContext
+                            #else
+                            destination = oldTimetablesPath4 
+                            #endif
                         }
         
                     match action with   
@@ -125,6 +130,23 @@ module WebScraping_DPO =
 
     let internal errMsg err = 
 
+        #if ANDROID
+        match err with
+        | BadRequest               -> "400 Bad Request"
+        | InternalServerError      -> "500 Internal Server Error"
+        | NotImplemented           -> "501 Not Implemented"
+        | ServiceUnavailable       -> "503 Service Unavailable"        
+        | NotFound                 -> "404 Page Not Found"
+        | CofeeMakerUnavailable    -> "418 I'm a teapot. Look for a coffee maker elsewhere."
+        | FileDownloadErrorMHD     -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (dpoPathTemp Platform.AppContext) ) |> Result.either (fun _ -> dpoMsg1) (fun _ -> dpoMsg0)
+        | FolderCopyOrMoveErrorMHD -> folderCopyingError
+        | ConnectionError          -> noNetConn
+        | FileDeleteErrorMHD       -> fileDeleteError
+        | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (dpoPathTemp Platform.AppContext) ) |> Result.either (fun _ -> dpoCancelMsg) (fun _ -> dpoCancelMsg1)
+        | LetItBeMHD               -> letItBe
+        | TlsHandshakeErrorMHD     -> tlsHandShakeErrorDpo
+        | TimeoutErrorMHD          -> timeoutError
+        #else
         match err with
         | BadRequest               -> "400 Bad Request"
         | InternalServerError      -> "500 Internal Server Error"
@@ -140,3 +162,4 @@ module WebScraping_DPO =
         | LetItBeMHD               -> letItBe
         | TlsHandshakeErrorMHD     -> tlsHandShakeErrorDpo
         | TimeoutErrorMHD          -> timeoutError
+        #endif

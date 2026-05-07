@@ -5,6 +5,8 @@ open System.IO
 open System.Threading
 open System.Collections
 
+open Microsoft.Maui.ApplicationModel
+
 open FsToolkit.ErrorHandling    
 
 //************************************************************
@@ -153,11 +155,18 @@ module IO_Operations =
         IO (fun () 
                 ->  
                 try
+                    #if ANDROID
+                    let dirInfo = DirectoryInfo (oldTimetablesPath Platform.AppContext)
+                    deleteAllODISDirectories >> runIO <| (oldTimetablesPath Platform.AppContext) |> ignore<Result<unit, ParsingAndDownloadingErrors>>
+                    dirInfo.Delete true                    
+                    #else
                     let dirInfo = DirectoryInfo oldTimetablesPath
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, ParsingAndDownloadingErrors>>
                     dirInfo.Delete true
-                    
+                    #endif
+
                     Ok ()
+
                     (*
                     //Time-of-Check-To-Time-Of-Use TOCTOU   
                     match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
@@ -188,14 +197,23 @@ module IO_Operations =
         IO (fun () 
                 ->  
                 try
-                    let dirInfo = DirectoryInfo oldTimetablesPath4
+                    #if ANDROID
+                    let dirInfo = DirectoryInfo (oldTimetablesPath4 Platform.AppContext)   
                    
+                    deleteAllODISDirectories >> runIO <| (oldTimetablesPath4 Platform.AppContext) |> ignore<Result<unit, ParsingAndDownloadingErrors>>
+                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (oldTimetablesPath4 Platform.AppContext) |> ignore<Result<unit, MHDErrors>>
+                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) (oldTimetablesPath4 Platform.AppContext) |> ignore<Result<unit, MHDErrors>>
+                    #else
+                    let dirInfo = DirectoryInfo oldTimetablesPath4
+                                      
                     deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, ParsingAndDownloadingErrors>>
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
                     runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
-                   
+                    #endif
+
                     dirInfo.Delete true
                     Ok ()
+
                     (*
                     //Time-of-Check-To-Time-Of-Use TOCTOU   
                     match dirInfo.Exists with //TOCTOU race condition does not have any impact on the code logic here
@@ -262,6 +280,24 @@ module IO_Operations =
                 | true 
                     ->
                     try
+                        #if ANDROID                   
+                        [
+                            partialPathJsonTemp 
+                            kodisPathTemp 
+                            kodisPathTemp4 
+                            dpoPathTemp 
+                            mdpoPathTemp
+                            oldTimetablesPath
+                            oldTimetablesPath4
+                        ]        
+                        |> List.iter
+                            (fun pathDir 
+                                -> 
+                                // If the directory already exists, nothing happens — no exception, no overwrite, no change.
+                                Directory.CreateDirectory (pathDir Platform.AppContext) |> ignore<DirectoryInfo>
+                            )
+                        |> Ok  
+                    #else                     
                         [
                             partialPathJsonTemp 
                             kodisPathTemp 
@@ -278,6 +314,7 @@ module IO_Operations =
                                 Directory.CreateDirectory pathDir |> ignore<DirectoryInfo>
                             )
                         |> Ok  
+                    #endif
                     with 
                     | ex
                         ->

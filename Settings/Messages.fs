@@ -39,10 +39,9 @@ module Messages =
     
     let internal letItBe = String.Empty
 
-    let [<Literal>] internal androidError = "Android to vzdal, je toho na něj moc." 
+    let [<Literal>] internal canopyError = "REST API error." 
     let [<Literal>] internal androidFolderAccessError = "Nelze otevřít příslušný adresář"  
 
-    let [<Literal>] internal canopyError = "REST API error." 
     let [<Literal>] internal timeoutError = "JŘ ODIS se nepodařilo stáhnout, neb vypršel časový limit požadavku. Zkus znovu (možná bude potřeba mít stabilnější či rychlejší připojení)." 
     let [<Literal>] internal timeoutErrorJson = "JSON soubory se nepodařilo stáhnout, neb vypršel časový limit požadavku. Zkus znovu (možná bude potřeba mít stabilnější či rychlejší připojení)." 
 
@@ -73,7 +72,6 @@ module Messages =
     let [<Literal>] internal dpoCancelMsg1 = "Stahování JŘ DPO předčasně ukončeno, úklid se nepodařil."
   
     let [<Literal>] internal progressMsgKodis = "Stahování JSON souborů potřebných pro stahování JŘ ODIS" 
-    let [<Literal>] internal progressMsgKodis1 = "Varianta bez stahování JSON souborů a s použitím web API. Vyčkej na zahájení ..." 
     let [<Literal>] internal progressMsgDpo = "Zálohují se staré JŘ DPO a stahují se nové ..." 
     let [<Literal>] internal progressMsgMdpo = "Zálohují se staré JŘ MDPO a stahují se nové ..."
 
@@ -130,8 +128,6 @@ module Messages =
     let [<Literal>] internal buttonClearingCancel = "Ponechat"
    
     let [<Literal>] internal noNetConn = "Není přístup k internetu." 
-    let [<Literal>] internal noNetConn3 = "Kvůli přerušení připojení k internetu byla činnost aplikace předčasně ukončena. Vypni aplikaci, připoj se k internetu a spusť ji znovu." 
-    let [<Literal>] internal noNetConn2 = "Není přístup k internetu, buď vyčkej, až bude, anebo vypni aplikaci, připoj se k internetu a spusť ji znovu." 
     let [<Literal>] internal noNetConnInitial = "Aplikace vyžaduje připojení k internetu. Vypni aplikaci, připoj se k internetu a spusť ji znovu."  
     let [<Literal>] internal noNetConn4 = "Není přístup k internetu, operace nemohla být provedena." 
    
@@ -141,8 +137,6 @@ module Messages =
     let [<Literal>] internal ctsMsg = "Problém s detekcí internetového připojení."
     
     let [<Literal>] internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
-    let [<Literal>] internal cancelMsg3 = "Chvíli strpení, operace se ukončuje. Pokud ukončování trvá dlouho a jsi netrpělivý, vypni a zapni aplikaci."
-
     let [<Literal>] internal cancelMsg4 = "Stahování JŘ KODIS bylo předčasně ukončeno."
     let [<Literal>] internal cancelMsg42 = "Stahování příslušného JŘ bylo předčasně ukončeno."
     let [<Literal>] internal cancelMsg44 = "JSON parsing a JŘ KODIS předčasně ukončeny."
@@ -212,6 +206,27 @@ module Messages =
         Hledám 1) nadšence pro testování a 2) odborníka na UX/UI, který by pomohl aplikaci posunout k profesionálnímu UX/UI. 
         "
 
-    let [<Literal>] internal hintAbout = "Zde se dozvíš informace o aplikaci"                      
+    let [<Literal>] internal hintAbout = "Více o aplikaci"                      
     let [<Literal>] internal labelAbout = "Co jsi chtěl vědět o aplikaci a bál jsi se zeptat ..."
     let [<Literal>] internal buttonAbout = "O aplikaci ..."   
+
+    let [<Literal>] internal popUpWindow2Text = 
+        "
+        Kodis Json TP (základní varianta)        
+        Tato varianta stahuje kompletní JŘ ODIS na základě odkazů získaných z veřejně dostupných JSON souborů (odkazy na JŘ na kodis.cz jsou dynamicky generované, proto nelze použít klasický web scraping). Tyto odkazy by měly být teoreticky stejné jako odkazy, které naleznete na kodis.cz, realita může ale být všelijaká. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři FabulousTimetables (/storage/emulated/0/FabulousTimetables/). 
+        
+        Kodis Canopy (ověřovací varianta)
+        I když nelze použít klasický web scraping, lze použít testovací nástroj Canopy (který ale není určen pro běžného uživatele). Čas od času se pomocí speciálního programu využívajícího tento testovací nástroj odešlou odkazy na JŘ na IIS server, odkud je tato aplikace stáhne, a poté se JŘ mohou stahovat obvyklým způsobem.
+        Vzhledem k tomu, že tato aplikace využívá webhosting zdarma a free plan omezuje traffic na minimum, není možné stahovat JŘ ODIS z IIS serveru neustále, ale pouze čas od času. Proto se tato varianta používá pouze pro ověřování diskrepancí v JŘ. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři FabulousTimetables4 (/storage/emulated/0/FabulousTimetables4/). 
+        
+        JŘ DPO
+        Tato varianta stahuje JŘ DPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ DPO nejsou nijak tříděny (na rozdíl od výše uvedených variant), ani zde nejsou JŘ s budoucí platností. Doporučuji využívat JŘ DPO z kompletního balíku a JŘ DPO z této varianty pouze pro ověření či v případě chybějícího JŘ. JŘ DPO jsou k nalezení v adresáři FabulousTimetables4 (/storage/emulated/0/FabulousTimetables4/). 
+    
+        JŘ MDPO
+        Tato varianta stahuje zastávkové JŘ MDPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ MDPO v kompletním balíku nejsou zastávkové (na rozdíl od této varianty). Je velká pravděpodobnost, že kvůli problémům s mdpo.cz (na které jsem MDPO již dávno upozornil) nebude OS Android s touto stránkou komunikovat. Pokud náhodou bude, zastávkové JŘ MDPO najdeš v adresáři FabulousTimetables4 (/storage/emulated/0/FabulousTimetables4/). 
+        
+        U všech variant se probíhající stahovací proces pokusí automaticky obnovit, pokud se přeruší připojení k internetu, nicméně obnovovací proces může trvat od několika vteřin až po několik minut."
+
+    let [<Literal>] internal buttonUserGuide = "Jak používat aplikaci ..."
+    let [<Literal>] internal labelUserGuide = "Přečti si uživatelského průvodce, nebudeš litovat ..."
+    let [<Literal>] internal hintUserGuide = "Více o používání aplikace"

@@ -30,6 +30,7 @@ open Fabulous.Maui
 open Microsoft.Maui
 open Microsoft.Maui.Controls
 open Microsoft.Maui.Graphics
+open Microsoft.Maui.ApplicationModel
 
 open FsToolkit.ErrorHandling
 
@@ -109,9 +110,9 @@ module App =
        
     type Model =
         {
-            Permission       : PermissionState
+            Permission      : PermissionState
             Connectivity    : Connectivity
-            Screen           : Screen
+            Screen          : Screen
             Status          : string
             ActiveButton    : ButtonType option
             IsClearing      : bool 
@@ -133,6 +134,7 @@ module App =
         | OpenStorageViewer of string
         | RunFileLauncher
         | ShowAbout
+        | ShowUserGuide 
         | Dummy
         | Quit
 
@@ -183,7 +185,7 @@ module App =
             match permission, connectivity with
             | NotGranted, _        -> NoPermission
             | _, Disconnected _    -> NoConnection  
-            | Granted, Connected _ -> Home
+            | Granted, Connected _ -> Home            
     
         let baseModel =
             {
@@ -224,7 +226,9 @@ module App =
                     let manufacturer = string Microsoft.Maui.Devices.DeviceInfo.Current.Manufacturer
                     let name = string Microsoft.Maui.Devices.DeviceInfo.Current.Name
                     let str = sprintf "Model: %s, OS Version: %s, Platform: %s, Manufacturer: %s, Name: %s" model osVersion platform manufacturer name
-                    postToLogTestingApp >> runIO <| str          
+
+                    postToLogTestingApp >> runIO <| str 
+                    
                 | Disconnected _ 
                     -> 
                     ()
@@ -251,7 +255,7 @@ module App =
          
         match msg with   
         | Dummy 
-            -> 
+            ->            
             m, Cmd.none
 
         | SetScreen s 
@@ -263,6 +267,10 @@ module App =
    
         | Navigate screen
             ->
+            #if ANDROID
+            DownloadServiceController.stopService >> runIO <| Platform.AppContext
+            #endif 
+
             { 
                 m with 
                     Screen = screen
@@ -345,6 +353,24 @@ module App =
                             }
                     )
             m, cmd
+
+        | ShowUserGuide 
+            ->         
+            let cmd =
+                Cmd.ofAsyncMsg
+                    (
+                        async
+                            {
+                                let! _ = 
+                                    Application.Current.MainPage.DisplayAlert(
+                                        "Jak používat aplikaci", 
+                                        popUpWindow2Text, 
+                                        "Zavřít")
+                                    |> Async.AwaitTask
+                                return Dummy
+                            }
+                    )
+            m, cmd  
               
         | Quit  
             ->              
@@ -390,6 +416,8 @@ module App =
                 -> 
                 ()
 
+            DownloadServiceController.stopService >> runIO <| Platform.AppContext
+
             let msg = HardRestart.exitApp >> runIO <| () 
 
             { m with Status = msg }, Cmd.none
@@ -397,6 +425,10 @@ module App =
       
         | CancelDownload dt 
             ->
+            #if ANDROID
+            DownloadServiceController.stopService >> runIO <| Platform.AppContext
+            #endif 
+
             (*
             [
                 kodisJsonActor
@@ -498,7 +530,7 @@ module App =
                             ->
                             try
                                 runIO 
-                                <| FileLauncher.openStorageRoot Android.App.Application.Context fabulousTimetablesFolder
+                                <| FileLauncher.openStorageRoot Platform.AppContext fabulousTimetablesFolder
                             with 
                             | _ -> dispatch (ErrorScreen >> SetScreen <| androidFolderAccessError)
                         )
@@ -512,7 +544,7 @@ module App =
                 try
                     let logFileNameDiff =                   
                         #if ANDROID
-                        logFileNameAndroid 
+                        logFileNameAndroid Platform.AppContext 
                         #else
                         logFileNameWindows                        
                         #endif
@@ -549,6 +581,10 @@ module App =
    
         | StartDownload KodisJsonTP 
             ->    
+            #if ANDROID
+            DownloadServiceController.startService >> runIO <| Platform.AppContext
+            #endif 
+
             kodisJsonActor.PostAndReply(fun reply -> GetToken reply) 
             |> function
                 | Some token 
@@ -556,14 +592,14 @@ module App =
                     let cmd =
                         Cmd.ofSub
                             (fun dispatch
-                                ->
+                                ->                              
                                 runIO
                                     (
                                         Engines.KodisTP.executeJson
                                             <| fun m -> KodisTPMsg >> dispatch <| m
                                             <| token
                                     )
-                                |> Async.Start                                 
+                                |> Async.Start
                             )   
                     { 
                         m with
@@ -592,7 +628,7 @@ module App =
                                             <| fun m -> KodisTPMsg >> dispatch <| m
                                             <| token
                                     )
-                                |> Async.Start 
+                                |> Async.Start                               
                             )                       
                     { 
                         m with
@@ -607,6 +643,10 @@ module App =
 
         | StartDownload KodisCanopy4 
             ->
+            #if ANDROID
+            DownloadServiceController.startService >> runIO <| Platform.AppContext
+            #endif 
+
             kodisCanopyActor.PostAndReply(fun reply -> GetToken reply)            
             |> function
                 | Some token 
@@ -614,14 +654,14 @@ module App =
                     let cmd = 
                         Cmd.ofSub
                             (fun dispatch
-                                ->
+                                ->                              
                                 runIO
                                     (
                                         Engines.KodisCanopy.execute
                                             <| fun m -> KodisCanopyMsg >> dispatch <| m
                                             <| token
                                     )
-                                |> Async.Start  
+                                |> Async.Start 
                             )
                     { 
                         m with
@@ -636,6 +676,10 @@ module App =
        
         | StartDownload DpoFilter
             ->
+            #if ANDROID
+            DownloadServiceController.startService >> runIO <| Platform.AppContext
+            #endif 
+
             dpoFilterActor.PostAndReply(fun reply -> GetToken reply)
             |> function
                 | Some token 
@@ -643,7 +687,7 @@ module App =
                     let cmd = 
                         Cmd.ofSub
                             (fun dispatch
-                                ->
+                                ->                               
                                 runIO
                                     (
                                         Engines.Dpo.executeFilter
@@ -679,7 +723,7 @@ module App =
                         let cmd =
                             Cmd.ofSub 
                                 (fun dispatch 
-                                    ->
+                                    ->                                   
                                     runIO
                                         (
                                             Engines.Dpo.executeDownload
@@ -687,7 +731,7 @@ module App =
                                                 <| token
                                                 <| filterResult   
                                         )
-                                    |> Async.Start
+                                    |> Async.Start                                 
                                 )
         
                         { m with Screen = Downloading (DpoDownload, Idle) }, cmd
@@ -697,6 +741,10 @@ module App =
 
         | StartDownload Mdpo
             -> 
+            #if ANDROID
+            DownloadServiceController.startService >> runIO <| Platform.AppContext
+            #endif 
+
             mdpoActor.PostAndReply(fun reply -> GetToken reply) 
             |> function
                 | Some token 
@@ -711,7 +759,7 @@ module App =
                                             <| fun m -> MdpoMsg >> dispatch <| m
                                             <| token
                                     )
-                                |> Async.Start    
+                                |> Async.Start                                 
                             )   
                     { 
                         m with
@@ -753,7 +801,11 @@ module App =
                     { m with Status = dispatchMsg2 }, StartDownload >> Cmd.ofMsg <| KodisPdfTP           
                
                 | Downloading (KodisPdfTP, _) 
-                    ->      
+                    ->    
+                    #if ANDROID
+                    DownloadServiceController.stopService >> runIO <| Platform.AppContext
+                    #endif 
+                    
                     kodisPdfActor.PostAndReply(fun reply -> StopLocal reply)
                     { m with Screen = Completed result; Status = String.Empty }, Cmd.none
             
@@ -801,6 +853,10 @@ module App =
         
             | Engines.KodisCanopy.Completed result
                 ->       
+                #if ANDROID
+                DownloadServiceController.stopService >> runIO <| Platform.AppContext
+                #endif 
+
                 match m.Screen with               
                 | Downloading (KodisCanopy4, _) 
                     ->  
@@ -843,6 +899,10 @@ module App =
 
             | Engines.Dpo.CompletedDownload msg 
                 ->
+                #if ANDROID
+                DownloadServiceController.stopService >> runIO <| Platform.AppContext
+                #endif 
+
                 match m.Screen with 
                 | Downloading (DpoDownload, _)
                     ->
@@ -904,7 +964,11 @@ module App =
                 { m with Status = text }, Cmd.none
                
             | Engines.Mdpo.Completed result
-                ->            
+                ->        
+                #if ANDROID
+                DownloadServiceController.stopService >> runIO <| Platform.AppContext
+                #endif 
+
                 match m.Screen with               
                 | Downloading (Mdpo, _) 
                     ->    
@@ -1353,7 +1417,6 @@ module App =
                     (sectionLabel labelAbout)
                         .margin(Thickness(18., 4., 0., 0.))     
 
-                //***************************************************
                 let actionCardAbout = 
                     actionCard
                         (iconBadge amber050 amber400 "📄")
@@ -1361,6 +1424,18 @@ module App =
                         buttonAbout
                         hintAbout
                         |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))
+
+                let sectionLabel5 = 
+                    (sectionLabel labelUserGuide)
+                        .margin(Thickness(18., 4., 0., 0.))     
+
+                let actionCardUserGuide = 
+                    actionCard
+                        (iconBadge amber050 amber400 "📄")
+                        ShowUserGuide
+                        buttonUserGuide
+                        hintUserGuide
+                        |> fun (v : WidgetBuilder<Msg, IFabBorder>) -> v.margin(Thickness(18., 0., 18., 12.))  
 
                 ScrollView(
                     (VStack(spacing = 0.) {  
@@ -1376,6 +1451,9 @@ module App =
                         divider 
                         sectionLabel4
                         actionCardAbout  
+                        divider 
+                        sectionLabel5
+                        actionCardUserGuide   
                     })
                          .centerVertical()
                          .padding(Thickness(20., 32., 20., 20.))

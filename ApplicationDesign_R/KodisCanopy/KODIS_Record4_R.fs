@@ -1,7 +1,10 @@
 ﻿namespace ApplicationDesign4_R
 
 open System
+open System.IO
 open System.Threading
+
+open Microsoft.Maui.ApplicationModel
 
 open FsToolkit.ErrorHandling
 
@@ -114,10 +117,17 @@ module WebScraping_KODIS4 =
 
                 let configKodis =
                     {
-                        source1 = path4 <| ODIS_Variants.board.board I1 I1 
-                        source2 = path4 <| ODIS_Variants.board.board I1 I2 
-                        source3 = path4 <| ODIS_Variants.board.board I2 I1 
+                        #if ANDROID
+                        source1 = Path.Combine(Platform.Paths.downloads4 Platform.AppContext, ODIS_Variants.board.board I1 I1 )
+                        source2 = Path.Combine(Platform.Paths.downloads4 Platform.AppContext, ODIS_Variants.board.board I1 I2 )
+                        source3 = Path.Combine(Platform.Paths.downloads4 Platform.AppContext, ODIS_Variants.board.board I2 I1 )
+                        destination = oldTimetablesPath4 Platform.AppContext
+                        #else
+                        source1 = Path.Combine(Platform.Paths.downloads4 (), ODIS_Variants.board.board I1 I1 )
+                        source2 = Path.Combine(Platform.Paths.downloads4 (), ODIS_Variants.board.board I1 I2 )
+                        source3 = Path.Combine(Platform.Paths.downloads4 (), ODIS_Variants.board.board I2 I1 )
                         destination = oldTimetablesPath4 
+                        #endif
                     }  
                    
                 let result (context2 : Context2) =                              
@@ -180,7 +190,7 @@ module WebScraping_KODIS4 =
                 pyramidOfInferno
                     {                       
                         #if ANDROID
-                        let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
+                        let!_ = logDirTP_Canopy >> createTP_Canopy_Folder >> runIO <| Platform.AppContext, errFn 
                         #endif
                
                         let!_ = runIO <| moveAll configKodis token, errFn

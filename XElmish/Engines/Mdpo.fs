@@ -52,7 +52,22 @@ let internal executeMdpo dispatch (token : CancellationToken) =
                                 do! Async.SwitchToThreadPool()
                                 umMiliSecondsToInt32 >> cts.CancelAfter <| timeoutMs
                         
-                                let! result = async { return runIO (webscraping_MDPO reportProgress token2 mdpoPathTemp) }
+                                let! result = 
+                                    async
+                                        { 
+                                            return 
+                                                #if ANDROID
+                                                runIO 
+                                                    (
+                                                        webscraping_MDPO 
+                                                        <| reportProgress 
+                                                        <| token2 
+                                                        <| mdpoPathTemp Platform.AppContext
+                                                    )
+                                                #else
+                                                runIO (webscraping_MDPO reportProgress token2 mdpoPathTemp)
+                                                #endif
+                                        }
 
                                 match token2.IsCancellationRequested with
                                 | true 

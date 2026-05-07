@@ -58,13 +58,23 @@ let internal executeFilter dispatch (token : CancellationToken) =
                                     async
                                         {
                                             return
+                                                #if ANDROID
+                                                runIO
+                                                (
+                                                    webscraping_DPO_Filter
+                                                    <| reportProgress
+                                                    <| token2
+                                                    <| dpoPathTemp Platform.AppContext
+                                                )
+                                                #else
                                                 runIO
                                                 (
                                                     webscraping_DPO_Filter
                                                     <| reportProgress
                                                     <| token2
                                                     <| dpoPathTemp
-                                                )
+                                                )                                                
+                                                #endif
                                         }
 
                                 match token2.IsCancellationRequested with

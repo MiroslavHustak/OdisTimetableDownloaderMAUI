@@ -1,13 +1,22 @@
 ﻿namespace Settings
 
 open System
+open System.IO
+
+#if ANDROID
+open Android.Content
+#endif
 
 //*******************
 
 open Types.Types
 open Types.Grid3Algebra
 
-module SettingsGeneral =  
+#if ANDROID
+open Platform.Paths
+#endif
+
+module SettingsGeneral2 =  
 
     let [<Literal>] internal currentValidity = "JR_ODIS_aktualni_vcetne_vyluk"
     let [<Literal>] internal futureValidity = "JR_ODIS_pouze_budouci_platnost"
@@ -126,3 +135,218 @@ module SettingsGeneral =
 	  <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup> 
     *)
+
+module SettingsGeneral =     
+   
+    // =========================
+    // CONSTANTS (LOGICAL ONLY)
+    // =========================
+
+    let [<Literal>] internal currentValidity = "JR_ODIS_aktualni_vcetne_vyluk"
+    let [<Literal>] internal futureValidity = "JR_ODIS_pouze_budouci_platnost"
+    let [<Literal>] internal longTermValidity = "JR_ODIS_teoreticky_dlouhodobe_platne_bez_vyluk"
+
+    let [<Literal>] internal dpo = "JR_ODIS_pouze_linky_dopravce_DPO"
+    let [<Literal>] internal mdpo = "JR_ODIS_pouze_linky_dopravce_MDPO"
+
+    // =========================
+    // LOGICAL VARIANTS
+    // =========================
+
+    let internal ODIS_Variants =
+        {
+            board =
+                {
+                    board =
+                        fun row col ->
+                            match (row, col) with
+                            | (I1, I1) -> currentValidity
+                            | (I1, I2) -> futureValidity
+                            | (I1, I3) -> String.Empty
+                            | (I2, I1) -> longTermValidity
+                            | (I2, I2) -> dpo
+                            | (I2, I3) -> mdpo
+                            | _        -> String.Empty
+                }
+        }
+
+    let internal ODIS_Variants2 =
+        { board = defaultGridFunction String.Empty }
+
+    let internal listOfODISVariants =
+        [
+            ODIS_Variants.board.board I1 I1
+            ODIS_Variants.board.board I1 I2
+            ODIS_Variants.board.board I2 I1
+        ]
+
+    // =========================
+    // RETRIES / SETTINGS
+    // =========================
+
+    let [<Literal>] internal maxRetries3 = 10
+    let [<Literal>] internal maxRetries4 = 15
+    let [<Literal>] internal maxRetries500 = 50
+
+    let internal delayMsJson : int<ms> = 3_000<ms>
+    let internal delayMs : int<ms> = 5_000<ms>
+
+    let internal timeOutInSeconds : int<s> = 60<s>
+    let internal timeOutInSeconds2 : int<s> = 60<s>
+    let internal timeoutMs : int<ms> = 1_200_000<ms>
+    let internal pingTimeoutMs : int<ms> = 3_000<ms>
+    let internal waitingForNetConn : int<s> = 30<s>
+
+    let internal maxFileSizeKb : int64<KiB> = 150L<KiB>
+
+    let [<Literal>] internal maxDegreeOfParallelism = 18
+    let [<Literal>] internal maxDegreeOfParallelismThrottled = 6
+    let [<Literal>] internal maxDegreeOfParallelismMedium = 12
+
+    let [<Literal>] internal myIdeaOfASmallList = 24
+    let [<Literal>] internal myIdeaOfALargelList = 100
+
+    // =========================
+    // NETWORK
+    // =========================
+
+    let [<Literal>] internal apiKeyTest =
+        "test747646s5d4fvasfd645654asgasga654a6g13a2fg465a4fg4a3"
+
+    let [<Literal>] internal urlLogging =
+        "http://kodis.somee.com/api/logging"
+
+    let [<Literal>] internal urlApi =
+        "http://kodis.somee.com/api/"
+
+    let [<Literal>] internal urlJson =
+        "http://kodis.somee.com/api/jsonLinks"
+
+    // =========================
+    // PLATFORM PATHS (FIXED)
+    // =========================
+
+    #if ANDROID
+
+    let partialPathJsonTemp (context : Context) =
+        Path.Combine(
+            jsonTemp context,
+            "com.companyname.OdisTimetableDownloaderMAUI"
+        )
+        |> Directory.CreateDirectory
+        |> fun d -> d.FullName
+
+    let dpoPathTemp (context: Context) =
+        downloads4 context
+
+    let mdpoPathTemp (context: Context) =
+        downloads4 context
+
+    let logDirTP_Canopy (context: Context) =
+        logs context
+
+    let internal kodisPathTemp (context: Context) =
+        downloads context
+
+    let internal kodisPathTemp4 (context: Context) =
+        downloads4 context
+
+    let internal oldTimetablesPath (context: Context) =
+        old context
+
+    let internal oldTimetablesPath4 (context: Context) =
+        old4 context
+
+    let internal logFileName (context: Context) =
+        Path.Combine(logs context, "logEntries.json")
+
+    let internal logFileNameAndroid (context: Context) =
+        Path.Combine(logs context, "tp_canopy_difference.txt")
+
+    let internal logFileNameAndroid2 (context: Context) =
+        Path.Combine(logs context, "stress_testing_logs.txt")
+ 
+    let path0 (context: Context) (variant: string) =
+        Path.Combine(kodisPathTemp context, variant)
+
+    let path4 (context: Context) (variant: string) =
+        Path.Combine(kodisPathTemp4 context, variant)
+
+    #else
+
+    open System.IO
+
+    let [<Literal>] internal partialPathJsonTemp =
+        @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\KODISJson2\"
+
+    let [<Literal>] internal kodisPathTemp =
+        @"g:\Users\User\Data\"
+
+    let [<Literal>] internal kodisPathTemp4 =
+        @"g:\Users\User\Data4\"
+
+    let [<Literal>] internal dpoPathTemp =
+        @"g:\Users\User\Data4\"
+
+    let [<Literal>] internal mdpoPathTemp =
+        @"g:\Users\User\Data4\"
+
+    let [<Literal>] internal oldTimetablesPath =
+        @"g:\Users\User\DataOld\"
+
+    let [<Literal>] internal oldTimetablesPath4 =
+        @"g:\Users\User\DataOld4\"
+
+    let [<Literal>] internal logFileName = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\logEntries.json"
+    let [<Literal>] internal logFileNameWindows = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\tp_canopy_difference.txt"
+    let [<Literal>] internal logFileNameWindows2 = @"e:\FabulousMAUI\OdisTimetableDownloaderMAUI\logs\stress_testing_logs.txt"
+
+    let path0 (variant: string) =
+        Path.Combine(kodisPathTemp, variant)
+
+    let path4 (variant: string) =
+        Path.Combine(kodisPathTemp4, variant)
+
+    #endif
+
+    // =========================
+    // DERIVED PATHS (FIXED)
+    // =========================
+
+    #if ANDROID
+    let internal pathTP_CurrentValidity context =
+        path0 context (ODIS_Variants.board.board I1 I1)
+
+    let internal pathCanopy_CurrentValidity context =
+        path4 context (ODIS_Variants.board.board I1 I1)
+
+    let internal pathTP_FutureValidity context =
+        path0 context (ODIS_Variants.board.board I1 I2)
+
+    let internal pathCanopy_FutureValidity context =
+        path4 context (ODIS_Variants.board.board I1 I2)
+
+    let internal pathTP_LongTermValidity context =
+        path0 context (ODIS_Variants.board.board I2 I1)
+
+    let internal pathCanopy_LongTermValidity context =
+        path4 context (ODIS_Variants.board.board I2 I1)
+    #else     
+    let internal pathTP_CurrentValidity = path0 <| ODIS_Variants.board.board I1 I1
+    let internal pathCanopy_CurrentValidity = path4 <| ODIS_Variants.board.board I1 I1
+
+    let internal pathTP_FutureValidity = path0 <| ODIS_Variants.board.board I1 I2   
+    let internal pathCanopy_FutureValidity = path4 <| ODIS_Variants.board.board I1 I2     
+    let internal pathTP_LongTermValidity = path0 <| ODIS_Variants.board.board I2 I1 
+    let internal pathCanopy_LongTermValidity = path4 <| ODIS_Variants.board.board I2 I1  
+
+    #endif
+        
+        (*
+        Right-click g:\Users\User\... (vsechny adresare anebo adresar nad tim), select Properties > Security, and grant full control.
+        
+        do *.fsproj pridat:
+        <PropertyGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
+	      <DefineConstants>WINDOWS</DefineConstants>
+        </PropertyGroup> 
+        *)

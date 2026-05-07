@@ -1,7 +1,10 @@
 ﻿namespace ApplicationDesign_R
 
 open System
+open System.IO
 open System.Threading
+
+open Microsoft.Maui.ApplicationModel
 
 open FsToolkit.ErrorHandling
 
@@ -60,11 +63,18 @@ module WebScraping_KODIS =
 
         let configKodis =
             {
-                source1 = path0 <| ODIS_Variants.board.board I1 I1
-                source2 = path0 <| ODIS_Variants.board.board I1 I2
-                source3 = path0 <| ODIS_Variants.board.board I2 I1 
+                #if ANDROID
+                source1 = Path.Combine(Platform.Paths.downloads Platform.AppContext, ODIS_Variants.board.board I1 I1 )
+                source2 = Path.Combine(Platform.Paths.downloads Platform.AppContext, ODIS_Variants.board.board I1 I2 )
+                source3 = Path.Combine(Platform.Paths.downloads Platform.AppContext, ODIS_Variants.board.board I2 I1 )
+                destination = oldTimetablesPath Platform.AppContext
+                #else
+                source1 = Path.Combine(Platform.Paths.downloads (), ODIS_Variants.board.board I1 I1 )
+                source2 = Path.Combine(Platform.Paths.downloads (), ODIS_Variants.board.board I1 I2 )
+                source3 = Path.Combine(Platform.Paths.downloads (), ODIS_Variants.board.board I2 I1 )
                 destination = oldTimetablesPath 
-            } 
+                #endif
+            }  
             
         let errFn err =                     
             match err with
@@ -237,7 +247,7 @@ module WebScraping_KODIS =
                 pyramidOfInferno
                     {       
                         #if ANDROID
-                        let!_ = runIO <| createTP_Canopy_Folder logDirTP_Canopy, errFn 
+                        let!_ = logDirTP_Canopy >> createTP_Canopy_Folder >> runIO <| Platform.AppContext, errFn 
                         #endif
                         let!_ = runIO <| deleteAllODISDirectories path, errFn
                         let!_ = runIO <| createFolders dirList, errFn
@@ -264,7 +274,7 @@ module WebScraping_KODIS =
                            | Error err -> err      
                                 
                         #if ANDROID     
-                        let!_ = deleteAllJsonFilesInDirectory >> runIO <| partialPathJsonTemp, fun _ -> String.Empty 
+                        let!_ = partialPathJsonTemp >> deleteAllJsonFilesInDirectory >> runIO <| Platform.AppContext, fun _ -> String.Empty 
                         #endif
 
                         let separator = String.Empty

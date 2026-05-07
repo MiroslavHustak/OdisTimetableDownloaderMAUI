@@ -1,6 +1,7 @@
 ﻿namespace ApplicationDesign_R
 
 open System.IO
+open Microsoft.Maui.ApplicationModel
 
 //**********************************
 
@@ -52,7 +53,11 @@ module WebScraping_MDPO =
                     let configMHD =
                         {
                             source = dirList pathToDir |> List.head 
-                            destination = oldTimetablesPath4
+                            #if ANDROID
+                            destination = oldTimetablesPath4 Platform.AppContext
+                            #else
+                            destination = oldTimetablesPath4 
+                            #endif
                         }
 
                     match action with   

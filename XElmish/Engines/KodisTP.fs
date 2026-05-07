@@ -25,7 +25,7 @@ let internal executeJson dispatch (token : CancellationToken) =
     IO (fun () 
             -> 
             async
-                {
+                {                                                  
                     use cts = CancellationTokenSource.CreateLinkedTokenSource token  
 
                     try               
@@ -85,7 +85,7 @@ let internal executePdf dispatch (token : CancellationToken) =
             -> 
             async
                 {
-                    try
+                    try                      
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
 
                         let token2 = cts.Token
@@ -114,15 +114,25 @@ let internal executePdf dispatch (token : CancellationToken) =
                                     async
                                         { 
                                             return
+                                                #if ANDROID
                                                 stateReducerCmd2
+                                                    <| token2
+                                                    <| kodisPathTemp Platform.AppContext
+                                                    <| fun _   -> ()
+                                                    <| fun msg -> IterationMsg >> dispatch <| msg
+                                                    <| reportProgress
+                                                |> runIO
+                                                #else   
+                                                 stateReducerCmd2
                                                     <| token2
                                                     <| kodisPathTemp
                                                     <| fun _   -> ()
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress
                                                 |> runIO
+                                                #endif
                                         }
-                        
+
                                 match token2.IsCancellationRequested with
                                 | true  -> return dispatch NavigateHome
                                 | false -> return Completed >> dispatch <| result

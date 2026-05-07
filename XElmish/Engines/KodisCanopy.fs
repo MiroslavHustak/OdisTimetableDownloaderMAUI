@@ -57,12 +57,21 @@ let internal execute dispatch (token : CancellationToken) =
                                     async
                                         { 
                                             return
+                                                #if ANDROID
+                                                stateReducer
+                                                    <| token2
+                                                    <| kodisPathTemp4 Platform.AppContext
+                                                    <| fun msg -> IterationMsg >> dispatch <| msg
+                                                    <| reportProgress
+                                                |> runIO
+                                                #else
                                                 stateReducer
                                                     <| token2
                                                     <| kodisPathTemp4
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress
                                                 |> runIO
+                                                #endif
                                         }
 
                                 match token2.IsCancellationRequested with

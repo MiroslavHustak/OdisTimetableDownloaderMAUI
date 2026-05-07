@@ -46,92 +46,70 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
-        <!-- Ensure WINDOWS symbol only for Windows target -->
-    <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'windows'">
-        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
-    </PropertyGroup>
+  <!-- Ensure WINDOWS symbol only for Windows target -->
+  <PropertyGroup Condition="'$(TargetPlatformIdentifier)' == 'windows'">
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+  </PropertyGroup>
 
-    <!-- Ensure ANDROID symbol only for Android target -->
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
-        <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
-    </PropertyGroup>
+  <!-- Ensure ANDROID symbol only for Android target -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+    <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
+  </PropertyGroup>
 
-    <!-- Android Release-specific settings -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-android|AnyCPU'">
-        <AndroidPackageFormat>apk</AndroidPackageFormat>
-        <AndroidKeyStore>True</AndroidKeyStore>
-        <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
-        <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
-        <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
-    </PropertyGroup>
+  <!-- Android Release-specific settings -->
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-android|AnyCPU'">
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
+    <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
+    <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+  </PropertyGroup>
 
-    <!-- Android Debug-specific settings -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-android|AnyCPU'">
-        <AndroidKeyStore>True</AndroidKeyStore>
-        <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
-        <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
-        <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
-    </PropertyGroup>
+  <!-- Android Debug-specific settings -->
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-android|AnyCPU'">
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningStorePass>AndroidKeyPassword74764</AndroidSigningStorePass>
+    <AndroidSigningKeyAlias>AndroidKey</AndroidSigningKeyAlias>
+    <AndroidSigningKeyPass>AndroidKeyPassword74764</AndroidSigningKeyPass>
+  </PropertyGroup>
 
-	<!-- Windows Debug-specific settings -->
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-windows10.0.19041.0|AnyCPU'">
-		<DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
-		<WindowsPackageType>MSIX</WindowsPackageType>
-		<DeployOnBuild>True</DeployOnBuild>
-		<IsPublishable>True</IsPublishable>
-	</PropertyGroup>
+  <!-- Windows Debug-specific settings -->
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|net8.0-windows10.0.19041.0|AnyCPU'">
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <DeployOnBuild>True</DeployOnBuild>
+    <IsPublishable>True</IsPublishable>
+  </PropertyGroup>
 
-	<!-- Windows Release-specific settings -->
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-windows10.0.19041.0|AnyCPU'">
-		<DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
-		<WindowsPackageType>MSIX</WindowsPackageType>
-		<DeployOnBuild>True</DeployOnBuild>
-		<IsPublishable>True</IsPublishable>
-	</PropertyGroup>
+  <!-- Windows Release-specific settings -->
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|net8.0-windows10.0.19041.0|AnyCPU'">
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <DeployOnBuild>True</DeployOnBuild>
+    <IsPublishable>True</IsPublishable>
+  </PropertyGroup>
 
-	<!-- Rust educational code – source files only, never copied to output -->
-	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
-		<!-- Keep the .rs files visible in Solution Explorer in Debug only (optional) -->
-		<None Include="..\RustHelpers\**.rs" Link="RustEducational\%(RecursiveDir)%(Filename)%(Extension)" />
-		<None Include="..\RustHelpers\Cargo.toml" Link="RustEducational\Cargo.toml" />
-	</ItemGroup>
+  <!-- Rust educational code - source files only, never copied to output -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <None Include="..\RustHelpers\**.rs" Link="RustEducational\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\RustHelpers\Cargo.toml" Link="RustEducational\Cargo.toml" />
+  </ItemGroup>
 
-	<!-- The pre-built DLLs are intentionally NOT copied in any build -->
-	<!-- They are kept only for reference in the RustHelpers project folder -->
-	<ItemGroup Condition="false">
-		<!-- This ItemGroup is never evaluated → DLLs are never copied -->
-		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\string_combine_dll.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-	
-	<!--
-	<ItemGroup>
-		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
+  <!-- The pre-built DLLs are intentionally NOT copied in any build -->
+  <ItemGroup Condition="false">
+    <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\rust_copy_move.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\string_combine_dll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
-	<ItemGroup>
-		<None Include="e:\FabulousMAUI\OdisTimetableDownloaderMAUI\x64\Release\string_combine_dll.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup> 	
-	-->
   <ItemGroup>
-    <!-- App Icon -->
-    <None Include="Educational code.txt" />
-    <Resource Include="Platforms\Android\Resources\xml\network_security_config.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-	<Resource Include="Platforms\Android\Resources\values\colors.xml">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	</Resource>
+    <None Include="Educational code.txt" />   	
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
     <Compile Include="DotNetInteroperabilityCode\DotNetInteroperabilityCode.fs" />
+    <Compile Include="JavaInteroperabilityCode\PlatformPaths.fs" />
     <Compile Include="JavaInteroperabilityCode\RealInternetChecker.fs" />
     <Compile Include="JavaInteroperabilityCode\SSL_TLS_handling.fs" />
     <Compile Include="NativeCode\NativeCode.fs" />
@@ -168,7 +146,7 @@
     <Compile Include="BusinessLogic\DataManipulation\PureFunctions\SortRecordData.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\ParseJsonData.fs" />
     <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\FilterTimetableLinks.fs" />
-	<Compile Include="BusinessLogic\IO_Operations\PureHelpers\CreatePathsAndNames.fs" />
+    <Compile Include="BusinessLogic\IO_Operations\PureHelpers\CreatePathsAndNames.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\FutureValidityRestApi.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\IO_Operations.fs" />
     <Compile Include="BusinessLogic\MainBusinessLogic_R\KodisJsonTP\KODIS_BL_Record_R_Json.fs" />
@@ -196,42 +174,43 @@
     <Compile Include="XElmish\Engines\Mdpo.fs" />
     <Compile Include="XElmish\EducationalCode\Test_App_Old.fs" />
     <Compile Include="XElmish\App_New_UX.fs" />
-    <Compile Include="MauiProgram.fs" />	  
-	
+    <Compile Include="MauiProgram.fs" />
+
     <!-- Custom Fonts -->
-<MauiFont Include="Resources\Fonts\*" />
+    <MauiFont Include="Resources\Fonts\*" />
 
-<!-- Images -->
-<MauiImage Include="Resources\Images\*" />
+    <!-- Images -->
+    <MauiImage Include="Resources\Images\*" />
 
-<!-- App Icon - Correct configuration -->
-<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#0A3D91" />
+    <!-- App Icon -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#0A3D91" />
 
-<!-- Raw Assets -->
-<MauiAsset Include="Resources\Raw\*" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-
-<!-- Splash Screen -->
-
-<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0A3D91" BaseSize="128,128" />
-
+    <!-- Raw Assets -->
+    <MauiAsset Include="Resources\Raw\*" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+    
+    <!-- Splash Screen -->
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0A3D91" BaseSize="128,128" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetPlatformIdentifier) == 'android'">	
-	<AndroidResource Include="$(AndroidProjectFolder)Resources/*/*" />
-    <AndroidResource Remove="$(AndroidProjectFolder)Resources/raw/.*" />
-    <AndroidResource Update="$(AndroidProjectFolder)Resources/raw/*" />
-    <AndroidAsset Include="$(AndroidProjectFolder)Assets/**/*" Exclude="$(AndroidProjectFolder)Assets/**/.*/**" />
-    <AndroidManifest Include="$(AndroidProjectFolder)AndroidManifest.xml" />
-    <Compile Include="$(AndroidProjectFolder)MainActivity.fs" />
-    <Compile Include="$(AndroidProjectFolder)MainApplication.fs" />
-  </ItemGroup>
+  <!-- Android-specific items -->
+	<ItemGroup Condition="$(TargetPlatformIdentifier) == 'android'">
+		<AndroidResource Remove="$(AndroidProjectFolder)Resources/raw/.*" />
+		<AndroidResource Update="$(AndroidProjectFolder)Resources/raw/*" />
+		<AndroidResource Include="$(AndroidProjectFolder)Resources/drawable/ic_download.xml" />
+		<AndroidResource Include="$(AndroidProjectFolder)Resources/xml/file_paths.xml" />
+		<AndroidResource Include="$(AndroidProjectFolder)Resources/xml/network_security_config.xml" />
+		<AndroidResource Include="$(AndroidProjectFolder)Resources/values/colors.xml" />
+		<AndroidAsset Include="$(AndroidProjectFolder)Assets/**/*" Exclude="$(AndroidProjectFolder)Assets/**/.*/**" />
+		<AndroidManifest Include="$(AndroidProjectFolder)AndroidManifest.xml" />
+		<Compile Include="$(AndroidProjectFolder)MainActivity.fs" />
+		<Compile Include="$(AndroidProjectFolder)MainApplication.fs" />
+	</ItemGroup>
 
   <ItemGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
     <Manifest Include="$(WindowsProjectFolder)app.manifest" />
     <AppxManifest Include="$(WindowsProjectFolder)Package.appxmanifest" />
     <Compile Include="$(WindowsProjectFolder)App.fs" />
     <Compile Include="$(WindowsProjectFolder)Main.fs" />
-
     <PackageReference Include="FSharp.Maui.WinUICompat" Version="1.1.0" />
   </ItemGroup>
 
@@ -261,7 +240,7 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="8.0.92" />
-	<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.92" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.92" />
   </ItemGroup>
 
   <ItemGroup>

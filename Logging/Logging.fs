@@ -11,6 +11,8 @@ open System
 open System.IO
 open System.Net
 
+open Microsoft.Maui.ApplicationModel
+
 //************************************************************
 
 open FsHttp
@@ -166,14 +168,14 @@ module Logging =
                     {                       
                         #if WINDOWS 
                         let logFilePath = logFileNameWindows2
+                        runIO <| postToLog msg err //to endpoint
+                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath 
                         #else
                         let logFilePath = logFileNameAndroid2
-                        #endif
-
                         runIO <| postToLog msg err //to endpoint
-
-                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath 
-                                                        
+                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath Platform.AppContext
+                        #endif
+                    
                         use fs =
                             new FileStream
                                 (
@@ -216,10 +218,11 @@ module Logging =
                     {
                         #if WINDOWS 
                         let logFilePath = logFileNameWindows2
+                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath 
                         #else
                         let logFilePath = logFileNameAndroid2
+                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath Platform.AppContext
                         #endif
-                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath 
                                                            
                         use fs =
                             new FileStream
