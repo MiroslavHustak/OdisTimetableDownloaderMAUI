@@ -143,7 +143,7 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Platforms/
 │   └── Android/
 │       └── Resources/
-│       │    ├── xml/│       │       
+│       │    ├── xml/       
 │       │    ├── values/
 │       │    └── drawable
 │       ├── AndroidManifest.xml
