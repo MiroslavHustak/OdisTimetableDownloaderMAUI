@@ -143,9 +143,11 @@ OdisTimetableDownloaderMAUI (Solution)
 ├── Platforms/
 │   └── Android/
 │       └── Resources/
-│           ├── xml/
-│           │   └── network_security_config.xml
-│           └── values/
-│               └── colors.xml
+│       │    ├── xml/│       │       
+│       │    ├── values/
+│       │    └── drawable
+│       ├── AndroidManifest.xml
+|       ├── MainApplication.fs 
+|       └── MainActivity.fs
 └── MauiProgram.fs
 ``` </pre>
