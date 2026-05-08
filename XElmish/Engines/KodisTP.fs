@@ -13,6 +13,7 @@ open Helpers.ExceptionHelpers
 open ApplicationDesign_R.WebScraping_KODIS
 
 open Settings.SettingsGeneral
+open OdisTimetableDownloaderMAUI
 
 type KodisTPMsg =
     | Progress of float * float
@@ -116,15 +117,6 @@ let internal executePdf dispatch (token : CancellationToken) =
                                     async
                                         { 
                                             return
-                                                #if ANDROID
-                                                stateReducerCmd2
-                                                    <| token2
-                                                    <| kodisPathTemp ()
-                                                    <| fun _   -> ()
-                                                    <| fun msg -> IterationMsg >> dispatch <| msg
-                                                    <| reportProgress
-                                                |> runIO
-                                                #else   
                                                  stateReducerCmd2
                                                     <| token2
                                                     <| kodisPathTemp ()
@@ -132,8 +124,12 @@ let internal executePdf dispatch (token : CancellationToken) =
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress
                                                 |> runIO
-                                                #endif
                                         }
+                                 
+                                //#if ANDROID
+                                //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS" (kodisPathTemp ()) FileDownloadError  //TODO  zmenit Error case
+                                //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS_zaloha" (oldTimetablesPath ()) FileDownloadError  //TODO  zmenit Error case                               
+                                //#endif
 
                                 match token2.IsCancellationRequested with
                                 | true  -> return dispatch NavigateHome

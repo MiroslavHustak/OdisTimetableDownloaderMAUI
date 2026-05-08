@@ -2,19 +2,19 @@
 
 #if ANDROID
 
+open System
 open System.IO
+open System.IO.Compression
+
 open System.Threading
+open System.Threading.Tasks
+
+open CommunityToolkit.Maui.Storage
+open Microsoft.Maui.ApplicationModel
 
 open FsToolkit.ErrorHandling
 
 //***********************************************
-
-open Api.Logging
-
-open Helpers
-open Helpers.Builders
-
-open Types.Haskell_IO_Monad_Simulation
 
 open Android.OS
 open Android.App
@@ -25,6 +25,16 @@ open Android.Provider
 open Android.Content.PM 
 
 open Xamarin.Essentials
+
+//***********************************************
+
+open Api.Logging
+open Types.ErrorTypes
+
+open Helpers
+open Helpers.Builders
+
+open Types.Haskell_IO_Monad_Simulation
 
 //************************************************
 // ANDROID-SPECIFIC CODE
@@ -109,42 +119,135 @@ module DownloadServiceController =
                     | _ -> 
                         () // Android 10- (excl.)
         )
-    
-module openFolder = 
-    
-    let internal openFolderInFileManager (context: Context) (folderPath: string) =
-    
+
+// Zatim nepouzito TODO pro Google Play
+module PdfExport =
+
+    let private getFiles sourceDir =
+        try
+            match not (Directory.Exists sourceDir) with
+            | true 
+                ->
+                None
+            | false
+                ->
+                let files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories)
+
+                match files with
+                | null | [||] -> None
+                | arr         -> Some arr
+        with
+        | _ -> None
+
+    let private writeFileToMediaStore (resolver: ContentResolver) (baseDir : string) (filePath : string) : bool =
+
+        try
+            let fileName = Path.GetFileName filePath
+
+            let relativeDir =
+                Path.GetDirectoryName filePath
+                |> fun dir
+                    ->
+                    match String.IsNullOrEmpty dir with
+                    | true  -> String.Empty
+                    | false -> Path.GetRelativePath(baseDir, dir).Replace("\\", "/")
+
+            let values = new ContentValues()
+
+            values.Put(MediaStore.IMediaColumns.DisplayName, fileName)
+            values.Put(MediaStore.IMediaColumns.MimeType, "application/pdf")
+
+            values.Put(
+                MediaStore.IMediaColumns.RelativePath,
+                sprintf "Download/%s" relativeDir   
+            )
+
+            let collection =
+                MediaStore.Downloads.GetContentUri(MediaStore.VolumeExternalPrimary)
+
+            match resolver.Insert(collection, values) with
+            | null 
+                -> false
+            | uri 
+                ->
+                match resolver.OpenOutputStream(uri) with
+                | null
+                    ->
+                   false
+                | stream 
+                    ->
+                    use stream = stream
+                    use input = File.OpenRead filePath
+                    input.CopyTo stream
+                    stream.Flush()
+                    true
+
+        with
+        | _ -> false
+          
+    let internal exportPdf (baseDir : string) (sourceDir : string) (err : 'a) : IO<Async<Result<string, 'a>>> =
+
         IO (fun ()
                 ->
-                try
-                    let authority = context.PackageName + ".fileprovider"
-                
-                    // Find any PDF in the folder to use as the "entry point"
-                    let anyPdf = 
-                        Directory.EnumerateFiles(folderPath, "*.pdf", SearchOption.AllDirectories)
-                        |> Seq.tryHead
-    
-                    match anyPdf with
-                    | None ->
-                        // Folder is empty - nothing to show yet
-                        runIO <| postToLog2 "No PDF found to open" "#FileManager002"
-                    | Some pdfPath ->
-                        let file = new Java.IO.File(pdfPath)
-                        let uri =
-                            AndroidX.Core.Content.FileProvider.GetUriForFile(context, authority, file)
-    
-                        use intent = new Intent(Intent.ActionView)
-                        intent.SetDataAndType(uri, "application/pdf") |> ignore<Intent>
-                        intent.AddFlags(ActivityFlags.NewTask ||| ActivityFlags.GrantReadUriPermission) |> ignore<Intent>
-    
-                        let chooser = Intent.CreateChooser(intent, "Otevřít v správci souborů")
-                        chooser.AddFlags(ActivityFlags.NewTask) |> ignore<Intent>
-                        context.StartActivity(chooser)
-                with
-                | ex ->
-                    runIO <| postToLog2 (string ex.Message) "#FileManager001"
-                    ()
+                async
+                    {
+
+                        let resolver = Application.Context.ContentResolver
+
+                        match getFiles sourceDir with
+                        | None 
+                            ->
+                            return Error err
+
+                        | Some files 
+                            ->
+                            let failures =
+                                files
+                                |> Array.filter 
+                                    (fun file -> not (writeFileToMediaStore resolver baseDir file))
+
+                            return
+                                match failures.Length = 0 with
+                                | true  -> Ok "EXPORT_OK"
+                                | false -> Error err
+                    }
         )
+
+    module openFolder = 
+    
+        let internal openFolderInFileManager (context: Context) (folderPath: string) =
+    
+            IO (fun ()
+                    ->
+                    try
+                        let authority = context.PackageName + ".fileprovider"
+                
+                        // Find any PDF in the folder to use as the "entry point"
+                        let anyPdf = 
+                            Directory.EnumerateFiles(folderPath, "*.pdf", SearchOption.AllDirectories)
+                            |> Seq.tryHead
+    
+                        match anyPdf with
+                        | None ->
+                            // Folder is empty - nothing to show yet
+                            runIO <| postToLog2 "No PDF found to open" "#FileManager002"
+                        | Some pdfPath ->
+                            let file = new Java.IO.File(pdfPath)
+                            let uri =
+                                AndroidX.Core.Content.FileProvider.GetUriForFile(context, authority, file)
+    
+                            use intent = new Intent(Intent.ActionView)
+                            intent.SetDataAndType(uri, "application/pdf") |> ignore<Intent>
+                            intent.AddFlags(ActivityFlags.NewTask ||| ActivityFlags.GrantReadUriPermission) |> ignore<Intent>
+    
+                            let chooser = Intent.CreateChooser(intent, "Otevřít v správci souborů")
+                            chooser.AddFlags(ActivityFlags.NewTask) |> ignore<Intent>
+                            context.StartActivity(chooser)
+                    with
+                    | ex ->
+                        runIO <| postToLog2 (string ex.Message) "#FileManager001"
+                        ()
+            )
        
 module WakeLockHelper = //pouze pro Android API 33 a Android API 34
 

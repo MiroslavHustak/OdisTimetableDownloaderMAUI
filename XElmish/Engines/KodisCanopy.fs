@@ -13,6 +13,7 @@ open Helpers.ExceptionHelpers
 open ApplicationDesign4_R.WebScraping_KODIS4
 
 open Settings.SettingsGeneral
+open OdisTimetableDownloaderMAUI
 
 type KodisCanopyMsg =
     | Progress of float * float
@@ -59,22 +60,18 @@ let internal execute dispatch (token : CancellationToken) =
                                     async
                                         { 
                                             return
-                                                #if ANDROID
                                                 stateReducer
                                                     <| token2
                                                     <| kodisPathTemp4 ()
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress
                                                 |> runIO
-                                                #else
-                                                stateReducer
-                                                    <| token2
-                                                    <| kodisPathTemp4 ()
-                                                    <| fun msg -> IterationMsg >> dispatch <| msg
-                                                    <| reportProgress
-                                                |> runIO
-                                                #endif
                                         }
+
+                                //#if ANDROID
+                                //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS_Extra" (kodisPathTemp4 ()) FileDownloadError //TODO  zmenit Error case
+                                //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS_zaloha_Extra" (oldTimetablesPath4 ()) FileDownloadError   //TODO  zmenit Error case                              
+                                // #endif  
 
                                 match token2.IsCancellationRequested with
                                 | true  -> return dispatch NavigateHome

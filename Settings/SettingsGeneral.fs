@@ -22,7 +22,8 @@ module private Paths =
         | _ -> path 
     
     #if ANDROID    
-    let basePath () = FileSystem.Current.AppDataDirectory  
+    //let basePath () = FileSystem.Current.AppDataDirectory  // TODO pro Google Play
+    let basePath () = "/storage/emulated/0/"
     #else
     let basePath () = @"g:\Users\User\"
     #endif  
@@ -161,4 +162,4 @@ module SettingsGeneral =
     <PropertyGroup Condition="$(TargetPlatformIdentifier) == 'windows'">
 	    <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup> 
-        *)
+    *)

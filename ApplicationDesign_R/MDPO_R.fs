@@ -53,11 +53,7 @@ module WebScraping_MDPO =
                     let configMHD =
                         {
                             source = dirList pathToDir |> List.head 
-                            #if ANDROID
                             destination = oldTimetablesPath4 ()
-                            #else
-                            destination = oldTimetablesPath4 ()
-                            #endif
                         }
 
                     match action with   

@@ -214,6 +214,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
     <PackageReference Include="Fabulous" Version="2.4.1" />
     <PackageReference Include="Fabulous.MauiControls" Version="8.0.5" />
     <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />

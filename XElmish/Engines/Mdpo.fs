@@ -15,6 +15,7 @@ open Settings.Messages
 open Settings.SettingsGeneral
 
 open Helpers.ExceptionHelpers
+open OdisTimetableDownloaderMAUI
 
 type MdpoMsg =
     | Progress of float * float
@@ -57,8 +58,7 @@ let internal executeMdpo dispatch (token : CancellationToken) =
                                 let! result = 
                                     async
                                         { 
-                                            return 
-                                                #if ANDROID
+                                            return                                                
                                                 runIO 
                                                     (
                                                         webscraping_MDPO 
@@ -66,10 +66,11 @@ let internal executeMdpo dispatch (token : CancellationToken) =
                                                         <| token2 
                                                         <| mdpoPathTemp ()
                                                     )
-                                                #else
-                                                runIO (webscraping_MDPO reportProgress token2 (mdpoPathTemp ()))
-                                                #endif
                                         }
+
+                                //#if ANDROID
+                                //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS_Extra" (kodisPathTemp4 ()) FileDownloadError //TODO  zmenit Error case
+                                //#endif  
 
                                 match token2.IsCancellationRequested with
                                 | true 

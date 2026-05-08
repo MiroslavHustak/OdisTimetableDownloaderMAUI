@@ -116,18 +116,11 @@ module WebScraping_KODIS4 =
                     }
 
                 let configKodis =
-                    {
-                        #if ANDROID
+                    {                       
                         source1 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I1 I1 )
                         source2 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I1 I2 )
                         source3 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I2 I1 )
                         destination = oldTimetablesPath4 ()
-                        #else
-                        source1 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I1 I1 )
-                        source2 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I1 I2 )
-                        source3 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I2 I1 )
-                        destination = oldTimetablesPath4 ()
-                        #endif
                     }  
                    
                 let result (context2 : Context2) =                              
