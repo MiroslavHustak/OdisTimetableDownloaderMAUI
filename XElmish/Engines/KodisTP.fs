@@ -88,7 +88,7 @@ let internal executePdf dispatch (token : CancellationToken) =
 
     IO (fun () 
             -> 
-            asyncOption
+            async
                 {
                     try                      
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
@@ -128,10 +128,11 @@ let internal executePdf dispatch (token : CancellationToken) =
                                                 |> runIO
                                         }
                                  
-                                #if ANDROID
-                                let! _ = runIO <| PdfExport.exportPdf "JR_ODIS" (kodisPathTempGP ())  
+                                //#if ANDROID
+                                //let! r = runIO <| PdfExport.exportPdf "JR_ODIS" (kodisPathTemp ()) 
+                                //r |> ignore<unit option>                                
                                 //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS_zaloha" (oldTimetablesPath ()) FileDownloadError  //TODO  zmenit Error case                               
-                                #endif
+                                //#endif
 
                                 match token2.IsCancellationRequested with
                                 | true  -> return dispatch NavigateHome

@@ -693,8 +693,7 @@ module App =
                                             <| token
                                     )                                
                                 |> Async.Start
-                            )
-                      
+                            )                      
                     {
                         m with
                             Screen       = Downloading (DpoFilter, Idle)

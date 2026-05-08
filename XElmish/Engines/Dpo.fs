@@ -32,7 +32,7 @@ let internal executeFilter dispatch (token : CancellationToken) =
 
     IO (fun ()
             ->
-            asyncOption
+            async
                 {
                     try
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
@@ -72,9 +72,10 @@ let internal executeFilter dispatch (token : CancellationToken) =
                                                 )
                                         }
 
-                                #if ANDROID
-                                let! _ = runIO <| PdfExport.exportPdf "JR_DPO" (dpoPathTempGP ()) 
-                                #endif   
+                                //#if ANDROID
+                                //let! r = runIO <| PdfExport.exportPdf "JR_DPO" (dpoPathTemp ()) 
+                                //r |> ignore<unit option>    
+                                //#endif   
 
                                 match token2.IsCancellationRequested with
                                 | true

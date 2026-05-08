@@ -110,31 +110,13 @@ module SettingsGeneral =
         Path.Combine(Paths.basePath(), "JR_ODIS")
         |> Paths.ensureDir
 
-    #if ANDROID   
-    let internal kodisPathTempGP () =
-        Path.Combine(Paths.basePathSandBox(), "JR_ODIS")
-        |> Paths.ensureDir  
-    #endif
-
     let internal kodisPathTemp4 () =
         Path.Combine(Paths.basePath(), "JR_ODIS_Extra")
         |> Paths.ensureDir
 
-    #if ANDROID   
-    let internal kodisPathTemp4GP () =
-        Path.Combine(Paths.basePathSandBox(), "JR_ODIS_Extra")
-        |> Paths.ensureDir  
-    #endif   
-
     let internal dpoPathTemp () =
         Path.Combine(Paths.basePath(), "JR_ODIS_Extra")
         |> Paths.ensureDir
-
-    #if ANDROID   
-    let internal dpoPathTempGP () =
-        Path.Combine(Paths.basePathSandBox(), dpo)
-        |> Paths.ensureDir  
-    #endif
 
     let internal mdpoPathTemp () =
         Path.Combine(Paths.basePath(), "JR_ODIS_Extra")
