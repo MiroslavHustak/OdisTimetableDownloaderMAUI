@@ -213,17 +213,17 @@ module Messages =
     let [<Literal>] internal popUpWindow2Text = 
         "
         Kodis Json TP (základní varianta)        
-        Tato varianta stahuje kompletní JŘ ODIS na základě odkazů získaných z veřejně dostupných JSON souborů (odkazy na JŘ jsou dynamicky generované, proto nelze použít klasický web scraping z kodis.cz). Tyto odkazy by měly být teoreticky stejné jako odkazy, které naleznete na kodis.cz, realita může ale být všelijaká. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři JR_ODIS (/storage/emulated/0/Download/JR_ODIS/). 
+        Tato varianta stahuje kompletní JŘ ODIS na základě odkazů získaných z veřejně dostupných JSON souborů (odkazy na JŘ jsou dynamicky generované, proto nelze použít klasický web scraping z kodis.cz). Tyto odkazy by měly být teoreticky stejné jako odkazy, které naleznete na kodis.cz, realita může ale být všelijaká. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři JR_ODIS (/storage/emulated/0/ODIS/JR_ODIS/). 
         
         Kodis Canopy (ověřovací varianta)
         I když klasický web scraping nepřipadá v úvahu, lze alespoň využít testovací nástroj Canopy (který ale není určen pro běžného uživatele). Čas od času se pomocí speciálního programu s tímto testovacím nástrojem odešlou odkazy na JŘ na IIS server, odkud je tato aplikace stáhne, a poté se JŘ mohou stahovat obvyklým způsobem.
-        Vzhledem k tomu, že tato aplikace využívá webhosting zdarma a free plan omezuje traffic na minimum, není možné stahovat JŘ ODIS z IIS serveru neustále, ale pouze omezeně. Proto se tato varianta používá pouze pro ověřování diskrepancí v systému JŘ ODIS. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři JR_ODIS_Extra (/storage/emulated/0/Download/JR_ODIS_Extra/). 
+        Vzhledem k tomu, že tato aplikace využívá webhosting zdarma a free plan omezuje traffic na minimum, není možné stahovat JŘ ODIS z IIS serveru neustále, ale pouze omezeně. Proto se tato varianta používá pouze pro ověřování diskrepancí v systému JŘ ODIS. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři JR_ODIS_Extra (/storage/emulated/0/ODIS/JR_ODIS_Extra/). 
         
         JŘ DPO
-        Tato varianta stahuje JŘ DPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ DPO nejsou nijak tříděny (na rozdíl od výše uvedených variant), ani zde nejsou JŘ s budoucí platností. Doporučuji využívat JŘ DPO z kompletního balíku a JŘ DPO z této varianty pouze pro ověření či v případě chybějícího JŘ. JŘ DPO jsou k nalezení v adresáři JR_ODIS_Extra (/storage/emulated/0/Download/JR_ODIS_Extra/). 
+        Tato varianta stahuje JŘ DPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ DPO nejsou nijak tříděny (na rozdíl od výše uvedených variant), ani zde nejsou JŘ s budoucí platností. Doporučuji využívat JŘ DPO z kompletního balíku a JŘ DPO z této varianty pouze pro ověření či v případě chybějícího JŘ. JŘ DPO jsou k nalezení v adresáři JR_ODIS_Extra (/storage/emulated/0/ODIS/JR_ODIS_Extra/). 
     
         JŘ MDPO
-        Tato varianta stahuje zastávkové JŘ MDPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ MDPO v kompletním balíku nejsou zastávkové (na rozdíl od této varianty). Je velká pravděpodobnost, že kvůli problémům s mdpo.cz (na které jsem MDPO již dávno upozornil) nebude OS Android s touto stránkou komunikovat. Pokud náhodou bude, zastávkové JŘ MDPO najdeš v adresáři JR_ODIS_Extra (/storage/emulated/0/Download/JR_ODIS_Extra/). 
+        Tato varianta stahuje zastávkové JŘ MDPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ MDPO v kompletním balíku nejsou zastávkové (na rozdíl od této varianty). Je velká pravděpodobnost, že kvůli problémům s mdpo.cz (na které jsem MDPO již dávno upozornil) nebude OS Android s touto stránkou komunikovat. Pokud náhodou bude, zastávkové JŘ MDPO najdeš v adresáři JR_ODIS_Extra (/storage/emulated/0/ODIS/JR_ODIS_Extra/). 
         
         Cesta /storage/emulated/0/ odkazuje na \"shared storage\", v české mutaci Androidu to bude pravděpodobně \"interní úložiště\".
         

@@ -22,8 +22,8 @@ module private Paths =
         | _ -> path 
     
     #if ANDROID    
-    //let basePath () = FileSystem.Current.AppDataDirectory  // TODO pro Google Play
-    let basePath () = "/storage/emulated/0/"
+    let basePathSandBox () = FileSystem.Current.AppDataDirectory  // TODO pro Google Play
+    let basePath () = "/storage/emulated/0/ODIS/"
     #else
     let basePath () = @"g:\Users\User\"
     #endif  
@@ -95,10 +95,16 @@ module SettingsGeneral =
         Path.Combine(Paths.basePath(), "Logs")
        |> Paths.ensureDir
     
+    #if ANDROID
     let internal jsonTemp () =
-        Path.Combine(Paths.basePath(), "JsonData")
+        Path.Combine(Paths.basePathSandBox (), "JsonData")
         |> Paths.ensureDir
-
+    #else
+    let internal jsonTemp () =
+        Path.Combine(Paths.basePath (), "JsonData")
+        |> Paths.ensureDir
+    #endif
+    
     let internal kodisPathTemp () =
         Path.Combine(Paths.basePath(), "JR_ODIS")
         |> Paths.ensureDir

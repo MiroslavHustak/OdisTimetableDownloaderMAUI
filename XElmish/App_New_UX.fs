@@ -170,8 +170,8 @@ module App =
     let init () : Model * Cmd<Msg> =
 
         #if ANDROID
-        let permissionGranted = true 
-            //permissionCheck >> runIO >> Async.RunSynchronously <| ()
+        let permissionGranted = //true 
+            permissionCheck >> runIO >> Async.RunSynchronously <| ()
                       
         #else
         let permissionGranted = true
