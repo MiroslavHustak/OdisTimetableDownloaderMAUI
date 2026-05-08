@@ -54,9 +54,9 @@ module WebScraping_MDPO =
                         {
                             source = dirList pathToDir |> List.head 
                             #if ANDROID
-                            destination = oldTimetablesPath4 Platform.AppContext
+                            destination = oldTimetablesPath4 ()
                             #else
-                            destination = oldTimetablesPath4 
+                            destination = oldTimetablesPath4 ()
                             #endif
                         }
 

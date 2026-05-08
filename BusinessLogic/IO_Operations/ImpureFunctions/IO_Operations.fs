@@ -155,16 +155,12 @@ module IO_Operations =
         IO (fun () 
                 ->  
                 try
-                    #if ANDROID
-                    let dirInfo = DirectoryInfo (oldTimetablesPath Platform.AppContext)
-                    deleteAllODISDirectories >> runIO <| (oldTimetablesPath Platform.AppContext) |> ignore<Result<unit, ParsingAndDownloadingErrors>>
-                    dirInfo.Delete true                    
-                    #else
-                    let dirInfo = DirectoryInfo oldTimetablesPath
-                    deleteAllODISDirectories >> runIO <| oldTimetablesPath |> ignore<Result<unit, ParsingAndDownloadingErrors>>
+                    let dirInfo = oldTimetablesPath >> DirectoryInfo <| ()
+                    
+                    oldTimetablesPath >> deleteAllODISDirectories >> runIO <| () 
+                    |> ignore<Result<unit, ParsingAndDownloadingErrors>>
+                    
                     dirInfo.Delete true
-                    #endif
-
                     Ok ()
 
                     (*
@@ -197,20 +193,14 @@ module IO_Operations =
         IO (fun () 
                 ->  
                 try
-                    #if ANDROID
-                    let dirInfo = DirectoryInfo (oldTimetablesPath4 Platform.AppContext)   
+                    let dirInfo = oldTimetablesPath4 >> DirectoryInfo <| ()   
                    
-                    deleteAllODISDirectories >> runIO <| (oldTimetablesPath4 Platform.AppContext) |> ignore<Result<unit, ParsingAndDownloadingErrors>>
-                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (oldTimetablesPath4 Platform.AppContext) |> ignore<Result<unit, MHDErrors>>
-                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) (oldTimetablesPath4 Platform.AppContext) |> ignore<Result<unit, MHDErrors>>
-                    #else
-                    let dirInfo = DirectoryInfo oldTimetablesPath4
-                                      
-                    deleteAllODISDirectories >> runIO <| oldTimetablesPath4 |> ignore<Result<unit, ParsingAndDownloadingErrors>>
-                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
-                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) oldTimetablesPath4 |> ignore<Result<unit, MHDErrors>>
-                    #endif
-
+                    oldTimetablesPath4 >> deleteAllODISDirectories >> runIO <| ()
+                    |> ignore<Result<unit, ParsingAndDownloadingErrors>>
+                    
+                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (oldTimetablesPath4 ()) |> ignore<Result<unit, MHDErrors>>
+                    runIO <| deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I3) (oldTimetablesPath4 ()) |> ignore<Result<unit, MHDErrors>>
+                   
                     dirInfo.Delete true
                     Ok ()
 
@@ -280,7 +270,6 @@ module IO_Operations =
                 | true 
                     ->
                     try
-                        #if ANDROID                   
                         [
                             partialPathJsonTemp 
                             kodisPathTemp 
@@ -294,27 +283,10 @@ module IO_Operations =
                             (fun pathDir 
                                 -> 
                                 // If the directory already exists, nothing happens — no exception, no overwrite, no change.
-                                Directory.CreateDirectory (pathDir Platform.AppContext) |> ignore<DirectoryInfo>
+                                Directory.CreateDirectory (pathDir ()) |> ignore<DirectoryInfo>
                             )
                         |> Ok  
-                    #else                     
-                        [
-                            partialPathJsonTemp 
-                            kodisPathTemp 
-                            kodisPathTemp4 
-                            dpoPathTemp 
-                            mdpoPathTemp
-                            oldTimetablesPath
-                            oldTimetablesPath4
-                        ]        
-                        |> List.iter
-                            (fun pathDir 
-                                -> 
-                                // If the directory already exists, nothing happens — no exception, no overwrite, no change.
-                                Directory.CreateDirectory pathDir |> ignore<DirectoryInfo>
-                            )
-                        |> Ok  
-                    #endif
+                  
                     with 
                     | ex
                         ->

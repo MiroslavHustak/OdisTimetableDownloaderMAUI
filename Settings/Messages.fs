@@ -55,19 +55,25 @@ module Messages =
     let [<Literal>] internal dispatchMsg3 = "Kompletní balík JŘ ODIS úspěšně stažen." 
     let [<Literal>] internal dispatchMsg2_1 = "Chvíli strpení, provádím přípravu na stahování ..."
     
-    let [<Literal>] internal dispatchMsg0 = "Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
-    let [<Literal>] internal dispatchMsg4 = "Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal dispatchMsg0 = "Došlo k chybě v průběhu procesu, JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil." //"Došlo k chybě, pravděpodobně JŘ ODIS nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal dispatchMsg4 = "Došlo k chybě v průběhu procesu, JŘ ODIS nebyly staženy."//"Došlo k chybě, JŘ ODIS nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
 
-    let [<Literal>] internal mdpoMsg0 = "Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
+    let [<Literal>] internal cancelMsg4 = "Stahování JŘ KODIS bylo předčasně ukončeno."
+    let [<Literal>] internal cancelMsg42 = "Stahování příslušného JŘ bylo předčasně ukončeno."
+    let [<Literal>] internal cancelMsg44 = "JSON parsing a JŘ KODIS předčasně ukončeny."
+    let [<Literal>] internal cancelMsg5 = "Stahování JŘ KODIS předčasně ukončeno, úklid se nepodařil."
+
+    let [<Literal>] internal mdpoMsg0 = "Došlo k chybě v průběhu procesu, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil." //"Došlo k chybě, JŘ MDPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
     //let [<Literal>] internal mdpoMsg1 = "Došlo k chybě, JŘ MDPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."
     //let [<Literal>] internal mdpoMsg2 = "Došlo k chybě, všechny JŘ MDPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení přístupu k internetu."
     let [<Literal>] internal mdpoMsg1 = "JŘ MDPO se nepodařilo stáhnout. OS Android blokuje pokus o navázání spojení se serverem mdpo.cz. Chyba není na straně této aplikace." 
     let [<Literal>] internal mdpoCancelMsg = "Stahování JŘ MDPO předčasně ukončeno."
     let [<Literal>] internal mdpoCancelMsg1 = "Stahování JŘ MDPO předčasně ukončeno, úklid se nepodařil."
 
-    let [<Literal>] internal dpoMsg0 = "Došlo k chybě, JŘ DPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
-    let [<Literal>] internal dpoMsg1 = "Došlo k chybě, JŘ DPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
-    let [<Literal>] internal dpoMsg2 = "Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení." 
+    let [<Literal>] internal dpoMsg0 = "Došlo k chybě v průběhu procesu, JŘ DPO nebyly staženy, navíc ani úklid se nepodařil." //"Došlo k chybě, JŘ DPO nebyly staženy, navíc ani úklid se nepodařil. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal dpoMsg1 = "Došlo k chybě v průběhu procesu, JŘ DPO nebyly staženy." //"Došlo k chybě, JŘ DPO nebyly staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení."  
+    let [<Literal>] internal dpoMsg2 = "Došlo k chybě v průběhu procesu, všechny JŘ DPO nebyly úspěšně staženy." //"Došlo k chybě, všechny JŘ DPO nebyly úspěšně staženy. Nejpravděpodobnější příčinou je přerušení internetového či SSL připojení." 
     let [<Literal>] internal dpoCancelMsg = "Stahování JŘ DPO předčasně ukončeno."
     let [<Literal>] internal dpoCancelMsg1 = "Stahování JŘ DPO předčasně ukončeno, úklid se nepodařil."
   
@@ -134,13 +140,7 @@ module Messages =
     let [<Literal>] internal yesNetConn = "Přípojení k internetu funguje." 
    
     let [<Literal>] internal ctsMsg2 = "Nebylo možné detekovat ani vytvořit adresáře pro stahované JŘ." 
-    let [<Literal>] internal ctsMsg = "Problém s detekcí internetového připojení."
-    
-    let [<Literal>] internal cancelMsg2 = "Činnost aplikace byla předčasně ukončena."
-    let [<Literal>] internal cancelMsg4 = "Stahování JŘ KODIS bylo předčasně ukončeno."
-    let [<Literal>] internal cancelMsg42 = "Stahování příslušného JŘ bylo předčasně ukončeno."
-    let [<Literal>] internal cancelMsg44 = "JSON parsing a JŘ KODIS předčasně ukončeny."
-    let [<Literal>] internal cancelMsg5 = "Stahování JŘ KODIS předčasně ukončeno, úklid se nepodařil."
+    let [<Literal>] internal ctsMsg = "Problém s detekcí internetového připojení."  
 
     let [<Literal>] internal apiResponseError = "Nelze se dostat k odkazům na JŘ umístěným na www.kodis.somee.com. Zkontroluj připojení k internetu a spusť aplikaci znovu."
 
@@ -186,18 +186,18 @@ module Messages =
 
     let [<Literal>] internal popUpWindowText = 
         "
-        Aplikace slouží k hromadnému stahování aktuálních, budoucích a dlouhodobě platných jízdních řádů (JŘ) IDS MSK (ODIS) z veřejně dostupných zdrojů (kodis.cz, dpo.cz a mdpo.cz). Provozovatelé mohou kdykoliv změnit strukturu svých stránek tak, že stahování nebude možné (pokud k tomu dojde, požádej mne o update aplikace, já zase něco vymyslím, nebude to poprvé). JŘ se nestáhnou v případě chybných odkazů.
+        Aplikace slouží k hromadnému stahování aktuálních, budoucích a dlouhodobě platných jízdních řádů (JŘ) IDS MSK (ODIS) z veřejně dostupných zdrojů (kodis.cz, dpo.cz a mdpo.cz). Provozovatelé mohou kdykoliv změnit strukturu svých stránek tak, že stahování nebude možné (pokud k tomu dojde, požádej mne o update aplikace, já zase něco vymyslím, nebude to poprvé). JŘ se nestáhnou v případě chybných odkazů, bohužel i to se někdy u Kodisu nebo dopravců stává.
        
         Cílem aplikace je navrátit kouzlo klasických JŘ všem, kteří na ně nostalgicky vzpomínají, chtějí je mít k dispozici v PDF formátu kdykoliv a kdekoliv, a nechtějí trávit 6 hodin denně jejich stahováním po jednom.
 
         Tato varianta aplikace slouží pouze k testování. Chyby a údaje o verzi a OS mobilu jsou automaticky odesílány na endpoint.
         
         Podmínky užití: 
-        JŘ jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODIS. Aplikace je šířena zcela zdarma jako freeware a její prodej je zakázán.  
+        JŘ jsou majetkem příslušných dopravců a jejich užití se řídí jejich podmínkami a podmínkami Koordinátora ODIS. Aplikace je šířena zdarma buď jako freeware nebo jako donorware a její prodej je zakázán.  
         
         Autor:
         Miroslav Husťák (hustak.somee.com)
-        Kódováno s radostí v F# (fsharp.org) a Fabulous (fabulous.dev). Zatím testováno pro OS Android 7.1, 11 a 12.
+        Kódováno s radostí v F# (fsharp.org) a Fabulous (fabulous.dev). K datu 08-05-2026 testováno pro OS Android 7.1, 11 a 12.
         
         Zdrojový kód: 
         https://github.com/MiroslavHustak
@@ -213,21 +213,21 @@ module Messages =
     let [<Literal>] internal popUpWindow2Text = 
         "
         Kodis Json TP (základní varianta)        
-        Tato varianta stahuje kompletní JŘ ODIS na základě odkazů získaných z veřejně dostupných JSON souborů (odkazy na JŘ na kodis.cz jsou dynamicky generované, proto nelze použít klasický web scraping). Tyto odkazy by měly být teoreticky stejné jako odkazy, které naleznete na kodis.cz, realita může ale být všelijaká. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři FabulousTimetables (/storage/emulated/0/Download/FabulousTimetables/). 
+        Tato varianta stahuje kompletní JŘ ODIS na základě odkazů získaných z veřejně dostupných JSON souborů (odkazy na JŘ jsou dynamicky generované, proto nelze použít klasický web scraping z kodis.cz). Tyto odkazy by měly být teoreticky stejné jako odkazy, které naleznete na kodis.cz, realita může ale být všelijaká. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři JR_ODIS (/storage/emulated/0/Download/JR_ODIS/). 
         
         Kodis Canopy (ověřovací varianta)
-        I když nelze použít klasický web scraping, lze použít testovací nástroj Canopy (který ale není určen pro běžného uživatele). Čas od času se pomocí speciálního programu využívajícího tento testovací nástroj odešlou odkazy na JŘ na IIS server, odkud je tato aplikace stáhne, a poté se JŘ mohou stahovat obvyklým způsobem.
-        Vzhledem k tomu, že tato aplikace využívá webhosting zdarma a free plan omezuje traffic na minimum, není možné stahovat JŘ ODIS z IIS serveru neustále, ale pouze čas od času. Proto se tato varianta používá pouze pro ověřování diskrepancí v JŘ. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři FabulousTimetables4 (/storage/emulated/0/Download/FabulousTimetables4/). 
+        I když klasický web scraping nepřipadá v úvahu, lze alespoň využít testovací nástroj Canopy (který ale není určen pro běžného uživatele). Čas od času se pomocí speciálního programu s tímto testovacím nástrojem odešlou odkazy na JŘ na IIS server, odkud je tato aplikace stáhne, a poté se JŘ mohou stahovat obvyklým způsobem.
+        Vzhledem k tomu, že tato aplikace využívá webhosting zdarma a free plan omezuje traffic na minimum, není možné stahovat JŘ ODIS z IIS serveru neustále, ale pouze omezeně. Proto se tato varianta používá pouze pro ověřování diskrepancí v systému JŘ ODIS. JŘ jsou tříděny podle linek a platnosti, k nalezení v adresáři JR_ODIS_Extra (/storage/emulated/0/Download/JR_ODIS_Extra/). 
         
         JŘ DPO
-        Tato varianta stahuje JŘ DPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ DPO nejsou nijak tříděny (na rozdíl od výše uvedených variant), ani zde nejsou JŘ s budoucí platností. Doporučuji využívat JŘ DPO z kompletního balíku a JŘ DPO z této varianty pouze pro ověření či v případě chybějícího JŘ. JŘ DPO jsou k nalezení v adresáři FabulousTimetables4 (/storage/emulated/0/Download/FabulousTimetables4/). 
+        Tato varianta stahuje JŘ DPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ DPO nejsou nijak tříděny (na rozdíl od výše uvedených variant), ani zde nejsou JŘ s budoucí platností. Doporučuji využívat JŘ DPO z kompletního balíku a JŘ DPO z této varianty pouze pro ověření či v případě chybějícího JŘ. JŘ DPO jsou k nalezení v adresáři JR_ODIS_Extra (/storage/emulated/0/Download/JR_ODIS_Extra/). 
     
         JŘ MDPO
-        Tato varianta stahuje zastávkové JŘ MDPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ MDPO v kompletním balíku nejsou zastávkové (na rozdíl od této varianty). Je velká pravděpodobnost, že kvůli problémům s mdpo.cz (na které jsem MDPO již dávno upozornil) nebude OS Android s touto stránkou komunikovat. Pokud náhodou bude, zastávkové JŘ MDPO najdeš v adresáři FabulousTimetables4 (/storage/emulated/0/Download/FabulousTimetables4/). 
+        Tato varianta stahuje zastávkové JŘ MDPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ MDPO v kompletním balíku nejsou zastávkové (na rozdíl od této varianty). Je velká pravděpodobnost, že kvůli problémům s mdpo.cz (na které jsem MDPO již dávno upozornil) nebude OS Android s touto stránkou komunikovat. Pokud náhodou bude, zastávkové JŘ MDPO najdeš v adresáři JR_ODIS_Extra (/storage/emulated/0/Download/JR_ODIS_Extra/). 
         
         Cesta /storage/emulated/0/ odkazuje na \"shared storage\", v české mutaci Androidu to bude pravděpodobně \"interní úložiště\".
         
-        U všech variant se probíhající stahovací proces pokusí automaticky obnovit, pokud se přeruší připojení k internetu, nicméně obnovovací proces může trvat od několika vteřin až po několik minut.
+        U všech variant se probíhající stahovací proces pokusí sám sebe automaticky obnovit, pokud se přeruší připojení k internetu. Obnovovací proces může trvat od několika vteřin až po několik minut.
        
         "
         

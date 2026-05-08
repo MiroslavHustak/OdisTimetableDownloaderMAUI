@@ -64,10 +64,10 @@ let internal executeMdpo dispatch (token : CancellationToken) =
                                                         webscraping_MDPO 
                                                         <| reportProgress 
                                                         <| token2 
-                                                        <| mdpoPathTemp Platform.AppContext
+                                                        <| mdpoPathTemp ()
                                                     )
                                                 #else
-                                                runIO (webscraping_MDPO reportProgress token2 mdpoPathTemp)
+                                                runIO (webscraping_MDPO reportProgress token2 (mdpoPathTemp ()))
                                                 #endif
                                         }
 

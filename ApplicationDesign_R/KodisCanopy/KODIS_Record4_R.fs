@@ -118,15 +118,15 @@ module WebScraping_KODIS4 =
                 let configKodis =
                     {
                         #if ANDROID
-                        source1 = Path.Combine(Platform.Paths.downloads4 Platform.AppContext, ODIS_Variants.board.board I1 I1 )
-                        source2 = Path.Combine(Platform.Paths.downloads4 Platform.AppContext, ODIS_Variants.board.board I1 I2 )
-                        source3 = Path.Combine(Platform.Paths.downloads4 Platform.AppContext, ODIS_Variants.board.board I2 I1 )
-                        destination = oldTimetablesPath4 Platform.AppContext
+                        source1 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I1 I1 )
+                        source2 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I1 I2 )
+                        source3 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I2 I1 )
+                        destination = oldTimetablesPath4 ()
                         #else
-                        source1 = Path.Combine(Platform.Paths.downloads4 (), ODIS_Variants.board.board I1 I1 )
-                        source2 = Path.Combine(Platform.Paths.downloads4 (), ODIS_Variants.board.board I1 I2 )
-                        source3 = Path.Combine(Platform.Paths.downloads4 (), ODIS_Variants.board.board I2 I1 )
-                        destination = oldTimetablesPath4 
+                        source1 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I1 I1 )
+                        source2 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I1 I2 )
+                        source3 = Path.Combine(kodisPathTemp4 (), ODIS_Variants.board.board I2 I1 )
+                        destination = oldTimetablesPath4 ()
                         #endif
                     }  
                    
@@ -190,7 +190,7 @@ module WebScraping_KODIS4 =
                 pyramidOfInferno
                     {                       
                         #if ANDROID
-                        let!_ = logDirTP_Canopy >> createTP_Canopy_Folder >> runIO <| Platform.AppContext, errFn 
+                        let!_ = logDirTP_Canopy >> createTP_Canopy_Folder >> runIO <| (), errFn 
                         #endif
                
                         let!_ = runIO <| moveAll configKodis token, errFn

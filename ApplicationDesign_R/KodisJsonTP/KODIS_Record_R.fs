@@ -64,15 +64,15 @@ module WebScraping_KODIS =
         let configKodis =
             {
                 #if ANDROID
-                source1 = Path.Combine(Platform.Paths.downloads Platform.AppContext, ODIS_Variants.board.board I1 I1 )
-                source2 = Path.Combine(Platform.Paths.downloads Platform.AppContext, ODIS_Variants.board.board I1 I2 )
-                source3 = Path.Combine(Platform.Paths.downloads Platform.AppContext, ODIS_Variants.board.board I2 I1 )
-                destination = oldTimetablesPath Platform.AppContext
+                source1 = Path.Combine(kodisPathTemp (), ODIS_Variants.board.board I1 I1 )
+                source2 = Path.Combine(kodisPathTemp (), ODIS_Variants.board.board I1 I2 )
+                source3 = Path.Combine(kodisPathTemp (), ODIS_Variants.board.board I2 I1 )
+                destination = oldTimetablesPath ()
                 #else
-                source1 = Path.Combine(Platform.Paths.downloads (), ODIS_Variants.board.board I1 I1 )
-                source2 = Path.Combine(Platform.Paths.downloads (), ODIS_Variants.board.board I1 I2 )
-                source3 = Path.Combine(Platform.Paths.downloads (), ODIS_Variants.board.board I2 I1 )
-                destination = oldTimetablesPath 
+                source1 = Path.Combine(kodisPathTemp (), ODIS_Variants.board.board I1 I1 )
+                source2 = Path.Combine(kodisPathTemp (), ODIS_Variants.board.board I1 I2 )
+                source3 = Path.Combine(kodisPathTemp (), ODIS_Variants.board.board I2 I1 )
+                destination = oldTimetablesPath ()
                 #endif
             }  
             
@@ -247,7 +247,7 @@ module WebScraping_KODIS =
                 pyramidOfInferno
                     {       
                         #if ANDROID
-                        let!_ = logDirTP_Canopy >> createTP_Canopy_Folder >> runIO <| Platform.AppContext, errFn 
+                        let!_ = logDirTP_Canopy >> createTP_Canopy_Folder >> runIO <| (), errFn 
                         #endif
                         let!_ = runIO <| deleteAllODISDirectories path, errFn
                         let!_ = runIO <| createFolders dirList, errFn
@@ -274,7 +274,7 @@ module WebScraping_KODIS =
                            | Error err -> err      
                                 
                         #if ANDROID     
-                        let!_ = partialPathJsonTemp >> deleteAllJsonFilesInDirectory >> runIO <| Platform.AppContext, fun _ -> String.Empty 
+                        let!_ = partialPathJsonTemp >> deleteAllJsonFilesInDirectory >> runIO <| (), fun _ -> String.Empty 
                         #endif
 
                         let separator = String.Empty

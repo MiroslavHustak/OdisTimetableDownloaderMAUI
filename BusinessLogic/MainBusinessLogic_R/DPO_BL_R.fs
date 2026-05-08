@@ -287,7 +287,8 @@ module DPO_BL =
                                                 | ex 
                                                     -> 
                                                     checkCancel token
-                                                    runIO (postToLog2 <| string ex.Message <| "#0001-DPOBL") 
+                                                    runIO (postToLog2 <| sprintf "%s | %s" (ex.GetType().FullName) (string ex.Message) <| "#0001-DPOBL")
+                                                    //runIO (postToLog2 <| string ex.Message <| "#0001-DPOBL") 
                                                     return
                                                         runIO <| comprehensiveTryWith 
                                                             LetItBeMHD StopDownloadingMHD TimeoutErrorMHD 

@@ -156,15 +156,10 @@ module TP_Canopy_Difference =
 
             IO (fun () 
                     ->   
-                    #if ANDROID
-                    match folderPathTP = pathTP_FutureValidity Platform.AppContext && folderPathCanopy = pathCanopy_FutureValidity Platform.AppContext with
+                    match folderPathTP = pathTP_FutureValidity () && folderPathCanopy = pathCanopy_FutureValidity () with
                     | true  -> seq { folderPathTP }, seq { folderPathCanopy }
                     | false -> getDirNames >> runIO <| folderPathTP, getDirNames >> runIO <| folderPathCanopy
-                    #else
-                    match folderPathTP = pathTP_FutureValidity && folderPathCanopy = pathCanopy_FutureValidity with
-                    | true  -> seq { folderPathTP }, seq { folderPathCanopy }
-                    | false -> getDirNames >> runIO <| folderPathTP, getDirNames >> runIO <| folderPathCanopy
-                    #endif
+                    
                     ||> Seq.map2
                         (fun pathTP pathCanopy
                             ->
@@ -183,29 +178,16 @@ module TP_Canopy_Difference =
                             {
                                 currentValidity
                                 String.Empty
-                                String.replicate 48 "*"
-                                
-                                #if ANDROID                                
-                                yield! runIO <| result (pathTP_CurrentValidity Platform.AppContext) (pathCanopy_CurrentValidity Platform.AppContext) 
+                                String.replicate 48 "*"                                
+                                yield! runIO <| result (pathTP_CurrentValidity ()) (pathCanopy_CurrentValidity ()) 
                                 String.Empty
                                 futureValidity
                                 String.replicate 48 "*"
-                                yield! runIO <| result (pathTP_FutureValidity Platform.AppContext) (pathCanopy_FutureValidity Platform.AppContext)
+                                yield! runIO <| result (pathTP_FutureValidity ()) (pathCanopy_FutureValidity ())
                                 String.Empty
                                 longTermValidity
                                 String.replicate 48 "*"
-                                yield! runIO <| result (pathTP_LongTermValidity Platform.AppContext) (pathCanopy_LongTermValidity Platform.AppContext)                                  
-                                #else                                                    
-                                yield! runIO <| result pathTP_CurrentValidity pathCanopy_CurrentValidity
-                                String.Empty
-                                futureValidity
-                                String.replicate 48 "*"
-                                yield! runIO <| result pathTP_FutureValidity pathCanopy_FutureValidity
-                                String.Empty
-                                longTermValidity
-                                String.replicate 48 "*"
-                                yield! runIO <| result pathTP_LongTermValidity pathCanopy_LongTermValidity
-                                #endif
+                                yield! runIO <| result (pathTP_LongTermValidity ()) (pathCanopy_LongTermValidity ()) 
                             }                
                         |> List.ofSeq
                         |> List.map Encode.string
@@ -213,7 +195,7 @@ module TP_Canopy_Difference =
                         |> Encode.toString 2
             
                     #if ANDROID
-                    runIO <| serializeWithThothAsync json (logFileNameAndroid Platform.AppContext)   
+                    runIO <| serializeWithThothAsync json (logFileNameAndroid ())   
                     #else
                     runIO <| serializeWithThothAsync json logFileNameWindows 
                     #endif

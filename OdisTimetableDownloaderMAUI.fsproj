@@ -109,7 +109,6 @@
     <None Include="Educational code.txt" />   	
     <Compile Include="AssemblyInfo\AssemblyInfo.fs" />
     <Compile Include="DotNetInteroperabilityCode\DotNetInteroperabilityCode.fs" />
-    <Compile Include="JavaInteroperabilityCode\PlatformPaths.fs" />
     <Compile Include="JavaInteroperabilityCode\RealInternetChecker.fs" />
     <Compile Include="JavaInteroperabilityCode\SSL_TLS_handling.fs" />
     <Compile Include="NativeCode\NativeCode.fs" />

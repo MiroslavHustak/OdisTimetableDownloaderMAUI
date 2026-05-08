@@ -173,7 +173,7 @@ module Logging =
                         #else
                         let logFilePath = logFileNameAndroid2
                         runIO <| postToLog msg err //to endpoint
-                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath Platform.AppContext
+                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath ()  
                         #endif
                     
                         use fs =
@@ -221,7 +221,7 @@ module Logging =
                         let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath 
                         #else
                         let logFilePath = logFileNameAndroid2
-                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath Platform.AppContext
+                        let! path = SafeFullPath.safeFullPathResult >> runIO <| logFilePath ()
                         #endif
                                                            
                         use fs =

@@ -12,8 +12,6 @@ module SettingsKODIS =
     //************************Constants and types**********************************************************************
 
     //tu a tam zkontrolovat json, zdali KODIS nezmenil jeho strukturu 
-     
-    let internal partialPathJson = partialPathJsonTemp //viz SeetingsGeneral
 
     type internal Context2 = 
         {
@@ -86,70 +84,36 @@ module SettingsKODIS =
     let internal jsonLinkList3 = codes |> List.collect jsonLinkListPartial // (fun code -> jsonLinkListPartial code)
           
     let private pathToJsonListPartial code =    
-        #if ANDROID
         [         
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDTotal2_" code ".json"          
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegionTotal2_" code ".json"            
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisTrainTotal2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDBruntal2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDCT2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDFM2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDHavirov2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDKarvina2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDBKrnov2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDNJ2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDOpava2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDOrlova2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDOstrava2_" code ".json"           
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDStudenka2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDTrinec2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisMHDNAD2_" code ".json"            
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion752_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion2002_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion3002_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion4002_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion5002_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion6002_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion7002_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion8002_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisRegion9002_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisTrainPomaliky2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisTrainRychliky2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisNAD2_" code ".json"
-            sprintf "%s%s%s%s" (partialPathJson Platform.AppContext) @"kodisBoat_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDTotal2_" code ".json"          
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegionTotal2_" code ".json"            
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisTrainTotal2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDBruntal2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDCT2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDFM2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDHavirov2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDKarvina2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDBKrnov2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDNJ2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDOpava2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDOrlova2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDOstrava2_" code ".json"           
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDStudenka2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDTrinec2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisMHDNAD2_" code ".json"            
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion752_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion2002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion3002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion4002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion5002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion6002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion7002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion8002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisRegion9002_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisTrainPomaliky2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisTrainRychliky2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisNAD2_" code ".json"
+            sprintf "%s%s%s%s" (partialPathJsonTemp ()) @"kodisBoat_" code ".json"
         ] 
-        #else
-        [         
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDTotal2_" code ".json"          
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegionTotal2_" code ".json"            
-            sprintf "%s%s%s%s" partialPathJson @"kodisTrainTotal2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDBruntal2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDCT2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDFM2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDHavirov2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDKarvina2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDBKrnov2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDNJ2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDOpava2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDOrlova2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDOstrava2_" code ".json"           
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDStudenka2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDTrinec2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisMHDNAD2_" code ".json"            
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion752_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion2002_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion3002_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion4002_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion5002_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion6002_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion7002_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion8002_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisRegion9002_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisTrainPomaliky2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisTrainRychliky2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisNAD2_" code ".json"
-            sprintf "%s%s%s%s" partialPathJson @"kodisBoat_" code ".json"
-        ] 
-        #endif
-
+      
     let internal pathToJsonList3 = codes |> List.collect pathToJsonListPartial //(fun code -> pathToJsonListPartial code) 

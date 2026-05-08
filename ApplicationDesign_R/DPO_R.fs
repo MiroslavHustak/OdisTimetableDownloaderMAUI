@@ -55,9 +55,9 @@ module WebScraping_DPO =
                         {
                             source = dirList pathToDir |> List.head 
                             #if ANDROID
-                            destination = oldTimetablesPath4 Platform.AppContext
+                            destination = oldTimetablesPath4 ()
                             #else
-                            destination = oldTimetablesPath4 
+                            destination = oldTimetablesPath4 ()
                             #endif
                         }
         
@@ -138,11 +138,11 @@ module WebScraping_DPO =
         | ServiceUnavailable       -> "503 Service Unavailable"        
         | NotFound                 -> "404 Page Not Found"
         | CofeeMakerUnavailable    -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-        | FileDownloadErrorMHD     -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (dpoPathTemp Platform.AppContext) ) |> Result.either (fun _ -> dpoMsg1) (fun _ -> dpoMsg0)
+        | FileDownloadErrorMHD     -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (dpoPathTemp ()) ) |> Result.either (fun _ -> dpoMsg1) (fun _ -> dpoMsg0)
         | FolderCopyOrMoveErrorMHD -> folderCopyingError
         | ConnectionError          -> noNetConn
         | FileDeleteErrorMHD       -> fileDeleteError
-        | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (dpoPathTemp Platform.AppContext) ) |> Result.either (fun _ -> dpoCancelMsg) (fun _ -> dpoCancelMsg1)
+        | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (dpoPathTemp ()) ) |> Result.either (fun _ -> dpoCancelMsg) (fun _ -> dpoCancelMsg1)
         | LetItBeMHD               -> letItBe
         | TlsHandshakeErrorMHD     -> tlsHandShakeErrorDpo
         | TimeoutErrorMHD          -> timeoutError
@@ -154,11 +154,11 @@ module WebScraping_DPO =
         | ServiceUnavailable       -> "503 Service Unavailable"        
         | NotFound                 -> "404 Page Not Found"
         | CofeeMakerUnavailable    -> "418 I'm a teapot. Look for a coffee maker elsewhere."
-        | FileDownloadErrorMHD     -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) dpoPathTemp) |> Result.either (fun _ -> dpoMsg1) (fun _ -> dpoMsg0)
+        | FileDownloadErrorMHD     -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (dpoPathTemp ())) |> Result.either (fun _ -> dpoMsg1) (fun _ -> dpoMsg0)
         | FolderCopyOrMoveErrorMHD -> folderCopyingError
         | ConnectionError          -> noNetConn
         | FileDeleteErrorMHD       -> fileDeleteError
-        | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) dpoPathTemp) |> Result.either (fun _ -> dpoCancelMsg) (fun _ -> dpoCancelMsg1)
+        | StopDownloadingMHD       -> runIO (deleteOneODISDirectoryMHD (ODIS_Variants.board.board I2 I2) (dpoPathTemp ())) |> Result.either (fun _ -> dpoCancelMsg) (fun _ -> dpoCancelMsg1)
         | LetItBeMHD               -> letItBe
         | TlsHandshakeErrorMHD     -> tlsHandShakeErrorDpo
         | TimeoutErrorMHD          -> timeoutError

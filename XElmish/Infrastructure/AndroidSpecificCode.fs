@@ -41,9 +41,8 @@ type private DownloadForegroundService() =
     override this.OnBind intent = null  // not a bound service // intentionally null - binding not supported
 
     override this.OnStartCommand(intent : Intent, flags : StartCommandFlags, startId : int) =
-    
+
         let iconId : int = Resource.Drawable.ic_download
-    
         let minimalNotification =
             (new Notification.Builder(this, notificationChannelId))
                 .SetContentTitle("Stahují se jízdní řády")
@@ -51,48 +50,14 @@ type private DownloadForegroundService() =
                 .SetSmallIcon(iconId)
                 .SetOngoing(true)
                 .Build()
-    
-        let startForegroundSucceeded =
-            try
-                // StartForeground is now called immediately before anything else, so Android 12+ can never hit the 5-second timeout.
-                this.StartForeground(notificationId, minimalNotification)
-                true
-            with
-            | ex 
-                ->
-                runIO <| postToLog2 (string ex.Message) " #1002Android"
-                false
-    
-        match startForegroundSucceeded with
-        | false
-            ->
-            StartCommandResult.NotSticky
-    
-        | true
-            ->
-            match this.GetSystemService Context.NotificationService |> Option.ofNull' with
-            | None
-                ->
-                runIO <| postToLog2 "Could not get NotificationManager" " #1001Android"
-            | Some gss 
-                ->
-                let manager = gss :?> NotificationManager
-
-                match Build.VERSION.SdkInt >= BuildVersionCodes.O with
-                | true 
-                    ->
-                    let channel =
-                        new NotificationChannel(
-                            notificationChannelId,
-                            "Timetable Downloads",
-                            NotificationImportance.Low
-                        )
-                    manager.CreateNotificationChannel channel
-                | false 
-                    ->
-                    ()
-    
+        try
+            this.StartForeground(notificationId, minimalNotification)
             StartCommandResult.Sticky
+        with
+        | ex 
+            ->
+            runIO <| postToLog2 (string ex.Message) " #1002Android"
+            StartCommandResult.NotSticky
 
     override this.OnTaskRemoved(rootIntent : Intent) =
         this.StopForeground StopForegroundFlags.Remove
@@ -106,7 +71,7 @@ type private DownloadForegroundService() =
 module DownloadServiceController =
     
     let internal startService (context : Context) =
-
+   
         IO (fun ()
                 ->
                 match context |> Option.ofNull' with
@@ -114,25 +79,37 @@ module DownloadServiceController =
                     ->
                     runIO <| postToLog2 "Context is null" " #1004Android"
                 | Some ctx 
-                    ->
-                    let intent = new Intent(ctx, typeof<DownloadForegroundService>)
-
-                    match Build.VERSION.SdkInt >= BuildVersionCodes.O with
-                    | true  -> ctx.StartForegroundService intent |> ignore<ComponentName>
-                    | false -> ctx.StartService intent           |> ignore<ComponentName>
+                    ->   
+                    match int Build.VERSION.SdkInt with
+                    | v 
+                        when v >= 29
+                        ->  // Android 10+ (incl.) 
+                        let intent = new Intent(ctx, typeof<DownloadForegroundService>)
+                        ctx.StartForegroundService intent |> ignore<ComponentName>                       
+                    | _ -> 
+                        ()  // Android 10- (excl.)
         )
-    let internal stopService (context : Android.Content.Context) =
-    
+   
+    let internal stopService (context : Context) = 
+   
         IO (fun ()
                 ->                
                 match context |> Option.ofNull' with
-                | None ->
+                | None
+                    ->
                     runIO <| postToLog2 "Context is null" " #1005Android"
-                | Some ctx ->
-                    let intent = new Android.Content.Intent(ctx, typeof<DownloadForegroundService>)
-                    ctx.StopService intent |> ignore<bool>
+                | Some ctx
+                    ->
+                    match int Build.VERSION.SdkInt with
+                    | v 
+                        when v >= 29 
+                        ->  // Android 10+ (incl.) 
+                        let intent = new Intent(ctx, typeof<DownloadForegroundService>)
+                        ctx.StopService intent |> ignore<bool>
+                    | _ -> 
+                        () // Android 10- (excl.)
         )
-
+    
 module openFolder = 
     
     let internal openFolderInFileManager (context: Context) (folderPath: string) =

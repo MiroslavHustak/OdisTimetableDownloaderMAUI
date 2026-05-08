@@ -119,7 +119,7 @@ let internal executePdf dispatch (token : CancellationToken) =
                                                 #if ANDROID
                                                 stateReducerCmd2
                                                     <| token2
-                                                    <| kodisPathTemp Platform.AppContext
+                                                    <| kodisPathTemp ()
                                                     <| fun _   -> ()
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress
@@ -127,7 +127,7 @@ let internal executePdf dispatch (token : CancellationToken) =
                                                 #else   
                                                  stateReducerCmd2
                                                     <| token2
-                                                    <| kodisPathTemp
+                                                    <| kodisPathTemp ()
                                                     <| fun _   -> ()
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress

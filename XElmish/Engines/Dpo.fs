@@ -66,7 +66,7 @@ let internal executeFilter dispatch (token : CancellationToken) =
                                                     webscraping_DPO_Filter
                                                     <| reportProgress
                                                     <| token2
-                                                    <| dpoPathTemp Platform.AppContext
+                                                    <| dpoPathTemp ()
                                                 )
                                                 #else
                                                 runIO
@@ -74,7 +74,7 @@ let internal executeFilter dispatch (token : CancellationToken) =
                                                     webscraping_DPO_Filter
                                                     <| reportProgress
                                                     <| token2
-                                                    <| dpoPathTemp
+                                                    <| dpoPathTemp ()
                                                 )                                                
                                                 #endif
                                         }

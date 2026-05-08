@@ -172,6 +172,7 @@ module App =
         #if ANDROID
         let permissionGranted = true 
             //permissionCheck >> runIO >> Async.RunSynchronously <| ()
+                      
         #else
         let permissionGranted = true
         #endif
@@ -544,7 +545,7 @@ module App =
                 try
                     let logFileNameDiff =                   
                         #if ANDROID
-                        logFileNameAndroid Platform.AppContext 
+                        logFileNameAndroid ()
                         #else
                         logFileNameWindows                        
                         #endif

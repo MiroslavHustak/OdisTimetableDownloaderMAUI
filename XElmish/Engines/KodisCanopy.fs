@@ -62,14 +62,14 @@ let internal execute dispatch (token : CancellationToken) =
                                                 #if ANDROID
                                                 stateReducer
                                                     <| token2
-                                                    <| kodisPathTemp4 Platform.AppContext
+                                                    <| kodisPathTemp4 ()
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress
                                                 |> runIO
                                                 #else
                                                 stateReducer
                                                     <| token2
-                                                    <| kodisPathTemp4
+                                                    <| kodisPathTemp4 ()
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress
                                                 |> runIO
