@@ -254,7 +254,6 @@ module KeepScreenOnManager =
 
 module AndroidUIHelpers =
 
-    // Quli Google Play zatim permissionCheck/MANAGE_EXTERNAL_STORAGE nepouzivan, nicmene ponechat pro pripadne budouci pouziti
     let internal permissionCheck () =
 
         IO (fun () 
