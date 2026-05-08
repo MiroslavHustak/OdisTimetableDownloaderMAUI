@@ -127,6 +127,7 @@ module DownloadServiceController =
 module PdfExport =
 
     let private getFiles sourceDir =
+
         try
             match not (Directory.Exists sourceDir) with
             | true 
