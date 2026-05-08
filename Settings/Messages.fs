@@ -225,7 +225,7 @@ module Messages =
         JŘ MDPO
         Tato varianta stahuje zastávkové JŘ MDPO z veřejně dostupných zdrojů pomocí klasického web scrapingu. JŘ MDPO v kompletním balíku nejsou zastávkové (na rozdíl od této varianty). Je velká pravděpodobnost, že kvůli problémům s mdpo.cz (na které jsem MDPO již dávno upozornil) nebude OS Android s touto stránkou komunikovat. Pokud náhodou bude, zastávkové JŘ MDPO najdeš v adresáři JR_ODIS_Extra (/storage/emulated/0/ODIS/JR_ODIS_Extra/). 
         
-        Cesta /storage/emulated/0/ odkazuje na \"shared storage\", v české mutaci Androidu to bude pravděpodobně \"interní úložiště\".
+        Cesta /storage/emulated/0/ odkazuje na \"internal shared storage\", v české mutaci Androidu to bude pravděpodobně \"interní úložiště\".
         
         U všech variant se probíhající stahovací proces pokusí sám sebe automaticky obnovit, pokud se přeruší připojení k internetu. Obnovovací proces může trvat od několika vteřin až po několik minut.
        

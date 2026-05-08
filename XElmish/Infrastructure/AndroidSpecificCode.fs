@@ -53,6 +53,7 @@ type private DownloadForegroundService() =
     override this.OnStartCommand(intent : Intent, flags : StartCommandFlags, startId : int) =
 
         let iconId : int = Resource.Drawable.ic_download
+
         let minimalNotification =
             (new Notification.Builder(this, notificationChannelId))
                 .SetContentTitle("Stahují se jízdní řády")
@@ -60,6 +61,7 @@ type private DownloadForegroundService() =
                 .SetSmallIcon(iconId)
                 .SetOngoing(true)
                 .Build()
+
         try
             this.StartForeground(notificationId, minimalNotification)
             StartCommandResult.Sticky
@@ -108,6 +110,7 @@ module DownloadServiceController =
                 | None
                     ->
                     runIO <| postToLog2 "Context is null" " #1005Android"
+
                 | Some ctx
                     ->
                     match int Build.VERSION.SdkInt with
@@ -120,7 +123,7 @@ module DownloadServiceController =
                         () // Android 10- (excl.)
         )
 
-// Zatim nepouzito TODO pro Google Play
+// Pro Google Play, zatim jen pro testovaci ucely 
 module PdfExport =
 
     let private getFiles sourceDir =
@@ -139,7 +142,7 @@ module PdfExport =
         with
         | _ -> None
 
-    let private writeFileToMediaStore (resolver: ContentResolver) (baseDir : string) (filePath : string) : bool =
+    let private writeFileToMediaStore (resolver : ContentResolver) (rootName : string) (baseDir : string) (filePath : string) : bool =
 
         try
             let fileName = Path.GetFileName filePath
@@ -148,9 +151,9 @@ module PdfExport =
                 Path.GetDirectoryName filePath
                 |> fun dir
                     ->
-                    match String.IsNullOrEmpty dir with
-                    | true  -> String.Empty
-                    | false -> Path.GetRelativePath(baseDir, dir).Replace("\\", "/")
+                    match dir |> Option.ofNullEmptySpace with
+                    | None     -> String.Empty
+                    | Some dir -> Path.GetRelativePath(baseDir, dir).Replace("\\", "/")
 
             let values = new ContentValues()
 
@@ -159,95 +162,56 @@ module PdfExport =
 
             values.Put(
                 MediaStore.IMediaColumns.RelativePath,
-                sprintf "Download/%s" relativeDir   
+                sprintf "Download/%s/%s" rootName relativeDir  
             )
 
-            let collection =
-                MediaStore.Downloads.GetContentUri(MediaStore.VolumeExternalPrimary)
+            let collection = MediaStore.Downloads.GetContentUri(MediaStore.VolumeExternalPrimary)
 
-            match resolver.Insert(collection, values) with
-            | null 
-                -> false
-            | uri 
-                ->
-                match resolver.OpenOutputStream(uri) with
-                | null
-                    ->
-                   false
-                | stream 
-                    ->
+            option
+                {
+                    let! uri = 
+                        resolver.Insert(collection, values) 
+                        |> Option.ofNull'
+                    let! stream =
+                        resolver.OpenOutputStream uri 
+                        |> Option.ofNull'
+
                     use stream = stream
                     use input = File.OpenRead filePath
                     input.CopyTo stream
                     stream.Flush()
-                    true
+
+                    return true
+                }
+            |> Option.defaultValue false
 
         with
         | _ -> false
-          
-    let internal exportPdf (baseDir : string) (sourceDir : string) (err : 'a) : IO<Async<Result<string, 'a>>> =
+     
+    let internal exportPdf (rootName : string) (sourceDir : string) : IO<Async<unit option>> =
 
         IO (fun ()
                 ->
-                async
+                asyncOption 
                     {
-
-                        let resolver = Application.Context.ContentResolver
-
-                        match getFiles sourceDir with
-                        | None 
-                            ->
-                            return Error err
-
-                        | Some files 
-                            ->
+                        try
+                            let baseDir = Directory.GetParent(sourceDir).FullName    
+                            let! (ctx : Context) = Application.Context |> Option.ofNull' 
+                            let! resolver = ctx.ContentResolver |> Option.ofNull'
+                            let! files = getFiles sourceDir
+                            
                             let failures =
                                 files
                                 |> Array.filter 
-                                    (fun file -> not (writeFileToMediaStore resolver baseDir file))
-
-                            return
-                                match failures.Length = 0 with
-                                | true  -> Ok "EXPORT_OK"
-                                | false -> Error err
+                                    (fun file 
+                                        ->
+                                        not (writeFileToMediaStore resolver rootName baseDir file)
+                                    )
+                            return! Array.isEmpty failures |> Option.ofBool     
+                        with
+                        | _ -> return! None                                            
                     }
-        )
-
-    module openFolder = 
-    
-        let internal openFolderInFileManager (context: Context) (folderPath: string) =
-    
-            IO (fun ()
-                    ->
-                    try
-                        let authority = context.PackageName + ".fileprovider"
-                
-                        // Find any PDF in the folder to use as the "entry point"
-                        let anyPdf = 
-                            Directory.EnumerateFiles(folderPath, "*.pdf", SearchOption.AllDirectories)
-                            |> Seq.tryHead
-    
-                        match anyPdf with
-                        | None ->
-                            // Folder is empty - nothing to show yet
-                            runIO <| postToLog2 "No PDF found to open" "#FileManager002"
-                        | Some pdfPath ->
-                            let file = new Java.IO.File(pdfPath)
-                            let uri =
-                                AndroidX.Core.Content.FileProvider.GetUriForFile(context, authority, file)
-    
-                            use intent = new Intent(Intent.ActionView)
-                            intent.SetDataAndType(uri, "application/pdf") |> ignore<Intent>
-                            intent.AddFlags(ActivityFlags.NewTask ||| ActivityFlags.GrantReadUriPermission) |> ignore<Intent>
-    
-                            let chooser = Intent.CreateChooser(intent, "Otevřít v správci souborů")
-                            chooser.AddFlags(ActivityFlags.NewTask) |> ignore<Intent>
-                            context.StartActivity(chooser)
-                    with
-                    | ex ->
-                        runIO <| postToLog2 (string ex.Message) "#FileManager001"
-                        ()
-            )
+         )
        
 module WakeLockHelper = //pouze pro Android API 33 a Android API 34
 

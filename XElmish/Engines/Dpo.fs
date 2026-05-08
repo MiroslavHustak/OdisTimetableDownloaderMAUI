@@ -4,6 +4,8 @@ open System.Threading
 
 open Microsoft.Maui.ApplicationModel
 
+open FsToolkit.ErrorHandling
+
 open Types.Types
 open Types.Haskell_IO_Monad_Simulation
 
@@ -30,7 +32,7 @@ let internal executeFilter dispatch (token : CancellationToken) =
 
     IO (fun ()
             ->
-            async
+            asyncOption
                 {
                     try
                         use cts = CancellationTokenSource.CreateLinkedTokenSource token
@@ -70,9 +72,9 @@ let internal executeFilter dispatch (token : CancellationToken) =
                                                 )
                                         }
 
-                                //#if ANDROID
-                                //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS_Extra" (kodisPathTemp4 ()) FileDownloadError //TODO  zmenit Error case
-                                //#endif   
+                                #if ANDROID
+                                let! _ = runIO <| PdfExport.exportPdf "JR_DPO" (dpoPathTempGP ()) 
+                                #endif   
 
                                 match token2.IsCancellationRequested with
                                 | true
