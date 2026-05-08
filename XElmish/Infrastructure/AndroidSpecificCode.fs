@@ -224,7 +224,7 @@ module WakeLockHelper = //pouze pro Android API 33 a Android API 34
                     when lock.IsHeld // WakeLock is already held, no need to acquire it again
                     -> ()
                 | _ -> lock.Acquire() // Acquire the WakeLock if not already held
-           )     
+        )     
        
     let internal releaseWakeLock (lock : PowerManager.WakeLock) =  
 
@@ -235,7 +235,7 @@ module WakeLockHelper = //pouze pro Android API 33 a Android API 34
                     when lock.IsHeld 
                     -> lock.Release()
                 | _ -> ()
-           )
+        )
 
 module KeepScreenOnManager =
 
@@ -250,7 +250,7 @@ module KeepScreenOnManager =
 
                         return activity.Window.AddFlags(WindowManagerFlags.KeepScreenOn)        
                     }    
-           )
+        )
 
 module AndroidUIHelpers =
 
@@ -311,7 +311,7 @@ module AndroidUIHelpers =
                     -> 
                     runIO <| postToLog2 (string ex.Message) "#0002Android"
                     None  
-           )
+        )
     
     //Not used yet
     let internal sendAppToBackground () =
@@ -336,7 +336,7 @@ module AndroidUIHelpers =
                     ->
                     runIO <| postToLog2 (string ex.Message) "#0003Android"
                     None    
-           )
+        )
     
     //Tato funkce je pouzivana misto Xamarin.Essentials.AppInfo.ShowSettingsUI() quli moznosti Android 11+ pro "Manage all files" 
     let internal openAppSettings () =
