@@ -123,11 +123,11 @@ module DownloadServiceController =
                         () // Android 10- (excl.)
         )
 
-// Pro Google Play, zatim jen pro testovaci ucely 
+// Pro Google Play, v teto verzi zatim nepouzivano
 module PdfExport =
 
     let private getFiles sourceDir =
-
+    
         try
             match not (Directory.Exists sourceDir) with
             | true 
@@ -136,83 +136,190 @@ module PdfExport =
             | false
                 ->
                 let files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories)
-
+    
                 match files with
                 | null | [||] -> None
                 | arr         -> Some arr
         with
         | _ -> None
 
-    let private writeFileToMediaStore (resolver : ContentResolver) (rootName : string) (baseDir : string) (filePath : string) : bool =
+    let private deleteExistingInDownloads (resolver : ContentResolver) (mediaRelativePath : string) (fileName : string) : unit =
 
+        let collection = 
+            MediaStore.Downloads.GetContentUri(MediaStore.VolumeExternalPrimary)
+        let selection =
+            sprintf "%s = ? AND %s = ?" 
+                <| MediaStore.IMediaColumns.DisplayName
+                <| MediaStore.IMediaColumns.RelativePath
+        let selectionArgs = [| fileName; mediaRelativePath |]
+        resolver.Delete(collection, selection, selectionArgs) |> ignore
+
+    let private writeFileToMediaStore (resolver : ContentResolver) (baseDir : string) (filePath : string) : Async<unit option> =
+        
         try
             let fileName = Path.GetFileName filePath
 
-            let relativeDir =
+            let relativePath =
                 Path.GetDirectoryName filePath
-                |> fun dir
-                    ->
-                    match dir |> Option.ofNullEmptySpace with
-                    | None     -> String.Empty
-                    | Some dir -> Path.GetRelativePath(baseDir, dir).Replace("\\", "/")
+                |> Option.ofNullEmptySpace
+                |> Option.map 
+                    (fun dir 
+                        ->
+                        Path.GetRelativePath(baseDir, dir).Replace("\\", "/")
+                    )
+                |> Option.filter (fun p -> p <> ".")
+                |> Option.defaultValue String.Empty
+
+            let mediaRelativePath =
+                match relativePath with
+                | s 
+                    when s = String.Empty
+                    -> @"Download/"
+                | p -> sprintf "Download/%s/" p
+
+            deleteExistingInDownloads resolver mediaRelativePath fileName
 
             let values = new ContentValues()
-
+            
             values.Put(MediaStore.IMediaColumns.DisplayName, fileName)
             values.Put(MediaStore.IMediaColumns.MimeType, "application/pdf")
+            values.Put(MediaStore.IMediaColumns.RelativePath, mediaRelativePath)
+            
+            let collection =
+                MediaStore.Downloads.GetContentUri(MediaStore.VolumeExternalPrimary)
 
-            values.Put(
-                MediaStore.IMediaColumns.RelativePath,
-                sprintf "Download/%s/%s" rootName relativeDir  
-            )
-
-            let collection = MediaStore.Downloads.GetContentUri(MediaStore.VolumeExternalPrimary)
-
-            option
+            asyncOption 
                 {
-                    let! uri = 
-                        resolver.Insert(collection, values) 
-                        |> Option.ofNull'
-                    let! stream =
-                        resolver.OpenOutputStream uri 
-                        |> Option.ofNull'
-
+                    let! uri = resolver.Insert(collection, values) |> Option.ofNull'
+                    let! stream = resolver.OpenOutputStream uri |> Option.ofNull'
                     use stream = stream
                     use input = File.OpenRead filePath
-                    input.CopyTo stream
-                    stream.Flush()
-
-                    return true
+                    do! input.CopyToAsync stream |> Async.AwaitTask
+                    do! stream.FlushAsync()      |> Async.AwaitTask
+                    return ()
                 }
-            |> Option.defaultValue false
-
+          
         with
-        | _ -> false
-     
-    let internal exportPdf (rootName : string) (sourceDir : string) : IO<Async<unit option>> =
+        | _ -> async { return None }
+
+    let internal exportPdf (token : CancellationToken) (baseDir : string) (sourceDir : string) reportProgress: IO<Async<unit option>> =
 
         IO (fun ()
                 ->
+                let checkCancel (token : CancellationToken) =
+                    token.ThrowIfCancellationRequested()
+                    ()
+                       
                 asyncOption 
                     {
-                        try
-                            let baseDir = Directory.GetParent(sourceDir).FullName    
-                            let! (ctx : Context) = Application.Context |> Option.ofNull' 
+                        try   
+                            let! (ctx : Context) = Application.Context |> Option.ofNull'
                             let! resolver = ctx.ContentResolver |> Option.ofNull'
                             let! files = getFiles sourceDir
-                            
-                            let failures =
+                            //let counterAndProgressBar = counterAndProgressBar files.Length token checkCancel reportProgress
+                               
+                            let! results =
                                 files
-                                |> Array.filter 
-                                    (fun file 
+                                |> Array.map
+                                    (fun file
                                         ->
-                                        not (writeFileToMediaStore resolver rootName baseDir file)
+                                        async
+                                            {
+                                                let! result = writeFileToMediaStore resolver baseDir file
+                                                //counterAndProgressBar.Post <| Inc 1
+                                                return result
+                                            }
                                     )
-                            return! Array.isEmpty failures |> Option.ofBool     
+                                |> Async.Sequential //runs each file write one after another but yields the thread between files — safe for MediaStore, no blocking
+                                // Async.Parallel is intentionally avoided because of certain risks related to how MediaStore works, and also MediaStore itself is designed to support concurrent access 
+                           
+                            let failures = results |> Array.filter (fun r -> r.IsNone)
+
+                            //counterAndProgressBar.PostAndReply(fun reply -> StopAndReply reply) 
+                               
+                            return! Array.isEmpty failures |> Option.ofBool
                         with
                         | _ -> return! None                                            
                     }
-         )
+           )
+
+// Zatim nepouzivano
+module PdfExportZip =
+ 
+    let private getFiles sourceDir =
+        
+        try
+            match not (Directory.Exists sourceDir) with
+            | true 
+                ->
+                None
+            | false
+                ->
+                let files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories)
+        
+                match files with
+                | null | [||] -> None
+                | arr         -> Some arr
+        with
+        | _ -> None
+
+    let private createMediaStoreUri (context : Context) (fileName : string) =
+
+        try
+            let resolver = context.ContentResolver
+            let values = new ContentValues()
+
+            values.Put(MediaStore.IMediaColumns.DisplayName, fileName)
+            values.Put(MediaStore.IMediaColumns.MimeType, "application/zip")
+            values.Put(MediaStore.IMediaColumns.RelativePath, "Download/JR_ODIS")
+
+            let collection =
+                MediaStore.Downloads.GetContentUri(MediaStore.VolumeExternalPrimary)
+
+            match resolver.Insert(collection, values) with
+            | null -> None
+            | uri  -> Some (resolver, uri)
+
+        with
+        | _ -> None
+
+    let internal exportPdfZip (sourceDir: string) : IO<unit> =
+
+        IO (fun () 
+                ->
+                option
+                    {
+                        let! (ctx : Context) = Application.Context |> Option.ofNull'
+                        let! files = getFiles sourceDir
+                        let! (resolver : ContentResolver, uri : Android.Net.Uri) = createMediaStoreUri ctx "JR_ODIS_export.zip"
+                        let! (stream : Stream) = resolver.OpenOutputStream uri |> Option.ofNull'
+                        
+                        use stream = stream
+                        use (zip : ZipArchive) = new ZipArchive(stream, ZipArchiveMode.Create, false)
+                        
+                        files
+                        |> Array.iter
+                            (fun (file : string)
+                                ->
+                                let relative =
+                                    Path.GetRelativePath(sourceDir, file)
+                                    |> fun p -> p.Replace("\\", "/")
+
+                                option
+                                    {
+                                        let! (entry : ZipArchiveEntry) = 
+                                            zip.CreateEntry(relative, CompressionLevel.Optimal) |> Option.ofNull'
+                                        use (entryStream : Stream) = entry.Open()
+                                        use (fileStream  : FileStream) = File.OpenRead file
+                                        fileStream.CopyTo entryStream
+                                        return ()
+                                    }
+                                |> ignore<unit option>
+                            )
+                        return ()
+                    }
+                |> ignore<unit option>
+        )       
        
 module WakeLockHelper = //pouze pro Android API 33 a Android API 34
 

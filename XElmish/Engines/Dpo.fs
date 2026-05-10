@@ -72,11 +72,6 @@ let internal executeFilter dispatch (token : CancellationToken) =
                                                 )
                                         }
 
-                                //#if ANDROID
-                                //let! r = runIO <| PdfExport.exportPdf "JR_DPO" (dpoPathTemp ()) 
-                                //r |> ignore<unit option>    
-                                //#endif   
-
                                 match token2.IsCancellationRequested with
                                 | true
                                     -> 
