@@ -67,11 +67,7 @@ let internal executeMdpo dispatch (token : CancellationToken) =
                                                         <| mdpoPathTemp ()
                                                     )
                                         }
-
-                                //#if ANDROID
-                                //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS_Extra" (kodisPathTemp4 ()) FileDownloadError //TODO zmenit Error case
-                                //#endif  
-
+                                
                                 match token2.IsCancellationRequested with
                                 | true 
                                     ->

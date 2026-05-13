@@ -197,7 +197,7 @@ module Messages =
         
         Autor:
         Miroslav Husťák (hustak.somee.com)
-        Kódováno s radostí v F# (fsharp.org) a Fabulous (fabulous.dev). K datu 08-05-2026 testováno pro OS Android 7.1, 11 a 12.
+        Kódováno s radostí v F# (fsharp.org) a Fabulous (fabulous.dev). K datu 10-05-2026 testováno pro OS Android 7.1, 11 a 12.
         
         Zdrojový kód: 
         https://github.com/MiroslavHustak

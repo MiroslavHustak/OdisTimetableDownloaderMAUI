@@ -126,14 +126,8 @@ let internal executePdf dispatch (token : CancellationToken) =
                                                     <| fun msg -> IterationMsg >> dispatch <| msg
                                                     <| reportProgress
                                                 |> runIO
-                                        }
-                                 
-                                //#if ANDROID
-                                //let! r = runIO <| PdfExport.exportPdf "JR_ODIS" (kodisPathTemp ()) 
-                                //r |> ignore<unit option>                                
-                                //let! _ = runIO <| PdfExport.exportPdf "JR_ODIS_zaloha" (oldTimetablesPath ()) FileDownloadError  //TODO  zmenit Error case                               
-                                //#endif
-
+                                        }                                 
+                               
                                 match token2.IsCancellationRequested with
                                 | true  -> return dispatch NavigateHome
                                 | false -> return Completed >> dispatch <| result
