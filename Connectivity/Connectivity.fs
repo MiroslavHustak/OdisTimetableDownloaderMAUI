@@ -50,7 +50,7 @@ module PingTest =
             ->
             match pingHost host with
             | Some _ -> Some host     
-            | None -> tryPingHosts remainingHosts   
+            | None   -> tryPingHosts remainingHosts   
 
     let internal pingConnectionChecker () =
     
@@ -70,17 +70,8 @@ module ConnectivityWithDebouncing =
     open PingTest
     #endif
 
-    #if ANDROID
-    let internal networkError() =       
-        pyramidOfInferno 
-            {
-                let! _ = testRealInternetConnectivity (), (fun _ -> "No internet connection A") 
-                let!__ = PingTest.pingConnectionChecker () |> Result.fromOption, (fun _ -> "No internet connection P") 
-                return String.Empty
-            }
-    #endif 
-
     let internal isNowConnected () = 
+
         #if ANDROID                    
             optionBool
                 {
@@ -154,12 +145,12 @@ module ConnectivityWithDebouncing =
                             ->
                             try  
                                 #if ANDROID
-                                let isConnected = 
+                                let isConnected =  
                                     optionBool
                                         {
-                                            let! _ = testRealInternetConnectivity () |> Result.toBool 
-                                            let! _ = pingConnectionChecker () |> Option.toBool                                                                                      
-                                            return! (=) args.NetworkAccess NetworkAccess.Internet  
+                                            let! _ = (=) args.NetworkAccess NetworkAccess.Internet
+                                            let! _ = testRealInternetConnectivity () |> Result.toBool                                                                                       
+                                            return! pingConnectionChecker () |> Option.toBool  
                                         }
                                 monitorActor.Post (StateChanged isConnected)
 

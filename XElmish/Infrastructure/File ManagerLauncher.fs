@@ -6,7 +6,7 @@ open Android.Provider
 
 open Types.Haskell_IO_Monad_Simulation
 
-module FileLauncher =
+module FileManagerLauncher =
       
     let internal openStorageRoot (context : Context) fabulousTimetablesFolder =
         

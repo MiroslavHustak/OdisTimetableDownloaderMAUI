@@ -849,3 +849,13 @@ module Counters =
                 //Async.StartImmediate (loop waitingForNetConn) //Async.StartImmediate -> common cause of ANRs (Application Not Responding) on Android.
                 Async.Start (umSecondsToInt32 >> loop <| waitingForNetConn) 
         )
+
+ #if ANDROID
+    let internal networkError() =       
+        pyramidOfInferno 
+            {
+                let! _ = testRealInternetConnectivity (), (fun _ -> "No internet connection A") 
+                let!__ = PingTest.pingConnectionChecker () |> Result.fromOption, (fun _ -> "No internet connection P") 
+                return String.Empty
+            }
+    #endif 

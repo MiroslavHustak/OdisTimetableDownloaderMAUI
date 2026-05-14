@@ -531,7 +531,7 @@ module App =
                             ->
                             try
                                 runIO 
-                                <| FileLauncher.openStorageRoot Platform.AppContext fabulousTimetablesFolder
+                                <| FileManagerLauncher.openStorageRoot Platform.AppContext fabulousTimetablesFolder
                             with 
                             | _ -> dispatch (ErrorScreen >> SetScreen <| androidFolderAccessError)
                         )

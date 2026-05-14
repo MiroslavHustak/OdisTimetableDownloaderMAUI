@@ -93,7 +93,6 @@ module ParseJsonData =
                                                                         let! data = sample.Data |> Option.ofNull'                                                             
                                                                         return 
                                                                             data
-                                                                            |> Array.filter (not << isNull)
                                                                             |> Array.Parallel.map 
                                                                                 (fun (item : JsonProvider2.Datum) -> item.Timetable)
                                                                     }
@@ -106,7 +105,6 @@ module ParseJsonData =
                                                                         let! data = sample.Data |> Option.ofNull'                                                             
                                                                         return 
                                                                             data
-                                                                            |> Array.filter (not << isNull)
                                                                             |> Array.Parallel.map 
                                                                                 (fun (item : JsonProvider2.Datum) -> item.Vyluky)
                                                                             |> Array.concat
@@ -119,7 +117,6 @@ module ParseJsonData =
                                                                         let! arr = vyluky |> Option.ofNull'                                                             
                                                                         return
                                                                             arr
-                                                                            |> Array.filter (not << isNull)
                                                                             |> Array.collect (fun (item : JsonProvider2.Vyluky) -> item.Attachments)
                                                                             |> Array.choose (fun item -> item.Url |> Option.ofNullEmptySpace)
                                                                     }

@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+        <Nullable>annotations</Nullable>
+	<Nullable>disable</Nullable>
 	<PublishReadyToRun>false</PublishReadyToRun>  
 	<!-- ^(?!\s*$)(?!\s*//)(?!\s*\(\*) -->  
 	<TargetFrameworks>net8.0-android</TargetFrameworks>
@@ -159,7 +161,7 @@
     <Compile Include="ApplicationDesign_R\MDPO_R.fs" />
     <Compile Include="ApplicationDesign_R\KodisCanopy\KODIS_Record4_R.fs" />
     <Compile Include="ApplicationDesign_R\KodisJsonTP\KODIS_Record_R.fs" />
-    <Compile Include="XElmish\Infrastructure\ResultDirectoryLauncher.fs" />
+    <Compile Include="XElmish\Infrastructure\File ManagerLauncher.fs" />
     <Compile Include="XElmish\Infrastructure\ComparisonResultFileLauncher.fs" />
     <Compile Include="XElmish\Infrastructure\HardRestart.fs" />
     <Compile Include="XElmish\Infrastructure\AndroidSpecificCode.fs" />

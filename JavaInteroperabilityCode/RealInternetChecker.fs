@@ -76,8 +76,8 @@ module RealInternetChecker =
                 let status = 
                     { 
                         HasRealInternet = hasRealInternet
-                        IsCaptivePortalSuspected = isCaptivePortalSuspected
-                        ConnectivityChanged = connectivityChanged.Publish
+                        IsCaptivePortalSuspected = isCaptivePortalSuspected //zatim nepouzito
+                        ConnectivityChanged = connectivityChanged.Publish //zatim nepouzito
                     } 
 
                 let disposable =
@@ -92,6 +92,6 @@ module RealInternetChecker =
 
                 disposable.Dispose() //move to an appropriate place when using the full code currently stored in the Connectivity module
 
-                return status //record fields not needed for the time being
+                return status.HasRealInternet //the other two record fields not needed for the time being
             }
 #endif
