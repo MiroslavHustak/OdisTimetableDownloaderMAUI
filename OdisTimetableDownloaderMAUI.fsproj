@@ -145,8 +145,8 @@
     <Compile Include="Logging\Logging.fs" />
     <Compile Include="ExceptionHandling\ExceptionHandlers.fs" />
     <Compile Include="BusinessLogic\DataManipulation\PureFunctions\SortRecordData.fs" />
-    <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\ParseJsonData.fs" />
-    <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\FilterTimetableLinks.fs" />
+    <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\JsonDataParser.fs" />
+    <Compile Include="BusinessLogic\DataManipulation\ImpureFunctions\TimetableLinksParser.fs" />
     <Compile Include="BusinessLogic\IO_Operations\PureHelpers\CreatePathsAndNames.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\FutureValidityRestApi.fs" />
     <Compile Include="BusinessLogic\IO_Operations\ImpureFunctions\IO_Operations.fs" />

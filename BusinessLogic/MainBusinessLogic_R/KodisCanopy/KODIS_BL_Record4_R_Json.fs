@@ -20,7 +20,7 @@ open Api.Logging
 open Api.FutureValidityRestApi 
 
 open Settings.SettingsGeneral
-open Filtering.FilterTimetableLinks
+open TimetableLinksParsing.TimetableLinksParser
 
 module KODIS_BL_Record4_Json =   
 
@@ -49,7 +49,7 @@ module KODIS_BL_Record4_Json =
                 match! runIO <| getFutureLinksFromRestApi token urlApi with
                 | Ok value  
                     -> 
-                    return runIO <| filterTimetableLinks variant dir (Ok value)
+                    return runIO <| parseTimetableLinks variant dir (Ok value)
                 | Error err 
                     -> 
                     token.ThrowIfCancellationRequested()
@@ -69,7 +69,7 @@ module KODIS_BL_Record4_Json =
                     match! runIO <| getFutureLinksFromRestApi token urlJson with
                     | Ok value  
                         -> 
-                        return runIO <| filterTimetableLinks variant dir (Ok value)
+                        return runIO <| parseTimetableLinks variant dir (Ok value)
                     | Error err
                         -> 
                         runIO (postToLog2 <| string err <| "#0003-K4BL")

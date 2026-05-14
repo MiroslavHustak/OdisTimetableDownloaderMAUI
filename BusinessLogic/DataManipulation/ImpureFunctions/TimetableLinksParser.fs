@@ -1,4 +1,4 @@
-﻿namespace Filtering
+﻿namespace TimetableLinksParsing
 
 open System
 open System.Text.RegularExpressions
@@ -23,9 +23,9 @@ open Settings.SettingsGeneral
 open Api.Logging
 open DataModelling.DataModel
 
-module FilterTimetableLinks =      
+module TimetableLinksParser =      
    
-    let internal filterTimetableLinks param (pathToDir : string) (parsedLinksResult : Result<string list, ParsingAndDownloadingErrors>) = 
+    let internal parseTimetableLinks param (pathToDir : string) (parsedLinksResult : Result<string list, ParsingAndDownloadingErrors>) = 
 
         IO (fun () //mozna overkill - je to quli Regexu, u ktereho je impurity nejednoznacna, zbytek je dle mne pragmatically pure
                 ->      
@@ -42,13 +42,13 @@ module FilterTimetableLinks =
                     with 
                     | ex
                         -> 
-                        runIO (postToLog2 <| string ex.Message <| "#0001-FilterTimetables")
+                        runIO (postToLog2 <| string ex.Message <| "#0001-ParsingTimetables")
                         Error <| string ex.Message        
                   
                     |> Result.defaultWith
                         (fun err 
                             -> 
-                            runIO (postToLog2 <| string err <| "#0002-FilterTimetables")
+                            runIO (postToLog2 <| string err <| "#0002-ParsingTimetables")
                             String.Empty
                         )
         
@@ -62,13 +62,13 @@ module FilterTimetableLinks =
                     with 
                     | ex
                         -> 
-                        runIO (postToLog2 <| string ex.Message <| "#0003-FilterTimetables")
+                        runIO (postToLog2 <| string ex.Message <| "#0003-ParsingTimetables")
                         Error <| string ex.Message                    
 
                     |> Result.defaultWith
                         (fun err 
                             -> 
-                            runIO (postToLog2 <| string err <| "#0004-FilterTimetables")
+                            runIO (postToLog2 <| string err <| "#0004-ParsingTimetables")
                             String.Empty
                         )
 
@@ -157,13 +157,13 @@ module FilterTimetableLinks =
                         with 
                         | ex 
                             -> 
-                            runIO (postToLog2 <| string ex.Message <| "#0005-FilterTimetables")
+                            runIO (postToLog2 <| string ex.Message <| "#0005-ParsingTimetables")
                             Error <| string ex.Message
                      
                         |> Result.defaultWith
                             (fun err 
                                 -> 
-                                runIO (postToLog2 <| err <| "#0006-FilterTimetables")
+                                runIO (postToLog2 <| err <| "#0006-ParsingTimetables")
                                 String.Empty
                             )
 
@@ -178,13 +178,13 @@ module FilterTimetableLinks =
                         with 
                         | ex 
                             ->
-                            runIO (postToLog2 <| string ex.Message <| "#0007-FilterTimetables")
+                            runIO (postToLog2 <| string ex.Message <| "#0007-ParsingTimetables")
                             Error <| string ex.Message     
                          
                         |> Result.defaultWith
                             (fun err 
                                 -> 
-                                runIO (postToLog2 <| err <| "#0008-FilterTimetables")
+                                runIO (postToLog2 <| err <| "#0008-ParsingTimetables")
                                 String.Empty
                             )
         
@@ -284,7 +284,7 @@ module FilterTimetableLinks =
                     }
      
                 //**********************Filtering********************************************************
-                let dataToBeFiltered : Result<RcData list, ParsingAndDownloadingErrors> = 
+                let dataToBeParsed : Result<RcData list, ParsingAndDownloadingErrors> = 
 
                     parsedLinksResult   
                     |> Result.map
@@ -365,7 +365,7 @@ module FilterTimetableLinks =
                             link, path 
                         ) 
         
-                dataToBeFiltered
+                dataToBeParsed
                 |> Result.map
                     (fun data
                         ->

@@ -26,8 +26,8 @@ open IO_Operations.IO_Operations
 open IO_Operations.CreatingPathsAndNames
 
 open Api.Logging
-open JsonData.ParseJsonData  
-open Filtering.FilterTimetableLinks  
+open JsonDataParsing.JsonDataParser  
+open TimetableLinksParsing.TimetableLinksParser  
 
 open Settings.Messages
 open Settings.SettingsKODIS
@@ -167,7 +167,7 @@ module WebScraping_KODIS =
 
                     let list2 = 
                         try  
-                            runIO <| filterTimetableLinks context2.Variant dir lazyList //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
+                            runIO <| parseTimetableLinks context2.Variant dir lazyList //lazyList.Value vraci Result<string list, PdfDownloadErrors>                                       
                         with
                         | ex
                             ->

@@ -1,4 +1,4 @@
-﻿namespace JsonData
+﻿namespace JsonDataParsing
 
 open System.Threading
 //************************************************************
@@ -24,7 +24,7 @@ open Helpers.ProgressValues
 open Helpers.ExceptionHelpers
 
 // Zkusebne jsem prestal pouzivat kodisTimetables a kodisAttachments (viz full version) pro stary typ json souboru, zatim to vypada, ze se uz opravdu prestaly pouzivat
-module ParseJsonData =      
+module JsonDataParser =      
 
     let internal parseJsonStructure reportProgress (token : CancellationToken) = //prohrabeme se strukturou json souboru 
         
