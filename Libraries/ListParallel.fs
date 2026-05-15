@@ -144,7 +144,7 @@ let iter_CPU_AW (action : 'a -> unit) (list : 'a list) : unit =
     match list with
     | [] -> ()
     | _  ->
-        let maxDegree = Environment.ProcessorCount   // or numberOfThreads (List.length list)
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))   // or numberOfThreads (List.length list) 
 
         list
         |> Array.ofList
@@ -159,7 +159,7 @@ let iter_CPU_AW_Token (token : CancellationToken) (action : 'a -> unit) (list : 
     match list with
     | [] -> ()
     | _  ->
-        let maxDegree = Environment.ProcessorCount
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))
         
         list
         |> Array.ofList
@@ -183,7 +183,7 @@ let iter_CPU_AW_Async (action : 'a -> unit) (list : 'a list) : Async<unit> =
     | [] -> 
         async { return () }
     | _  ->
-        let maxDegree = Environment.ProcessorCount   // or numberOfThreads (List.length list)
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))   // or numberOfThreads (List.length list)
 
         list
         |> Array.ofList
@@ -197,7 +197,7 @@ let iter_CPU_AW_Token_Async (token : CancellationToken) (action : 'a -> unit) (l
     | [] ->
         async { return () }
     | _  ->
-        let maxDegree = Environment.ProcessorCount
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))
 
         let tasks =
             list
@@ -208,6 +208,7 @@ let iter_CPU_AW_Token_Async (token : CancellationToken) (action : 'a -> unit) (l
                     async
                         {
                             token.ThrowIfCancellationRequested ()
+                            do! Async.SwitchToThreadPool()
                             return action x
                         }
                 )
@@ -291,6 +292,7 @@ let iter_IO_AW_Token_Async (token : CancellationToken) (action : 'a -> unit) (li
                     async
                         {
                             token.ThrowIfCancellationRequested ()
+                            do! Async.SwitchToThreadPool() //Defensive coding, jen z vyukovych duvodu, Async.Parallel already uses ThreadPool internally, ale kdyby bylo treba prevent UI thread execution
                             return action item
                         }
                 )
@@ -329,7 +331,7 @@ let iter2_CPU_AW<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b 
         -> 
         ()
     | _ ->
-        let maxDegree = Environment.ProcessorCount  
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))
 
         List.zip xs1 xs2
         |> Array.ofList
@@ -360,7 +362,7 @@ let iter2_IO_AW<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 : 'b l
         |> Async.RunSynchronously
         ()
 
-let iter2_IO_AW_Token<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : unit =
+let iter2_IO_AW_Token<'a,'b,'c> (mapping :'a -> 'b -> Async<'c>) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : unit =
 
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -407,7 +409,7 @@ let iter2_IO_AW_Async<'a, 'b> (mapping : 'a -> 'b -> unit) (xs1 : 'a list) (xs2 
         |> fun tasks -> Async.Parallel(tasks, maxDegreeOfParallelism = maxDegreeOfParallelismAdapted)
         |> Async.Ignore<unit array> 
 
-let iter2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : Async<unit> =
+let iter2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a -> 'b -> Async<'c>) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : Async<unit> =
 
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -459,7 +461,7 @@ let map_CPU_AW (action : 'a -> 'b) (list : 'a list) : 'b list =
     | [] ->
         []
     | _  ->
-        let maxDegree = Environment.ProcessorCount
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))
 
         list
         |> Array.ofList
@@ -474,7 +476,7 @@ let map_CPU_AW_Async (action : 'a -> Async<'b>) (list : 'a list) : Async<'b list
     | [] ->
         async { return [] }
     | _  ->
-        let maxDegree = Environment.ProcessorCount
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))
 
         let tasks =
             list
@@ -492,7 +494,7 @@ let map_CPU_AW_Token (token : CancellationToken) (action : 'a -> 'b) (list : 'a 
     match list with
     | [] -> []
     | _  ->
-        let maxDegree = Environment.ProcessorCount   // or reuse numberOfThreads (List.length list)
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))   // or reuse numberOfThreads (List.length list)
 
         list
         |> Array.ofList
@@ -502,6 +504,7 @@ let map_CPU_AW_Token (token : CancellationToken) (action : 'a -> 'b) (list : 'a 
                 async 
                     {
                         token.ThrowIfCancellationRequested ()
+                        do! Async.SwitchToThreadPool() //Defensive coding, jen z vyukovych duvodu, Async.Parallel already uses ThreadPool internally, ale kdyby bylo treba prevent UI thread execution
                         return action x
                     }
             )  
@@ -515,7 +518,7 @@ let map_CPU_AW_Token_Async (token : CancellationToken) (action : 'a -> Async<'b>
     | [] ->  
         async { return [] }
     | _  ->
-        let maxDegree = Environment.ProcessorCount   // or reuse numberOfThreads (List.length list)       
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))   // or reuse numberOfThreads (List.length list)       
 
         let tasks = 
             list
@@ -526,6 +529,7 @@ let map_CPU_AW_Token_Async (token : CancellationToken) (action : 'a -> Async<'b>
                     async 
                         {
                             token.ThrowIfCancellationRequested ()
+                            do! Async.SwitchToThreadPool() //Defensive coding, jen z vyukovych duvodu, Async.Parallel already uses ThreadPool internally, ale kdyby bylo treba prevent UI thread executi
                             return! action item
                         }
                 )   
@@ -651,7 +655,7 @@ let map2_CPU2_AW<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (xs2 : '
         ->
         []
     | _ ->
-        let maxDegree = Environment.ProcessorCount   
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))  
 
         List.zip xs1 xs2
         |> Array.ofList
@@ -671,7 +675,7 @@ let map2_CPU2_AW_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : Cancellat
         ->
         []
     | _ ->
-        let maxDegree = Environment.ProcessorCount   
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))  
 
         List.zip xs1 xs2
         |> Array.ofList
@@ -698,7 +702,7 @@ let map2_CPU2_AW_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (xs1 : 'a list) (x
         ->
         async { return [] }
     | _ ->
-        let maxDegree = Environment.ProcessorCount   
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))  
 
         let tasks = 
             List.zip xs1 xs2
@@ -722,8 +726,8 @@ let map2_CPU2_AW_Token_Async<'a, 'b, 'c> (mapping : 'a -> 'b -> Async<'c>) (toke
         ->
         async { return [] }
 
-    | _ ->
-        let maxDegree = Environment.ProcessorCount   
+    | _ ->        
+        let maxDegree = System.Math.Max(1, (Environment.ProcessorCount - 1))
 
         let tasks = 
             List.zip xs1 xs2
@@ -791,7 +795,7 @@ let internal map2_IO_AW_Token<'a, 'b, 'c> (mapping : 'a -> 'b -> 'c) (token : Ca
         |> fun a -> Async.RunSynchronously(a, cancellationToken = token)
         |> List.ofArray     
         
-let map2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : CancellationToken) (xs1 :'a list) (xs2 :'b list) : Async<'c list> =
+let map2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a -> 'b -> Async<'c>) (token : CancellationToken) (xs1 : 'a list) (xs2 : 'b list) : Async<'c list> =
 
     let xs1Length = List.length xs1
     let xs2Length = List.length xs2
@@ -813,6 +817,7 @@ let map2_IO_AW_Token_Async<'a,'b,'c> (mapping :'a->'b-> Async<'c>) (token : Canc
                     async 
                         {
                             token.ThrowIfCancellationRequested ()
+                            do! Async.SwitchToThreadPool() //Defensive coding, jen z vyukovych duvodu, Async.Parallel already uses ThreadPool internally, ale kdyby bylo treba prevent UI thread execution
                             return! mapping x y
                         }
                 )        
