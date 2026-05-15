@@ -83,40 +83,32 @@ module TimetableLinksParser =
 
                     | true
                         ->
-                        let startIdx = prefix.Length
-                            in
-                            let restOfString = input.Substring startIdx
-                                in
-                                match restOfString.IndexOf '_' with
-                                | -1 -> (None, 0)
-
-                                | idx 
-                                    when
-                                        idx > 0 
-                                            ->
-                                            let result = restOfString.Substring(0, idx)
-                                            (Some result, result.Length)
-
-                                | _ -> (None, 0)
+                        let startIdx = prefix.Length                            
+                        let restOfString = input.Substring startIdx
+                               
+                        match restOfString.IndexOf '_' with
+                        | -1 -> (None, 0)
+                        | idx 
+                            when idx > 0 
+                            ->
+                            let result = restOfString.Substring(0, idx)
+                            (Some result, result.Length)
+                        | _ -> (None, 0)
 
                 //zamerne nepouzivam jednotny kod pro NAD (extractSubstring2) a X - pro pripad, ze KODIS zase neco zmeni
                 let extractSubstring3 (input: string) : (string option * int) =
 
                     match input with            
                     | _ 
-                        when 
-                            input.[0] = 'X'
-                                ->
-                                match input.IndexOf '_' with
-                                | index 
-                                    when 
-                                        index > 1
-                                            -> 
-                                            let result = input.Substring(1, index - 1)
-                                                in
-                                                (Some result, result.Length)
-
-                                | _ -> (None, 0)
+                        when input.[0] = 'X'
+                        ->
+                        match input.IndexOf '_' with
+                        | index 
+                            when index > 1
+                            -> 
+                            let result = input.Substring(1, index - 1)
+                            (Some result, result.Length)
+                        | _ -> (None, 0)
 
                     | _ -> (None, 0)       
 
@@ -231,8 +223,7 @@ module TimetableLinksParser =
                                 | (Some value, length)
                                     when length <= lineNumberLength 
                                     -> sprintf "NAD%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
-                                | _                                 
-                                    -> oldPrefix        
+                                | _ -> oldPrefix        
                                     
                             oldPrefix.Replace(oldPrefix, newPrefix) 
                     
@@ -243,8 +234,7 @@ module TimetableLinksParser =
                                 | (Some value, length)
                                     when length <= lineNumberLength 
                                     -> sprintf "X%s%s_" <| createStringSeqFold(lineNumberLength - length, "0") <| value
-                                | _                               
-                                    -> oldPrefix
+                                | _ -> oldPrefix
                                     
                             oldPrefix.Replace(oldPrefix, newPrefix)
 
