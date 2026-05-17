@@ -55,6 +55,8 @@ open ScreenHelpers
 
 open Api.Logging
 open IO_Operations.IO_Operations
+
+open Helpers
 open Helpers.ConnectivityWithDebouncing
 
 #if ANDROID
@@ -342,16 +344,26 @@ module App =
             let cmd =
                 Cmd.ofAsyncMsg
                     (
-                        async
+                        asyncOption 
                             {
-                                let! _ = 
-                                    Application.Current.MainPage.DisplayAlert(
-                                        "O aplikaci", 
-                                        popUpWindowText, 
-                                        "Zavřít")
+                                do! Async.Sleep 200
+                                let! app = Application.Current |> Option.ofNull'
+                                let! page = app.MainPage |> Option.ofNull'
+                                do!
+                                    MainThread.InvokeOnMainThreadAsync(
+                                        fun ()
+                                            ->
+                                            page.DisplayAlert(
+                                                "O aplikaci", 
+                                                popUpWindowText, 
+                                                "Zavřít"
+                                            )
+                                    )
                                     |> Async.AwaitTask
+                        
                                 return Dummy
                             }
+                        |> AsyncOption.defaultValue Dummy  
                     )
             m, cmd
 
@@ -360,16 +372,26 @@ module App =
             let cmd =
                 Cmd.ofAsyncMsg
                     (
-                        async
+                        asyncOption 
                             {
-                                let! _ = 
-                                    Application.Current.MainPage.DisplayAlert(
-                                        "Jak používat aplikaci", 
-                                        popUpWindow2Text, 
-                                        "Zavřít")
+                                do! Async.Sleep 200
+                                let! app = Application.Current |> Option.ofNull'
+                                let! page = app.MainPage |> Option.ofNull'
+                                do!
+                                    MainThread.InvokeOnMainThreadAsync(
+                                        fun ()
+                                            ->
+                                            page.DisplayAlert(
+                                                "Jak používat aplikaci", 
+                                                popUpWindow2Text, 
+                                                "Zavřít"
+                                            )
+                                    )
                                     |> Async.AwaitTask
+                           
                                 return Dummy
                             }
+                        |> AsyncOption.defaultValue Dummy
                     )
             m, cmd  
               
@@ -700,6 +722,7 @@ module App =
                             Status       = dispatchMsg2         
                             Connectivity = connectivity
                     }, cmd
+
                 | None 
                     ->
                     m, Cmd.none
@@ -729,8 +752,7 @@ module App =
                                                 <| filterResult   
                                         )
                                     |> Async.Start                                 
-                                )
-        
+                                )        
                         { m with Screen = Downloading (DpoDownload, Idle) }, cmd
         
                     | None 
@@ -794,8 +816,8 @@ module App =
                 | Downloading (KodisJsonTP, _)
                     ->   
                     kodisJsonActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Status = dispatchMsg2 }, StartDownload >> Cmd.ofMsg <| KodisPdfTP           
-               
+                    { m with Status = dispatchMsg2 }, StartDownload >> Cmd.ofMsg <| KodisPdfTP     
+
                 | Downloading (KodisPdfTP, _) 
                     ->    
                     #if ANDROID
@@ -839,7 +861,6 @@ module App =
                         | 0.0, 1.0 -> Idle 
                         | _        -> InProgress (c, t)
                     { m with Screen = Downloading (dt, ps) }, Cmd.none
-
                 | _ -> 
                     m, Cmd.none
                    
@@ -857,8 +878,7 @@ module App =
                 | Downloading (KodisCanopy4, _) 
                     ->  
                     kodisCanopyActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = String.Empty }, Cmd.none
-        
+                    { m with Screen = Completed result; Status = String.Empty }, Cmd.none        
                 | _ ->
                     m, Cmd.none
         
@@ -887,8 +907,7 @@ module App =
                     ->
                     dpoFilterActor.PostAndReply(fun reply -> StopLocal reply)        
                     { m with DpoFilterResult = Some result; Status = progressMsgDpo },
-                        Cmd.ofMsg (StartDownload DpoDownload)
-        
+                        Cmd.ofMsg (StartDownload DpoDownload)        
                 | _ 
                     -> 
                     m, Cmd.none     
@@ -904,7 +923,6 @@ module App =
                     ->
                     dpoDownloadActor.PostAndReply(fun reply -> StopLocal reply)
                     { m with Screen = Completed msg; Status = String.Empty }, Cmd.none  
-
                 | _ 
                     -> 
                     m, Cmd.none     
@@ -969,8 +987,7 @@ module App =
                 | Downloading (Mdpo, _) 
                     ->    
                     mdpoActor.PostAndReply(fun reply -> StopLocal reply)
-                    { m with Screen = Completed result; Status = progressMsgMdpo }, Cmd.none
-               
+                    { m with Screen = Completed result; Status = progressMsgMdpo }, Cmd.none               
                 | _ ->
                     m, Cmd.none
                
