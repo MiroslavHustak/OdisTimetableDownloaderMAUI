@@ -118,20 +118,13 @@ module DPO_BL =
                                             |> Seq.choose 
                                                 (fun htmlNode
                                                     ->
-                                                    htmlNode.TryGetAttribute "href" //inner text zatim nepotrebuji, cisla linek mam resena jinak  
-                                                    |> Option.bind
-                                                        (fun attr
-                                                            -> 
-                                                            option //moje paranoia na null nebo prazdne retezce
-                                                                {
-                                                                    let! nodes = htmlNode.InnerText () |> Option.ofNullEmptySpace
-                                                                    let nodes : string = nodes
-                                                                    let! attr = attr.Value () |> Option.ofNullEmptySpace
-                                                                    let attr : string = attr
-                                                               
-                                                                    return (nodes, attr)
-                                                                }                                                          
-                                                        )            
+                                                    option
+                                                        {
+                                                            let! (attr : HtmlAttribute) = htmlNode.TryGetAttribute "href"
+                                                            let! (nodes : string) = htmlNode.InnerText () |> Option.ofNullEmptySpace
+                                                            let! (attrVal : string) = attr.Value () |> Option.ofNullEmptySpace
+                                                            return (nodes, attrVal)
+                                                        }         
                                                 )  
                                             |> Seq.filter
                                                 (fun (_ , item2)
